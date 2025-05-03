@@ -1,3 +1,5 @@
-# API Template
+# Croissant API
 
-This is a basic template for creating an API via ts-project-maker.
+Official website: [https://croissant-api.fr](https://croissant-api.fr)
+
+This project provides a basic template for creating an API using ts-project-maker.
