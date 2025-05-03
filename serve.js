@@ -28,7 +28,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var path = __importStar(require("path"));
+var dotenv_1 = require("dotenv");
 var ProxyMiddleware_1 = __importDefault(require("./ProxyMiddleware"));
+(0, dotenv_1.config)(); // Load environment variables from .env file
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
 // Serve static files from the "build" directory

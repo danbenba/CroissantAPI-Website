@@ -1,6 +1,9 @@
 import express, { Express } from "express";
 import * as path from "path";
+import { config } from "dotenv";
 import createProxy from "./ProxyMiddleware";
+
+config(); // Load environment variables from .env file
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
