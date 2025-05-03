@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import path from "path";
+import * as path from "path";
 import createProxy from "./ProxyMiddleware";
 
 const app: Express = express();

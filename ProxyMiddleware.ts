@@ -1,5 +1,5 @@
-import http from 'http';
-import https from 'https';
+import * as http from 'http';
+import * as https from 'https';
 import { URL } from 'url';
 import { Request, Response, NextFunction } from 'express';
 
