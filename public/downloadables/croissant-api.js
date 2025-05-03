@@ -1,241 +1,299 @@
-const fetch = require('node-fetch');
-
-const croissantBaseUrl = 'https://croissant-api.fr';
-
-/**
- * Fetch items from the Croissant API.
- * 
- * @param {Object} [options] - Options for fetching items.
- * @param {string|null} [options.itemId=null] - The ID of the specific item to fetch. If not provided, all items will be fetched.
- * @returns {Promise<Object|Array>} - A promise that resolves to a list of items if itemId is null, otherwise a single item object.
- * @throws {Error} - Throws an error if the itemId is provided but not found or if the fetch fails.
- */
-async function getItems({ itemId = null } = {}) {
-    const resource = '/api/items';
-    const response = await fetch(`${croissantBaseUrl}${resource}`);
-    
-    if (!response.ok) {
-        throw new Error('Failed to fetch items');
-    }
-
-    const data = await response.json();
-
-    if (itemId) {
-        const item = data.find(item => item.id === itemId);
-        if (!item) {
-            throw new Error(`Item with id ${itemId} not found`);
-        }
-        return item;
-    }
-
-    return data;
-}
-
-/**
- * Purchase an item through the Croissant API.
- * 
- * @param {Object} options - Options for purchasing an item.
- * @param {string} options.itemId - The ID of the item to purchase.
- * @param {number} options.amount - The quantity of the item to purchase.
- * @param {string} options.token - The authentication token for the user.
- * @returns {Promise<Object>} - A promise that resolves to the response from the API after the purchase.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function buyItem({ itemId, amount, token }) {
-    const errors = [];
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-    if (errors.length > 0) {
-        throw new Error('Missing required parameters: ' + errors.join(', '));
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/buy`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ itemId, amount, token })
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-
-    if (!response.ok) {
-        throw new Error('Failed to buy item');
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-
-    return await response.json();
-}
-
-/**
- * Check if a user has a specific item.
- * 
- * @param {Object} options - Options for checking item ownership.
- * @param {string} options.userId - The ID of the user to check.
- * @param {string} options.itemId - The ID of the item to check.
- * @returns {Promise<Object>} - A promise that resolves to the response indicating item ownership.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function hasItem({ userId, itemId }) {
-    const errors = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (errors.length > 0) {
-        throw new Error('Missing required parameters: ' + errors.join(', '));
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/hasItem?userId=${userId}&itemId=${itemId}`);
-
-    if (!response.ok) {
-        throw new Error('Failed to check item ownership');
-    }
-
-    return await response.json();
-}
-
-/**
- * Fetch the inventory of a user.
- * 
- * @param {Object} options - Options for fetching inventory.
- * @param {string} options.userId - The ID of the user whose inventory is to be fetched.
- * @returns {Promise<Object>} - A promise that resolves to the user's inventory.
- * @throws {Error} - Throws an error if the userId is missing or if the fetch fails.
- */
-async function getInventory({ userId }) {
-    const errors = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (errors.length > 0) {
-        throw new Error('Missing required parameters: ' + errors.join(', '));
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/inventory?userId=${userId}`);
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch inventory');
-    }
-
-    return await response.json();
-}
-
-/**
- * Give an item to a user.
- * 
- * @param {Object} options - Options for giving an item.
- * @param {string} options.userId - The ID of the user to give the item to.
- * @param {string} options.itemId - The ID of the item to give.
- * @param {number} options.amount - The quantity of the item to give.
- * @param {string} options.token - The authentication token for the user.
- * @returns {Promise<Object>} - A promise that resolves to the response from the API after giving the item.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function giveItem({ userId, itemId, amount, token }) {
-    const errors = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/giveItem`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, itemId, amount, token })
+};
+exports.__esModule = true;
+exports.leaveLobby = exports.joinLobby = exports.createLobby = exports.getUserLobby = exports.getLobby = exports.deleteGame = exports.updateGame = exports.createGame = exports.getGame = exports.listGames = exports.getInventory = exports.getItems = exports.getUser = exports.createUser = void 0;
+var croissantBaseUrl = 'https://croissant-api.fr';
+// --- Fonctions utilisateurs ---
+function createUser(options) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/create"), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(options)
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
     });
-
-    if (!response.ok) {
-        throw new Error('Failed to give item');
-    }
-
-    return await response.json();
 }
-
-/**
- * Consume an item from a user's inventory.
- * 
- * @param {Object} options - Options for consuming an item.
- * @param {string} options.userId - The ID of the user consuming the item.
- * @param {string} options.itemId - The ID of the item to consume.
- * @param {number} options.amount - The quantity of the item to consume.
- * @param {string} options.token - The authentication token for the user.
- * @returns {Promise<Object>} - A promise that resolves to the response from the API after consuming the item.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function consumeItem({ userId, itemId, amount, token }) {
-    if (!userId || !itemId || !amount || !token) {
-        throw new Error('Missing required parameters: userId, itemId, amount, and token are required');
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/consumeItem`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, itemId, amount, token })
+exports.createUser = createUser;
+function getUser(userId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/").concat(userId))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
     });
-
-    if (!response.ok) {
-        throw new Error('Failed to consume item');
-    }
-
-    return await response.json();
 }
-
-/**
- * Open a bundle for a user.
- * 
- * @param {Object} options - Options for opening a bundle.
- * @param {string} options.userId - The ID of the user opening the bundle.
- * @param {string} options.bundleId - The ID of the bundle to open.
- * @param {number} options.amount - The quantity of the bundle to open.
- * @param {string} options.token - The authentication token for the user.
- * @returns {Promise<Object>} - A promise that resolves to the response from the API after opening the bundle.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function openBundle({ userId, bundleId, amount, token }) {
-    if (!userId || !bundleId || !amount || !token) {
-        throw new Error('Missing required parameters: userId, bundleId, amount, and token are required');
-    }
-
-    const response = await fetch(`${croissantBaseUrl}/api/openBundle`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, bundleId, amount, token })
+exports.getUser = getUser;
+// --- Fonctions items ---
+function getItems(options) {
+    if (options === void 0) { options = {}; }
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items").concat(options.itemId ? "/".concat(options.itemId) : ''))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        throw new Error('Failed to fetch items');
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
     });
-
-    if (!response.ok) {
-        throw new Error('Failed to open bundle');
-    }
-
-    return await response.json();
 }
-
-
-module.exports = {
-    getItems,
-    buyItem,
-    hasItem,
-    getInventory,
-    giveItem,
-    consumeItem
+exports.getItems = getItems;
+// --- Fonctions inventaire ---
+function getInventory(userId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/inventory/").concat(userId))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        throw new Error('Failed to fetch inventory');
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
 }
+exports.getInventory = getInventory;
+// --- Fonctions games ---
+function listGames() {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        throw new Error('Failed to fetch games');
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.listGames = listGames;
+function getGame(gameId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.getGame = getGame;
+function createGame(options, token) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': "Bearer ".concat(token)
+                        },
+                        body: JSON.stringify(options)
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.createGame = createGame;
+function updateGame(gameId, options) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(options)
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.updateGame = updateGame;
+function deleteGame(gameId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
+                        method: 'DELETE'
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.deleteGame = deleteGame;
+// --- Fonctions lobbies ---
+function getLobby(lobbyId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.getLobby = getLobby;
+function getUserLobby(userId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/user/").concat(userId))];
+                case 1:
+                    res = _a.sent();
+                    if (!res.ok)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.getUserLobby = getUserLobby;
+function createLobby(options) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies"), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(options)
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.createLobby = createLobby;
+function joinLobby(lobbyId, userId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/join"), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId })
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.joinLobby = joinLobby;
+function leaveLobby(lobbyId, userId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/leave"), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId })
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.leaveLobby = leaveLobby;

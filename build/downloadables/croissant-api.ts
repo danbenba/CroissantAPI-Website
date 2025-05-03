@@ -1,354 +1,226 @@
-import fetch from 'node-fetch';
-
 const croissantBaseUrl = 'https://croissant-api.fr';
 
-interface IFetchOptions {
-    itemId?: string | null;
-}
-
-interface IBuyOptions {
-    itemId: string;
-    amount: number;
-    token: string;
-}
-
-interface IItemOwnershipOptions {
+// --- Interfaces utilisateurs ---
+interface IUser {
     userId: string;
-    itemId: string;
+    username: string;
+    balance: number;
 }
 
-interface IInventoryOptions {
+interface IUserCreateOptions {
     userId: string;
+    username: string;
+    balance: number;
 }
 
-interface IGiveOptions {
-    userId: string;
-    itemId: string;
-    amount: number;
-    token: string;
+interface IUserResponse {
+    message: string;
+    error?: string;
 }
 
-interface IConsumeOptions {
-    userId: string;
-    itemId: string;
-    amount: number;
-    token: string;
+// --- Interfaces items ---
+interface IItem {
+    id: string;
+    name: string;
+    emoji?: string;
+    type?: string;
+    amount?: number;
 }
 
-interface IOpenBundleOptions {
-    userId: string;
-    bundleId: string;
-    amount: number;
-    token: string;
-}
-
-interface IInventoryResponse {
-    user: {
-        id: string;
-        name: string;
-    };
-    inventory: Array<{
-        type: string;
-        id: string;
-        name: string;
-        amount: number;
-    }>;
+interface IItemFetchOptions {
+    itemId?: string;
 }
 
 interface IItemResponse {
     id: string;
     name: string;
-    emoji: string;
+    emoji?: string;
 }
 
-interface IBuyResponse {
-    success: boolean;
-    message: string;
-    newBalance: number;
-}
-
-interface IHasItemResponse {
-    hasItem: boolean;
-    amount: number;
-    itemDetails: IItemResponse;
-}
-
+// --- Interfaces inventaire ---
 interface IInventoryResponse {
     user: {
         id: string;
         name: string;
     };
-    inventory: Array<{
-        type: string;
-        id: string;
-        name: string;
-        amount: number;
-    }>;
+    inventory: IItem[];
 }
 
-interface IGiveResponse {
-    success: boolean;
+// --- Interfaces games ---
+interface IGame {
+    id: number;
+    gameId: string;
+    name: string;
+    description: string;
+    price: number;
+    ownerId: string;
+    showInStore: boolean;
+}
+
+interface IGameCreateOptions {
+    name: string;
+    description: string;
+    price: number;
+    showInStore: boolean;
+}
+
+interface IGameUpdateOptions {
+    name?: string;
+    description?: string;
+    price?: number;
+    showInStore?: boolean;
+}
+
+interface IGameResponse {
     message: string;
-    amount: number;
+    error?: string;
 }
 
-interface IConsumeResponse {
-    success: boolean;
+// --- Interfaces lobbies ---
+interface ILobby {
+    id: number;
+    users: string[];
+}
+
+interface ILobbyCreateOptions {
+    users: string[];
+}
+
+interface ILobbyResponse {
     message: string;
-    amount: number;
+    error?: string;
 }
 
-interface IOpenBundleResponse {
-    success: boolean;
-    message: string;
-    amount: number;
+// --- Fonctions utilisateurs ---
+async function createUser(options: IUserCreateOptions): Promise<IUserResponse> {
+    const res = await fetch(`${croissantBaseUrl}/users/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+    });
+    return await res.json();
 }
 
-/**
- * Fetch items from the Croissant API.
- * 
- * @param {IFetchOptions} [options] - Options for fetching items.
- * @returns {Promise<IItemResponse[]|IItemResponse>} - A promise that resolves to a list of items if itemId is null, otherwise a single item object.
- * @throws {Error} - Throws an error if the itemId is provided but not found or if the fetch fails.
- */
-async function getItems({ itemId = null }: IFetchOptions = {}): Promise<IItemResponse[]|IItemResponse> {
-    const response = await fetch(`${croissantBaseUrl}/api/items`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error(`Failed to fetch items: ${res.status} ${res.statusText}`);
-            }
-            return res.json();
-        });
-
-    if (itemId) {
-        const item = response.find((item: { id: string }) => item.id === itemId);
-        if (!item) {
-            throw new Error(`Item with id ${itemId} not found in the response`);
-        }
-        return item;
-    }
-
-    return response;
+async function getUser(userId: string): Promise<IUser | null> {
+    const res = await fetch(`${croissantBaseUrl}/users/${userId}`);
+    if (!res.ok) return null;
+    return await res.json();
 }
 
-/**
- * Purchase an item through the Croissant API.
- * 
- * @param {IBuyOptions} options - Options for purchasing an item.
- * @returns {Promise<IBuyResponse>} - A promise that resolves to the response from the API after the purchase.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function buyItem({ itemId, amount, token }: IBuyOptions): Promise<IBuyResponse> {
-    const errors: string[] = [];
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-    if (errors.length > 0) {
-        throw new Error('Missing required parameters: ' + errors.join(', '));
-    }
+// --- Fonctions items ---
+async function getItems(options: IItemFetchOptions = {}): Promise<IItem[] | IItem> {
+    const res = await fetch(`${croissantBaseUrl}/items${options.itemId ? `/${options.itemId}` : ''}`);
+    if (!res.ok) throw new Error('Failed to fetch items');
+    return await res.json();
+}
 
-    return fetch(`${croissantBaseUrl}/api/buy`, {
+// --- Fonctions inventaire ---
+async function getInventory(userId: string): Promise<IInventoryResponse> {
+    const res = await fetch(`${croissantBaseUrl}/inventory/${userId}`);
+    if (!res.ok) throw new Error('Failed to fetch inventory');
+    return await res.json();
+}
+
+// --- Fonctions games ---
+async function listGames(): Promise<IGame[]> {
+    const res = await fetch(`${croissantBaseUrl}/games`);
+    if (!res.ok) throw new Error('Failed to fetch games');
+    return await res.json();
+}
+
+async function getGame(gameId: string): Promise<IGame | null> {
+    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`);
+    if (!res.ok) return null;
+    return await res.json();
+}
+
+async function createGame(options: IGameCreateOptions, token: string): Promise<IGameResponse> {
+    const res = await fetch(`${croissantBaseUrl}/games`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ itemId, amount, token })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to buy item: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
+        body: JSON.stringify(options)
     });
+    return await res.json();
 }
 
-/**
- * Check if a user has a specific item.
- * 
- * @param {IItemOwnershipOptions} options - Options for checking item ownership.
- * @returns {Promise<IHasItemResponse>} - A promise that resolves to the response indicating item ownership.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function hasItem({ userId, itemId }: IItemOwnershipOptions): Promise<IHasItemResponse> {
-    if (!userId || !itemId) {
-        throw new Error('Missing required parameters: userId and itemId are required');
-    }
-
-    return fetch(`${croissantBaseUrl}/api/hasItem?userId=${userId}&itemId=${itemId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to check item ownership: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    });
-}
-
-/**
- * Fetch the inventory of a user.
- * 
- * @param {IInventoryOptions} options - Options for fetching inventory.
- * @returns {Promise<IInventoryResponse>} - A promise that resolves to the user's inventory.
- * @throws {Error} - Throws an error if the userId is missing or if the fetch fails.
- */
-async function getInventory({ userId }: IInventoryOptions): Promise<IInventoryResponse> {
-    if (!userId) {
-        throw new Error('Missing required parameter: userId is required');
-    }
-
-    return fetch(`${croissantBaseUrl}/api/inventory?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to fetch inventory: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    });
-}
-
-/**
- * Give an item to a user.
- * 
- * @param {IGiveOptions} options - Options for giving an item.
- * @returns {Promise<IGiveResponse>} - A promise that resolves to the response from the API after giving the item.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function giveItem({ userId, itemId, amount, token }: IGiveOptions): Promise<IGiveResponse> {
-    const errors: string[] = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-    if (errors.length > 0) {
-        throw new Error('Missing required parameters: ' + errors.join(', '));
-    }
-
-    return fetch(`${croissantBaseUrl}/api/giveItem`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, itemId, amount, token })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to give item: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    });
-}
-
-/**
- * Consume an item from a user's inventory.
- * 
- * @param {IConsumeOptions} options - Options for consuming an item.
- * @returns {Promise<IConsumeResponse>} - A promise that resolves to the response from the API after consuming the item.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function consumeItem({ userId, itemId, amount, token }: IConsumeOptions): Promise<IConsumeResponse> {
-    const errors: string[] = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (!itemId) {
-        errors.push('itemId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-
-    return fetch(`${croissantBaseUrl}/api/consumeItem`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, itemId, amount, token })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to consume item: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    });
-}
-
-/**
- * Open a bundle for a user.
- * 
- * @param {IOpenBundleOptions} options - Options for opening a bundle.
- * @returns {Promise<IOpenBundleResponse>} - A promise that resolves to the response from the API after opening the bundle.
- * @throws {Error} - Throws an error if any required parameters are missing or if the fetch fails.
- */
-async function openBundle({ userId, bundleId, amount, token }: IOpenBundleOptions): Promise<IOpenBundleResponse> {
-    const errors: string[] = [];
-    if (!userId) {
-        errors.push('userId is required');
-    }
-    if (!bundleId) {
-        errors.push('bundleId is required');
-    }
-    if (!amount) {
-        errors.push('amount is required');
-    }
-    if (!token) {
-        errors.push('token is required');
-    }
-
-    if (errors.length > 0) {
-        throw new Error(`Missing required parameters: ${errors.join(', ')}`);
-    }
-
-    return fetch(`${croissantBaseUrl}/api/openBundle`, {
+async function updateGame(gameId: string, options: IGameUpdateOptions): Promise<IGameResponse> {
+    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, bundleId, amount, token })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to open bundle: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
     });
+    return await res.json();
 }
 
+async function deleteGame(gameId: string): Promise<IGameResponse> {
+    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
+        method: 'DELETE'
+    });
+    return await res.json();
+}
 
+// --- Fonctions lobbies ---
+async function getLobby(lobbyId: string): Promise<ILobby | null> {
+    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}`);
+    if (!res.ok) return null;
+    return await res.json();
+}
+
+async function getUserLobby(userId: string): Promise<ILobby | null> {
+    const res = await fetch(`${croissantBaseUrl}/lobbies/user/${userId}`);
+    if (!res.ok) return null;
+    return await res.json();
+}
+
+async function createLobby(options: ILobbyCreateOptions): Promise<ILobbyResponse> {
+    const res = await fetch(`${croissantBaseUrl}/lobbies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+    });
+    return await res.json();
+}
+
+async function joinLobby(lobbyId: string, userId: string): Promise<ILobbyResponse> {
+    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+    });
+    return await res.json();
+}
+
+async function leaveLobby(lobbyId: string, userId: string): Promise<ILobbyResponse> {
+    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/leave`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+    });
+    return await res.json();
+}
+
+// --- Export ---
 export {
+    // Utilisateurs
+    createUser,
+    getUser,
+    // Items
     getItems,
-    buyItem,
-    hasItem,
+    // Inventaire
     getInventory,
-    giveItem,
-    consumeItem
+    // Games
+    listGames,
+    getGame,
+    createGame,
+    updateGame,
+    deleteGame,
+    // Lobbies
+    getLobby,
+    getUserLobby,
+    createLobby,
+    joinLobby,
+    leaveLobby
 };

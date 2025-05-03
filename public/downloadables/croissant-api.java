@@ -7,28 +7,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The CroissantAPI class provides methods to interact with the Croissant API.
- * It allows users to perform various operations such as retrieving items, 
- * buying items, checking inventory, and managing items.
+ * CroissantAPI Java client adapté à la structure de croissant-api.ts.
  */
 public class CroissantAPI {
     private static final String CROISSANT_BASE_URL = "https://croissant-api.fr";
 
-    /**
-     * Sends an HTTP request to the specified endpoint with the given method and JSON input.
-     *
-     * @param endpoint the API endpoint to send the request to
-     * @param method   the HTTP method (GET, POST, etc.)
-     * @param jsonInputString the JSON input string to send in the request body
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    private static String sendRequest(String endpoint, String method, String jsonInputString) throws Exception {
+    private static String sendRequest(String endpoint, String method, String jsonInputString, Map<String, String> headers) throws Exception {
         URL url = new URL(CROISSANT_BASE_URL + endpoint);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod(method);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                conn.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
+        conn.setDoOutput(jsonInputString != null);
 
         if (jsonInputString != null) {
             try (OutputStream os = conn.getOutputStream()) {
@@ -37,7 +31,7 @@ public class CroissantAPI {
             }
         }
 
-        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
             throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
         }
 
@@ -53,117 +47,85 @@ public class CroissantAPI {
         return response.toString();
     }
 
-    /**
-     * Retrieves items from the API.
-     *
-     * @param itemId the ID of the item to retrieve (optional)
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
+    // --- Utilisateurs ---
+    public static String createUser(String userId, String username, int balance) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("username", username);
+        body.put("balance", balance);
+        return sendRequest("/users/create", "POST", new com.google.gson.Gson().toJson(body), null);
+    }
+
+    public static String getUser(String userId) throws Exception {
+        return sendRequest("/users/" + userId, "GET", null, null);
+    }
+
+    // --- Items ---
     public static String getItems(String itemId) throws Exception {
-        String endpoint = "/api/items";
-        if (itemId != null) {
-            endpoint += "?itemId=" + itemId;
+        String endpoint = "/items";
+        if (itemId != null && !itemId.isEmpty()) {
+            endpoint += "/" + itemId;
         }
-        return sendRequest(endpoint, "GET", null);
+        return sendRequest(endpoint, "GET", null, null);
     }
 
-    /**
-     * Buys an item from the API.
-     *
-     * @param itemId the ID of the item to buy
-     * @param amount the amount of the item to buy
-     * @param token the user's authentication token
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    public static String buyItem(String itemId, int amount, String token) throws Exception {
-        Map<String, Object> body = new HashMap<>();
-        body.put("itemId", itemId);
-        body.put("amount", amount);
-        body.put("token", token);
-        return sendRequest("/api/buy", "POST", new com.google.gson.Gson().toJson(body));
-    }
-
-    /**
-     * Checks if a user has a specific item.
-     *
-     * @param userId the ID of the user
-     * @param itemId the ID of the item to check
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    public static String hasItem(String userId, String itemId) throws Exception {
-        String endpoint = "/api/hasItem?userId=" + userId + "&itemId=" + itemId;
-        return sendRequest(endpoint, "GET", null);
-    }
-
-    /**
-     * Retrieves the inventory of a user.
-     *
-     * @param userId the ID of the user
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
+    // --- Inventaire ---
     public static String getInventory(String userId) throws Exception {
-        String endpoint = "/api/inventory?userId=" + userId;
-        return sendRequest(endpoint, "GET", null);
+        return sendRequest("/inventory/" + userId, "GET", null, null);
     }
 
-    /**
-     * Gives an item to a user.
-     *
-     * @param userId the ID of the user to give the item to
-     * @param itemId the ID of the item to give
-     * @param amount the amount of the item to give
-     * @param token the user's authentication token
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    public static String giveItem(String userId, String itemId, int amount, String token) throws Exception {
-        Map<String, Object> body = new HashMap<>();
-        body.put("userId", userId);
-        body.put("itemId", itemId);
-        body.put("amount", amount);
-        body.put("token", token);
-        return sendRequest("/api/giveItem", "POST", new com.google.gson.Gson().toJson(body));
+    // --- Games ---
+    public static String listGames() throws Exception {
+        return sendRequest("/games", "GET", null, null);
     }
 
-    /**
-     * Consumes an item for a user.
-     *
-     * @param userId the ID of the user consuming the item
-     * @param itemId the ID of the item to consume
-     * @param amount the amount of the item to consume
-     * @param token the user's authentication token
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    public static String consumeItem(String userId, String itemId, int amount, String token) throws Exception {
-        Map<String, Object> body = new HashMap<>();
-        body.put("userId", userId);
-        body.put("itemId", itemId);
-        body.put("amount", amount);
-        body.put("token", token);
-        return sendRequest("/api/consumeItem", "DELETE", new com.google.gson.Gson().toJson(body));
+    public static String getGame(String gameId) throws Exception {
+        return sendRequest("/games/" + gameId, "GET", null, null);
     }
 
-    /**
-     * Opens a bundle for a user.
-     *
-     * @param userId the ID of the user opening the bundle
-     * @param bundleId the ID of the bundle to open
-     * @param amount the amount of the bundle to open
-     * @param token the user's authentication token
-     * @return the response from the API as a String
-     * @throws Exception if an error occurs during the request
-     */
-    public static String openBundle(String userId, String bundleId, int amount, String token) throws Exception {
+    public static String createGame(String name, String description, int price, boolean showInStore, String token) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        body.put("description", description);
+        body.put("price", price);
+        body.put("showInStore", showInStore);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + token);
+        return sendRequest("/games", "POST", new com.google.gson.Gson().toJson(body), headers);
+    }
+
+    public static String updateGame(String gameId, Map<String, Object> updates) throws Exception {
+        return sendRequest("/games/" + gameId, "PUT", new com.google.gson.Gson().toJson(updates), null);
+    }
+
+    public static String deleteGame(String gameId) throws Exception {
+        return sendRequest("/games/" + gameId, "DELETE", null, null);
+    }
+
+    // --- Lobbies ---
+    public static String getLobby(String lobbyId) throws Exception {
+        return sendRequest("/lobbies/" + lobbyId, "GET", null, null);
+    }
+
+    public static String getUserLobby(String userId) throws Exception {
+        return sendRequest("/lobbies/user/" + userId, "GET", null, null);
+    }
+
+    public static String createLobby(String[] users) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("users", users);
+        return sendRequest("/lobbies", "POST", new com.google.gson.Gson().toJson(body), null);
+    }
+
+    public static String joinLobby(String lobbyId, String userId) throws Exception {
         Map<String, Object> body = new HashMap<>();
         body.put("userId", userId);
-        body.put("bundleId", bundleId);
-        body.put("amount", amount);
-        body.put("token", token);
-        return sendRequest("/api/openBundle", "PUT", new com.google.gson.Gson().toJson(body));
+        return sendRequest("/lobbies/" + lobbyId + "/join", "POST", new com.google.gson.Gson().toJson(body), null);
+    }
+
+    public static String leaveLobby(String lobbyId, String userId) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        return sendRequest("/lobbies/" + lobbyId + "/leave", "POST", new com.google.gson.Gson().toJson(body), null);
     }
 }

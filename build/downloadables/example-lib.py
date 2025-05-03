@@ -1,6 +1,7 @@
 from croissant_api import get_inventory
 
 item_id = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce"
+user_id = "724847846897221642"
 
 def check_premium_access(user_id):
     inventory = get_inventory(user_id)
@@ -20,3 +21,5 @@ def check_premium_access(user_id):
             "description": "To access premium commands, you must own a **Weathley Crab**!\n\nYou can obtain one via the `/shop` command of the Croissant bot.",
             "timestamp": True
         }
+
+check_premium_access(user_id)
