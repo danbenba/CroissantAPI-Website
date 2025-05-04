@@ -69,7 +69,6 @@ var ProxyMiddleware_1 = __importDefault(require("./ProxyMiddleware"));
 var GenKey_1 = require("./GenKey");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
-var UserCache_1 = require("./UserCache");
 var stream_1 = require("stream");
 (0, dotenv_1.config)({ path: path.join(__dirname, "..", ".env") });
 var app = (0, express_1["default"])();
@@ -175,48 +174,8 @@ app.get('/items-icons/:imageName', function (req, res) {
         res.sendFile(fileToSend);
     });
 });
-app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, cached, response, user, error_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                userId = req.params.userId;
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 4, , 5]);
-                cached = (0, UserCache_1.getCachedUser)(userId);
-                if (cached) {
-                    res.json(cached);
-                    return [2 /*return*/];
-                }
-                return [4 /*yield*/, fetch("https://discord.com/api/v10/users/".concat(userId), {
-                        headers: {
-                            Authorization: BOT_TOKEN
-                        }
-                    })];
-            case 2:
-                response = _a.sent();
-                if (!response.ok) {
-                    res.status(404).send("User not found");
-                    return [2 /*return*/];
-                }
-                return [4 /*yield*/, response.json()];
-            case 3:
-                user = _a.sent();
-                (0, UserCache_1.setCachedUser)(userId, user);
-                res.json(user);
-                return [3 /*break*/, 5];
-            case 4:
-                error_1 = _a.sent();
-                console.error("Error fetching Discord user:", error_1);
-                res.status(500).send("Internal server error");
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
-        }
-    });
-}); });
 app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, avatarRes, nodeStream, error_2;
+    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, avatarRes, nodeStream, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -264,7 +223,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                 }
                 return [3 /*break*/, 6];
             case 5:
-                error_2 = _a.sent();
+                error_1 = _a.sent();
                 res.setHeader('Cache-Control', 'public, max-age=86400');
                 res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
                 return [3 /*break*/, 6];

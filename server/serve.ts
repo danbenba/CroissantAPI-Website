@@ -5,7 +5,6 @@ import createProxy from "./ProxyMiddleware";
 import { genKey } from "./GenKey";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { getCachedUser, setCachedUser } from "./UserCache";
 import { Readable } from "stream";
 
 config({ path: path.join(__dirname, "..", ".env") });
@@ -121,32 +120,6 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
         res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
         res.sendFile(fileToSend);
     });
-});
-
-app.get('/discord-user/:userId', async (req: Request, res: Response) => {
-    const { userId } = req.params;
-    try {
-        const cached = getCachedUser(userId);
-        if (cached) {
-            res.json(cached);
-            return ;
-        }
-        const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
-            headers: {
-                Authorization: BOT_TOKEN
-            }
-        });
-        if (!response.ok) {
-            res.status(404).send("User not found");
-            return;
-        }
-        const user = await response.json();
-        setCachedUser(userId, user);
-        res.json(user);
-    } catch (error) {
-        console.error("Error fetching Discord user:", error);
-        res.status(500).send("Internal server error");
-    }
 });
 
 app.get('/avatar/:userId', async (req, res) => {
