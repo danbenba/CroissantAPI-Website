@@ -20,7 +20,7 @@
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         ws.close();
         window.opener && window.opener.location.reload();
-        window.close();
+        location.href = "https://croissant-api.fr/close"; // Redirect to the main page
       };
     } else {
       // No token found, redirect or show error

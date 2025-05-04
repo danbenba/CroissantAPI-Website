@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import TOS from "./pages/TOS";
 import Privacy from "./pages/Privacy";
 import GettingStarted from "./pages/GettingStarted";
+import ClosePage from "./pages/ClosePage";
 
 export default class extends Component {
   render(): React.ReactNode {
@@ -31,6 +32,7 @@ export default class extends Component {
               <Route path="/contact" element={<Contact />} />
               <Route path="/tos" element={<TOS />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/close" element={<ClosePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
