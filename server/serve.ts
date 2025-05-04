@@ -25,7 +25,7 @@ app.get("/login", (req: Request, res: Response) => {
 });
 
 app.get("/transmitToken", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
+    res.sendFile(path.join(__dirname, "..", "build", "transmitToken.html"));
 });
 
 app.get('/auth/discord', (req: Request, res: Response) => {

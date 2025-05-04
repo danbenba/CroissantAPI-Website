@@ -84,7 +84,7 @@ app.get("/login", function (req, res) {
     return res.redirect("/auth/discord");
 });
 app.get("/transmitToken", function (req, res) {
-    res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
+    res.sendFile(path.join(__dirname, "..", "build", "transmitToken.html"));
 });
 app.get('/auth/discord', function (req, res) {
     var params = new URLSearchParams({
