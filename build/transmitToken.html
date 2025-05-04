@@ -17,7 +17,7 @@
       const ws = new WebSocket('ws://localhost:8081');
       ws.onopen = () => {
         ws.send(token);
-        localStorage.setItem('token', token);
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         ws.close();
         window.opener && window.opener.location.reload();
         window.close();
