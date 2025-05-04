@@ -128,6 +128,7 @@ app.get('/auth/discord/callback', function (req, res) {
     });
 });
 app.use('/api', (0, ProxyMiddleware_1["default"])("http://localhost:3456/"));
+app.use('/items-icons', express_1["default"].static(path.join(__dirname, "itemsIcons")));
 // For SPA: serve index.html for any unknown routes
 app.use(function (_req, res) {
     res.sendFile(path.join(__dirname, "build", "index.html"));

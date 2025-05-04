@@ -113,6 +113,7 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
 });
 
 app.use('/api', createProxy("http://localhost:3456/"));
+app.use('/items-icons', express.static(path.join(__dirname, "itemsIcons")));
 
 // For SPA: serve index.html for any unknown routes
 app.use((_req, res) => {
