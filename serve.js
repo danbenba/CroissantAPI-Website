@@ -176,8 +176,42 @@ app.get('/items-icons/:imageName', function (req, res) {
             : res.sendFile(fallbackPath);
     });
 });
+app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userId, response, user, error_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                userId = req.params.userId;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 4, , 5]);
+                return [4 /*yield*/, fetch("https://discord.com/api/v10/users/".concat(userId), {
+                        headers: {
+                            Authorization: BOT_TOKEN
+                        }
+                    })];
+            case 2:
+                response = _a.sent();
+                if (!response.ok) {
+                    res.status(404).send("User not found");
+                    return [2 /*return*/];
+                }
+                return [4 /*yield*/, response.json()];
+            case 3:
+                user = _a.sent();
+                res.json(user);
+                return [3 /*break*/, 5];
+            case 4:
+                error_1 = _a.sent();
+                console.error("Error fetching Discord user:", error_1);
+                res.status(500).send("Internal server error");
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
+        }
+    });
+}); });
 app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, error_1;
+    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -211,7 +245,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                 res.redirect(avatarUrl);
                 return [3 /*break*/, 5];
             case 4:
-                error_1 = _a.sent();
+                error_2 = _a.sent();
                 // On error, redirect to default avatar 0
                 res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
                 return [3 /*break*/, 5];

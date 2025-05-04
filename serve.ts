@@ -127,6 +127,29 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
     });
 });
 
+app.get('/discord-user/:userId', async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    try {
+        const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
+            headers: {
+                Authorization: BOT_TOKEN
+            }
+        });
+
+        if (!response.ok) {
+            res.status(404).send("User not found");
+            return;
+        }
+
+        const user = await response.json();
+        res.json(user);
+    } catch (error) {
+        console.error("Error fetching Discord user:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+
 app.get('/avatar/:userId', async (req, res) => {
     const { userId } = req.params;
 
