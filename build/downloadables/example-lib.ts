@@ -1,10 +1,10 @@
-import { getInventory } from './croissant-api';
+import CroissantAPI from './croissant-api';
 
 const itemId = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
 const userId = "724847846897221642";
 
 async function checkPremiumAccess(userId: string) {
-    const inventory = await getInventory(userId);
+    const inventory = await CroissantAPI.inventory.get(userId);
     const hasItem = inventory.inventory.some(item => item.id === itemId);
     
     if (hasItem) {

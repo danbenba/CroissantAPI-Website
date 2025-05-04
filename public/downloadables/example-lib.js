@@ -35,8 +35,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
-var croissant_api_1 = require("./croissant-api");
+var croissant_api_1 = __importDefault(require("./croissant-api"));
 var itemId = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
 var userId = "724847846897221642";
 function checkPremiumAccess(userId) {
@@ -44,7 +47,7 @@ function checkPremiumAccess(userId) {
         var inventory, hasItem;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, croissant_api_1.getInventory)(userId)];
+                case 0: return [4 /*yield*/, croissant_api_1["default"].inventory.get(userId)];
                 case 1:
                     inventory = _a.sent();
                     hasItem = inventory.inventory.some(function (item) { return item.id === itemId; });

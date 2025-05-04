@@ -36,264 +36,279 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.leaveLobby = exports.joinLobby = exports.createLobby = exports.getUserLobby = exports.getLobby = exports.deleteGame = exports.updateGame = exports.createGame = exports.getGame = exports.listGames = exports.getInventory = exports.getItems = exports.getUser = exports.createUser = void 0;
-var croissantBaseUrl = 'https://croissant-api.fr';
-// --- Fonctions utilisateurs ---
-function createUser(options) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/create"), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(options)
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.createUser = createUser;
-function getUser(userId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/").concat(userId))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        return [2 /*return*/, null];
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getUser = getUser;
-// --- Fonctions items ---
-function getItems(options) {
-    if (options === void 0) { options = {}; }
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items").concat(options.itemId ? "/".concat(options.itemId) : ''))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        throw new Error('Failed to fetch items');
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getItems = getItems;
-// --- Fonctions inventaire ---
-function getInventory(userId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/inventory/").concat(userId))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        throw new Error('Failed to fetch inventory');
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getInventory = getInventory;
-// --- Fonctions games ---
-function listGames() {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        throw new Error('Failed to fetch games');
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.listGames = listGames;
-function getGame(gameId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        return [2 /*return*/, null];
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getGame = getGame;
-function createGame(options, token) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': "Bearer ".concat(token)
-                        },
-                        body: JSON.stringify(options)
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.createGame = createGame;
-function updateGame(gameId, options) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(options)
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.updateGame = updateGame;
-function deleteGame(gameId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
-                        method: 'DELETE'
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.deleteGame = deleteGame;
-// --- Fonctions lobbies ---
-function getLobby(lobbyId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        return [2 /*return*/, null];
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getLobby = getLobby;
-function getUserLobby(userId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/user/").concat(userId))];
-                case 1:
-                    res = _a.sent();
-                    if (!res.ok)
-                        return [2 /*return*/, null];
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.getUserLobby = getUserLobby;
-function createLobby(options) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies"), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(options)
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.createLobby = createLobby;
-function joinLobby(lobbyId, userId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/join"), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: userId })
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.joinLobby = joinLobby;
-function leaveLobby(lobbyId, userId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/leave"), {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: userId })
-                    })];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.json()];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-exports.leaveLobby = leaveLobby;
+exports["default"] = exports.CroissantAPI = void 0;
+var croissantBaseUrl = 'https://croissant-api.fr/api';
+// --- Classe API organisée par catégories ---
+var CroissantAPI = /** @class */ (function () {
+    function CroissantAPI() {
+    }
+    CroissantAPI.users = {
+        create: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/create"), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(options)
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        get: function (userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/").concat(userId))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                return [2 /*return*/, null];
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        verify: function (userId, verificationKey) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/auth-verification?userId=").concat(encodeURIComponent(userId), "&verificationKey=").concat(encodeURIComponent(verificationKey)), { method: 'POST' })];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                throw new Error('Failed to verify user');
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        }
+    };
+    CroissantAPI.items = {
+        get: function (options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items").concat(options.itemId ? "/".concat(options.itemId) : ''))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                throw new Error('Failed to fetch items');
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        }
+    };
+    CroissantAPI.inventory = {
+        get: function (userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/inventory/").concat(userId))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                throw new Error('Failed to fetch inventory');
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        }
+    };
+    CroissantAPI.games = {
+        list: function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                throw new Error('Failed to fetch games');
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        get: function (gameId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                return [2 /*return*/, null];
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        create: function (options, token) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': "Bearer ".concat(token)
+                                },
+                                body: JSON.stringify(options)
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        update: function (gameId, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(options)
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        "delete": function (gameId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
+                                method: 'DELETE'
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        }
+    };
+    CroissantAPI.lobbies = {
+        get: function (lobbyId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                return [2 /*return*/, null];
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        getUserLobby: function (userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/user/").concat(userId))];
+                        case 1:
+                            res = _a.sent();
+                            if (!res.ok)
+                                return [2 /*return*/, null];
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        create: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies"), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(options)
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        join: function (lobbyId, userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/join"), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userId })
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        },
+        leave: function (lobbyId, userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var res;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/leave"), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userId })
+                            })];
+                        case 1:
+                            res = _a.sent();
+                            return [4 /*yield*/, res.json()];
+                        case 2: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        }
+    };
+    return CroissantAPI;
+}());
+exports.CroissantAPI = CroissantAPI;
+exports["default"] = CroissantAPI;

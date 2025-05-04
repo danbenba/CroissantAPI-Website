@@ -1,4 +1,4 @@
-const croissantBaseUrl = 'https://croissant-api.fr';
+const croissantBaseUrl = 'https://croissant-api.fr/api';
 
 // --- Interfaces utilisateurs ---
 interface IUser {
@@ -91,136 +91,126 @@ interface ILobbyResponse {
     error?: string;
 }
 
-// --- Fonctions utilisateurs ---
-async function createUser(options: IUserCreateOptions): Promise<IUserResponse> {
-    const res = await fetch(`${croissantBaseUrl}/users/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options)
-    });
-    return await res.json();
-}
-
-async function getUser(userId: string): Promise<IUser | null> {
-    const res = await fetch(`${croissantBaseUrl}/users/${userId}`);
-    if (!res.ok) return null;
-    return await res.json();
-}
-
-// --- Fonctions items ---
-async function getItems(options: IItemFetchOptions = {}): Promise<IItem[] | IItem> {
-    const res = await fetch(`${croissantBaseUrl}/items${options.itemId ? `/${options.itemId}` : ''}`);
-    if (!res.ok) throw new Error('Failed to fetch items');
-    return await res.json();
-}
-
-// --- Fonctions inventaire ---
-async function getInventory(userId: string): Promise<IInventoryResponse> {
-    const res = await fetch(`${croissantBaseUrl}/inventory/${userId}`);
-    if (!res.ok) throw new Error('Failed to fetch inventory');
-    return await res.json();
-}
-
-// --- Fonctions games ---
-async function listGames(): Promise<IGame[]> {
-    const res = await fetch(`${croissantBaseUrl}/games`);
-    if (!res.ok) throw new Error('Failed to fetch games');
-    return await res.json();
-}
-
-async function getGame(gameId: string): Promise<IGame | null> {
-    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`);
-    if (!res.ok) return null;
-    return await res.json();
-}
-
-async function createGame(options: IGameCreateOptions, token: string): Promise<IGameResponse> {
-    const res = await fetch(`${croissantBaseUrl}/games`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+// --- Classe API organisée par catégories ---
+class CroissantAPI {
+    static users = {
+        async create(options: IUserCreateOptions): Promise<IUserResponse> {
+            const res = await fetch(`${croissantBaseUrl}/users/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(options)
+            });
+            return await res.json();
         },
-        body: JSON.stringify(options)
-    });
-    return await res.json();
-}
+        async get(userId: string): Promise<IUser | null> {
+            const res = await fetch(`${croissantBaseUrl}/users/${userId}`);
+            if (!res.ok) return null;
+            return await res.json();
+        },
+        async verify(userId: string, verificationKey: string): Promise<{ success: boolean }> {
+            const res = await fetch(
+                `${croissantBaseUrl}/users/auth-verification?userId=${encodeURIComponent(userId)}&verificationKey=${encodeURIComponent(verificationKey)}`,
+                { method: 'POST' }
+            );
+            if (!res.ok) throw new Error('Failed to verify user');
+            return await res.json();
+        }
+    };
 
-async function updateGame(gameId: string, options: IGameUpdateOptions): Promise<IGameResponse> {
-    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options)
-    });
-    return await res.json();
-}
+    static items = {
+        async get(options: IItemFetchOptions = {}): Promise<IItem[] | IItem> {
+            const res = await fetch(`${croissantBaseUrl}/items${options.itemId ? `/${options.itemId}` : ''}`);
+            if (!res.ok) throw new Error('Failed to fetch items');
+            return await res.json();
+        }
+    };
 
-async function deleteGame(gameId: string): Promise<IGameResponse> {
-    const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
-        method: 'DELETE'
-    });
-    return await res.json();
-}
+    static inventory = {
+        async get(userId: string): Promise<IInventoryResponse> {
+            const res = await fetch(`${croissantBaseUrl}/inventory/${userId}`);
+            if (!res.ok) throw new Error('Failed to fetch inventory');
+            return await res.json();
+        }
+    };
 
-// --- Fonctions lobbies ---
-async function getLobby(lobbyId: string): Promise<ILobby | null> {
-    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}`);
-    if (!res.ok) return null;
-    return await res.json();
-}
+    static games = {
+        async list(): Promise<IGame[]> {
+            const res = await fetch(`${croissantBaseUrl}/games`);
+            if (!res.ok) throw new Error('Failed to fetch games');
+            return await res.json();
+        },
+        async get(gameId: string): Promise<IGame | null> {
+            const res = await fetch(`${croissantBaseUrl}/games/${gameId}`);
+            if (!res.ok) return null;
+            return await res.json();
+        },
+        async create(options: IGameCreateOptions, token: string): Promise<IGameResponse> {
+            const res = await fetch(`${croissantBaseUrl}/games`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(options)
+            });
+            return await res.json();
+        },
+        async update(gameId: string, options: IGameUpdateOptions): Promise<IGameResponse> {
+            const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(options)
+            });
+            return await res.json();
+        },
+        async delete(gameId: string): Promise<IGameResponse> {
+            const res = await fetch(`${croissantBaseUrl}/games/${gameId}`, {
+                method: 'DELETE'
+            });
+            return await res.json();
+        }
+    };
 
-async function getUserLobby(userId: string): Promise<ILobby | null> {
-    const res = await fetch(`${croissantBaseUrl}/lobbies/user/${userId}`);
-    if (!res.ok) return null;
-    return await res.json();
-}
-
-async function createLobby(options: ILobbyCreateOptions): Promise<ILobbyResponse> {
-    const res = await fetch(`${croissantBaseUrl}/lobbies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options)
-    });
-    return await res.json();
-}
-
-async function joinLobby(lobbyId: string, userId: string): Promise<ILobbyResponse> {
-    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-    });
-    return await res.json();
-}
-
-async function leaveLobby(lobbyId: string, userId: string): Promise<ILobbyResponse> {
-    const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/leave`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-    });
-    return await res.json();
+    static lobbies = {
+        async get(lobbyId: string): Promise<ILobby | null> {
+            const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}`);
+            if (!res.ok) return null;
+            return await res.json();
+        },
+        async getUserLobby(userId: string): Promise<ILobby | null> {
+            const res = await fetch(`${croissantBaseUrl}/lobbies/user/${userId}`);
+            if (!res.ok) return null;
+            return await res.json();
+        },
+        async create(options: ILobbyCreateOptions): Promise<ILobbyResponse> {
+            const res = await fetch(`${croissantBaseUrl}/lobbies`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(options)
+            });
+            return await res.json();
+        },
+        async join(lobbyId: string, userId: string): Promise<ILobbyResponse> {
+            const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            return await res.json();
+        },
+        async leave(lobbyId: string, userId: string): Promise<ILobbyResponse> {
+            const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            return await res.json();
+        }
+    };
 }
 
 // --- Export ---
 export {
-    // Utilisateurs
-    createUser,
-    getUser,
-    // Items
-    getItems,
-    // Inventaire
-    getInventory,
-    // Games
-    listGames,
-    getGame,
-    createGame,
-    updateGame,
-    deleteGame,
-    // Lobbies
-    getLobby,
-    getUserLobby,
-    createLobby,
-    joinLobby,
-    leaveLobby
+    CroissantAPI,
+    CroissantAPI as default
 };

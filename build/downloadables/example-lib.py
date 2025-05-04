@@ -1,11 +1,11 @@
-from croissant_api import get_inventory
+from croissant_api import CroissantAPI
 
 item_id = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce"
 user_id = "724847846897221642"
 
 def check_premium_access(user_id):
-    inventory = get_inventory(user_id)
-    has_item = any(item['id'] == item_id for item in inventory)
+    inventory = CroissantAPI.inventory.get(user_id)
+    has_item = any(item['id'] == item_id for item in inventory.get('inventory', []))
     
     if has_item:
         return {
@@ -22,4 +22,9 @@ def check_premium_access(user_id):
             "timestamp": True
         }
 
+def verify_user(user_id, verification_key):
+    return CroissantAPI.users.verify(user_id, verification_key)
+
+# Example usage:
 check_premium_access(user_id)
+# verify_user(user_id, "your_verification_key")
