@@ -70,6 +70,7 @@ var GenKey_1 = require("./GenKey");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
 var UserCache_1 = require("./UserCache");
+var stream_1 = require("stream");
 (0, dotenv_1.config)();
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
@@ -215,14 +216,14 @@ app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, 
     });
 }); });
 app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, error_2;
+    var userId, response, user, avatarUrl, extension, defaultAvatarIndex, avatarRes, nodeStream, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 userId = req.params.userId;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, , 5]);
+                _a.trys.push([1, 5, , 6]);
                 return [4 /*yield*/, fetch("https://discord.com/api/v10/users/".concat(userId), {
                         headers: {
                             Authorization: BOT_TOKEN
@@ -231,6 +232,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
             case 2:
                 response = _a.sent();
                 if (!response.ok) {
+                    res.setHeader('Cache-Control', 'public, max-age=86400');
                     return [2 /*return*/, res.redirect('https://cdn.discordapp.com/embed/avatars/0.png')];
                 }
                 return [4 /*yield*/, response.json()];
@@ -245,13 +247,28 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                     defaultAvatarIndex = Number(user.discriminator) % 5;
                     avatarUrl = "https://cdn.discordapp.com/embed/avatars/".concat(defaultAvatarIndex, ".png");
                 }
-                res.redirect(avatarUrl);
-                return [3 /*break*/, 5];
+                return [4 /*yield*/, fetch(avatarUrl)];
             case 4:
+                avatarRes = _a.sent();
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                if (!avatarRes.ok) {
+                    return [2 /*return*/, res.redirect('https://cdn.discordapp.com/embed/avatars/0.png')];
+                }
+                res.setHeader('Content-Type', avatarRes.headers.get('content-type') || 'image/png');
+                if (avatarRes.body) {
+                    nodeStream = stream_1.Readable.from(avatarRes.body);
+                    nodeStream.pipe(res);
+                }
+                else {
+                    res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
+                }
+                return [3 /*break*/, 6];
+            case 5:
                 error_2 = _a.sent();
+                res.setHeader('Cache-Control', 'public, max-age=86400');
                 res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
         }
     });
 }); });

@@ -6,6 +6,7 @@ import { genKey } from "./GenKey";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { getCachedUser, setCachedUser } from "./UserCache";
+import { Readable } from "stream";
 
 config();
 
@@ -157,10 +158,11 @@ app.get('/avatar/:userId', async (req, res) => {
             }
         });
         if (!response.ok) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
             return res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
         }
         const user = await response.json();
-        let avatarUrl;
+        let avatarUrl: string;
         if (user.avatar) {
             const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
             avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
@@ -168,8 +170,23 @@ app.get('/avatar/:userId', async (req, res) => {
             const defaultAvatarIndex = Number(user.discriminator) % 5;
             avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
         }
-        res.redirect(avatarUrl);
+
+        // Fetch the avatar image and pipe it with cache control
+        const avatarRes = await fetch(avatarUrl);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        if (!avatarRes.ok) {
+            return res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
+        }
+        res.setHeader('Content-Type', avatarRes.headers.get('content-type') || 'image/png');
+        if (avatarRes.body) {
+            // Convert web ReadableStream to Node.js Readable
+            const nodeStream = Readable.from(avatarRes.body as any);
+            nodeStream.pipe(res);
+        } else {
+            res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
+        }
     } catch (error) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
         res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
     }
 });
