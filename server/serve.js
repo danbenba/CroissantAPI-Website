@@ -69,6 +69,7 @@ var ProxyMiddleware_1 = __importDefault(require("./ProxyMiddleware"));
 var GenKey_1 = require("./GenKey");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
+var UserCache_1 = require("./UserCache");
 (0, dotenv_1.config)();
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
@@ -165,8 +166,8 @@ app.get('/auth/discord/callback', function (req, res) {
 app.use('/api', (0, ProxyMiddleware_1["default"])("http://localhost:3456/"));
 app.get('/items-icons/:imageName', function (req, res) {
     var imageName = req.params.imageName;
-    var imagePath = path.join(__dirname, "itemsIcons", imageName);
-    var fallbackPath = path.join(__dirname, "public", "System_Shop.webp");
+    var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
+    var fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
     Promise.resolve().then(function () { return __importStar(require('fs')); }).then(function (fs) {
         fs.existsSync(imagePath)
             ? res.sendFile(imagePath)
@@ -174,7 +175,7 @@ app.get('/items-icons/:imageName', function (req, res) {
     });
 });
 app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, response, user, error_1;
+    var userId, cached, response, user, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -182,6 +183,11 @@ app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, 
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 4, , 5]);
+                cached = (0, UserCache_1.getCachedUser)(userId);
+                if (cached) {
+                    res.json(cached);
+                    return [2 /*return*/];
+                }
                 return [4 /*yield*/, fetch("https://discord.com/api/v10/users/".concat(userId), {
                         headers: {
                             Authorization: BOT_TOKEN
@@ -196,6 +202,7 @@ app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, 
                 return [4 /*yield*/, response.json()];
             case 3:
                 user = _a.sent();
+                (0, UserCache_1.setCachedUser)(userId, user);
                 res.json(user);
                 return [3 /*break*/, 5];
             case 4:

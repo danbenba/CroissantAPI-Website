@@ -5,6 +5,7 @@ import createProxy from "./ProxyMiddleware";
 import { genKey } from "./GenKey";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { getCachedUser, setCachedUser } from "./UserCache";
 
 config();
 
@@ -112,8 +113,8 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
 app.use('/api', createProxy("http://localhost:3456/"));
 app.get('/items-icons/:imageName', (req: Request, res: Response) => {
     const imageName = req.params.imageName;
-    const imagePath = path.join(__dirname, "itemsIcons", imageName);
-    const fallbackPath = path.join(__dirname, "public", "System_Shop.webp");
+    const imagePath = path.join(__dirname, "..","itemsIcons", imageName);
+    const fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
     import('fs').then(fs => {
         fs.existsSync(imagePath)
             ? res.sendFile(imagePath)
@@ -124,6 +125,11 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
 app.get('/discord-user/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params;
     try {
+        const cached = getCachedUser(userId);
+        if (cached) {
+            res.json(cached);
+            return ;
+        }
         const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
             headers: {
                 Authorization: BOT_TOKEN
@@ -134,6 +140,7 @@ app.get('/discord-user/:userId', async (req: Request, res: Response) => {
             return;
         }
         const user = await response.json();
+        setCachedUser(userId, user);
         res.json(user);
     } catch (error) {
         console.error("Error fetching Discord user:", error);
