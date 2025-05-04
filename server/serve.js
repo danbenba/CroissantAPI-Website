@@ -76,7 +76,7 @@ var PORT = process.env.PORT || 3000;
 var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);
 app.use((0, cors_1["default"])());
 app.use((0, cookie_parser_1["default"])());
-app.use(express_1["default"].static(path.join(__dirname, "build")));
+app.use(express_1["default"].static(path.join(__dirname, "..", "build")));
 app.get("/login", function (req, res) {
     if (req.cookies.token) {
         return res.redirect("/transmitToken");
@@ -169,9 +169,9 @@ app.get('/items-icons/:imageName', function (req, res) {
     var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
     var fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
     Promise.resolve().then(function () { return __importStar(require('fs')); }).then(function (fs) {
-        fs.existsSync(imagePath)
-            ? res.sendFile(imagePath)
-            : res.sendFile(fallbackPath);
+        var fileToSend = fs.existsSync(imagePath) ? imagePath : fallbackPath;
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
+        res.sendFile(fileToSend);
     });
 });
 app.get('/discord-user/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -256,7 +256,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
     });
 }); });
 app.use(function (_req, res) {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
+    res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
 app.listen(PORT, function () {
     console.log("Server running on http://localhost:".concat(PORT));

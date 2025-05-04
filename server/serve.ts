@@ -15,7 +15,7 @@ const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
 
 app.use(cors());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "..", "build")));
 
 app.get("/login", (req: Request, res: Response) => {
     if(req.cookies.token) {
@@ -113,12 +113,12 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
 app.use('/api', createProxy("http://localhost:3456/"));
 app.get('/items-icons/:imageName', (req: Request, res: Response) => {
     const imageName = req.params.imageName;
-    const imagePath = path.join(__dirname, "..","itemsIcons", imageName);
+    const imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
     const fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
     import('fs').then(fs => {
-        fs.existsSync(imagePath)
-            ? res.sendFile(imagePath)
-            : res.sendFile(fallbackPath);
+        const fileToSend = fs.existsSync(imagePath) ? imagePath : fallbackPath;
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
+        res.sendFile(fileToSend);
     });
 });
 
@@ -175,7 +175,7 @@ app.get('/avatar/:userId', async (req, res) => {
 });
 
 app.use((_req, res) => {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
+    res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
 
 app.listen(PORT, () => {
