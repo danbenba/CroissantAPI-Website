@@ -44,6 +44,9 @@ app.get("/login", function (req, res) {
     }
     return res.redirect("/auth/discord");
 });
+app.get("/transmitToken", function (req, res) {
+    res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
+});
 // Simple Discord OAuth2 endpoints (no session, no passport)
 app.get('/auth/discord', function (req, res) {
     var params = new URLSearchParams({
@@ -117,7 +120,7 @@ app.get('/auth/discord/callback', function (req, res) {
             console.error("Error ensuring user exists:", err);
         });
         var token = (0, GenKey_1.genKey)(user.id); // Generate a key for the user
-        res.cookie("token", token, { httpOnly: true, secure: true }); // Set the cookie with the token
+        res.cookie("token", token); // Set the cookie with the token
         res.redirect("/login"); // Redirect to the homepage or any other page
     })["catch"](function (error) {
         console.error("Error:", error);

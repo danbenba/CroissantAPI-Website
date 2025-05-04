@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import createProxy from "./ProxyMiddleware";
 import { genKey } from "./GenKey";
 import cookieParser from "cookie-parser"; // <-- Add this line
+
 config(); // Load environment variables from .env file
 
 const app: Express = express();
@@ -19,6 +20,10 @@ app.get("/login", (req: Request, res: Response) => {
         return res.redirect("/transmitToken"); // Redirect to homepage if already logged in
     }
     return res.redirect("/auth/discord");
+});
+
+app.get("/transmitToken", (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
 });
 
 // Simple Discord OAuth2 endpoints (no session, no passport)
@@ -98,7 +103,7 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
             });
 
         const token = genKey(user.id); // Generate a key for the user
-        res.cookie("token", token, { httpOnly: true, secure: true }); // Set the cookie with the token
+        res.cookie("token", token); // Set the cookie with the token
         res.redirect("/login"); // Redirect to the homepage or any other page
     })
     .catch(error => {
