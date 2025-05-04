@@ -71,7 +71,7 @@ var cookie_parser_1 = __importDefault(require("cookie-parser")); // <-- Add this
 (0, dotenv_1.config)(); // Load environment variables from .env file
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
-var BOT_TOKEN = "Bot ".concat(process.env.DISCORD_BOT_TOKEN); // Use the bot token from environment variables
+var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN); // Use the bot token from environment variables
 app.use((0, cookie_parser_1["default"])()); // <-- Add this line
 // Serve static files from the "build" directory
 app.use(express_1["default"].static(path.join(__dirname, "build")));
@@ -193,7 +193,8 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
             case 2:
                 response = _a.sent();
                 if (!response.ok) {
-                    res.status(response.status).json({ error: 'Utilisateur introuvable ou erreur API.' });
+                    // On error, redirect to default avatar 0
+                    return [2 /*return*/, res.redirect('https://cdn.discordapp.com/embed/avatars/0.png')];
                 }
                 return [4 /*yield*/, response.json()];
             case 3:
@@ -207,12 +208,12 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                     defaultAvatarIndex = Number(user.discriminator) % 5;
                     avatarUrl = "https://cdn.discordapp.com/embed/avatars/".concat(defaultAvatarIndex, ".png");
                 }
-                res.json({ avatar: avatarUrl });
+                res.redirect(avatarUrl);
                 return [3 /*break*/, 5];
             case 4:
                 error_1 = _a.sent();
-                console.error('Erreur API Discord :', error_1);
-                res.status(500).json({ error: 'Erreur serveur.' });
+                // On error, redirect to default avatar 0
+                res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
         }

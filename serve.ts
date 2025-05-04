@@ -9,7 +9,7 @@ config(); // Load environment variables from .env file
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
-const BOT_TOKEN = `Bot ${process.env.DISCORD_BOT_TOKEN}`; // Use the bot token from environment variables
+const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`; // Use the bot token from environment variables
 
 app.use(cookieParser()); // <-- Add this line
 
@@ -138,24 +138,25 @@ app.get('/avatar/:userId', async (req, res) => {
         });
 
         if (!response.ok) {
-            res.status(response.status).json({ error: 'Utilisateur introuvable ou erreur API.' });
+            // On error, redirect to default avatar 0
+            return res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
         }
 
         const user = await response.json();
         let avatarUrl;
 
         if (user.avatar) {
-        const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
-        avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
+            const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
+            avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
         } else {
-        const defaultAvatarIndex = Number(user.discriminator) % 5;
-        avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
+            const defaultAvatarIndex = Number(user.discriminator) % 5;
+            avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
         }
 
-        res.json({ avatar: avatarUrl });
+        res.redirect(avatarUrl);
     } catch (error) {
-        console.error('Erreur API Discord :', error);
-        res.status(500).json({ error: 'Erreur serveur.' });
+        // On error, redirect to default avatar 0
+        res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
     }
 });
 
