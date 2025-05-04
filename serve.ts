@@ -113,7 +113,18 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
 });
 
 app.use('/api', createProxy("http://localhost:3456/"));
-app.use('/items-icons', express.static(path.join(__dirname, "itemsIcons")));
+app.get('/items-icons/:imageName', (req: Request, res: Response) => {
+    const imageName = req.params.imageName;
+    const imagePath = path.join(__dirname, "itemsIcons", imageName);
+    const fallbackPath = path.join(__dirname, "public", "System_Shop.webp");
+
+    // Check if the requested image exists
+    import('fs').then(fs => {
+        fs.existsSync(imagePath)
+            ? res.sendFile(imagePath)
+            : res.sendFile(fallbackPath);
+    });
+});
 
 // For SPA: serve index.html for any unknown routes
 app.use((_req, res) => {
