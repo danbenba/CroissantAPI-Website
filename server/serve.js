@@ -71,7 +71,7 @@ var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
 var UserCache_1 = require("./UserCache");
 var stream_1 = require("stream");
-(0, dotenv_1.config)();
+(0, dotenv_1.config)({ path: path.join(__dirname, "..", ".env") });
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
 var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);

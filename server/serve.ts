@@ -8,7 +8,7 @@ import cors from "cors";
 import { getCachedUser, setCachedUser } from "./UserCache";
 import { Readable } from "stream";
 
-config();
+config({ path: path.join(__dirname, "..", ".env") });
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
