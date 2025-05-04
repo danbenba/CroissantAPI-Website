@@ -13,7 +13,7 @@
         "moduleResolution": "node",
         "baseUrl": "./",
         "paths": {
-            "*": ["src/*", "serve.ts"]
+            "*": ["src/*", "*.ts"]
         },
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
