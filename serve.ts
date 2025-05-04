@@ -3,22 +3,22 @@ import * as path from "path";
 import { config } from "dotenv";
 import createProxy from "./ProxyMiddleware";
 import { genKey } from "./GenKey";
-import cookieParser from "cookie-parser"; // <-- Add this line
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
-config(); // Load environment variables from .env file
+config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
-const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`; // Use the bot token from environment variables
+const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
 
-app.use(cookieParser()); // <-- Add this line
-
-// Serve static files from the "build" directory
+app.use(cors());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/login", (req: Request, res: Response) => {
     if(req.cookies.token) {
-        return res.redirect("/transmitToken"); // Redirect to homepage if already logged in
+        return res.redirect("/transmitToken");
     }
     return res.redirect("/auth/discord");
 });
@@ -27,7 +27,6 @@ app.get("/transmitToken", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
 });
 
-// Simple Discord OAuth2 endpoints (no session, no passport)
 app.get('/auth/discord', (req: Request, res: Response) => {
     const params = new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID!,
@@ -66,7 +65,6 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
     })
     .then(data => {
         const { access_token } = data;
-        // Use the access token to fetch user info or perform other actions
         return fetch("https://discord.com/api/v10/users/@me", {
             headers: {
                 Authorization: `Bearer ${access_token}`,
@@ -80,11 +78,9 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
         return response.json();
     })
     .then(user => {
-
         fetch(`${req.protocol}://${req.get("host")}/api/users/${user.id}`)
             .then(apiRes => {
                 if (apiRes.status === 404) {
-                    // User does not exist, create it
                     return fetch(`${req.protocol}://${req.get("host")}/api/users/create`, {
                         method: "POST",
                         headers: {
@@ -93,7 +89,7 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
                         body: JSON.stringify({
                             userId: user.id,
                             username: user.username,
-                            balance: 1000 // or any default starting balance
+                            balance: 1000
                         })
                     });
                 }
@@ -103,9 +99,9 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
                 console.error("Error ensuring user exists:", err);
             });
 
-        const token = genKey(user.id); // Generate a key for the user
-        res.cookie("token", token); // Set the cookie with the token
-        res.redirect("/login"); // Redirect to the homepage or any other page
+        const token = genKey(user.id);
+        res.cookie("token", token);
+        res.redirect("/login");
     })
     .catch(error => {
         console.error("Error:", error);
@@ -118,8 +114,6 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(__dirname, "itemsIcons", imageName);
     const fallbackPath = path.join(__dirname, "public", "System_Shop.webp");
-
-    // Check if the requested image exists
     import('fs').then(fs => {
         fs.existsSync(imagePath)
             ? res.sendFile(imagePath)
@@ -129,19 +123,16 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
 
 app.get('/discord-user/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params;
-
     try {
         const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
             headers: {
                 Authorization: BOT_TOKEN
             }
         });
-
         if (!response.ok) {
             res.status(404).send("User not found");
             return;
         }
-
         const user = await response.json();
         res.json(user);
     } catch (error) {
@@ -152,22 +143,17 @@ app.get('/discord-user/:userId', async (req: Request, res: Response) => {
 
 app.get('/avatar/:userId', async (req, res) => {
     const { userId } = req.params;
-
     try {
         const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
             headers: {
                 Authorization: BOT_TOKEN
             }
         });
-
         if (!response.ok) {
-            // On error, redirect to default avatar 0
             return res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
         }
-
         const user = await response.json();
         let avatarUrl;
-
         if (user.avatar) {
             const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
             avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
@@ -175,15 +161,12 @@ app.get('/avatar/:userId', async (req, res) => {
             const defaultAvatarIndex = Number(user.discriminator) % 5;
             avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
         }
-
         res.redirect(avatarUrl);
     } catch (error) {
-        // On error, redirect to default avatar 0
         res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
     }
 });
 
-// For SPA: serve index.html for any unknown routes
 app.use((_req, res) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });

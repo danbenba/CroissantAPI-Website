@@ -67,24 +67,24 @@ var path = __importStar(require("path"));
 var dotenv_1 = require("dotenv");
 var ProxyMiddleware_1 = __importDefault(require("./ProxyMiddleware"));
 var GenKey_1 = require("./GenKey");
-var cookie_parser_1 = __importDefault(require("cookie-parser")); // <-- Add this line
-(0, dotenv_1.config)(); // Load environment variables from .env file
+var cookie_parser_1 = __importDefault(require("cookie-parser"));
+var cors_1 = __importDefault(require("cors"));
+(0, dotenv_1.config)();
 var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
-var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN); // Use the bot token from environment variables
-app.use((0, cookie_parser_1["default"])()); // <-- Add this line
-// Serve static files from the "build" directory
+var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);
+app.use((0, cors_1["default"])());
+app.use((0, cookie_parser_1["default"])());
 app.use(express_1["default"].static(path.join(__dirname, "build")));
 app.get("/login", function (req, res) {
     if (req.cookies.token) {
-        return res.redirect("/transmitToken"); // Redirect to homepage if already logged in
+        return res.redirect("/transmitToken");
     }
     return res.redirect("/auth/discord");
 });
 app.get("/transmitToken", function (req, res) {
     res.sendFile(path.join(__dirname, "build", "transmitToken.html"));
 });
-// Simple Discord OAuth2 endpoints (no session, no passport)
 app.get('/auth/discord', function (req, res) {
     var params = new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID,
@@ -122,7 +122,6 @@ app.get('/auth/discord/callback', function (req, res) {
     })
         .then(function (data) {
         var access_token = data.access_token;
-        // Use the access token to fetch user info or perform other actions
         return fetch("https://discord.com/api/v10/users/@me", {
             headers: {
                 Authorization: "Bearer ".concat(access_token)
@@ -139,7 +138,6 @@ app.get('/auth/discord/callback', function (req, res) {
         fetch("".concat(req.protocol, "://").concat(req.get("host"), "/api/users/").concat(user.id))
             .then(function (apiRes) {
             if (apiRes.status === 404) {
-                // User does not exist, create it
                 return fetch("".concat(req.protocol, "://").concat(req.get("host"), "/api/users/create"), {
                     method: "POST",
                     headers: {
@@ -148,7 +146,7 @@ app.get('/auth/discord/callback', function (req, res) {
                     body: JSON.stringify({
                         userId: user.id,
                         username: user.username,
-                        balance: 1000 // or any default starting balance
+                        balance: 1000
                     })
                 });
             }
@@ -156,9 +154,9 @@ app.get('/auth/discord/callback', function (req, res) {
         })["catch"](function (err) {
             console.error("Error ensuring user exists:", err);
         });
-        var token = (0, GenKey_1.genKey)(user.id); // Generate a key for the user
-        res.cookie("token", token); // Set the cookie with the token
-        res.redirect("/login"); // Redirect to the homepage or any other page
+        var token = (0, GenKey_1.genKey)(user.id);
+        res.cookie("token", token);
+        res.redirect("/login");
     })["catch"](function (error) {
         console.error("Error:", error);
         res.status(500).send("An error occurred during the authentication process.");
@@ -169,7 +167,6 @@ app.get('/items-icons/:imageName', function (req, res) {
     var imageName = req.params.imageName;
     var imagePath = path.join(__dirname, "itemsIcons", imageName);
     var fallbackPath = path.join(__dirname, "public", "System_Shop.webp");
-    // Check if the requested image exists
     Promise.resolve().then(function () { return __importStar(require('fs')); }).then(function (fs) {
         fs.existsSync(imagePath)
             ? res.sendFile(imagePath)
@@ -227,7 +224,6 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
             case 2:
                 response = _a.sent();
                 if (!response.ok) {
-                    // On error, redirect to default avatar 0
                     return [2 /*return*/, res.redirect('https://cdn.discordapp.com/embed/avatars/0.png')];
                 }
                 return [4 /*yield*/, response.json()];
@@ -246,14 +242,12 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                 return [3 /*break*/, 5];
             case 4:
                 error_2 = _a.sent();
-                // On error, redirect to default avatar 0
                 res.redirect('https://cdn.discordapp.com/embed/avatars/0.png');
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
         }
     });
 }); });
-// For SPA: serve index.html for any unknown routes
 app.use(function (_req, res) {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
