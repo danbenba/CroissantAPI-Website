@@ -9,6 +9,7 @@ config(); // Load environment variables from .env file
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
+const BOT_TOKEN = `Bot ${process.env.DISCORD_BOT_TOKEN}`; // Use the bot token from environment variables
 
 app.use(cookieParser()); // <-- Add this line
 
@@ -124,6 +125,38 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
             ? res.sendFile(imagePath)
             : res.sendFile(fallbackPath);
     });
+});
+
+app.get('/avatar/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
+            headers: {
+                Authorization: BOT_TOKEN
+            }
+        });
+
+        if (!response.ok) {
+            res.status(response.status).json({ error: 'Utilisateur introuvable ou erreur API.' });
+        }
+
+        const user = await response.json();
+        let avatarUrl;
+
+        if (user.avatar) {
+        const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
+        avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
+        } else {
+        const defaultAvatarIndex = Number(user.discriminator) % 5;
+        avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
+        }
+
+        res.json({ avatar: avatarUrl });
+    } catch (error) {
+        console.error('Erreur API Discord :', error);
+        res.status(500).json({ error: 'Erreur serveur.' });
+    }
 });
 
 // For SPA: serve index.html for any unknown routes
