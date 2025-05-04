@@ -2,7 +2,7 @@
   "name": "croissant-pages",
   "version": "1.0.0",
   "description": "template",
-  "main": "src/index.ts",
+  "main": "serve.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
