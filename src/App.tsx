@@ -15,7 +15,6 @@ import TOS from "./pages/TOS";
 import Privacy from "./pages/Privacy";
 import GettingStarted from "./pages/GettingStarted";
 import ClosePage from "./pages/ClosePage";
-import GameForm from "./pages/GameForm";
 
 export default class extends Component {
   render(): React.ReactNode {
@@ -34,7 +33,6 @@ export default class extends Component {
               <Route path="/tos" element={<TOS />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/close" element={<ClosePage />} />
-              <Route path="/create-game" element={<GameForm />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
