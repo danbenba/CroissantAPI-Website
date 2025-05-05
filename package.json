@@ -9,7 +9,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "serve": "npx ts-node-dev --respawn serve.ts",
-    "publish" : "git add . && git commit -m \"update\" && git push"
+    "publish": "git add . && git commit -m \"update\" && git push"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
