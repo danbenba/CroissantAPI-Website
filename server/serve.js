@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -32,8 +42,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -61,7 +71,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var path = __importStar(require("path"));
 var dotenv_1 = require("dotenv");
@@ -71,12 +81,12 @@ var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
 var stream_1 = require("stream");
 (0, dotenv_1.config)({ path: path.join(__dirname, "..", ".env") });
-var app = (0, express_1["default"])();
+var app = (0, express_1.default)();
 var PORT = process.env.PORT || 3000;
 var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);
-app.use((0, cors_1["default"])());
-app.use((0, cookie_parser_1["default"])());
-app.use(express_1["default"].static(path.join(__dirname, "..", "build")));
+app.use((0, cors_1.default)());
+app.use((0, cookie_parser_1.default)());
+app.use(express_1.default.static(path.join(__dirname, "..", "build")));
 app.get("/login", function (req, res) {
     if (req.cookies.token) {
         return res.redirect("/transmitToken");
@@ -85,6 +95,9 @@ app.get("/login", function (req, res) {
 });
 app.get("/transmitToken", function (req, res) {
     res.sendFile(path.join(__dirname, "..", "build", "transmitToken.html"));
+});
+app.get("/join-lobby", function (req, res) {
+    res.sendFile(path.join(__dirname, "..", "build", "join-lobby.html"));
 });
 app.get('/auth/discord', function (req, res) {
     var params = new URLSearchParams({
@@ -106,14 +119,14 @@ app.get('/auth/discord/callback', function (req, res) {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: "authorization_code",
         code: code,
-        redirect_uri: process.env.DISCORD_CALLBACK_URL
+        redirect_uri: process.env.DISCORD_CALLBACK_URL,
     });
     fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: params.toString()
+        body: params.toString(),
     })
         .then(function (response) {
         if (!response.ok) {
@@ -125,8 +138,8 @@ app.get('/auth/discord/callback', function (req, res) {
         var access_token = data.access_token;
         return fetch("https://discord.com/api/v10/users/@me", {
             headers: {
-                Authorization: "Bearer ".concat(access_token)
-            }
+                Authorization: "Bearer ".concat(access_token),
+            },
         });
     })
         .then(function (response) {
@@ -152,18 +165,20 @@ app.get('/auth/discord/callback', function (req, res) {
                 });
             }
             return apiRes;
-        })["catch"](function (err) {
+        })
+            .catch(function (err) {
             console.error("Error ensuring user exists:", err);
         });
         var token = (0, GenKey_1.genKey)(user.id);
         res.cookie("token", token);
         res.redirect("/login");
-    })["catch"](function (error) {
+    })
+        .catch(function (error) {
         console.error("Error:", error);
         res.status(500).send("An error occurred during the authentication process.");
     });
 });
-app.use('/api', (0, ProxyMiddleware_1["default"])("http://localhost:3456/"));
+app.use('/api', (0, ProxyMiddleware_1.default)("http://localhost:3456/"));
 app.get('/items-icons/:imageName', function (req, res) {
     var imageName = req.params.imageName;
     var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);

@@ -28,6 +28,10 @@ app.get("/transmitToken", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "..", "build", "transmitToken.html"));
 });
 
+app.get("/join-lobby", (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, "..", "build", "join-lobby.html"));
+});
+
 app.get('/auth/discord', (req: Request, res: Response) => {
     const params = new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID!,

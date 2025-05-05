@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Transmit Token</title>
+</head>
+<body>
+  <script>
+    // Helper to get cookie by name
+    function queryStringToJSON(qs) {
+      qs = qs || location.search.slice(1);
+
+      var pairs = qs.split('&');
+      var result = {};
+      pairs.forEach(function(p) {
+          var pair = p.split('=');
+          var key = pair[0];
+          var value = decodeURIComponent(pair[1] || '');
+
+          if( result[key] ) {
+              if( Object.prototype.toString.call( result[key] ) === '[object Array]' ) {
+                  result[key].push( value );
+              } else {
+                  result[key] = [ result[key], value ];
+              }
+          } else {
+              result[key] = value;
+          }
+      });
+
+      return JSON.parse(JSON.stringify(result));
+    };
+    const { lobbyId } = queryStringToJSON();
+    if (lobbyId) {
+      const ws = new WebSocket('ws://localhost:8081');
+      ws.onopen = () => {
+        ws.send(JSON.stringify({action: "join-lobby", lobbyId: lobbyId}));
+        location.href = "https://croissant-api.fr/close"; // Redirect to the main page
+      };
+    } else {
+      // No token found, redirect or show error
+      document.body.innerText = "No token found in cookies.";
+    }
+  </script>
+</body>
+</html>
