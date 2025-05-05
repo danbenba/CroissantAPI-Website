@@ -114,7 +114,7 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
     });
 });
 
-app.use('/api', createProxy("http://localhost:3456/"));
+app.use('/api', createProxy("https://croissant-api.fr/api"));
 app.get('/items-icons/:imageName', (req: Request, res: Response) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
