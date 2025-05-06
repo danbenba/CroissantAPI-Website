@@ -79,7 +79,8 @@ var PORT = process.env.PORT || 3000;
 var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);
 var iconsDir = path.join(__dirname, "..", "gameIcons");
 var bannersDir = path.join(__dirname, "..", "bannersIcons");
-[iconsDir, bannersDir].forEach(function (dir) {
+var itemsIconsDir = path.join(__dirname, "..", "itemsIcons");
+[iconsDir, bannersDir, itemsIconsDir].forEach(function (dir) {
     if (!fs_1["default"].existsSync(dir))
         fs_1["default"].mkdirSync(dir, { recursive: true });
 });
@@ -93,6 +94,7 @@ var storage = function (folder) { return multer_1["default"].diskStorage({
 }); };
 var uploadIcon = (0, multer_1["default"])({ storage: storage(iconsDir) });
 var uploadBanner = (0, multer_1["default"])({ storage: storage(bannersDir) });
+var uploadItemIcon = (0, multer_1["default"])({ storage: storage(itemsIconsDir) });
 app.use((0, cors_1["default"])());
 app.use((0, cookie_parser_1["default"])());
 app.use(express_1["default"].static(path.join(__dirname, "..", "build")));
@@ -220,6 +222,12 @@ app.get("/banners-icons/:hash", function (req, res) {
     else {
         res.status(404).send("Banner not found");
     }
+});
+app.post("/upload/item-icon", uploadItemIcon.single("icon"), function (req, res) {
+    if (!req.file)
+        return res.status(400).json({ error: "No file uploaded" });
+    var hash = path.parse(req.file.filename).name;
+    res.json({ hash: hash });
 });
 app.post("/upload/game-icon", uploadIcon.single("icon"), function (req, res) {
     if (!req.file)

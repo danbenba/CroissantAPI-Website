@@ -10,6 +10,11 @@ import fs from "fs";
 import crypto from "crypto";
 import multer from "multer";
 
+import { Request as ExpressRequest } from "express";
+interface MulterRequest extends ExpressRequest {
+    file?: Express.Multer.File;
+}
+
 config({ path: path.join(__dirname, "..", ".env") });
 
 const app: Express = express();
@@ -18,7 +23,9 @@ const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
 
 const iconsDir = path.join(__dirname, "..", "gameIcons");
 const bannersDir = path.join(__dirname, "..", "bannersIcons");
-[iconsDir, bannersDir].forEach(dir => {
+const itemsIconsDir = path.join(__dirname, "..", "itemsIcons");
+
+[iconsDir, bannersDir, itemsIconsDir].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
@@ -33,6 +40,7 @@ const storage = (folder: string) => multer.diskStorage({
 
 const uploadIcon = multer({ storage: storage(iconsDir) });
 const uploadBanner = multer({ storage: storage(bannersDir) });
+const uploadItemIcon = multer({ storage: storage(itemsIconsDir) });
 
 app.use(cors());
 app.use(cookieParser());
@@ -146,6 +154,7 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
         res.sendFile(fileToSend);
     });
 });
+
 app.get("/games-icons/:hash", (req: Request, res: Response) => {
     const hash = req.params.hash;
     // Find file with matching hash (filename without extension)
@@ -171,11 +180,11 @@ app.get("/banners-icons/:hash", (req: Request, res: Response) => {
     }
 });
 
-import { Request as ExpressRequest } from "express";
-
-interface MulterRequest extends ExpressRequest {
-    file?: Express.Multer.File;
-}
+app.post("/upload/item-icon", uploadItemIcon.single("icon"), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const hash = path.parse(req.file.filename).name;
+    res.json({ hash });
+});
 
 app.post("/upload/game-icon", uploadIcon.single("icon"), (req: MulterRequest, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
