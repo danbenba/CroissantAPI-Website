@@ -144,15 +144,14 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
 });
 
 app.use('/api', createProxy("http://localhost:3456/"));
-app.get('/items-icons/:imageName', (req: Request, res: Response) => {
-    const imageName = req.params.imageName;
-    const imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
+app.get('/items-icons/:hash', (req: Request, res: Response) => {
+    const hash = req.params.hash;
+    const files = fs.readdirSync(itemsIconsDir);
+    const file = files.find(f => path.parse(f).name === hash);
     const fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
-    import('fs').then(fs => {
-        const fileToSend = fs.existsSync(imagePath) ? imagePath : fallbackPath;
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
-        res.sendFile(fileToSend);
-    });
+    const fileToSend = file ? path.join(itemsIconsDir, file) : fallbackPath;
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
+    res.sendFile(fileToSend);
 });
 
 app.get("/games-icons/:hash", (req: Request, res: Response) => {

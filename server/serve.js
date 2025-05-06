@@ -188,15 +188,14 @@ app.get('/auth/discord/callback', function (req, res) {
     });
 });
 app.use('/api', (0, ProxyMiddleware_1["default"])("http://localhost:3456/"));
-app.get('/items-icons/:imageName', function (req, res) {
-    var imageName = req.params.imageName;
-    var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
+app.get('/items-icons/:hash', function (req, res) {
+    var hash = req.params.hash;
+    var files = fs_1["default"].readdirSync(itemsIconsDir);
+    var file = files.find(function (f) { return path.parse(f).name === hash; });
     var fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
-    Promise.resolve().then(function () { return __importStar(require('fs')); }).then(function (fs) {
-        var fileToSend = fs.existsSync(imagePath) ? imagePath : fallbackPath;
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
-        res.sendFile(fileToSend);
-    });
+    var fileToSend = file ? path.join(itemsIconsDir, file) : fallbackPath;
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
+    res.sendFile(fileToSend);
 });
 app.get("/games-icons/:hash", function (req, res) {
     var hash = req.params.hash;
