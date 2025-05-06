@@ -153,17 +153,18 @@ app.get('/items-icons/:hash', (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
     res.sendFile(fileToSend);
 });
-
 app.get("/games-icons/:hash", (req: Request, res: Response) => {
     const hash = req.params.hash;
     // Find file with matching hash (filename without extension)
     const files = fs.readdirSync(iconsDir);
     const file = files.find(f => path.parse(f).name === hash);
+    const fallbackPath = path.join(__dirname, "..", "public", "8293566.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(iconsDir, file));
     } else {
-        res.status(404).send("Icon not found");
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(fallbackPath);
     }
 });
 
@@ -171,11 +172,13 @@ app.get("/banners-icons/:hash", (req: Request, res: Response) => {
     const hash = req.params.hash;
     const files = fs.readdirSync(bannersDir);
     const file = files.find(f => path.parse(f).name === hash);
+    const fallbackPath = path.join(__dirname, "..", "public", "Generic-Banner-03-blue-Game.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(bannersDir, file));
     } else {
-        res.status(404).send("Banner not found");
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(fallbackPath);
     }
 });
 
