@@ -6,12 +6,33 @@ import { genKey } from "./GenKey";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Readable } from "stream";
+import fs from "fs";
+import crypto from "crypto";
+import multer from "multer";
 
 config({ path: path.join(__dirname, "..", ".env") });
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
+
+const iconsDir = path.join(__dirname, "..", "gameIcons");
+const bannersDir = path.join(__dirname, "..", "bannersIcons");
+[iconsDir, bannersDir].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
+
+const storage = (folder: string) => multer.diskStorage({
+    destination: (_, __, cb) => cb(null, folder),
+    filename: (_, file, cb) => {
+        const hash = crypto.createHash('sha256').update(Date.now() + file.originalname).digest('hex');
+        const ext = path.extname(file.originalname);
+        cb(null, `${hash}${ext}`);
+    }
+});
+
+const uploadIcon = multer({ storage: storage(iconsDir) });
+const uploadBanner = multer({ storage: storage(bannersDir) });
 
 app.use(cors());
 app.use(cookieParser());
@@ -124,6 +145,26 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
         res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
         res.sendFile(fileToSend);
     });
+});
+app.use("/games-icons", express.static(iconsDir));
+app.use("/banners-icons", express.static(bannersDir));
+
+import { Request as ExpressRequest } from "express";
+
+interface MulterRequest extends ExpressRequest {
+    file?: Express.Multer.File;
+}
+
+app.post("/upload/game-icon", uploadIcon.single("icon"), (req: MulterRequest, res) => {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const hash = path.parse(req.file.filename).name;
+    res.json({ hash });
+});
+
+app.post("/upload/banner", uploadBanner.single("banner"), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const hash = path.parse(req.file.filename).name;
+    res.json({ hash });
 });
 
 app.get('/avatar/:userId', async (req, res) => {

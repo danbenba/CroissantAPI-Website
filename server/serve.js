@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,8 +32,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -71,7 +61,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var path = __importStar(require("path"));
 var dotenv_1 = require("dotenv");
@@ -80,13 +70,32 @@ var GenKey_1 = require("./GenKey");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var cors_1 = __importDefault(require("cors"));
 var stream_1 = require("stream");
+var fs_1 = __importDefault(require("fs"));
+var crypto_1 = __importDefault(require("crypto"));
+var multer_1 = __importDefault(require("multer"));
 (0, dotenv_1.config)({ path: path.join(__dirname, "..", ".env") });
-var app = (0, express_1.default)();
+var app = (0, express_1["default"])();
 var PORT = process.env.PORT || 3000;
 var BOT_TOKEN = "Bot ".concat(process.env.BOT_TOKEN);
-app.use((0, cors_1.default)());
-app.use((0, cookie_parser_1.default)());
-app.use(express_1.default.static(path.join(__dirname, "..", "build")));
+var iconsDir = path.join(__dirname, "..", "gameIcons");
+var bannersDir = path.join(__dirname, "..", "bannersIcons");
+[iconsDir, bannersDir].forEach(function (dir) {
+    if (!fs_1["default"].existsSync(dir))
+        fs_1["default"].mkdirSync(dir, { recursive: true });
+});
+var storage = function (folder) { return multer_1["default"].diskStorage({
+    destination: function (_, __, cb) { return cb(null, folder); },
+    filename: function (_, file, cb) {
+        var hash = crypto_1["default"].createHash('sha256').update(Date.now() + file.originalname).digest('hex');
+        var ext = path.extname(file.originalname);
+        cb(null, "".concat(hash).concat(ext));
+    }
+}); };
+var uploadIcon = (0, multer_1["default"])({ storage: storage(iconsDir) });
+var uploadBanner = (0, multer_1["default"])({ storage: storage(bannersDir) });
+app.use((0, cors_1["default"])());
+app.use((0, cookie_parser_1["default"])());
+app.use(express_1["default"].static(path.join(__dirname, "..", "build")));
 app.get("/login", function (req, res) {
     if (req.cookies.token) {
         return res.redirect("/transmitToken");
@@ -119,14 +128,14 @@ app.get('/auth/discord/callback', function (req, res) {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: "authorization_code",
         code: code,
-        redirect_uri: process.env.DISCORD_CALLBACK_URL,
+        redirect_uri: process.env.DISCORD_CALLBACK_URL
     });
     fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: params.toString(),
+        body: params.toString()
     })
         .then(function (response) {
         if (!response.ok) {
@@ -138,8 +147,8 @@ app.get('/auth/discord/callback', function (req, res) {
         var access_token = data.access_token;
         return fetch("https://discord.com/api/v10/users/@me", {
             headers: {
-                Authorization: "Bearer ".concat(access_token),
-            },
+                Authorization: "Bearer ".concat(access_token)
+            }
         });
     })
         .then(function (response) {
@@ -165,20 +174,18 @@ app.get('/auth/discord/callback', function (req, res) {
                 });
             }
             return apiRes;
-        })
-            .catch(function (err) {
+        })["catch"](function (err) {
             console.error("Error ensuring user exists:", err);
         });
         var token = (0, GenKey_1.genKey)(user.id);
         res.cookie("token", token);
         res.redirect("/login");
-    })
-        .catch(function (error) {
+    })["catch"](function (error) {
         console.error("Error:", error);
         res.status(500).send("An error occurred during the authentication process.");
     });
 });
-app.use('/api', (0, ProxyMiddleware_1.default)("http://localhost:3456/"));
+app.use('/api', (0, ProxyMiddleware_1["default"])("https://croissant-api.fr/api"));
 app.get('/items-icons/:imageName', function (req, res) {
     var imageName = req.params.imageName;
     var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
@@ -188,6 +195,20 @@ app.get('/items-icons/:imageName', function (req, res) {
         res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
         res.sendFile(fileToSend);
     });
+});
+app.use("/games-icons", express_1["default"].static(iconsDir));
+app.use("/banners-icons", express_1["default"].static(bannersDir));
+app.post("/upload/game-icon", uploadIcon.single("icon"), function (req, res) {
+    if (!req.file)
+        return res.status(400).json({ error: "No file uploaded" });
+    var hash = path.parse(req.file.filename).name;
+    res.json({ hash: hash });
+});
+app.post("/upload/banner", uploadBanner.single("banner"), function (req, res) {
+    if (!req.file)
+        return res.status(400).json({ error: "No file uploaded" });
+    var hash = path.parse(req.file.filename).name;
+    res.json({ hash: hash });
 });
 app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userId, response, user, avatarUrl, extension, defaultAvatarIndex, avatarRes, nodeStream, error_1;

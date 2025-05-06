@@ -137,4 +137,5 @@ out
 dist
 package-lock.json
 itemsIcons
+gamesIcons
 userCache.json
