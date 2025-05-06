@@ -216,7 +216,7 @@ app.get('/avatar/:userId', async (req, res) => {
         let avatarUrl: string;
         if (user.avatar) {
             const extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
-            avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=1024`;
+            avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${extension}?size=128`;
         } else {
             const defaultAvatarIndex = Number(user.discriminator) % 5;
             avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;

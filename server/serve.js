@@ -270,7 +270,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
                 avatarUrl = void 0;
                 if (user.avatar) {
                     extension = user.avatar.startsWith('a_') ? 'gif' : 'png';
-                    avatarUrl = "https://cdn.discordapp.com/avatars/".concat(user.id, "/").concat(user.avatar, ".").concat(extension, "?size=1024");
+                    avatarUrl = "https://cdn.discordapp.com/avatars/".concat(user.id, "/").concat(user.avatar, ".").concat(extension, "?size=128");
                 }
                 else {
                     defaultAvatarIndex = Number(user.discriminator) % 5;
