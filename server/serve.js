@@ -202,24 +202,28 @@ app.get("/games-icons/:hash", function (req, res) {
     // Find file with matching hash (filename without extension)
     var files = fs_1["default"].readdirSync(iconsDir);
     var file = files.find(function (f) { return path.parse(f).name === hash; });
+    var fallbackPath = path.join(__dirname, "..", "public", "8293566.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(iconsDir, file));
     }
     else {
-        res.status(404).send("Icon not found");
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(fallbackPath);
     }
 });
 app.get("/banners-icons/:hash", function (req, res) {
     var hash = req.params.hash;
     var files = fs_1["default"].readdirSync(bannersDir);
     var file = files.find(function (f) { return path.parse(f).name === hash; });
+    var fallbackPath = path.join(__dirname, "..", "public", "Generic-Banner-03-blue-Game.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(bannersDir, file));
     }
     else {
-        res.status(404).send("Banner not found");
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(fallbackPath);
     }
 });
 app.post("/upload/item-icon", uploadItemIcon.single("icon"), function (req, res) {
