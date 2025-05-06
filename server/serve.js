@@ -196,8 +196,31 @@ app.get('/items-icons/:imageName', function (req, res) {
         res.sendFile(fileToSend);
     });
 });
-app.use("/games-icons", express_1["default"].static(iconsDir));
-app.use("/banners-icons", express_1["default"].static(bannersDir));
+app.get("/games-icons/:hash", function (req, res) {
+    var hash = req.params.hash;
+    // Find file with matching hash (filename without extension)
+    var files = fs_1["default"].readdirSync(iconsDir);
+    var file = files.find(function (f) { return path.parse(f).name === hash; });
+    if (file) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(path.join(iconsDir, file));
+    }
+    else {
+        res.status(404).send("Icon not found");
+    }
+});
+app.get("/banners-icons/:hash", function (req, res) {
+    var hash = req.params.hash;
+    var files = fs_1["default"].readdirSync(bannersDir);
+    var file = files.find(function (f) { return path.parse(f).name === hash; });
+    if (file) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(path.join(bannersDir, file));
+    }
+    else {
+        res.status(404).send("Banner not found");
+    }
+});
 app.post("/upload/game-icon", uploadIcon.single("icon"), function (req, res) {
     if (!req.file)
         return res.status(400).json({ error: "No file uploaded" });

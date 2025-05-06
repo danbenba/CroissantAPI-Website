@@ -146,8 +146,30 @@ app.get('/items-icons/:imageName', (req: Request, res: Response) => {
         res.sendFile(fileToSend);
     });
 });
-app.use("/games-icons", express.static(iconsDir));
-app.use("/banners-icons", express.static(bannersDir));
+app.get("/games-icons/:hash", (req: Request, res: Response) => {
+    const hash = req.params.hash;
+    // Find file with matching hash (filename without extension)
+    const files = fs.readdirSync(iconsDir);
+    const file = files.find(f => path.parse(f).name === hash);
+    if (file) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(path.join(iconsDir, file));
+    } else {
+        res.status(404).send("Icon not found");
+    }
+});
+
+app.get("/banners-icons/:hash", (req: Request, res: Response) => {
+    const hash = req.params.hash;
+    const files = fs.readdirSync(bannersDir);
+    const file = files.find(f => path.parse(f).name === hash);
+    if (file) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(path.join(bannersDir, file));
+    } else {
+        res.status(404).send("Banner not found");
+    }
+});
 
 import { Request as ExpressRequest } from "express";
 
