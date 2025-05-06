@@ -185,7 +185,7 @@ app.get('/auth/discord/callback', function (req, res) {
         res.status(500).send("An error occurred during the authentication process.");
     });
 });
-app.use('/api', (0, ProxyMiddleware_1["default"])("https://croissant-api.fr/api"));
+app.use('/api', (0, ProxyMiddleware_1["default"])("http://localhost:3456/"));
 app.get('/items-icons/:imageName', function (req, res) {
     var imageName = req.params.imageName;
     var imagePath = path.join(__dirname, "..", "itemsIcons", imageName);
