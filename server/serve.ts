@@ -242,7 +242,11 @@ app.get('/avatar/:userId', async (req, res) => {
     }
 });
 
-app.use('/launcher', express.static(path.join(__dirname, "..", "launcher" ,"build")));
+// Place these routes before the catch-all route to avoid being overridden
+app.use('/launcher', express.static(path.join(__dirname, "..", "launcher", "build")));
+app.get('/launcher/:path', (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "launcher", "build", "index.html"));
+});
 
 app.use((_req, res) => {
     res.sendFile(path.join(__dirname, "..", "build", "index.html"));
