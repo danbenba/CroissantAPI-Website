@@ -68,6 +68,17 @@ public class CroissantAPI
             var json = await res.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject(json);
         }
+
+        public async Task<User> Create(object options)
+        {
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/users/create");
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            req.Content = new StringContent(JsonConvert.SerializeObject(options), Encoding.UTF8, "application/json");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<User>(json);
+        }
     }
     public Users users => new Users(this);
 

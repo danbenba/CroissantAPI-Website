@@ -68,6 +68,10 @@ public class CroissantAPI {
             body.put("amount", amount);
             return sendRequest("/users/transfer-credits", "POST", gson.toJson(body), true);
         }
+        public String create(Map<String, Object> options) throws Exception {
+            // Create a new user
+            return sendRequest("/users/create", "POST", gson.toJson(options), true);
+        }
     }
     public final Users users = new Users();
 
