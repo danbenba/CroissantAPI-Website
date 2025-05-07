@@ -83,7 +83,7 @@ export interface Inventory {
  */
 export interface InventoryItem {
     user_id: string;
-    item_id: string;
+    itemId: string;
     amount: number;
 }
 
