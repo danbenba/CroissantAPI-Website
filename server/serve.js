@@ -301,6 +301,7 @@ app.get('/avatar/:userId', function (req, res) { return __awaiter(void 0, void 0
         }
     });
 }); });
+app.use('/launcher', express_1["default"].static(path.join(__dirname, "..", "launcher", "build")));
 app.use(function (_req, res) {
     res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
