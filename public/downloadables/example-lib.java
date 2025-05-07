@@ -1,10 +1,26 @@
+import com.google.gson.*;
+import java.util.*;
+
 public class ExampleLib {
-    private static final String itemId = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
+    private static final String ITEM_ID = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
+    private static final String USER_ID = "724847846897221642";
+    private static final String TOKEN = "your_token_here"; // Remplacez par un vrai token
 
     public static void checkPremiumAccess(String userId) throws Exception {
-        String inventoryResponse = CroissantAPI.inventory.get(userId);
-        // Pour une vraie application, utilisez une bibliothèque JSON (ex: Gson, Jackson) pour parser la réponse.
-        boolean hasItem = inventoryResponse.contains(itemId);
+        CroissantAPI api = new CroissantAPI(TOKEN);
+        String inventoryJson = api.inventory.get(userId);
+
+        // Parse inventory JSON to check for the item
+        JsonObject inventoryObj = JsonParser.parseString(inventoryJson).getAsJsonObject();
+        JsonArray inventoryArr = inventoryObj.getAsJsonArray("inventory");
+        boolean hasItem = false;
+        for (JsonElement el : inventoryArr) {
+            JsonObject item = el.getAsJsonObject();
+            if (ITEM_ID.equals(item.get("item_id").getAsString())) {
+                hasItem = true;
+                break;
+            }
+        }
 
         if (hasItem) {
             System.out.println("Premium Commands");
@@ -15,12 +31,7 @@ public class ExampleLib {
         }
     }
 
-    public static String verifyUser(String userId, String verificationKey) throws Exception {
-        return CroissantAPI.users.verify(userId, verificationKey);
+    public static void main(String[] args) throws Exception {
+        checkPremiumAccess(USER_ID);
     }
-
-    // Exemple d'utilisation :
-    // ExampleLib.checkPremiumAccess("724847846897221642");
-    // System.out.println(ExampleLib.verifyUser("724847846897221642", "your_verification_key"));
 }
-

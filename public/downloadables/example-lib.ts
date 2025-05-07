@@ -1,11 +1,15 @@
-import CroissantAPI from './croissant-api';
+import { CroissantAPI, InventoryItem } from './croissant-api';
+
+const croissantApi = new CroissantAPI({
+    token: process.env.CROISSANT_API_TOKEN || "",
+})
 
 const itemId = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
 const userId = "724847846897221642";
 
 async function checkPremiumAccess(userId: string) {
-    const inventory = await CroissantAPI.inventory.get(userId);
-    const hasItem = inventory.inventory.some(item => item.id === itemId);
+    const inventory = await croissantApi.inventory.get(userId) as InventoryItem[];
+    const hasItem = inventory.some(item => item.item_id === itemId);
     
     if (hasItem) {
         return {

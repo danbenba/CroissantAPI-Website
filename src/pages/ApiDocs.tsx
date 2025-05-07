@@ -112,6 +112,11 @@ export default function ApiDocs() {
                                 [Java Library]
                             </a>
                         </li>
+                        <li>
+                            <a href="/downloadables/croissant-api.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                                [C# Library]
+                            </a>
+                        </li>
                     </ul>
                     <div style={{ marginTop: "12px" }}>
                         <h4 style={{ color: "#fff" }}>Examples</h4>
@@ -140,6 +145,11 @@ export default function ApiDocs() {
                             <li>
                                 <a href="/downloadables/example-lib.java" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
                                     [Java example]
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/downloadables/example-lib.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                                    [C# example]
                                 </a>
                             </li>
                         </ul>

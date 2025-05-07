@@ -3,146 +3,185 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import com.google.gson.Gson;
 
 /**
- * CroissantAPI Java client adapté à la structure de croissant-api.ts.
- * Les méthodes sont regroupées par catégories : users, items, inventory, games, lobbies.
+ * CroissantAPI provides methods to interact with the Croissant API (v2 style).
  */
 public class CroissantAPI {
     private static final String CROISSANT_BASE_URL = "https://croissant-api.fr/api";
+    private final String token;
+    private final Gson gson = new Gson();
 
-    private static String sendRequest(String endpoint, String method, String jsonInputString, Map<String, String> headers) throws Exception {
+    public CroissantAPI(String token) {
+        if (token == null || token.isEmpty()) throw new IllegalArgumentException("Token is required");
+        this.token = token;
+    }
+
+    private String sendRequest(String endpoint, String method, String jsonInput, boolean auth) throws Exception {
         URL url = new URL(CROISSANT_BASE_URL + endpoint);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod(method);
         conn.setRequestProperty("Content-Type", "application/json");
-        if (headers != null) {
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                conn.setRequestProperty(entry.getKey(), entry.getValue());
-            }
-        }
-        conn.setDoOutput(jsonInputString != null);
-
-        if (jsonInputString != null) {
+        if (auth) conn.setRequestProperty("Authorization", "Bearer " + token);
+        if (jsonInput != null) {
+            conn.setDoOutput(true);
             try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                byte[] input = jsonInput.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
         }
-
-        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
-            throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+        int code = conn.getResponseCode();
+        if (code < 200 || code >= 300) {
+            throw new RuntimeException("HTTP error code : " + code);
         }
-
         StringBuilder response = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-            String responseLine;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
+            String line;
+            while ((line = br.readLine()) != null) response.append(line.trim());
         }
-
         conn.disconnect();
         return response.toString();
     }
 
-    // --- Users ---
-    public static class users {
-        public static String create(String userId, String username, int balance) throws Exception {
+    // --- USERS ---
+    public class Users {
+        public String getMe() throws Exception {
+            return sendRequest("/users/@me", "GET", null, true);
+        }
+        public String getUser(String userId) throws Exception {
+            return sendRequest("/users/" + userId, "GET", null, false);
+        }
+        public String search(String query) throws Exception {
+            return sendRequest("/users/search?q=" + java.net.URLEncoder.encode(query, "UTF-8"), "GET", null, false);
+        }
+        public String verify(String userId, String verificationKey) throws Exception {
+            String params = "?userId=" + java.net.URLEncoder.encode(userId, "UTF-8") +
+                            "&verificationKey=" + java.net.URLEncoder.encode(verificationKey, "UTF-8");
+            return sendRequest("/users/auth-verification" + params, "GET", null, false);
+        }
+        public String transferCredits(String targetUserId, int amount) throws Exception {
             Map<String, Object> body = new HashMap<>();
-            body.put("userId", userId);
-            body.put("username", username);
-            body.put("balance", balance);
-            return sendRequest("/users/create", "POST", new com.google.gson.Gson().toJson(body), null);
-        }
-
-        public static String get(String userId) throws Exception {
-            return sendRequest("/users/" + userId, "GET", null, null);
-        }
-
-        public static String verify(String userId, String verificationKey) throws Exception {
-            String params = "?userId=" + URLEncoder.encode(userId, "UTF-8") + "&verificationKey=" + URLEncoder.encode(verificationKey, "UTF-8");
-            return sendRequest("/users/auth-verification" + params, "POST", null, null);
+            body.put("targetUserId", targetUserId);
+            body.put("amount", amount);
+            return sendRequest("/users/transfer-credits", "POST", gson.toJson(body), true);
         }
     }
+    public final Users users = new Users();
 
-    // --- Items ---
-    public static class items {
-        public static String get(String itemId) throws Exception {
-            String endpoint = "/items";
-            if (itemId != null && !itemId.isEmpty()) {
-                endpoint += "/" + itemId;
-            }
-            return sendRequest(endpoint, "GET", null, null);
+    // --- GAMES ---
+    public class Games {
+        public String list() throws Exception {
+            return sendRequest("/games", "GET", null, false);
+        }
+        public String get(String gameId) throws Exception {
+            return sendRequest("/games/" + gameId, "GET", null, false);
+        }
+        public String listMine() throws Exception {
+            return sendRequest("/games/@mine", "GET", null, true);
+        }
+        public String listOwned() throws Exception {
+            return sendRequest("/games/list/@me", "GET", null, true);
+        }
+        public String listOwnedByUser(String userId) throws Exception {
+            return sendRequest("/games/list/" + userId, "GET", null, false);
+        }
+        public String create(Map<String, Object> options) throws Exception {
+            return sendRequest("/games", "POST", gson.toJson(options), true);
+        }
+        public String update(String gameId, Map<String, Object> options) throws Exception {
+            return sendRequest("/games/" + gameId, "PUT", gson.toJson(options), true);
+        }
+        public String delete(String gameId) throws Exception {
+            return sendRequest("/games/" + gameId, "DELETE", null, true);
         }
     }
+    public final Games games = new Games();
 
-    // --- Inventory ---
-    public static class inventory {
-        public static String get(String userId) throws Exception {
-            return sendRequest("/inventory/" + userId, "GET", null, null);
+    // --- ITEMS ---
+    public class Items {
+        public String list() throws Exception {
+            return sendRequest("/items", "GET", null, false);
+        }
+        public String listMine() throws Exception {
+            return sendRequest("/items/@mine", "GET", null, true);
+        }
+        public String get(String itemId) throws Exception {
+            return sendRequest("/items/" + itemId, "GET", null, false);
+        }
+        public String create(Map<String, Object> options) throws Exception {
+            return sendRequest("/items/create", "POST", gson.toJson(options), true);
+        }
+        public String update(String itemId, Map<String, Object> options) throws Exception {
+            return sendRequest("/items/update/" + itemId, "PUT", gson.toJson(options), true);
+        }
+        public String delete(String itemId) throws Exception {
+            return sendRequest("/items/delete/" + itemId, "DELETE", null, true);
+        }
+        public String buy(String itemId, int amount) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            return sendRequest("/items/buy/" + itemId, "POST", gson.toJson(body), true);
+        }
+        public String sell(String itemId, int amount) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            return sendRequest("/items/sell/" + itemId, "POST", gson.toJson(body), true);
+        }
+        public String give(String itemId, int amount) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            return sendRequest("/items/give/" + itemId, "POST", gson.toJson(body), true);
+        }
+        public String consume(String itemId, int amount) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            return sendRequest("/items/consume/" + itemId, "POST", gson.toJson(body), true);
+        }
+        public String drop(String itemId, int amount) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            return sendRequest("/items/drop/" + itemId, "POST", gson.toJson(body), true);
+        }
+        public String transfer(String itemId, int amount, String targetUserId) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            body.put("targetUserId", targetUserId);
+            return sendRequest("/items/transfer/" + itemId, "POST", gson.toJson(body), true);
         }
     }
+    public final Items items = new Items();
 
-    // --- Games ---
-    public static class games {
-        public static String list() throws Exception {
-            return sendRequest("/games", "GET", null, null);
-        }
-
-        public static String get(String gameId) throws Exception {
-            return sendRequest("/games/" + gameId, "GET", null, null);
-        }
-
-        public static String create(String name, String description, int price, boolean showInStore, String token) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("name", name);
-            body.put("description", description);
-            body.put("price", price);
-            body.put("showInStore", showInStore);
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer " + token);
-            return sendRequest("/games", "POST", new com.google.gson.Gson().toJson(body), headers);
-        }
-
-        public static String update(String gameId, Map<String, Object> updates) throws Exception {
-            return sendRequest("/games/" + gameId, "PUT", new com.google.gson.Gson().toJson(updates), null);
-        }
-
-        public static String delete(String gameId) throws Exception {
-            return sendRequest("/games/" + gameId, "DELETE", null, null);
+    // --- INVENTORY ---
+    public class Inventory {
+        public String get(String userId) throws Exception {
+            return sendRequest("/inventory/" + userId, "GET", null, false);
         }
     }
+    public final Inventory inventory = new Inventory();
 
-    // --- Lobbies ---
-    public static class lobbies {
-        public static String get(String lobbyId) throws Exception {
-            return sendRequest("/lobbies/" + lobbyId, "GET", null, null);
+    // --- LOBBIES ---
+    public class Lobbies {
+        public String get(String lobbyId) throws Exception {
+            return sendRequest("/lobbies/" + lobbyId, "GET", null, false);
         }
-
-        public static String getUserLobby(String userId) throws Exception {
-            return sendRequest("/lobbies/user/" + userId, "GET", null, null);
+        public String getUserLobby(String userId) throws Exception {
+            return sendRequest("/lobbies/user/" + userId, "GET", null, false);
         }
-
-        public static String create(String[] users) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("users", users);
-            return sendRequest("/lobbies", "POST", new com.google.gson.Gson().toJson(body), null);
+        public String getMine() throws Exception {
+            return sendRequest("/lobbies/user/@me", "GET", null, true);
         }
-
-        public static String join(String lobbyId, String userId) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("userId", userId);
-            return sendRequest("/lobbies/" + lobbyId + "/join", "POST", new com.google.gson.Gson().toJson(body), null);
+        public String create(Map<String, Object> options) throws Exception {
+            return sendRequest("/lobbies", "POST", gson.toJson(options), true);
         }
-
-        public static String leave(String lobbyId, String userId) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("userId", userId);
-            return sendRequest("/lobbies/" + lobbyId + "/leave", "POST", new com.google.gson.Gson().toJson(body), null);
+        public String join(String lobbyId) throws Exception {
+            return sendRequest("/lobbies/" + lobbyId + "/join", "POST", null, true);
+        }
+        public String leave(String lobbyId) throws Exception {
+            return sendRequest("/lobbies/" + lobbyId + "/leave", "POST", null, true);
         }
     }
+    public final Lobbies lobbies = new Lobbies();
 }
