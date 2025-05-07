@@ -108,12 +108,12 @@ export default function ApiDocs() {
                             </a>
                         </li>
                         <li>
-                            <a href="/downloadables/croissant-api.java" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                            <a href="/downloadables/CroissantAPI.java" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
                                 [Java Library]
                             </a>
                         </li>
                         <li>
-                            <a href="/downloadables/croissant-api.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                            <a href="/downloadables/CroissantAPI.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
                                 [C# Library]
                             </a>
                         </li>
@@ -143,12 +143,12 @@ export default function ApiDocs() {
                                 </a>
                             </li>
                             <li>
-                                <a href="/downloadables/example-lib.java" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                                <a href="/downloadables/ExampleLib.java" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
                                     [Java example]
                                 </a>
                             </li>
                             <li>
-                                <a href="/downloadables/example-lib.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
+                                <a href="/downloadables/ExampleLib.cs" target="_blank" download style={{ color: "#1e90ff", textDecoration: "none" }}>
                                     [C# example]
                                 </a>
                             </li>
