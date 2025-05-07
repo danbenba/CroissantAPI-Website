@@ -82,7 +82,8 @@ export interface Inventory {
  * @property amount - The quantity of the item.
  */
 export interface InventoryItem {
-    user_id: string;
+    name: string;
+    description: string;
     itemId: string;
     amount: number;
 }
