@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highlight from 'react-highlight'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
 const API_URL = "https://croissant-api.fr/api";
 
@@ -17,15 +19,28 @@ export default function ApiDocs() {
             .then((res) => res.json())
             .then((data) => {
                 setDocs(data);
-                console.log("Fetched docs:", data); // <-- Add this line
 
-                // Group docs by category after fetching
+                // Group docs by category and then by endpoint
                 const grouped = data.reduce((acc: Record<string, any[]>, doc: any) => {
                     const cat = doc.category || "Uncategorized";
                     if (!acc[cat]) acc[cat] = [];
                     acc[cat].push(doc);
                     return acc;
                 }, {});
+
+                // Further group by endpoint
+                Object.keys(grouped).forEach(category => {
+                    const endpoints: Record<string, any[]> = {};
+                    grouped[category].forEach((doc: any) => {
+                        const endpointKey = doc.method + ' ' + doc.endpoint;
+                        if (!endpoints[endpointKey]) {
+                            endpoints[endpointKey] = [];
+                        }
+                        endpoints[endpointKey].push(doc);
+                    });
+                    grouped[category] = Object.values(endpoints);
+                });
+
                 setCategories(grouped);
                 setCategoryList(Object.keys(grouped));
                 setLoading(false);
@@ -69,6 +84,7 @@ export default function ApiDocs() {
                 boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 overflow: "auto",
                 maxWidth: "100%",
+                zoom:0.7
             }}
         >
             {/* Sidebar */}
@@ -85,6 +101,9 @@ export default function ApiDocs() {
                     flexDirection: "column",
                     // gap: "24px",
                     width: "90%",
+                    position: "-webkit-sticky", /* Safari */
+                    // position: "sticky",
+                    top: "20px",
                 }}
             >
                 {/* Search Input */}
@@ -127,6 +146,16 @@ export default function ApiDocs() {
                                 }}
                             >
                                 {cat}
+                                <ul style={{ listStyle: "none", paddingLeft: "20px" }}>
+                                    {categories[cat]?.map((endpointGroup, index) => {
+                                        const doc = endpointGroup[0]; // Assuming all docs in the group have the same endpoint
+                                        return (
+                                            <li key={index} style={{ marginBottom: "4px", cursor: "pointer", color: selectedCategory === cat ? "#fff" : "#fff" }}>
+                                                <span className={"method " + doc.method.toLowerCase()}>{doc.method}</span> {doc.endpoint}
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
                             </li>
                         ))}
                     </ul>
@@ -214,7 +243,10 @@ export default function ApiDocs() {
             <div className="api-docs-main" style={{ flex: 1, minWidth: 0 }}>
                 <h2 style={{ color: "#ffffff" }}>API Documentation</h2>
                 <p style={{ fontSize: "16px", color: "#cccccc" }}>
-                    You will find the API documentation below.
+                    You will find the API documentation below.<br /><br />
+                    <div>
+                    <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> Requires authentication via headers Authorization: "Bearer [token]" (use <code>/api-key</code> command on Discord to generate your API key)<br />
+                    </div>
                 </p>
                 <div className="content" style={{ color: "#ffffff" }}>
                     {loading ? (
@@ -239,7 +271,10 @@ export default function ApiDocs() {
                                     <a href={`#${doc.endpoint}`} className="endpoint-link">
                                         <div className="endpoint-header">
                                             <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
-                                            <h4 style={{ display: "inline-block", marginLeft: "8px" }}>/api{doc.endpoint}</h4>
+                                            <h4 style={{ display: "inline-block", marginLeft: "8px" }}>
+                                                /api{doc.endpoint}
+                                                {doc.requiresAuth == true ? <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> : ""}
+                                            </h4>
                                         </div>
                                         <p className="description">{doc.description}</p>
                                     </a>
@@ -258,25 +293,31 @@ export default function ApiDocs() {
                             displayedCategories.map((cat) => (
                                 <div key={cat} style={{ marginBottom: "32px" }}>
                                     <h3 style={{ color: "#1e90ff", borderBottom: "1px solid #444", paddingBottom: "4px" }}>{cat}</h3>
-                                    {getDocsForCategory(cat)?.map((doc) => (
-                                        <div className="api-doc" key={doc.endpoint} id={doc.endpoint} style={{ marginBottom: "24px" }}>
-                                            <a href={`#${doc.endpoint}`} className="endpoint-link">
-                                                <div className="endpoint-header">
-                                                    <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
-                                                    <h4 style={{ display: "inline-block", marginLeft: "8px" }}>/api{doc.endpoint}</h4>
+                                    {getDocsForCategory(cat)?.map((endpointGroup) => {
+                                        const doc = endpointGroup[0];
+                                        return (
+                                            <div className="api-doc" key={doc.endpoint} id={doc.endpoint} style={{ marginBottom: "24px" }}>
+                                                <a href={`#${doc.endpoint}`} className="endpoint-link">
+                                                    <div className="endpoint-header">
+                                                        <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
+                                                        <h4 style={{ display: "inline-block", marginLeft: "8px" }}>
+                                                            /api{doc.endpoint}
+                                                            {doc.requiresAuth == true ? <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> : ""}
+                                                        </h4>
+                                                    </div>
+                                                    <p className="description">{doc.description}</p>
+                                                </a>
+                                                <div className="endpoint-details">
+                                                    <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
+                                                    <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
+                                                    <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
+                                                    <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
+                                                    <InfoSection title="Example" content={doc.example} language="javascript" />
+                                                    <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
                                                 </div>
-                                                <p className="description">{doc.description}</p>
-                                            </a>
-                                            <div className="endpoint-details">
-                                                <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
-                                                <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
-                                                <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
-                                                <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
-                                                <InfoSection title="Example" content={doc.example} language="javascript" />
-                                                <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ))
                         )
@@ -308,17 +349,20 @@ function InfoSection({
     language: string;
 }) {
     return (
-        <div className={`${title.toLowerCase().replace(" ", "-")}-info`}>
-            <h4>{title}:</h4>
-            <pre>
-                <Highlight className={language}>
-                    {content
-                        ? typeof content === "string"
-                            ? content
-                            : JSON.stringify(content, null, 2)
-                        : "None"}
-                </Highlight>
-            </pre>
-        </div>
+        <>
+            {content ? 
+                <div className={`${title.toLowerCase().replace(" ", "-")}-info`}>
+                    <h4>{title}:</h4>
+                    <pre>
+                        <Highlight className={language}>
+                            {typeof content === "string"
+                                ? content
+                                : JSON.stringify(content, null, 2)
+                            }
+                        </Highlight>
+                    </pre>
+                </div>
+             : ""}
+        </>
     );
 }
