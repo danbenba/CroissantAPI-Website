@@ -12,7 +12,6 @@ import ApiDocs from "./pages/ApiDocs";
 import Contact from "./pages/Contact";
 import TOS from "./pages/TOS";
 import Privacy from "./pages/Privacy";
-import GettingStarted from "./pages/GettingStarted";
 import ClosePage from "./pages/ClosePage";
 import DownloadLauncher from "./pages/DownloadLauncher";
 
@@ -26,7 +25,6 @@ export default class extends Component {
           <main>
             <Routes>
               <Route path="/" element={<MainPage />}/>
-              <Route path="/getting-started" element={<GettingStarted />} />
               <Route path="/api-docs" element={<ApiDocs />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/tos" element={<TOS />} />

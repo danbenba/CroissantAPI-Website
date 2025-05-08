@@ -233,9 +233,6 @@ export default function ApiDocs() {
                             </li>
                         </ul>
                     </div>
-                    <p style={{ color: "#cccccc", marginTop: "12px" }}>
-                        See the <a href="/getting-started" style={{ color: "#1e90ff" }}>Getting Started</a> guide.
-                    </p>
                 </div>
             </aside>
 
