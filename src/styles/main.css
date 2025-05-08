@@ -150,8 +150,7 @@ button:hover {
 }
 
 pre {
-    /* background: #444444; */
-    /* padding: 10px; */
+    font-size: 1.1rem;
     border-radius: 4px;
     overflow-x: auto; /* Allow horizontal scrolling */
 }
@@ -274,6 +273,27 @@ strong {
 
     pre {
         font-size: 1.1rem;
+    }
+}
+/* container related */
+.api-docs-container {
+    flex-direction: column;
+}
+
+.api-docs-sidebar {
+    min-width: auto !important;
+    width: 100%;
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+    .api-docs-container {
+        flex-direction: row;
+    }
+
+    .api-docs-sidebar {
+        max-width: 260px;
+        width: 260px;
     }
 }
 /* 

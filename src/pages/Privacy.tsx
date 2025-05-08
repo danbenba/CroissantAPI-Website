@@ -24,6 +24,7 @@ export default class extends Component {
                     <b>3. Data Sharing</b>
                     <p className="indent">3.1. Public Information: Item ownership and trading history may be visible to other users through our leaderboard system.</p>
                     <p className="indent">3.2. API Integration: When you use games integrated with our API, necessary inventory data is shared with those games.</p>
+                    <p className="indent">3.3. API Data Access: Some non-sensitive data is accessible through our API for integrated services.</p>
     
                     <b>4. Data Security</b>
                     <p className="indent">4.1. We implement security measures to protect your information, including secure API key generation and storage.</p>
@@ -32,6 +33,7 @@ export default class extends Component {
                     <b>5. User Rights</b>
                     <p className="indent">5.1. You can view your data using the /inventory command.</p>
                     <p className="indent">5.2. You can delete items you own using the /delete-item command.</p>
+                    <p className="indent">5.3. You may request deletion of your account data by contacting our support team.</p>
     
                     <b>6. Changes to This Policy</b>
                     <p className="indent">6.1. We may update this policy as our services evolve. Significant changes will be announced through our Discord bot.</p>

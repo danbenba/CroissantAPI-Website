@@ -9,6 +9,8 @@ export default function ApiDocs() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [categories, setCategories] = useState<Record<string, any[]>>({});
     const [categoryList, setCategoryList] = useState<string[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [filteredDocs, setFilteredDocs] = useState<any[]>([]);
 
     useEffect(() => {
         fetch(API_URL + "/describe")
@@ -32,9 +34,32 @@ export default function ApiDocs() {
         document.title = "Api Docs | Croissant";
     }, []);
 
+    useEffect(() => {
+        // Filter docs based on searchTerm
+        if (searchTerm) {
+            const filtered = docs.filter(doc =>
+                doc.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                doc.description.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredDocs(filtered);
+        } else {
+            setFilteredDocs([]); // Clear filtered docs when search term is empty
+        }
+    }, [searchTerm, docs]);
+
+    const displayedCategories = searchTerm ? [] : (selectedCategory ? [selectedCategory] : categoryList);
+
+    const getDocsForCategory = (cat: string) => {
+        if (searchTerm) {
+            return filteredDocs;
+        }
+        return categories[cat] || [];
+    };
+
     return (
         <div
-            className="container"
+            className="container api-docs-container"
             style={{
                 display: "flex",
                 gap: "24px",
@@ -48,25 +73,47 @@ export default function ApiDocs() {
         >
             {/* Sidebar */}
             <aside
+                className="api-docs-sidebar"
                 style={{
-                    minWidth: "260px",
-                    background: "#292929",
+                    // maxWidth: "300px",
+                    background: "rgb(41, 41, 41)",
                     borderRadius: "8px",
                     padding: "16px",
                     height: "fit-content",
                     flexShrink: 0,
                     display: "flex",
                     flexDirection: "column",
-                    gap: "24px",
+                    // gap: "24px",
+                    width: "90%",
                 }}
             >
+                {/* Search Input */}
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Search endpoints..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{
+                            width: '95%',
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: '1px solid #555',
+                            background: '#444',
+                            color: '#fff',
+                        }}
+                    />
+                </div>
                 {/* Categories */}
                 <div>
                     <h3 style={{ color: "#fff", marginBottom: "12px" }}>Categories</h3>
                     <ul style={{ listStyle: "none", padding: 0 }}>
                         <li
                             style={{ marginBottom: "8px", cursor: "pointer", color: selectedCategory === null ? "#1e90ff" : "#fff" }}
-                            onClick={() => setSelectedCategory(null)}
+                            onClick={() => {
+                                setSelectedCategory(null);
+                                setSearchTerm(''); // Clear search when "All" is clicked
+                            }}
                         >
                             All
                         </li>
@@ -74,7 +121,10 @@ export default function ApiDocs() {
                             <li
                                 key={cat}
                                 style={{ marginBottom: "8px", cursor: "pointer", color: selectedCategory === cat ? "#1e90ff" : "#fff" }}
-                                onClick={() => setSelectedCategory(cat)}
+                                onClick={() => {
+                                    setSelectedCategory(cat);
+                                    setSearchTerm(''); // Clear search when a category is clicked
+                                }}
                             >
                                 {cat}
                             </li>
@@ -118,7 +168,7 @@ export default function ApiDocs() {
                             </a>
                         </li>
                     </ul>
-                    <div style={{ marginTop: "12px" }}>
+                    <div style={{ marginTop: "12px", display: "none" }}>
                         <h4 style={{ color: "#fff" }}>Examples</h4>
                         <ul style={{
                             listStyleType: "none",
@@ -161,7 +211,7 @@ export default function ApiDocs() {
             </aside>
 
             {/* Main Content */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="api-docs-main" style={{ flex: 1, minWidth: 0 }}>
                 <h2 style={{ color: "#ffffff" }}>API Documentation</h2>
                 <p style={{ fontSize: "16px", color: "#cccccc" }}>
                     You will find the API documentation below.
@@ -182,30 +232,57 @@ export default function ApiDocs() {
                             </span>
                         </div>
                     ) : (
-                        (selectedCategory ? [selectedCategory] : categoryList).map((cat) => (
-                            <div key={cat} style={{ marginBottom: "32px" }}>
-                                <h3 style={{ color: "#1e90ff", borderBottom: "1px solid #444", paddingBottom: "4px" }}>{cat}</h3>
-                                {categories[cat]?.map((doc) => (
-                                    <div className="api-doc" key={doc.endpoint} id={doc.endpoint} style={{ marginBottom: "24px" }}>
-                                        <a href={`#${doc.endpoint}`} className="endpoint-link">
-                                            <div className="endpoint-header">
-                                                <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
-                                                <h4 style={{ display: "inline-block", marginLeft: "8px" }}>/api{doc.endpoint}</h4>
-                                            </div>
-                                            <p className="description">{doc.description}</p>
-                                        </a>
-                                        <div className="endpoint-details">
-                                            <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
-                                            <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
-                                            <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
-                                            <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
-                                            <InfoSection title="Example" content={doc.example} language="javascript" />
-                                            <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
+                        searchTerm ? (
+                            // Display filtered results directly
+                            filteredDocs.map((doc) => (
+                                <div className="api-doc" key={doc.endpoint} id={doc.endpoint} style={{ marginBottom: "24px" }}>
+                                    <a href={`#${doc.endpoint}`} className="endpoint-link">
+                                        <div className="endpoint-header">
+                                            <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
+                                            <h4 style={{ display: "inline-block", marginLeft: "8px" }}>/api{doc.endpoint}</h4>
                                         </div>
+                                        <p className="description">{doc.description}</p>
+                                    </a>
+                                    <div className="endpoint-details">
+                                        <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
+                                        <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
+                                        <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
+                                        <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
+                                        <InfoSection title="Example" content={doc.example} language="javascript" />
+                                        <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
                                     </div>
-                                ))}
-                            </div>
-                        ))
+                                </div>
+                            ))
+                        ) : (
+                            // Original category-based display
+                            displayedCategories.map((cat) => (
+                                <div key={cat} style={{ marginBottom: "32px" }}>
+                                    <h3 style={{ color: "#1e90ff", borderBottom: "1px solid #444", paddingBottom: "4px" }}>{cat}</h3>
+                                    {getDocsForCategory(cat)?.map((doc) => (
+                                        <div className="api-doc" key={doc.endpoint} id={doc.endpoint} style={{ marginBottom: "24px" }}>
+                                            <a href={`#${doc.endpoint}`} className="endpoint-link">
+                                                <div className="endpoint-header">
+                                                    <span className={`method ${doc.method?.toLowerCase()}`}>{doc.method}</span>
+                                                    <h4 style={{ display: "inline-block", marginLeft: "8px" }}>/api{doc.endpoint}</h4>
+                                                </div>
+                                                <p className="description">{doc.description}</p>
+                                            </a>
+                                            <div className="endpoint-details">
+                                                <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
+                                                <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
+                                                <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
+                                                <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
+                                                <InfoSection title="Example" content={doc.example} language="javascript" />
+                                                <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))
+                        )
+                    )}
+                    {searchTerm && filteredDocs.length === 0 && !loading && (
+                        <div style={{ color: '#fff' }}>No results found for "{searchTerm}".</div>
                     )}
                 </div>
                 <style>

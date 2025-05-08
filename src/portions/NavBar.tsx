@@ -6,16 +6,13 @@ export default class extends Component {
     render(): React.ReactNode {
         return (
             <header>
-                <h1>Croissant Inventory System</h1>
+                <Link to="/" style={{ color: "white", textDecoration:"none"}}><h1>Croissant API</h1></Link>
+                <h4 style={{color: "gray"}}>Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology</h4>
                 <nav>
                     <div className="links-group">
-                        <Link to="/">Home</Link>
-                        {/* <Link to="/auth">Auth</Link> */}
-                        <Link to="/contact">Contact Us</Link>
-                        <Link to="/about">About Us</Link>
-                        <Link to="/getting-started">Getting Started</Link>
                         <Link to="/api-docs">API Documentation</Link>
-                        <Link to="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923">Discord Bot</Link>
+                        <Link to="/download-launcher">Launcher</Link>
+                        <Link to="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923">Bot</Link>
                     </div>
                 </nav>
             </header>

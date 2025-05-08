@@ -13,18 +13,17 @@ export default class extends Component {
     
                     <b>1. Service Usage</b>
                     <p className="indent">1.1. Our services are provided free of charge and are intended for managing virtual items in games.</p>
-                    <p className="indent">1.2. Each new account receives 5000 credits upon creation.</p>
-                    <p className="indent">1.3. You must use our services in accordance with Discord's Terms of Service when using our bot.</p>
+                    <p className="indent">1.2. You must use our services in accordance with Discord's Terms of Service when using our bot.</p>
     
                     <b>2. Item Creation and Ownership</b>
-                    <p className="indent">2.1. Users can create and customize their own items using provided commands.</p>
-                    <p className="indent">2.2. Item creators receive 80% of the sale price when their items are sold.</p>
+                    <p className="indent">2.1. Users can create and customize their own items using launcher.</p>
+                    <p className="indent">2.2. Item creators receive 75% of the sale price when their items are sold.</p>
                     <p className="indent">2.3. We reserve the right to remove inappropriate or offensive items.</p>
     
                     <b>3. Trading and Transactions</b>
                     <p className="indent">3.1. All trades must be confirmed by both parties to be completed.</p>
                     <p className="indent">3.2. Users are responsible for verifying trade details before confirmation.</p>
-                    <p className="indent">3.3. Virtual items and credits have no real-world monetary value.</p>
+                    <p className="indent">3.3. Virtual items and credits have no real-world monetary value. Credits can be converted into real life money by contacting us to make a cooperation operation.</p>
     
                     <b>4. API Usage</b>
                     <p className="indent">4.1. API keys must be obtained through the /api-key command.</p>
