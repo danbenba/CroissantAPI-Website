@@ -201,7 +201,7 @@ class CroissantAPI {
             const res = await fetch(`${croissantBaseUrl}/users/@me`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch user');
+            if (!res.ok) return {} as User;
             return await res.json();
         },
 
@@ -214,7 +214,7 @@ class CroissantAPI {
          */
         getUser: async (userId: string): Promise<User> => {
             const res = await fetch(`${croissantBaseUrl}/users/${userId}`);
-            if (!res.ok) throw new Error('Failed to fetch user');
+            if (!res.ok) return {} as User;
             return await res.json();
         },
 
@@ -227,7 +227,7 @@ class CroissantAPI {
          */
         search: async (query: string): Promise<User[]> => {
             const res = await fetch(`${croissantBaseUrl}/users/search?q=${encodeURIComponent(query)}`);
-            if (!res.ok) throw new Error('Failed to search users');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -243,7 +243,7 @@ class CroissantAPI {
             const res = await fetch(
                 `${croissantBaseUrl}/users/auth-verification?userId=${encodeURIComponent(userId)}&verificationKey=${encodeURIComponent(verificationKey)}`
             );
-            if (!res.ok) throw new Error('Failed to verify user');
+            if (!res.ok) return { success: false };
             return await res.json();
         },
 
@@ -265,6 +265,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ targetUserId, amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -285,7 +286,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to create user');
+            if (!res.ok) return {} as User;
             return await res.json();
         }
     };
@@ -303,7 +304,7 @@ class CroissantAPI {
          */
         list: async (): Promise<Game[]> => {
             const res = await fetch(`${croissantBaseUrl}/games`);
-            if (!res.ok) throw new Error('Failed to fetch games');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -316,7 +317,7 @@ class CroissantAPI {
          */
         get: async (gameId: string): Promise<Game> => {
             const res = await fetch(`${croissantBaseUrl}/games/${gameId}`);
-            if (!res.ok) throw new Error('Failed to fetch game');
+            if (!res.ok) return {} as Game;
             return await res.json();
         },
 
@@ -331,7 +332,7 @@ class CroissantAPI {
             const res = await fetch(`${croissantBaseUrl}/games/@mine`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch my games');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -346,7 +347,7 @@ class CroissantAPI {
             const res = await fetch(`${croissantBaseUrl}/games/list/@me`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch owned games');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -359,7 +360,7 @@ class CroissantAPI {
          */
         listOwnedByUser: async (userId: string): Promise<Game[]> => {
             const res = await fetch(`${croissantBaseUrl}/games/list/${userId}`);
-            if (!res.ok) throw new Error('Failed to fetch user owned games');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -380,7 +381,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to create game');
+            if (!res.ok) return {} as Game;
             return await res.json();
         },
 
@@ -402,7 +403,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to update game');
+            if (!res.ok) return {} as Game;
             return await res.json();
         },
 
@@ -421,6 +422,7 @@ class CroissantAPI {
                     'Authorization': `Bearer ${this.token}`
                 }
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         }
     };
@@ -438,7 +440,7 @@ class CroissantAPI {
          */
         list: async (): Promise<Item[]> => {
             const res = await fetch(`${croissantBaseUrl}/items`);
-            if (!res.ok) throw new Error('Failed to fetch items');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -453,7 +455,7 @@ class CroissantAPI {
             const res = await fetch(`${croissantBaseUrl}/items/@mine`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch my items');
+            if (!res.ok) return [];
             return await res.json();
         },
 
@@ -466,7 +468,7 @@ class CroissantAPI {
          */
         get: async (itemId: string): Promise<Item> => {
             const res = await fetch(`${croissantBaseUrl}/items/${itemId}`);
-            if (!res.ok) throw new Error('Failed to fetch item');
+            if (!res.ok) return {} as Item;
             return await res.json();
         },
 
@@ -487,7 +489,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to create item');
+            if (!res.ok) return {} as Item;
             return await res.json();
         },
 
@@ -509,7 +511,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to update item');
+            if (!res.ok) return {} as Item;
             return await res.json();
         },
 
@@ -528,6 +530,7 @@ class CroissantAPI {
                     'Authorization': `Bearer ${this.token}`
                 }
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -549,6 +552,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -570,6 +574,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -591,6 +596,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -612,6 +618,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -633,6 +640,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -655,6 +663,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify({ amount, targetUserId })
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         }
     };
@@ -673,7 +682,7 @@ class CroissantAPI {
          */
         get: async (userId: string): Promise<InventoryItem[]> => {
             const res = await fetch(`${croissantBaseUrl}/inventory/${userId}`);
-            if (!res.ok) throw new Error('Failed to fetch inventory');
+            if (!res.ok) return [];
             return await res.json();
         }
     };
@@ -692,7 +701,7 @@ class CroissantAPI {
          */
         get: async (lobbyId: string): Promise<Lobby> => {
             const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}`);
-            if (!res.ok) throw new Error('Failed to fetch lobby');
+            if (!res.ok) return {} as Lobby;
             return await res.json();
         },
 
@@ -705,7 +714,7 @@ class CroissantAPI {
          */
         getUserLobby: async (userId: string): Promise<Lobby> => {
             const res = await fetch(`${croissantBaseUrl}/lobbies/user/${userId}`);
-            if (!res.ok) throw new Error('Failed to fetch user lobby');
+            if (!res.ok) return {} as Lobby;
             return await res.json();
         },
 
@@ -720,7 +729,7 @@ class CroissantAPI {
             const res = await fetch(`${croissantBaseUrl}/lobbies/user/@me`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch my lobby');
+            if (!res.ok) return {} as Lobby;
             return await res.json();
         },
 
@@ -741,7 +750,7 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
-            if (!res.ok) throw new Error('Failed to create lobby');
+            if (!res.ok) return {} as Lobby;
             return await res.json();
         },
 
@@ -760,6 +769,7 @@ class CroissantAPI {
                     'Authorization': `Bearer ${this.token}`
                 }
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         },
 
@@ -778,6 +788,7 @@ class CroissantAPI {
                     'Authorization': `Bearer ${this.token}`
                 }
             });
+            if (!res.ok) return { message: "failed" };
             return await res.json();
         }
     };
