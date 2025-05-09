@@ -156,6 +156,7 @@ export interface Lobby {
  * };
  */
 export interface User {
+    userId: string;
     username: string;
     avatar: string;
     discriminator: string;
