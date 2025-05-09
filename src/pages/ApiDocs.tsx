@@ -243,6 +243,12 @@ export default function ApiDocs() {
                     You will find the API documentation below.<br /><br />
                     <div>
                     <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> Requires authentication via headers Authorization: "Bearer [token]" (use <code>/api-key</code> command on Discord to generate your API key)<br />
+                    <br />
+                    <strong>Precisions:</strong><br /><br />
+                    - <code>iconHash</code> is linked to <code>/games-icons</code> and <code>/items-icons</code>.<br />
+                    - <code>bannerHash</code> is linked to <code>/banners-icons</code>.<br />
+                    - <code>splashHash</code> is now deprecated and will be removed in the future.<br />
+                    - Both hashes can be used to construct URLs for fetching the respective assets icons.
                     </div>
                 </p>
                 <div className="content" style={{ color: "#ffffff" }}>
