@@ -10,8 +10,8 @@ export default class extends Component {
                 <h4 style={{color: "gray"}}>Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology</h4>
                 <nav>
                     <div className="links-group">
-                        <Link to="/api-docs">API Documentation</Link>
                         <Link to="/download-launcher">Launcher</Link>
+                        <Link to="/api-docs">API Documentation</Link>
                         <Link to="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923">Bot</Link>
                     </div>
                 </nav>
