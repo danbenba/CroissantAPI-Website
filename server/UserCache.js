@@ -2,28 +2,28 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.setCachedUser = exports.getCachedUser = void 0;
-var fs_1 = __importDefault(require("fs"));
-var path_1 = __importDefault(require("path"));
-var CACHE_FILE = path_1["default"].join(__dirname, "userCache.json");
-var CACHE_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const CACHE_FILE = path_1.default.join(__dirname, "userCache.json");
+const CACHE_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 function loadCache() {
-    if (!fs_1["default"].existsSync(CACHE_FILE))
+    if (!fs_1.default.existsSync(CACHE_FILE))
         return {};
     try {
-        return JSON.parse(fs_1["default"].readFileSync(CACHE_FILE, "utf-8"));
+        return JSON.parse(fs_1.default.readFileSync(CACHE_FILE, "utf-8"));
     }
-    catch (_a) {
+    catch {
         return {};
     }
 }
 function saveCache(cache) {
-    fs_1["default"].writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+    fs_1.default.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
 }
 function getCachedUser(userId) {
-    var cache = loadCache();
-    var entry = cache[userId];
+    const cache = loadCache();
+    const entry = cache[userId];
     if (!entry)
         return null;
     if (Date.now() - entry.timestamp > CACHE_EXPIRY_MS) {
@@ -35,8 +35,8 @@ function getCachedUser(userId) {
 }
 exports.getCachedUser = getCachedUser;
 function setCachedUser(userId, data) {
-    var cache = loadCache();
-    cache[userId] = { data: data, timestamp: Date.now() };
+    const cache = loadCache();
+    cache[userId] = { data, timestamp: Date.now() };
     saveCache(cache);
 }
 exports.setCachedUser = setCachedUser;

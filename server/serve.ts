@@ -25,8 +25,9 @@ const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
 const iconsDir = path.join(__dirname, "..", "gameIcons");
 const bannersDir = path.join(__dirname, "..", "bannersIcons");
 const itemsIconsDir = path.join(__dirname, "..", "itemsIcons");
+const avatarsDir = path.join(__dirname, "..", "avatars");
 
-[iconsDir, bannersDir, itemsIconsDir].forEach(dir => {
+[iconsDir, bannersDir, itemsIconsDir, avatarsDir].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
@@ -42,6 +43,7 @@ const storage = (folder: string) => multer.diskStorage({
 const uploadIcon = multer({ storage: storage(iconsDir) });
 const uploadBanner = multer({ storage: storage(bannersDir) });
 const uploadItemIcon = multer({ storage: storage(itemsIconsDir) });
+const uploadAvatar = multer({ storage: storage(avatarsDir) });
 
 app.use(cors());
 app.use(cookieParser());
@@ -315,9 +317,49 @@ app.post("/upload/banner", uploadBanner.single("banner"), (req, res) => {
     res.json({ hash });
 });
 
+app.post('/upload/avatar', uploadAvatar.single('avatar'), async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: 'Authorization header missing' });
+        }
+
+        const userResponse = await fetch(`${req.protocol}://${req.get('host')}/api/users/@me`, {
+            headers: { Authorization: authHeader }
+        });
+
+        if (!userResponse.ok) {
+            return res.status(401).json({ error: 'Failed to fetch user information' });
+        }
+
+        const user = await userResponse.json();
+        const userId = user.userId;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const avatarPath = path.join(avatarsDir, `${userId}.png`);
+        fs.renameSync(req.file.path, avatarPath);
+
+        res.json({ message: 'Avatar uploaded successfully', userId });
+    } catch (error) {
+        console.error('Error uploading avatar:', error);
+        res.status(500).json({ error: 'An error occurred while uploading the avatar' });
+    }
+});
+
 app.get('/avatar/:userId', async (req, res) => {
     const { userId } = req.params;
     try {
+        // Vérifier si un avatar personnalisé existe
+        const customAvatarPath = path.join(avatarsDir, `${userId}.png`);
+        if (fs.existsSync(customAvatarPath)) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(customAvatarPath);
+        }
+
+        // Si aucun avatar personnalisé, récupérer depuis Discord
         const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
             headers: {
                 Authorization: BOT_TOKEN
