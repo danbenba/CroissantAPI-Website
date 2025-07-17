@@ -16,16 +16,16 @@ interface MulterRequest extends ExpressRequest {
     file?: Express.Multer.File;
 }
 
-config({ path: path.join(__dirname, "..", ".env") });
+config({ path: path.join(__dirname, "..", "..", ".env") });
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = `Bot ${process.env.BOT_TOKEN}`;
 
-const iconsDir = path.join(__dirname, "..", "gameIcons");
-const bannersDir = path.join(__dirname, "..", "bannersIcons");
-const itemsIconsDir = path.join(__dirname, "..", "itemsIcons");
-const avatarsDir = path.join(__dirname, "..", "avatars");
+const iconsDir = path.join(__dirname, "..", "..", "gameIcons");
+const bannersDir = path.join(__dirname, "..", "..", "bannersIcons");
+const itemsIconsDir = path.join(__dirname, "..", "..", "itemsIcons");
+const avatarsDir = path.join(__dirname, "..", "..", "avatars");
 
 [iconsDir, bannersDir, itemsIconsDir, avatarsDir].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -47,7 +47,7 @@ const uploadAvatar = multer({ storage: storage(avatarsDir) });
 
 app.use(cors());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "..", "build")));
+app.use(express.static(path.join(__dirname, "..", "..", "build")));
 
 app.get("/login", (req: Request, res: Response) => {
     if (req.cookies.token) {
@@ -71,11 +71,11 @@ app.get("/login/google", (req: Request, res: Response) => {
 });
 
 app.get("/transmitToken", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "..", "build", "transmitToken.html"));
+    res.sendFile(path.join(__dirname, "..", "..", "build", "transmitToken.html"));
 });
 
 app.get("/join-lobby", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "..", "build", "join-lobby.html"));
+    res.sendFile(path.join(__dirname, "..", "..", "build", "join-lobby.html"));
 });
 
 app.get('/auth/discord', (req: Request, res: Response) => {
@@ -265,7 +265,7 @@ app.get('/items-icons/:hash', (req: Request, res: Response) => {
     const hash = req.params.hash;
     const files = fs.readdirSync(itemsIconsDir);
     const file = files.find(f => path.parse(f).name === hash);
-    const fallbackPath = path.join(__dirname, "..", "public", "System_Shop.webp");
+    const fallbackPath = path.join(__dirname, "..", "..", "public", "System_Shop.webp");
     const fileToSend = file ? path.join(itemsIconsDir, file) : fallbackPath;
     res.setHeader('Cache-Control', 'public, max-age=86400'); // cache for 1 day
     res.sendFile(fileToSend);
@@ -275,7 +275,7 @@ app.get("/games-icons/:hash", (req: Request, res: Response) => {
     // Find file with matching hash (filename without extension)
     const files = fs.readdirSync(iconsDir);
     const file = files.find(f => path.parse(f).name === hash);
-    const fallbackPath = path.join(__dirname, "..", "public", "8293566.png");
+    const fallbackPath = path.join(__dirname, "..", "..", "public", "8293566.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(iconsDir, file));
@@ -289,7 +289,7 @@ app.get("/banners-icons/:hash", (req: Request, res: Response) => {
     const hash = req.params.hash;
     const files = fs.readdirSync(bannersDir);
     const file = files.find(f => path.parse(f).name === hash);
-    const fallbackPath = path.join(__dirname, "..", "public", "Generic-Banner-03-blue-Game.png");
+    const fallbackPath = path.join(__dirname, "..", "..", "public", "Generic-Banner-03-blue-Game.png");
     if (file) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         res.sendFile(path.join(bannersDir, file));
@@ -400,13 +400,13 @@ app.get('/avatar/:userId', async (req, res) => {
 });
 
 // Place these routes before the catch-all route to avoid being overridden
-app.use('/launcher', express.static(path.join(__dirname, "..", "launcher", "build")));
+app.use('/launcher', express.static(path.join(__dirname, "..", "..", "launcher", "build")));
 app.get('/launcher/:path', (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "launcher", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "..", "..", "launcher", "build", "index.html"));
 });
 
 app.use((_req, res) => {
-    res.sendFile(path.join(__dirname, "..", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "..", "..", "build", "index.html"));
 });
 
 app.listen(PORT, () => {
