@@ -8,9 +8,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "serve": "npx ts-node-dev --respawn serve.ts",
+    "serve": "npx ts-node-dev --respawn .\\server\\serve.ts",
     "publish": "git add . && git commit -m \"update\" && git push",
-    "build-serve": "npx tsc .\\server\\serve.ts --esModuleInterop"
+    "build-serve": "npx tsc"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -21,6 +21,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "googleapis": "^153.0.0",
     "multer": "^1.4.5-lts.2",
     "react": "^19.1.0",
     "react-code-blocks": "^0.1.6",

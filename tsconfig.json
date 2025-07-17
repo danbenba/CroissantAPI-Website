@@ -13,10 +13,10 @@
         "moduleResolution": "node",
         "baseUrl": "./",
         "paths": {
-            "*": ["src/*", "*.ts"]
+            "*": ["src/*", "server/*", "*.ts"]
         },
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
+        "emitDecoratorMetadata": true
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]

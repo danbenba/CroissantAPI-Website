@@ -11,6 +11,7 @@ import crypto from "crypto";
 import multer from "multer";
 
 import { Request as ExpressRequest } from "express";
+import { google } from "googleapis";
 interface MulterRequest extends ExpressRequest {
     file?: Express.Multer.File;
 }
@@ -47,10 +48,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "..", "build")));
 
 app.get("/login", (req: Request, res: Response) => {
+    if (req.cookies.token) {
+        return res.redirect("/transmitToken");
+    }
+    res.sendFile(path.join(__dirname, "login.html"));
+});
+
+app.get("/login/discord", (req: Request, res: Response) => {
     if(req.cookies.token) {
         return res.redirect("/transmitToken");
     }
     return res.redirect("/auth/discord");
+});
+
+app.get("/login/google", (req: Request, res: Response) => {
+    if(req.cookies.token) {
+        return res.redirect("/transmitToken");
+    }
+    return res.redirect("/auth/google");
 });
 
 app.get("/transmitToken", (req: Request, res: Response) => {
@@ -69,6 +84,28 @@ app.get('/auth/discord', (req: Request, res: Response) => {
         scope: "identify email"
     });
     res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
+});
+
+function generateGoogleAuthUrl() {
+    const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_CALLBACK_URL
+    );
+    const scopes = [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ];
+    return oauth2Client.generateAuthUrl({
+        access_type: "offline",
+        scope: scopes,
+        prompt: "consent"
+    });
+}
+
+app.get('/auth/google', (req: Request, res: Response) => {
+    const url = generateGoogleAuthUrl();
+    res.redirect(url);
 });
 
 app.get('/auth/discord/callback', (req: Request, res: Response) => {
@@ -143,7 +180,85 @@ app.get('/auth/discord/callback', (req: Request, res: Response) => {
     });
 });
 
+app.get('/auth/google/callback', (req: Request, res: Response) => {
+    const { code } = req.query;
+    if (!code) {
+        res.status(400).send("Missing code parameter");
+        return;
+    }
+    
+    const params = new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        grant_type: "authorization_code",
+        code: code as string,
+        redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
+    });
+
+    fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params.toString(),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to fetch access token");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const { access_token } = data;
+        return fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+            headers: {
+                Authorization: `Bearer ${access_token}`,
+            },
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to fetch user info");
+        }
+        return response.json();
+    })
+    .then(user => {
+        // Use Google user ID as the primary identifier
+        const userId = `google_${user.id}`;
+        
+        fetch(`${req.protocol}://${req.get("host")}/api/users/${userId}`)
+            .then(apiRes => {
+                if (apiRes.status === 404) {
+                    return fetch(`${req.protocol}://${req.get("host")}/api/users/create`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            userId: userId,
+                            username: user.name || user.email.split('@')[0],
+                            balance: 1000
+                        })
+                    });
+                }
+                return apiRes;
+            })
+            .catch(err => {
+                console.error("Error ensuring user exists:", err);
+            });
+
+        const token = genKey(userId);
+        res.cookie("token", token);
+        res.redirect("/login");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        res.status(500).send("An error occurred during the Google authentication process.");
+    });
+});
+
 app.use('/api', createProxy("http://localhost:3456/"));
+// app.use('/api', createProxy("https://croissant-api.fr/api"));
 app.get('/items-icons/:hash', (req: Request, res: Response) => {
     const hash = req.params.hash;
     const files = fs.readdirSync(itemsIconsDir);
