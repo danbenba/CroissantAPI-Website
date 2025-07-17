@@ -13,11 +13,11 @@
         "moduleResolution": "node",
         "baseUrl": "./",
         "paths": {
-            "*": ["src/*", "server/*", "*.ts"]
+            "*": ["src/*", "src/server/*", "*.ts"]
         },
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "include": ["src/**/*", "server/**/*", "tsconfig.json"],
+    "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]
 }
