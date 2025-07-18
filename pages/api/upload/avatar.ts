@@ -32,10 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const tempPath = (file.filepath || file.path);
     if (!tempPath) return res.status(500).json({ error: 'File path missing' });
 
-    console.log('Temp file path:', userData);
+    // console.log('Temp file path:', userData);
 
     // Ici, récupère l'userId (ex: depuis le token ou un champ)
-    const userId = (userData.user_id as string) || 'unknown';
+    const userId = (userData.id as string) || 'unknown';
     const destPath = path.join(avatarsDir, `${userId}.png`);
     fs.renameSync(tempPath, destPath);
 
