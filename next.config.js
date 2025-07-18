@@ -32,6 +32,22 @@ const nextConfig = {
                 source: '/launcher/:path*',
                 destination: '/launcher/index.html',
             },
+            {
+                source: '/upload/avatar',
+                destination: '/api/upload/avatar',
+            },
+            {
+                source: '/upload/banner',
+                destination: '/api/upload/banner',
+            },
+            {
+                source: '/upload/game-icon',
+                destination: '/api/upload/game-icon',
+            },
+            {
+                source: '/upload/item-icon',
+                destination: '/api/upload/item-icon',
+            },
         ];
     },
     async headers() {
