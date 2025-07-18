@@ -34,7 +34,7 @@ export default function Login() {
       flexDirection: "column",
       alignItems: "center"
     }}>
-      <h2 style={{ marginBottom: 32 }}>Connexion</h2>
+      <h2 style={{ marginBottom: 32 }}>Login</h2>
       <button
         style={{
           width: "260px",
@@ -55,7 +55,7 @@ export default function Login() {
         onClick={handleDiscord}
       >
         <span className="fab fa-discord" style={{ fontSize: "22px" }} aria-hidden="true" />
-        Se connecter avec Discord
+        Sign in with Discord
       </button>
       <button
         style={{
@@ -86,10 +86,10 @@ export default function Login() {
             </g>
           </svg>
         </span>
-        Se connecter avec Google
+        Sign in with Google
       </button>
       <div style={{ marginTop: 24, color: "#aaa", fontSize: 14 }}>
-        Vous serez redirigé automatiquement après connexion.
+        You will be redirected automatically after login.
       </div>
     </div>
   );
