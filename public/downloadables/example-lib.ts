@@ -9,7 +9,7 @@ const userId = "724847846897221642";
 
 async function checkPremiumAccess(userId: string) {
     const inventory = await croissantApi.inventory.get(userId) as InventoryItem[];
-    const hasItem = inventory.some(item => item.item_id === itemId);
+    const hasItem = inventory.some(item => item.itemId === itemId);
     
     if (hasItem) {
         return {

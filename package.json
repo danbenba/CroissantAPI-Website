@@ -4,13 +4,14 @@
   "description": "template",
   "main": "server/serve.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "dev": "next dev --port=8580",
+    "build": "next build",
+    "start": "next start --port=8580",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "serve": "npx ts-node-dev --respawn .\\server\\serve.ts",
+    "serve": "nodemon .\\dist\\server\\serve.js",
     "publish": "git add . && git commit -m \"update\" && git push",
-    "build-serve": "npx tsc"
+    "build-serve": "npm run build && npm run serve"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -19,16 +20,20 @@
     "cors": "^2.8.5",
     "croissant-pages": "file:",
     "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "formidable": "^3.5.4",
     "googleapis": "^153.0.0",
     "multer": "^1.4.5-lts.2",
+    "next": "^15.4.1",
     "react": "^19.1.0",
     "react-code-blocks": "^0.1.6",
     "react-dom": "^19.1.0",
     "react-highlight": "^0.15.0",
     "react-router-dom": "^7.5.3",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "stream-browserify": "^3.0.0"
   },
   "author": "fox3000foxy",
   "license": "MIT",

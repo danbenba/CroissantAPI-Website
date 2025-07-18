@@ -12,16 +12,18 @@
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
+    // Redirect to the / webpage after 2 seconds
+    // setTimeout(() => {
+    //   location.href = "/";
+    // }, 2000);
+
     const token = getCookie('token');
     if (token) {
-      const ws = new WebSocket('ws://localhost:8081');
-      ws.onopen = () => {
-        ws.send(JSON.stringify({action: "set-token", token: token}));
-        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        ws.close();
-        window.opener && window.opener.location.reload();
-        location.href = "https://croissant-api.fr/close"; // Redirect to the main page
-      };
+      // Use deeplink instead of websocket
+      window.location.href = `croissant-launcher://set-token?token=${encodeURIComponent(token)}`;
+      // document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // window.opener && window.opener.location.reload();
+      // location.href = "https://croissant-api.fr/close";
     } else {
       // No token found, redirect or show error
       document.body.innerText = "No token found in cookies.";
