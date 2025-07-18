@@ -28,6 +28,10 @@ const nextConfig = {
                 source: '/launcher/home',
                 destination: '/launcher/index.html',
             },
+            {
+                source: '/launcher/:path*',
+                destination: '/launcher/index.html',
+            },
         ];
     },
     async headers() {
