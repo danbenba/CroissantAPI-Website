@@ -65,7 +65,27 @@ export default function OAuth2Apps() {
     };
 
     return (
-        <div className="container-oauth2">
+        <div className="container-oauth2" style={{ position: "relative" }}>
+            {/* Lien discret vers la page de test OAuth2 */}
+            <a
+                href="/oauth2/test"
+                style={{
+                    position: "absolute",
+                    top: 18,
+                    right: 18,
+                    fontSize: 13,
+                    color: "#aaa",
+                    opacity: 0.55,
+                    textDecoration: "underline dotted",
+                    zIndex: 10,
+                    transition: "opacity 0.2s",
+                }}
+                onMouseOver={e => (e.currentTarget.style.opacity = "0.95")}
+                onMouseOut={e => (e.currentTarget.style.opacity = "0.55")}
+                tabIndex={-1}
+            >
+                Test OAuth2 ↗
+            </a>
             <style>{`
                 .container-oauth2 {
                     max-width: 600px;
