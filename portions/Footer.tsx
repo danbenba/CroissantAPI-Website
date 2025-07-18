@@ -4,7 +4,8 @@ export default function Footer() {
     const [show, setShow] = useState("");
 
     useEffect(() => {
-        if (window.location.href.startsWith(window.location.origin + "/oauth2/auth")) {
+        if (window.location.href.startsWith(window.location.origin + "/oauth2/auth") ||
+            window.location.href.startsWith(window.location.origin + "/api-docs")) {
             setShow("none");
         } else {
             setShow("");
