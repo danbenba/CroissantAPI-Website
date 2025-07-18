@@ -24,10 +24,10 @@ export default function OAuth2Demo() {
             fontFamily: "Montserrat, Arial, sans-serif",
             color: "#fff",
         }}>
-            <h1 style={{ color: "#3a8fdc", fontSize: "2.5rem", marginBottom: 8 }}>Exemple d'intégration OAuth2 Croissant</h1>
+            <h1 style={{ color: "#3a8fdc", fontSize: "2.5rem", marginBottom: 8 }}>Croissant OAuth2 Integration Example</h1>
             <p style={{ fontSize: "1.15rem", color: "#ccc" }}>
-                Voici un exemple minimaliste d'un serveur Node.js permettant de tester l'authentification OAuth2 avec l'API Croissant.<br />
-                Téléchargez le script, lancez-le, puis suivez le flux d'authentification pour obtenir les informations utilisateur.
+                Here is a minimal Node.js server example to test OAuth2 authentication with the Croissant API.<br />
+                Download the script, run it, then follow the authentication flow to get user information.
             </p>
             <a
                 href={OAUTH2_SERVER_URL}
@@ -48,11 +48,11 @@ export default function OAuth2Demo() {
                 onMouseOver={e => (e.currentTarget.style.background = "#2563eb")}
                 onMouseOut={e => (e.currentTarget.style.background = "#3a8fdc")}
             >
-                📥 Télécharger le serveur Node.js d'exemple
+                📥 Download the example Node.js server
             </a>
 
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Démo OAuth2</h2>
-            <p style={{ color: "#aaa" }}>1. Lancez le serveur Node.js téléchargé.<br />2. Cliquez sur le bouton ci-dessous pour démarrer l'authentification :</p>
+            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>OAuth2 Demo</h2>
+            <p style={{ color: "#aaa" }}>1. Start the downloaded Node.js server.<br />2. Click the button below to start authentication:</p>
             <button
                 style={{
                     display: "inline-flex",
@@ -94,15 +94,15 @@ export default function OAuth2Demo() {
                 <span style={{ verticalAlign: "middle" }}>Connect with OAuth2</span>
             </button>
 
-            {/* <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Code du serveur (oauth2-test-server.js)</h2>
+            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Server code (oauth2-test-server.js)</h2>
             <pre style={{ background: "#2c2c2c", borderRadius: 8, padding: 18, fontSize: "1.05em", overflowX: "auto", color: "#fff" }}>
-                <code style={{ background: "#444", borderRadius: 4, padding: "2px 6px" }}>{serverCode || "Chargement..."}</code>
-            </pre> */}
+                <code style={{ background: "#444", borderRadius: 4, padding: "2px 6px" }}>{serverCode || "Loading..."}</code>
+            </pre>
 
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Résultat attendu</h2>
+            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Expected result</h2>
             <img
                 src={OAUTH2_RESULT_IMG}
-                alt="Résultat attendu de l'authentification OAuth2"
+                alt="Expected result of OAuth2 authentication"
                 style={{
                     display: "block",
                     margin: "32px auto 0 auto",
