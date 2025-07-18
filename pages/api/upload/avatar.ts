@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
+import * as formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Ici, tu dois vérifier l'utilisateur via ton API si besoin
 
-  const form = new formidable.IncomingForm({ uploadDir: avatarsDir, keepExtensions: true });
+  const form = formidable({ uploadDir: avatarsDir, keepExtensions: true });
   form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: 'Upload error' });
     const file = files.avatar as formidable.File;
