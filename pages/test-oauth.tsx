@@ -22,7 +22,7 @@ export default class extends Component {
                 }}
                 onClick={() => {
                     window.open(
-                        "http://localhost:8580/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
+                        window.location.origin + "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
                         "_blank",
                         "width=428,height=238"
                     );
