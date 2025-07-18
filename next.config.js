@@ -48,6 +48,10 @@ const nextConfig = {
                 source: '/upload/item-icon',
                 destination: '/api/upload/item-icon',
             },
+            {
+                source: '/join-lobby',
+                destination: '/join-lobby.html', // this one is a public page
+            }
         ];
     },
     async headers() {
