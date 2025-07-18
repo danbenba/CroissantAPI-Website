@@ -45,7 +45,7 @@ export default function NavBar() {
                     )}
                     {!loading && user ? (
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginLeft: 16 }}>
-                            <img src={"https://croissant-api.fr/avatar/" + user.id} alt="avatar" style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }} />
+                            <img src={"/avatar/" + user.id} alt="avatar" style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }} />
                             {/* <span>{user.username}</span> */}
                             <button onClick={handleLogout} style={{
                                 marginLeft: 8, background: "#333", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", cursor: "pointer"

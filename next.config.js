@@ -9,6 +9,22 @@ const nextConfig = {
                 destination: '/launcher/:path*',
             },
             {
+                source: '/avatar/:path*',
+                destination: '/api/avatar/:path*',
+            },
+            {
+                source: '/items-icons/:path*',
+                destination: '/api/items-icons/:path*',
+            },
+            {
+                source: '/games-icons/:path*',
+                destination: '/api/games-icons/:path*',
+            },
+            {
+                source: '/banners-icons/:path*',
+                destination: '/api/banners-icons/:path*',
+            },
+            {
                 source: '/launcher/home',
                 destination: '/launcher/index.html',
             },
