@@ -21,13 +21,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const form = formidable({ uploadDir: avatarsDir, keepExtensions: true });
   form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: 'Upload error' });
-    const file = files.avatar as formidable.File;
+    let file = files.avatar;
+    if (Array.isArray(file)) file = file[0];
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
+    // Use 'filepath' for formidable v3+, fallback to 'path' for older versions
+    const tempPath = (file.filepath || file.path);
+    if (!tempPath) return res.status(500).json({ error: 'File path missing' });
+
     // Ici, récupère l'userId (ex: depuis le token ou un champ)
-    const userId = fields.userId as string || 'unknown';
+    const userId = (fields.userId as string) || 'unknown';
     const destPath = path.join(avatarsDir, `${userId}.png`);
-    fs.renameSync(file.filepath, destPath);
+    fs.renameSync(tempPath, destPath);
 
     res.json({ message: 'Avatar uploaded successfully', userId });
   });
