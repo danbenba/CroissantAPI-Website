@@ -17,6 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!authHeader) return res.status(401).json({ error: 'Authorization header missing' });
 
   // Ici, tu dois vérifier l'utilisateur via ton API si besoin
+  const user = await fetch('https://croissant-api.fr/api/users/@me', {method: 'GET', headers: { Authorization: authHeader } });
+  if (!user.ok) return res.status(401).json({ error: 'Unauthorized' });
+  const userData = await user.json();
 
   const form = formidable({ uploadDir: avatarsDir, keepExtensions: true });
   form.parse(req, async (err, fields, files) => {
@@ -30,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!tempPath) return res.status(500).json({ error: 'File path missing' });
 
     // Ici, récupère l'userId (ex: depuis le token ou un champ)
-    const userId = (fields.userId as string) || 'unknown';
+    const userId = (userData.user_id as string) || 'unknown';
     const destPath = path.join(avatarsDir, `${userId}.png`);
     fs.renameSync(tempPath, destPath);
 
