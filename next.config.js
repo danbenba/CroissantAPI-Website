@@ -51,6 +51,10 @@ const nextConfig = {
             {
                 source: '/join-lobby',
                 destination: '/join-lobby.html', // this one is a public page
+            },
+            {
+                source: '/api-key',
+                destination: '/api/api-key',
             }
         ];
     },
