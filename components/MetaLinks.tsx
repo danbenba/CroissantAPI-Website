@@ -3,7 +3,25 @@ import React, { ReactNode } from "react";
 
 export default function() {
     return (
-        <>
+        <>  
+            <title>Croissant Inventory System</title>
+
+            <meta property="og:title" content="Croissant Inventory System" />
+            <meta property="og:description" content="Croissant Inventory System - Manage your inventory with ease." />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://yourdomain.com/" />
+            <meta property="og:image" content="/icons/og-image.png" />
+            <meta property="og:site_name" content="Croissant Inventory System" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content="Croissant Inventory System" />
+            <meta name="twitter:description" content="Croissant Inventory System - Manage your inventory with ease." />
+            <meta name="twitter:image" content="/icons/og-image.png" />
+
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta name="theme-color" content="#ffffff" />
+            <meta name="description" content="Croissant Inventory System - Manage your inventory with ease." />
+            <meta name="keywords" content="Croissant, Inventory, System, API, Opensource, Scalable, Network Technology" />
+            <meta name="author" content="Fox3000foxy" />
             <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
             <link rel="robots" type="application/xml" href="/robots.txt" />
             <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" />
