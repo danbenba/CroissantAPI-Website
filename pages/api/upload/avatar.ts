@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import * as formidable from 'formidable';
+import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 
