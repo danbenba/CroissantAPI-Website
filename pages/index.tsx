@@ -4,33 +4,44 @@ import ListSection from "../components/ListSection";
 import Head from "next/head";
 import React from "react";
 
-const detailsStyle: React.CSSProperties = {
-    border: "1px solid #333",
-    borderRadius: "8px",
-    marginBottom: "1.5rem",
-    background: "#23272f",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.24)",
-    padding: "0.5rem 1.2rem 1rem 1.2rem",
-    color: "#f3f3f3"
-};
-const summaryStyle: React.CSSProperties = {
-    fontWeight: 600,
-    fontSize: "1.15rem",
-    cursor: "pointer",
-    outline: "none",
-    padding: "0.7rem 0",
-    color: "#e2e8f0"
-};
-const aboutStyle: React.CSSProperties = {
-    border: "1px solid #333",
-    borderRadius: "8px",
-    background: "#181a20",
-    padding: "1.2rem",
-    marginTop: "2rem",
-    color: "#f3f3f3"
-};
+function useResponsiveStyles() {
+    const [isMobile, setIsMobile] = React.useState(false);
+    React.useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth <= 600);
+        check();
+        window.addEventListener("resize", check);
+        return () => window.removeEventListener("resize", check);
+    }, []);
+    const detailsStyle: React.CSSProperties = {
+        border: "1px solid #333",
+        borderRadius: 8,
+        marginBottom: isMobile ? "0.8rem" : "1.5rem",
+        background: "#23272f",
+        boxShadow: isMobile ? undefined : "0 2px 8px rgba(0,0,0,0.24)",
+        padding: isMobile ? "0.3rem 0.5rem 0.7rem 0.5rem" : "0.5rem 1.2rem 1rem 1.2rem",
+        color: "#f3f3f3"
+    };
+    const summaryStyle: React.CSSProperties = {
+        fontWeight: 600,
+        fontSize: isMobile ? "1rem" : "1.15rem",
+        cursor: "pointer",
+        outline: "none",
+        padding: isMobile ? "0.5rem 0" : "0.7rem 0",
+        color: "#e2e8f0"
+    };
+    const aboutStyle: React.CSSProperties = {
+        border: "1px solid #333",
+        borderRadius: 8,
+        background: "#181a20",
+        padding: isMobile ? "0.7rem" : "1.2rem",
+        marginTop: isMobile ? "1rem" : "2rem",
+        color: "#f3f3f3"
+    };
+    return { detailsStyle, summaryStyle, aboutStyle };
+}
 
 export default function Home() {
+    const { detailsStyle, summaryStyle, aboutStyle } = useResponsiveStyles();
     return (
         <div className="container">
             <Head>
