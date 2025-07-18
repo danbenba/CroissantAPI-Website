@@ -88,16 +88,11 @@ export default function OAuth2Demo() {
                         height: 24,
                         verticalAlign: "middle",
                         display: "inline-block",
-                        filter: "drop-shadow(0 0 2px #fff)"
+                        // filter: "drop-shadow(0 0 2px #fff)"
                     }}
                 />
                 <span style={{ verticalAlign: "middle" }}>Connect with OAuth2</span>
             </button>
-
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Server code (oauth2-test-server.js)</h2>
-            <pre style={{ background: "#2c2c2c", borderRadius: 8, padding: 18, fontSize: "1.05em", overflowX: "auto", color: "#fff" }}>
-                <code style={{ background: "#444", borderRadius: 4, padding: "2px 6px" }}>{serverCode || "Loading..."}</code>
-            </pre>
 
             <h2 style={{ color: "#fff", fontSize: "1.5rem", marginTop: 32 }}>Expected result</h2>
             <img
