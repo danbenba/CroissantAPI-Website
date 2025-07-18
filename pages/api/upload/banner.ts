@@ -14,16 +14,20 @@ if (!fs.existsSync(bannersDir)) fs.mkdirSync(bannersDir, { recursive: true });
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
-  const form = new formidable.IncomingForm({ uploadDir: bannersDir, keepExtensions: true });
+  const form = formidable({ uploadDir: bannersDir, keepExtensions: true });
   form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: 'Upload error' });
-    const file = files.banner as formidable.File;
+    let file = files.banner;
+    if (Array.isArray(file)) file = file[0];
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const hash = crypto.createHash('sha256').update(Date.now() + file.originalFilename!).digest('hex');
-    const ext = path.extname(file.originalFilename!);
+    const tempPath = (file.filepath || file.path);
+    if (!tempPath) return res.status(500).json({ error: 'File path missing' });
+
+    const hash = crypto.createHash('sha256').update(Date.now() + (file.originalFilename || '')).digest('hex');
+    const ext = path.extname(file.originalFilename || '');
     const destPath = path.join(bannersDir, `${hash}${ext}`);
-    fs.renameSync(file.filepath, destPath);
+    fs.renameSync(tempPath, destPath);
 
     res.json({ hash });
   });
