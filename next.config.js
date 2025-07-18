@@ -25,7 +25,7 @@ const nextConfig = {
                 destination: '/api/banners-icons/:path*',
             },
             {
-                source: '/launcher/',
+                source: '/launcher/home',
                 destination: '/launcher/index.html',
             },
         ];
