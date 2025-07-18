@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
-// Ajout du style CSS directement dans le composant via une balise <style>
+
 export default function OAuth2Apps() {
     const [apps, setApps] = useState<any[]>([]);
     const [name, setName] = useState("");
     const [redirectUrls, setRedirectUrls] = useState("");
     const [iframeCode, setIframeCode] = useState<string | null>(null);
-    const {token} = useAuth(); 
+    const [editing, setEditing] = useState<string | null>(null);
+    const [showForm, setShowForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [spoilers, setSpoilers] = useState<{[k:string]: boolean}>({});
+    const { token } = useAuth();
 
     useEffect(() => {
-        fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json" , "Authorization": `Bearer ${document.cookie.split('token=')[1]}` } })
+        fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${document.cookie.split('token=')[1]}` } })
             .then(res => res.json())
             .then(setApps)
             .catch(() => setApps([]));
@@ -17,20 +21,43 @@ export default function OAuth2Apps() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await fetch("/api/oauth2/app", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${document.cookie.split('token=')[1]}` },
-            credentials: "include",
-            body: JSON.stringify({
-                name,
-                redirect_urls: redirectUrls.split(",").map(s => s.trim())
-            })
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setApps([...apps, { client_id: data.client_id, name, redirect_urls: redirectUrls.split(",") }]);
-            setName("");
-            setRedirectUrls("");
+        if (editing) {
+            // PATCH
+            const res = await fetch(`/api/oauth2/app/${editing}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                credentials: "include",
+                body: JSON.stringify({
+                    name,
+                    redirect_urls: redirectUrls.split(",").map(s => s.trim())
+                })
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                setApps(apps.map(a => a.client_id === editing ? { ...a, name, redirect_urls: redirectUrls.split(",") } : a));
+                setEditing(null);
+                setName("");
+                setRedirectUrls("");
+                setShowEditForm(false);
+            }
+        } else {
+            // POST
+            const res = await fetch("/api/oauth2/app", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                credentials: "include",
+                body: JSON.stringify({
+                    name,
+                    redirect_urls: redirectUrls.split(",").map(s => s.trim())
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setApps([...apps, { client_id: data.client_id, name, redirect_urls: redirectUrls.split(",") }]);
+                setName("");
+                setRedirectUrls("");
+                setShowForm(false);
+            }
         }
     };
 
@@ -50,8 +77,16 @@ export default function OAuth2Apps() {
     const handleEdit = (app: any) => {
         setName(app.name);
         setRedirectUrls(Array.isArray(app.redirect_urls) ? app.redirect_urls.join(",") : app.redirect_urls);
-        // Optionally, store the editing client_id in state to PATCH on submit
-        // setEditingClientId(app.client_id);
+        setEditing(app.client_id);
+        setShowEditForm(true);
+    };
+
+    const handleCancelEdit = () => {
+        setEditing(null);
+        setName("");
+        setRedirectUrls("");
+        setShowEditForm(false);
+        setShowForm(false);
     };
 
     const handleDelete = async (client_id: string) => {
@@ -62,11 +97,16 @@ export default function OAuth2Apps() {
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
         });
         if (res.ok) setApps(apps.filter(a => a.client_id !== client_id));
+        if (editing === client_id) handleCancelEdit();
+    };
+
+    // Helper to toggle spoilers
+    const toggleSpoiler = (client_id: string) => {
+        setSpoilers(s => ({ ...s, [client_id]: !s[client_id] }));
     };
 
     return (
         <div className="container-oauth2" style={{ position: "relative" }}>
-            {/* Lien discret vers la page de test OAuth2 */}
             <a
                 href="/oauth2/test"
                 style={{
@@ -86,206 +126,185 @@ export default function OAuth2Apps() {
             >
                 Test OAuth2 ↗
             </a>
-            <style>{`
-                .container-oauth2 {
-                    max-width: 600px;
-                    margin: 40px auto;
-                    background: #222;
-                    border-radius: 12px;
-                    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-                    padding: 32px 24px;
-                    color: #fff;
-                }
-                form {
-                    margin-bottom: 32px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 18px;
-                }
-                .form-group {
-                    margin-bottom: 0;
-                    display: flex;
-                    flex-direction: column;
-                }
-                label {
-                    display: block;
-                    font-weight: bold;
-                    margin-bottom: 6px;
-                    color: #fff;
-                }
-                input[type="text"], input[type="email"], textarea {
-                    width: 95%;
-                    padding: 10px 12px;
-                    border: 1.5px solid #444;
-                    border-radius: 6px;
-                    font-size: 1rem;
-                    background: #333;
-                    color: #fff;
-                    transition: border 0.2s, background 0.2s;
-                    margin-bottom: 4px;
-                }
-                input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
-                    border-color: #fff;
-                    outline: none;
-                    background: #2c2c2c;
-                }
-                button {
-                    background: #333;
-                    color: #fff;
-                    border: none;
-                    border-radius: 6px;
-                    padding: 10px 22px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: background 0.2s, color 0.2s;
-                    margin-top: 8px;
-                }
-                button:hover {
-                    background: #444;
-                    color: #fff;
-                }
-                ul {
-                    list-style: none;
-                    padding: 0;
-                }
-                li {
-                    background: #292929;
-                    border-radius: 8px;
-                    margin-bottom: 18px;
-                    padding: 16px 14px;
-                    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-                    color: #fff;
-                }
-                pre {
-                    background: #181818;
-                    border-radius: 6px;
-                    padding: 12px;
-                    font-size: 0.95rem;
-                    overflow-x: auto;
-                    color: #fff;
-                }
-                code {
-                    background: #333;
-                    color: #fff;
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                }
-                a.integration-link {
-                    display: inline-block;
-                    margin-top: 10px;
-                    color: #fff;
-                    text-decoration: underline;
-                    font-weight: 600;
-                }
-                @media screen and (max-width: 768px) {
-                    .container-oauth2 {
-                        padding: 16px 6px;
-                    }
-                    pre {
-                        font-size: 0.9rem;
-                    }
-                }
-            `}</style>
-            <h2>My apps</h2>
-            <form className="oauth2-form" onSubmit={handleCreate}>
-                <div className="form-group">
-                    <label>App Name</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Redirect URLs (comma-separated)</label>
-                    <input
-                        type="text"
-                        value={redirectUrls}
-                        onChange={e => setRedirectUrls(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit">Create App</button>
-            </form>
-            <h3>Your Apps</h3>
-            <ul>
+
+            <h2 style={{marginBottom: 18}}>My OAuth2 Applications</h2>
+            <button className="add-app-btn" onClick={() => { setShowForm(true); setEditing(null); setName(""); setRedirectUrls(""); }}>+ Add Application</button>
+            <div className="apps-grid">
                 {apps.map(app => (
-                    <li key={app.client_id} style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 2 }}>{app.name}</div>
-                            <div style={{ fontSize: 14, color: "#fff", marginBottom: 2 }}>
-                                <span style={{ opacity: 0.7 }}>Client ID:</span> <code>{app.client_id}</code>
+                    <div key={app.client_id} className="app-card">
+                        <div className="app-card-main">
+                            <div className="app-card-title">{app.name}</div>
+                            <div className="app-card-meta">
+                                <span>Client ID:</span> <code className="oauth2-code">{app.client_id}</code>
                             </div>
                             {app.client_secret && (
-                                <div style={{ fontSize: 14, color: "#fff", marginBottom: 2 }}>
-                                    <span style={{ opacity: 0.7 }}>Client Secret:</span> <code>{app.client_secret}</code>
+                                <div className="app-card-meta">
+                                    <span>Client Secret:</span>
+                                    <span style={{marginLeft:8}}>
+                                        {spoilers[app.client_id] ? (
+                                        <span
+                                            style={{
+                                                background: '#444',
+                                                borderRadius: 4,
+                                                padding: '2px 6px',
+                                                cursor: 'pointer',
+                                                userSelect: 'none',
+                                                fontWeight: 500,
+                                                marginRight: 8
+                                            }}
+                                            onClick={() => toggleSpoiler(app.client_id)}
+                                        >
+                                            {app.client_secret}
+                                        </span>
+                                        ) : (
+                                            <></>
+                                        )}
+                                        <button
+                                            type="button"
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#fff',
+                                                cursor: 'pointer',
+                                                fontSize: 13,
+                                                textDecoration: 'underline',
+                                                opacity: 0.7
+                                            }}
+                                            onClick={() => toggleSpoiler(app.client_id)}
+                                        >
+                                            {spoilers[app.client_id] ? 'Hide' : 'Show'}
+                                            <button
+                                                type="button"
+                                                style={{
+                                                    marginLeft: 8,
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#fff',
+                                                    cursor: 'pointer',
+                                                    fontSize: 13,
+                                                    textDecoration: 'underline',
+                                                    opacity: 0.7
+                                                }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    navigator.clipboard.writeText(app.client_secret);
+                                                }}
+                                            >
+                                                Copy
+                                            </button>
+                                        </button>
+                                    </span>
                                 </div>
                             )}
-                            <div style={{ fontSize: 14, color: "#fff", marginBottom: 8 }}>
-                                <span style={{ opacity: 0.7 }}>Redirects:</span> {Array.isArray(app.redirect_urls) ? app.redirect_urls.join(", ") : app.redirect_urls}
-                            </div>
-                            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                                <button
-                                    onClick={() => handleIframe(app.client_id)}
-                                    style={{
-                                        background: "#333",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: 6,
-                                        padding: "8px 18px",
-                                        fontWeight: 500,
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    Generate integration code
-                                </button>
-                                <button
-                                    onClick={() => handleEdit(app)}
-                                    style={{
-                                        background: "#222",
-                                        color: "#fff",
-                                        border: "1px solid #444",
-                                        borderRadius: 6,
-                                        padding: "8px 18px",
-                                        fontWeight: 500,
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(app.client_id)}
-                                    style={{
-                                        background: "#222",
-                                        color: "#fff",
-                                        border: "1px solid #444",
-                                        borderRadius: 6,
-                                        padding: "8px 18px",
-                                        fontWeight: 500,
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    Delete
-                                </button>
+                            <div className="app-card-redirects">
+                                <span>Redirects:</span> {Array.isArray(app.redirect_urls) ? app.redirect_urls.join(", ") : app.redirect_urls}
                             </div>
                         </div>
-                    </li>
+                        <div className="app-card-actions" style={{width:'100%'}}>
+                            <button
+                                style={{width:'100%',margin:0,marginBottom:8,background:'#333',color:'#fff',border:'none',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                onClick={() => handleIframe(app.client_id)}
+                            >
+                                Integration code
+                            </button>
+                            <button
+                                style={{width:'100%',margin:0,marginBottom:8,background:'#222',color:'#fff',border:'1px solid #444',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                onClick={() => handleEdit(app)}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                style={{width:'100%',margin:0,background:'#222',color:'#fff',border:'1px solid #444',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                onClick={() => handleDelete(app.client_id)}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
+            {/* Modal for Create App */}
+            {showForm && !editing && (
+                <div className="modal-overlay" onClick={handleCancelEdit}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                        <button className="close-modal-btn" onClick={handleCancelEdit}>&times;</button>
+                        <h3>Create Application</h3>
+                        <form className="oauth2-form" onSubmit={handleCreate}>
+                            <div className="form-group">
+                                <label className="oauth2-label">App Name</label>
+                                <input
+                                    className="oauth2-input"
+                                    type="text"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    required
+                                    placeholder="My Game, My Website..."
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="oauth2-label">Redirect URLs <span style={{fontWeight:400,opacity:0.7}}>(comma-separated)</span></label>
+                                <input
+                                    className="oauth2-input"
+                                    type="text"
+                                    value={redirectUrls}
+                                    onChange={e => setRedirectUrls(e.target.value)}
+                                    required
+                                    placeholder="https://myapp.com/callback, http://localhost:3000/cb"
+                                />
+                            </div>
+                            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                                <button type="submit" className="oauth2-button">Create App</button>
+                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{background:'#222',border:'1px solid #444',color:'#fff'}}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* Modal for Edit App */}
+            {showEditForm && editing && (
+                <div className="modal-overlay" onClick={handleCancelEdit}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                        <button className="close-modal-btn" onClick={handleCancelEdit}>&times;</button>
+                        <h3>Edit Application</h3>
+                        <form className="oauth2-form" onSubmit={handleCreate}>
+                            <div className="form-group">
+                                <label className="oauth2-label">App Name</label>
+                                <input
+                                    className="oauth2-input"
+                                    type="text"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    required
+                                    placeholder="My Game, My Website..."
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="oauth2-label">Redirect URLs <span style={{fontWeight:400,opacity:0.7}}>(comma-separated)</span></label>
+                                <input
+                                    className="oauth2-input"
+                                    type="text"
+                                    value={redirectUrls}
+                                    onChange={e => setRedirectUrls(e.target.value)}
+                                    required
+                                    placeholder="https://myapp.com/callback, http://localhost:3000/cb"
+                                />
+                            </div>
+                            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                                <button type="submit" className="oauth2-button">Update App</button>
+                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{background:'#222',border:'1px solid #444',color:'#fff'}}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* Modal for Integration Code */}
             {iframeCode && (
-                <div>
-                    <h4>Integration button code:</h4>
-                    <pre>{iframeCode}</pre>
-                    <a
-                        href={iframeCode.match(/src="([^"]+)"/)?.[1] || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="integration-link"
-                    >
-                        Open integration URL in a new tab
-                    </a>
+                <div className="modal-overlay" onClick={() => setIframeCode(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                        <button className="close-modal-btn" onClick={() => setIframeCode(null)}>&times;</button>
+                        <h4>Integration button code:</h4>
+                        <pre className="oauth2-pre">{iframeCode}</pre>
+                    </div>
                 </div>
             )}
         </div>
