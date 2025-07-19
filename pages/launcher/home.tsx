@@ -29,7 +29,13 @@ type Game = {
     website?: string;
 };
 
-const ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
+let ws: WebSocket;
+try {
+    ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
+    ws.onerror = () => {};
+} catch {
+    // Do nothing if connection fails
+}
 
 const Library: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);

@@ -4,7 +4,7 @@ export function getToken() {
     // Récupère le token depuis les cookies
     if (typeof document === "undefined") return null;
     const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
-    return match ? match[1] : null;
+    return match ? match[1] : localStorage.getItem("token") || null;
 }
 
 export default function useAuth() {
