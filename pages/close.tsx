@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 
 export default class extends Component {
-    componentDidMount() {
-        // document.title = "About | Croissant";
-    }
     render() {
         return (
             <>

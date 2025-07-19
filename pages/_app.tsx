@@ -34,93 +34,157 @@ export async function fetchMe(token: string, callback: () => void) {
   });
 }
 
+
+// --- Style constants ---
+const launcherTitlebarStyle: React.CSSProperties = {
+  display: "flex",
+  padding: "0rem 1rem 0rem 1rem",
+  borderBottom: "1px solid #ddd",
+  justifyContent: "start",
+  position: "fixed",
+  width: "100%",
+};
+const launcherIconStyle: React.CSSProperties = {
+  width: "24px",
+  height: "24px",
+};
+const launcherTitleStyle: React.CSSProperties = {
+  position: "relative",
+  top: "2px",
+  right: "10px",
+};
+const launcherMainStyle: React.CSSProperties = {
+  position: "fixed",
+  left: 0,
+  right: 0,
+  top: "7rem",
+  bottom: 0,
+  overflowX: "hidden",
+  overflowY: "auto",
+};
+const loginContainerStyle: React.CSSProperties = {
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "#18181b",
+  userSelect: "none",
+};
+const loginBoxStyle: React.CSSProperties = {
+  background: "#23232a",
+  padding: "40px 32px",
+  borderRadius: "12px",
+  boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  minWidth: "320px",
+};
+const loginTitleStyle: React.CSSProperties = {
+  color: "#fff",
+  marginBottom: "32px",
+};
+const loginButtonStyle: React.CSSProperties = {
+  width: "220px",
+  height: "48px",
+  background: "#ffb300",
+  color: "#222",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "16px",
+  fontWeight: 600,
+  cursor: "pointer",
+  marginTop: "12px",
+};
+
 export default function App({ Component, pageProps }: AppProps) {
-    const [isLauncher, setIsLauncher] = useState(false);
-    const { user, token } = useAuth();
-    fetchMe(token, () => {});
+  const [isLauncher, setIsLauncher] = useState(false);
+  const { user, token } = useAuth();
+  const [mainStyle, setMainStyle] = useState<React.CSSProperties>({});
 
+    // Set main style based on whether it's a launcher or not
     useEffect(() => {
-        // This is a workaround to ensure that the page is fully loaded before applying styles
-        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-        window.addEventListener('resize', () => {
-            document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-        });
-
-        window.location.pathname.startsWith('/launcher') ? setIsLauncher(true) : setIsLauncher(false);
-        // Checking for query "from" to be "launcher" too
-        if (window.location.search.includes('from=launcher')) {
-            setIsLauncher(true);
-        }
+        setMainStyle(window.location.href.includes("/oauth2/auth") ? {
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "0",
+          margin: "15px",
+          width: "calc(100vw - 30px)",
+          height: "calc(100vh - 30px)",
+          top: "0",
+          left: "0",
+          position: "fixed",
+        } : {});
     }, []);
 
-    return isLauncher ? (
-        user ? (
-            <>
-                <nav className="titlebar" style={{ display: "flex", padding: "0rem 1rem 0rem 1rem", borderBottom: "1px solid #ddd", justifyContent: "start", position: "fixed", width: "100%" }}>
-                    <img src="/launcher/icon.png" alt="Icon" style={{ width: "24px", height: "24px" }} />
-                    <span className="navbar-title" style={{ position: "relative", top: "2px", right: "10px" }}>Croissant Launcher</span>
-                </nav>
-                <LauncherNavbar />
-                <main style={{ position: "fixed", left: 0, right: 0, top: "7rem", bottom: 0, overflowX: "hidden", overflowY: "auto" }} className="launcher">
-                    <Component {...pageProps} />
-                </main>
-                <LauncherLobby />
-            </>
-        ) : (
-            <div
-                style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    background: "#18181b",
-                    userSelect: "none",
-                }}
+  // Only call fetchMe if token is present
+  useEffect(() => {
+    if (token) fetchMe(token, () => {});
+  }, [token]);
+
+  // Handle launcher mode and app height
+  useEffect(() => {
+    const setAppHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+
+    // Detect launcher mode
+    const isLauncherPath = window.location.pathname.startsWith('/launcher');
+    const isFromLauncher = window.location.search.includes('from=launcher');
+    setIsLauncher(isLauncherPath || isFromLauncher);
+
+    return () => {
+      window.removeEventListener('resize', setAppHeight);
+    };
+  }, []);
+
+  if (isLauncher) {
+    if (user) {
+      return (
+        <>
+          <nav className="titlebar" style={launcherTitlebarStyle}>
+            <img src="/launcher/icon.png" alt="Icon" style={launcherIconStyle} />
+            <span className="navbar-title" style={launcherTitleStyle}>Croissant Launcher</span>
+          </nav>
+          <LauncherNavbar />
+          <main style={launcherMainStyle} className="launcher">
+            <Component {...pageProps} />
+          </main>
+          <LauncherLobby />
+        </>
+      );
+    } else {
+      return (
+        <div style={loginContainerStyle}>
+          <div style={loginBoxStyle}>
+            <h1 style={loginTitleStyle}>Login required</h1>
+            <button
+              style={loginButtonStyle}
+              onClick={() => {
+                // Redirects to the website login page
+                window?.electron?.window?.openEmailLogin?.();
+              }}
             >
-                <div
-                    style={{
-                        background: "#23232a",
-                        padding: "40px 32px",
-                        borderRadius: "12px",
-                        boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        minWidth: "320px",
-                    }}
-                >
-                    <h1 style={{ color: "#fff", marginBottom: "32px" }}>Login required</h1>
-                    <button
-                        style={{
-                            width: "220px",
-                            height: "48px",
-                            background: "#ffb300",
-                            color: "#222",
-                            border: "none",
-                            borderRadius: "8px",
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            marginTop: "12px",
-                        }}
-                        onClick={() => {
-                            // Redirects to the website login page
-                            window?.electron?.window?.openEmailLogin?.();
-                        }}
-                    >
-                        Log in on the website
-                    </button>
-                </div>
-            </div>
-        )
-    ) : (
-        <div>
-            <MetaLinks />
-            <Navbar />
-            <main>
-                <Component {...pageProps} />
-            </main>
-            <Footer />
+              Log in on the website
+            </button>
+          </div>
         </div>
-    )
+      );
+    }
+  }
+
+  // Default website layout
+  return (
+    <div>
+      <MetaLinks />
+      <Navbar />
+      <main style={mainStyle}>
+        <Component {...pageProps} />
+      </main>
+      <Footer />
+    </div>
+  );
 }

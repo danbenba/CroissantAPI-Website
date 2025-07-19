@@ -2,9 +2,6 @@ import React, { Component } from "react";
 import Link from "next/link";
 
 export default class extends Component {
-    componentDidMount() {
-        // document.title = "Page not found | Croissant";
-    }
     render(): React.ReactNode {
         return (
             <main>

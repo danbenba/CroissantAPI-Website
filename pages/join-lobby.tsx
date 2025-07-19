@@ -9,6 +9,11 @@ const JoinLobbyPage = () => {
     const { token } = useAuth();
 
     useEffect(() => {
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
         if (typeof lobbyId === "string" && lobbyId) {
             fetch(`/api/lobbies/${lobbyId}/join`, {
                 method: "POST",
@@ -17,12 +22,7 @@ const JoinLobbyPage = () => {
                 },
             })
                 .then(async (res) => {
-                    if (res.ok) {
-                        setStatus("success");
-                        // Optionally redirect or show success message
-                    } else {
-                        setStatus("error");
-                    }
+                    setStatus(res.ok ? "success" : "error");
                 })
                 .catch(() => setStatus("error"));
         }

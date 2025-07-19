@@ -1,6 +1,65 @@
+
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
+import { useRouter } from "next/router";
+
+// --- Styles extracted as constants for readability ---
+const linkStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 18,
+    right: 18,
+    fontSize: 13,
+    color: "#aaa",
+    opacity: 0.55,
+    textDecoration: "underline dotted",
+    zIndex: 10,
+    transition: "opacity 0.2s",
+};
+
+const appCardButtonStyle: React.CSSProperties = {
+    width: '100%',
+    margin: 0,
+    marginBottom: 8,
+    background: '#333',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontWeight: 500,
+    padding: '16px 0',
+    fontSize: '1.05rem',
+};
+
+const appCardButtonSecondaryStyle: React.CSSProperties = {
+    ...appCardButtonStyle,
+    background: '#222',
+    border: '1px solid #444',
+};
+
+const appCardButtonDeleteStyle: React.CSSProperties = {
+    ...appCardButtonSecondaryStyle,
+    marginBottom: 0,
+};
+
+const clientSecretButtonStyle: React.CSSProperties = {
+    background: 'none',
+    border: 'none',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: 13,
+    textDecoration: 'underline',
+    opacity: 0.7,
+};
+
+const clientSecretValueStyle: React.CSSProperties = {
+    background: '#444',
+    borderRadius: 4,
+    padding: '2px 6px',
+    cursor: 'pointer',
+    userSelect: 'none',
+    fontWeight: 500,
+    marginRight: 8,
+};
 
 export default function OAuth2Apps() {
     const [apps, setApps] = useState<any[]>([]);
@@ -10,31 +69,21 @@ export default function OAuth2Apps() {
     const [editing, setEditing] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
-    const [spoilers, setSpoilers] = useState<{[k:string]: boolean}>({});
+    const [spoilers, setSpoilers] = useState<{ [k: string]: boolean }>({});
     const { token } = useAuth();
-
-    const [isLauncher, setIsLauncher] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
-        // This is a workaround to ensure that the page is fully loaded before applying styles
-        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-        window.addEventListener('resize', () => {
-            document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-        });
-
-        window.location.pathname.startsWith('/launcher') ? setIsLauncher(true) : setIsLauncher(false);
-        // Checking for query "from" to be "launcher" too
-        if (window.location.search.includes('from=launcher')) {
-            setIsLauncher(true);
+        if (!token) {
+            router.push("/login");
+            return;
         }
-    }, []);
 
-    useEffect(() => {
         fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } })
             .then(res => res.json())
             .then(setApps)
             .catch(() => setApps([]));
-    }, []);
+    }, [token]);
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +133,7 @@ export default function OAuth2Apps() {
             ? app.redirect_urls[0]
             : "";
         setIframeCode(
-            `<button style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:1rem;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;" onclick="window.open('${window.location.origin}/oauth2/auth?client_id=${client_id}${redirect ? `&redirect_uri=${encodeURIComponent(redirect)}` : ""}', '_blank', 'width=428,height=238')">
+            `<button style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:1rem;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;" onclick="window.open('${window.location.origin}/oauth2/auth?client_id=${client_id}${redirect ? `&redirect_uri=${encodeURIComponent(redirect)}` : ""}', '_blank', 'width=428,height=320')">
     <img src="https://croissant-api.fr/favicon.png" alt="icon" style="width:20px;height:20px;vertical-align:middle;display:inline-block;" />
     <span style="vertical-align:middle;">Login with Croissant</span>
 </button>`
@@ -118,31 +167,24 @@ export default function OAuth2Apps() {
     };
 
     // Helper to toggle spoilers
-    const toggleSpoiler = (client_id: string) => {
+
+
+    // Helper to append launcher query if needed
+    function isFromLauncher() {
+        if (typeof window === "undefined") return "";
+        return (window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")) ? "&from=launcher" : "";
+    }
+
+    // Helper to toggle spoilers
+    function toggleSpoiler(client_id: string) {
         setSpoilers(s => ({ ...s, [client_id]: !s[client_id] }));
-    };
-
-    const isFromLauncher = () => {
-        return typeof window !== "undefined" &&
-        (window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")) ? "&from=launcher" : "";
-    };
-
+    }
 
     return (
         <div className="container-oauth2" style={{ position: "relative" }}>
             <Link
                 href={"/oauth2/test" + isFromLauncher()}
-                style={{
-                    position: "absolute",
-                    top: 18,
-                    right: 18,
-                    fontSize: 13,
-                    color: "#aaa",
-                    opacity: 0.55,
-                    textDecoration: "underline dotted",
-                    zIndex: 10,
-                    transition: "opacity 0.2s",
-                }}
+                style={linkStyle}
                 onMouseOver={e => (e.currentTarget.style.opacity = "0.95")}
                 onMouseOut={e => (e.currentTarget.style.opacity = "0.55")}
                 tabIndex={-1}
@@ -150,7 +192,7 @@ export default function OAuth2Apps() {
                 Test OAuth2 ↗
             </Link>
 
-            <h2 style={{marginBottom: 18}}>My OAuth2 Applications</h2>
+            <h2 style={{ marginBottom: 18 }}>My OAuth2 Applications</h2>
             <button className="add-app-btn" onClick={() => { setShowForm(true); setEditing(null); setName(""); setRedirectUrls(""); }}>+ Add Application</button>
             <div className="apps-grid">
                 {apps && apps.map(app => (
@@ -163,58 +205,31 @@ export default function OAuth2Apps() {
                             {app.client_secret && (
                                 <div className="app-card-meta">
                                     <span>Client Secret:</span>
-                                    <span style={{marginLeft:8}}>
+                                    <span style={{ marginLeft: 8 }}>
                                         {spoilers[app.client_id] ? (
-                                        <span
-                                            style={{
-                                                background: '#444',
-                                                borderRadius: 4,
-                                                padding: '2px 6px',
-                                                cursor: 'pointer',
-                                                userSelect: 'none',
-                                                fontWeight: 500,
-                                                marginRight: 8
-                                            }}
-                                            onClick={() => toggleSpoiler(app.client_id)}
-                                        >
-                                            {app.client_secret}
-                                        </span>
-                                        ) : (
-                                            <></>
-                                        )}
+                                            <span
+                                                style={clientSecretValueStyle}
+                                                onClick={() => toggleSpoiler(app.client_id)}
+                                            >
+                                                {app.client_secret}
+                                            </span>
+                                        ) : null}
                                         <button
                                             type="button"
-                                            style={{
-                                                background: 'none',
-                                                border: 'none',
-                                                color: '#fff',
-                                                cursor: 'pointer',
-                                                fontSize: 13,
-                                                textDecoration: 'underline',
-                                                opacity: 0.7
-                                            }}
+                                            style={clientSecretButtonStyle}
                                             onClick={() => toggleSpoiler(app.client_id)}
                                         >
                                             {spoilers[app.client_id] ? 'Hide' : 'Show'}
-                                            <button
-                                                type="button"
-                                                style={{
-                                                    marginLeft: 8,
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    color: '#fff',
-                                                    cursor: 'pointer',
-                                                    fontSize: 13,
-                                                    textDecoration: 'underline',
-                                                    opacity: 0.7
-                                                }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    navigator.clipboard.writeText(app.client_secret);
-                                                }}
-                                            >
-                                                Copy
-                                            </button>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            style={{ ...clientSecretButtonStyle, marginLeft: 8 }}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                navigator.clipboard.writeText(app.client_secret);
+                                            }}
+                                        >
+                                            Copy
                                         </button>
                                     </span>
                                 </div>
@@ -223,21 +238,21 @@ export default function OAuth2Apps() {
                                 <span>Redirects:</span> {Array.isArray(app.redirect_urls) ? app.redirect_urls.join(", ") : app.redirect_urls}
                             </div>
                         </div>
-                        <div className="app-card-actions" style={{width:'100%'}}>
+                        <div className="app-card-actions" style={{ width: '100%' }}>
                             <button
-                                style={{width:'100%',margin:0,marginBottom:8,background:'#333',color:'#fff',border:'none',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                style={appCardButtonStyle}
                                 onClick={() => handleIframe(app.client_id)}
                             >
                                 Integration code
                             </button>
                             <button
-                                style={{width:'100%',margin:0,marginBottom:8,background:'#222',color:'#fff',border:'1px solid #444',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                style={appCardButtonSecondaryStyle}
                                 onClick={() => handleEdit(app)}
                             >
                                 Edit
                             </button>
                             <button
-                                style={{width:'100%',margin:0,background:'#222',color:'#fff',border:'1px solid #444',borderRadius:6,fontWeight:500,padding:'16px 0',fontSize:'1.05rem'}}
+                                style={appCardButtonDeleteStyle}
                                 onClick={() => handleDelete(app.client_id)}
                             >
                                 Delete
@@ -249,7 +264,7 @@ export default function OAuth2Apps() {
             {/* Modal for Create App */}
             {showForm && !editing && (
                 <div className="modal-overlay" onClick={handleCancelEdit}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
                         <button className="close-modal-btn" onClick={handleCancelEdit}>&times;</button>
                         <h3>Create Application</h3>
                         <form className="oauth2-form" onSubmit={handleCreate}>
@@ -265,7 +280,7 @@ export default function OAuth2Apps() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="oauth2-label">Redirect URLs <span style={{fontWeight:400,opacity:0.7}}>(comma-separated)</span></label>
+                                <label className="oauth2-label">Redirect URLs <span style={{ fontWeight: 400, opacity: 0.7 }}>(comma-separated)</span></label>
                                 <input
                                     className="oauth2-input"
                                     type="text"
@@ -275,9 +290,9 @@ export default function OAuth2Apps() {
                                     placeholder="https://myapp.com/callback, http://localhost:3000/cb"
                                 />
                             </div>
-                            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                                 <button type="submit" className="oauth2-button">Create App</button>
-                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{background:'#222',border:'1px solid #444',color:'#fff'}}>Cancel</button>
+                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{ background: '#222', border: '1px solid #444', color: '#fff' }}>Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -286,7 +301,7 @@ export default function OAuth2Apps() {
             {/* Modal for Edit App */}
             {showEditForm && editing && (
                 <div className="modal-overlay" onClick={handleCancelEdit}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
                         <button className="close-modal-btn" onClick={handleCancelEdit}>&times;</button>
                         <h3>Edit Application</h3>
                         <form className="oauth2-form" onSubmit={handleCreate}>
@@ -302,7 +317,7 @@ export default function OAuth2Apps() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="oauth2-label">Redirect URLs <span style={{fontWeight:400,opacity:0.7}}>(comma-separated)</span></label>
+                                <label className="oauth2-label">Redirect URLs <span style={{ fontWeight: 400, opacity: 0.7 }}>(comma-separated)</span></label>
                                 <input
                                     className="oauth2-input"
                                     type="text"
@@ -312,9 +327,9 @@ export default function OAuth2Apps() {
                                     placeholder="https://myapp.com/callback, http://localhost:3000/cb"
                                 />
                             </div>
-                            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                                 <button type="submit" className="oauth2-button">Update App</button>
-                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{background:'#222',border:'1px solid #444',color:'#fff'}}>Cancel</button>
+                                <button type="button" onClick={handleCancelEdit} className="oauth2-button" style={{ background: '#222', border: '1px solid #444', color: '#fff' }}>Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -323,7 +338,7 @@ export default function OAuth2Apps() {
             {/* Modal for Integration Code */}
             {iframeCode && (
                 <div className="modal-overlay" onClick={() => setIframeCode(null)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{position:'relative'}}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
                         <button className="close-modal-btn" onClick={() => setIframeCode(null)}>&times;</button>
                         <h4>Integration button code:</h4>
                         <pre className="oauth2-pre">{iframeCode}</pre>

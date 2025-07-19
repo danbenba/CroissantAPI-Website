@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import Link from "next/link";
 import Inventory from "../components/Inventory";
@@ -43,12 +43,25 @@ type ProfileProps = {
     userId: string; // userId
 };
 
+// ProfileShop: Shop section for a user's profile
+// --- Style constants for ProfileShop ---
+const inventoryGridStyle = (columns: number): React.CSSProperties => ({
+    gridTemplateColumns: `repeat(${columns}, 1fr)`
+});
+const inventoryItemStyle: React.CSSProperties = {
+    cursor: "pointer"
+};
+const tooltipStyle = (x: number, y: number): React.CSSProperties => ({
+    left: x,
+    top: y,
+    position: "fixed",
+    zIndex: 1000
+});
+
 function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess: () => void }) {
     const [items, setItems] = useState<ShopItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Tooltip and prompt state
     const [tooltip, setTooltip] = useState<{ x: number; y: number; item: ShopItem } | null>(null);
     const [prompt, setPrompt] = useState<{
         message: string;
@@ -59,9 +72,9 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
     } | null>(null);
     const [promptOwnerUser, setPromptOwnerUser] = useState<any | null>(null);
     const [alert, setAlert] = useState<{ message: string } | null>(null);
-
     const { token } = useAuth();
 
+    // Fetch shop items for the owner
     useEffect(() => {
         setLoading(true);
         fetch(endpoint + "/items", {
@@ -70,29 +83,25 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                 Authorization: "Bearer " + (token || ""),
             },
         })
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch shop items");
                 return res.json();
             })
-            .then(data => {
+            .then((data) => {
                 setItems(data.filter((item: any) => item.owner === ownerId));
             })
-            .catch(e => setError(e.message))
+            .catch((e) => setError(e.message))
             .finally(() => setLoading(false));
-    }, [ownerId]);
+    }, [ownerId, token]);
 
     // Tooltip handlers
     const handleMouseEnter = (e: React.MouseEvent, item: ShopItem) => {
         const rect = (e.target as HTMLElement).getBoundingClientRect();
-        setTooltip({
-            x: rect.right + 8,
-            y: rect.top,
-            item,
-        });
+        setTooltip({ x: rect.right + 8, y: rect.top, item });
     };
     const handleMouseLeave = () => setTooltip(null);
 
-    // Prompt logic (adapted from Shop copy)
+    // Custom prompt for buying items
     const customPrompt = async (message: string, maxAmount?: number, item?: ShopItem) => {
         let ownerUser: any = null;
         if (item && (item as any).owner) {
@@ -109,6 +118,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
         });
     };
 
+    // Handle prompt result
     const handlePromptResult = (confirmed: boolean) => {
         if (prompt) {
             const { amount } = prompt;
@@ -118,9 +128,10 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
         }
     };
 
+    // Handle amount change in prompt
     const handlePromptAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = Math.max(1, Math.min(Number(e.target.value), prompt?.maxAmount || Number.MAX_SAFE_INTEGER));
-        setPrompt(prev => prev ? { ...prev, amount: value } : null);
+        setPrompt((prev) => (prev ? { ...prev, amount: value } : null));
     };
 
     // Buy logic
@@ -138,9 +149,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                     "Content-Type": "application/json",
                     Authorization: "Bearer " + (token || ""),
                 },
-                body: JSON.stringify({
-                    amount: result.amount,
-                }),
+                body: JSON.stringify({ amount: result.amount }),
             })
                 .then(async (res) => {
                     const data = await res.json();
@@ -149,15 +158,14 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                 })
                 .then(() => {
                     // Refresh items
-                    // setLoading(true);
                     fetch(endpoint + "/items", {
                         headers: {
                             "Content-Type": "application/json",
                             Authorization: "Bearer " + (token || ""),
                         },
                     })
-                        .then(res => res.json())
-                        .then(data => setItems(data.filter((item: any) => item.owner === ownerId)))
+                        .then((res) => res.json())
+                        .then((data) => setItems(data.filter((item: any) => item.owner === ownerId)))
                         .finally(() => setLoading(false));
                     onBuySuccess();
                 })
@@ -167,6 +175,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
         }
     };
 
+    // Grid layout calculations
     const columns = 3;
     const minRows = 6;
     const totalItems = items.length;
@@ -176,27 +185,24 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
 
     if (loading) return <p>Loading shop...</p>;
     if (error) return <p style={{ color: "red" }}>{error}</p>;
-    // if (!items.length) return <p>No items created by this user.</p>;
 
     return (
         <div className="profile-shop-section">
             <h2 className="profile-shop-title">Shop</h2>
             <div
                 className="inventory-grid"
-                style={{
-                    gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                }}
+                style={inventoryGridStyle(columns)}
             >
-                {items.map(item => (
+                {items.map((item) => (
                     <div
                         key={item.itemId}
                         className="inventory-item"
                         tabIndex={0}
                         draggable={false}
-                        onMouseEnter={e => handleMouseEnter(e, item)}
+                        onMouseEnter={(e) => handleMouseEnter(e, item)}
                         onMouseLeave={handleMouseLeave}
                         onClick={() => handleBuy(item)}
-                        style={{ cursor: "pointer" }}
+                        style={inventoryItemStyle}
                     >
                         <img
                             src={"/items-icons/" + (item?.iconHash || item.itemId)}
@@ -217,16 +223,17 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
             </div>
             {/* Tooltip overlay */}
             {tooltip && (
-                <div className="shop-tooltip" style={{ left: tooltip.x, top: tooltip.y, position: "fixed", zIndex: 1000 }}>
+                <div
+                    className="shop-tooltip"
+                    style={tooltipStyle(tooltip.x, tooltip.y)}
+                >
                     <div className="shop-tooltip-name">{tooltip.item.name}</div>
                     <div className="shop-tooltip-desc">{tooltip.item.description}</div>
                     <div className="shop-tooltip-price">
                         Price: {tooltip.item.price}
                         <img src="./credit.png" className="shop-credit-icon" />
                         {tooltip.item.stock !== undefined && (
-                            <span className="shop-tooltip-stock">
-                                Stock: {tooltip.item.stock}
-                            </span>
+                            <span className="shop-tooltip-stock">Stock: {tooltip.item.stock}</span>
                         )}
                     </div>
                 </div>
@@ -238,7 +245,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                         {prompt.item && (
                             <div className="shop-prompt-item-details">
                                 <img
-                                    src={"/items-icons/" + prompt.item?.iconHash || prompt.item.itemId}
+                                    src={"/items-icons/" + (prompt.item?.iconHash || prompt.item.itemId)}
                                     alt={prompt.item.name}
                                     className="shop-prompt-item-img"
                                 />
@@ -249,9 +256,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                         Price: {prompt.item.price}
                                         <img src="./credit.png" className="shop-credit-icon" />
                                         {prompt.item.stock !== undefined && (
-                                            <span className="shop-prompt-item-stock">
-                                                Stock: {prompt.item.stock}
-                                            </span>
+                                            <span className="shop-prompt-item-stock">Stock: {prompt.item.stock}</span>
                                         )}
                                     </div>
                                     {(prompt.item as any).owner && promptOwnerUser && (
@@ -314,10 +319,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                 <div className="shop-alert-overlay">
                     <div className="shop-alert">
                         <div className="shop-alert-message">{alert.message}</div>
-                        <button
-                            className="shop-alert-ok-btn"
-                            onClick={() => setAlert(null)}
-                        >
+                        <button className="shop-alert-ok-btn" onClick={() => setAlert(null)}>
                             OK
                         </button>
                     </div>
@@ -332,13 +334,21 @@ export default function Profile({ userId }: ProfileProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+
     const searchParams = useSearchParams();
     const search = searchParams.get("user"); // Use directly, don't store in state
 
     const { user, token } = useAuth();
     const [inventoryReloadFlag, setInventoryReloadFlag] = useState(0);
 
+    const router = useRouter();
+
     useEffect(() => {
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
         setLoading(true);
         const selectedUserId = search || "@me";
         fetch(endpoint + "/users/" + selectedUserId, {
