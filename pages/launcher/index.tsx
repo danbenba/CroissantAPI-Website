@@ -1,7 +1,28 @@
 import React, { useEffect, useState } from "react";
-import fetchMe from "./components/utils/fetchMe";
 import useAuth from "../../hooks/useAuth";
 import { useRouter } from "next/router";
+
+const endpoint = "/api";
+
+export async function fetchMe(token: string, callback: () => void) {
+  await fetch(endpoint + "/users/@me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      // window.location.reload();
+    }
+    return res.json();
+  }).then((data) => {
+    localStorage.setItem("verificationKey", data.verificationKey);
+    window.me = data;
+    callback();
+  });
+}
 
 declare global {
   interface Window {

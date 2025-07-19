@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation'
 import Link from "next/link";
-
-const endpoint = "/api"; // Replace with your actual API endpoint
-
 import useAuth from "../hooks/useAuth";
+
+const endpoint = "/api";
 
 export interface InventoryItem {
     user_id: string;
