@@ -14,7 +14,7 @@ export default function OAuth2Apps() {
     const { token } = useAuth();
 
     useEffect(() => {
-        fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${document.cookie.split('token=')[1]}` } })
+        fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } })
             .then(res => res.json())
             .then(setApps)
             .catch(() => setApps([]));
@@ -131,7 +131,7 @@ export default function OAuth2Apps() {
             <h2 style={{marginBottom: 18}}>My OAuth2 Applications</h2>
             <button className="add-app-btn" onClick={() => { setShowForm(true); setEditing(null); setName(""); setRedirectUrls(""); }}>+ Add Application</button>
             <div className="apps-grid">
-                {apps.map(app => (
+                {apps && apps.map(app => (
                     <div key={app.client_id} className="app-card">
                         <div className="app-card-main">
                             <div className="app-card-title">{app.name}</div>
