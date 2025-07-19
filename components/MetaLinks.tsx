@@ -1,15 +1,15 @@
 import React, { ReactNode } from "react";
 
 
-export default function() {
+export default function () {
     return (
-        <>  
+        <>
             <title>Croissant Inventory System</title>
 
             <meta property="og:title" content="Croissant Inventory System" />
             <meta property="og:description" content="Croissant Inventory System - Manage your inventory with ease." />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://yourdomain.com/" />
+            <meta property="og:url" content="https://croissant-api.fr/" />
             <meta property="og:image" content="/favicon.png" />
             <meta property="og:site_name" content="Croissant Inventory System" />
             <meta name="twitter:card" content="summary_large_image" />
@@ -34,23 +34,23 @@ export default function() {
             <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-icon-144x144.png" />
             <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png" />
             <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png" />
-            <link rel="icon" type="image/png" sizes="192x192"  href="/icons/android-icon-192x192.png" />
+            <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png" />
             <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
             <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
             <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
             <link rel="manifest" href="/manifest.json" />
             <meta charSet="UTF-8"></meta>
             <meta name="msapplication-TileColor" content="#ffffff" />
-            <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png"/>
+            <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png" />
             <meta name="theme-color" content="#ffffff" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
             <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  integrity="sha512-..."
-  crossOrigin="anonymous"
-  referrerPolicy="no-referrer"
-/>
+                rel="stylesheet"
+                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+                integrity="sha512-..."
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
+            />
         </>
     );
 }
