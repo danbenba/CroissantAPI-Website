@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import TradePanel from "../components/TradePanel";
 // --- Give Credits Modal ---
 function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
     const [amount, setAmount] = useState(1);
@@ -32,7 +33,7 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import Link from "next/link";
-import Inventory from "../components/Inventory";
+import Inventory, { Item } from "../components/Inventory";
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -376,13 +377,17 @@ export default function Profile({ userId }: ProfileProps) {
     const [giveCreditsError, setGiveCreditsError] = useState<string | null>(null);
     const [giveCreditsSuccess, setGiveCreditsSuccess] = useState<string | null>(null);
 
+    const [showTradeModal, setShowTradeModal] = useState(false);
+    const [currentTradeId, setCurrentTradeId] = useState<string | null>(null);
+    const [inventoryReloadFlag, setInventoryReloadFlag] = useState(0);
+    const [inventory, setInventory] = useState<Item[]>([]);
+
+    const reloadInventory = () => setInventoryReloadFlag(f => f + 1);
 
     const searchParams = useSearchParams();
     const search = searchParams.get("user"); // Use directly, don't store in state
 
     const { user, token } = useAuth();
-    const [inventoryReloadFlag, setInventoryReloadFlag] = useState(0);
-
     const router = useRouter();
 
     useEffect(() => {
@@ -406,6 +411,14 @@ export default function Profile({ userId }: ProfileProps) {
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
     }, [userId, search, token]); // Add 'search' and 'token' as dependencies
+
+    // Inventory fetch effect
+    useEffect(() => {
+        if (!token) return;
+        fetch("/api/inventory/@me", { headers: { Authorization: "Bearer " + token } })
+            .then(res => res.json())
+            .then(setInventory);
+    }, [inventoryReloadFlag, token]);
 
     const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || event.target.files.length === 0) return;
@@ -434,12 +447,15 @@ export default function Profile({ userId }: ProfileProps) {
         }
     };
 
-    if (loading) return <div className="container"><p>Loading profile...</p></div>;
-    if (error) return <div className="container"><p style={{ color: "red" }}>{error}</p></div>;
-    if (!profile) return <div className="container"><p>No profile found.</p></div>;
-
-    // Only show give credits if not our own profile
-    const isMe = !search || search === user?.id;
+    // Start or resume trade with the profile owner
+    const handleStartTrade = async () => {
+        const res = await fetch(`/api/trades/start-or-latest/${profile.id}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setCurrentTradeId(data.id);
+    };
 
     // Handler for giving credits
     const handleGiveCredits = async (amount: number) => {
@@ -466,6 +482,13 @@ export default function Profile({ userId }: ProfileProps) {
         }
     };
 
+    if (loading) return <div className="container"><p>Loading profile...</p></div>;
+    if (error) return <div className="container"><p style={{ color: "red" }}>{error}</p></div>;
+    if (!profile) return <div className="container"><p>No profile found.</p></div>;
+
+    // Only show give credits if not our own profile
+    const isMe = !search || search === user?.id;
+
     return (
         <div className="profile-root">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -489,13 +512,23 @@ export default function Profile({ userId }: ProfileProps) {
                 </div>
                 {/* Give Credits button if not our own profile */}
                 {!isMe && (
-                    <button
-                        className="shop-prompt-buy-btn"
-                        style={{ marginTop: 8, marginRight: 8, float: "right" }}
-                        onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}
-                    >
-                        Give Credits
-                    </button>
+                    <div>
+                        <button
+                            className="shop-prompt-buy-btn"
+                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
+                            onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}
+                        >
+                            Give Credits
+                        </button>
+                        <button
+                            className="shop-prompt-buy-btn"
+                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
+                            onClick={handleStartTrade}
+                        >
+                            Ouvrir un échange
+                        </button>
+                    </div>
+
                 )}
             </div>
             <div className="profile-header">
@@ -528,6 +561,26 @@ export default function Profile({ userId }: ProfileProps) {
                     />
                 </div>
             </div>
+            {/* Trade Panel - only show if not our own profile */}
+            {user && user.id !== profile.id && (
+                <>
+                    {currentTradeId && (
+                        <TradePanel
+                            tradeId={currentTradeId}
+                            userId={user.id}
+                            token={token}
+                            inventory={inventory}
+                            reloadInventory={reloadInventory}
+                            onClose={() => {
+                                setCurrentTradeId(null);
+                                setShowTradeModal(false);
+                            }}
+                            profile={profile}
+                            apiBase="/api"
+                        />
+                    )}
+                </>
+            )}
             {/* Give Credits Modal */}
             <GiveCreditsModal
                 open={giveCreditsOpen}
@@ -538,8 +591,8 @@ export default function Profile({ userId }: ProfileProps) {
             />
             {/* Feedback for give credits */}
             {giveCreditsLoading && <div className="shop-alert-overlay"><div className="shop-alert"><div>Sending credits...</div></div></div>}
-            {giveCreditsError && <div className="shop-alert-overlay"><div className="shop-alert"><div style={{color:'red'}}>{giveCreditsError}</div><button className="shop-alert-ok-btn" onClick={()=>setGiveCreditsError(null)}>OK</button></div></div>}
-            {giveCreditsSuccess && <div className="shop-alert-overlay"><div className="shop-alert"><div>{giveCreditsSuccess}</div><button className="shop-alert-ok-btn" onClick={()=>setGiveCreditsSuccess(null)}>OK</button></div></div>}
+            {giveCreditsError && <div className="shop-alert-overlay"><div className="shop-alert"><div style={{ color: 'red' }}>{giveCreditsError}</div><button className="shop-alert-ok-btn" onClick={() => setGiveCreditsError(null)}>OK</button></div></div>}
+            {giveCreditsSuccess && <div className="shop-alert-overlay"><div className="shop-alert"><div>{giveCreditsSuccess}</div><button className="shop-alert-ok-btn" onClick={() => setGiveCreditsSuccess(null)}>OK</button></div></div>}
         </div>
     );
 }
