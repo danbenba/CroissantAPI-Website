@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import LauncherNavbar from './launcher/components/Navbar';
 import LauncherLobby from './launcher/components/Lobby';
 import useAuth from '../hooks/useAuth';
+import { AuthProvider } from '../hooks/AuthContext';
 
 const endpoint = "/api";
 
@@ -97,7 +98,7 @@ const loginButtonStyle: React.CSSProperties = {
     marginTop: "12px",
 };
 
-export default function App({ Component, pageProps }: AppProps) {
+function AppContent({ Component, pageProps }: AppProps) {
     const [isLauncher, setIsLauncher] = useState(false);
     const { user, token } = useAuth();
     const [mainStyle, setMainStyle] = useState<React.CSSProperties>({});
@@ -231,4 +232,12 @@ export default function App({ Component, pageProps }: AppProps) {
         return user ? <LauncherLayout /> : <LauncherLogin />;
     }
     return <WebsiteLayout />;
+}
+
+export default function App(props: AppProps) {
+    return (
+        <AuthProvider>
+            <AppContent {...props} />
+        </AuthProvider>
+    );
 }
