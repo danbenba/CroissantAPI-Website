@@ -1,4 +1,34 @@
 import React, { useCallback, useEffect, useState } from "react";
+// --- Give Credits Modal ---
+function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
+    const [amount, setAmount] = useState(1);
+    useEffect(() => { if (open) setAmount(1); }, [open]);
+    if (!open) return null;
+    return (
+        <div className="shop-prompt-overlay">
+            <div className="shop-prompt">
+                <div className="shop-prompt-message">
+                    Give credits to <b>{username}</b>
+                </div>
+                <div className="shop-prompt-amount">
+                    <input
+                        type="number"
+                        min={1}
+                        max={maxAmount || undefined}
+                        value={amount}
+                        onChange={e => setAmount(Math.max(1, Math.min(Number(e.target.value), maxAmount || Number.MAX_SAFE_INTEGER)))}
+                        className="shop-prompt-amount-input"
+                    />
+                    {maxAmount && (
+                        <span className="shop-prompt-amount-max">/ {maxAmount}</span>
+                    )}
+                </div>
+                <button className="shop-prompt-buy-btn" onClick={() => onSubmit(amount)}>Give</button>
+                <button className="shop-prompt-cancel-btn" onClick={onClose}>Cancel</button>
+            </div>
+        </div>
+    );
+}
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import Link from "next/link";
@@ -340,6 +370,12 @@ export default function Profile({ userId }: ProfileProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Give credits modal state
+    const [giveCreditsOpen, setGiveCreditsOpen] = useState(false);
+    const [giveCreditsLoading, setGiveCreditsLoading] = useState(false);
+    const [giveCreditsError, setGiveCreditsError] = useState<string | null>(null);
+    const [giveCreditsSuccess, setGiveCreditsSuccess] = useState<string | null>(null);
+
 
     const searchParams = useSearchParams();
     const search = searchParams.get("user"); // Use directly, don't store in state
@@ -402,28 +438,65 @@ export default function Profile({ userId }: ProfileProps) {
     if (error) return <div className="container"><p style={{ color: "red" }}>{error}</p></div>;
     if (!profile) return <div className="container"><p>No profile found.</p></div>;
 
+    // Only show give credits if not our own profile
+    const isMe = !search || search === user?.id;
+
+    // Handler for giving credits
+    const handleGiveCredits = async (amount: number) => {
+        setGiveCreditsLoading(true);
+        setGiveCreditsError(null);
+        setGiveCreditsSuccess(null);
+        try {
+            const res = await fetch("/api/users/transfer-credits", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ targetUserId: profile.id, amount }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to transfer credits");
+            setGiveCreditsSuccess("Credits sent!");
+            setInventoryReloadFlag(f => f + 1); // Optionally reload inventory
+        } catch (e) {
+            setGiveCreditsError(e.message);
+        } finally {
+            setGiveCreditsLoading(false);
+        }
+    };
+
     return (
         <div className="profile-root">
-            <div className="profile-picture-container">
-                <label htmlFor="profile-picture-input">
-                    <img
-                        src={
-                            "https://croissant-api.fr/avatar/" + (search || user.id)
-                            // profile.avatar
-                            //     ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
-                            //     : "https://cdn.discordapp.com/embed/avatars/0.png"
-                        }
-                        alt={profile.username}
-                        className="profile-avatar"
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div className="profile-picture-container">
+                    <label htmlFor="profile-picture-input">
+                        <img
+                            src={
+                                "https://croissant-api.fr/avatar/" + (search || user.id)
+                            }
+                            alt={profile.username}
+                            className="profile-avatar"
+                        />
+                    </label>
+                    <input
+                        id="profile-picture-input"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handleProfilePictureChange}
                     />
-                </label>
-                <input
-                    id="profile-picture-input"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleProfilePictureChange}
-                />
+                </div>
+                {/* Give Credits button if not our own profile */}
+                {!isMe && (
+                    <button
+                        className="shop-prompt-buy-btn"
+                        style={{ marginTop: 8, marginRight: 8, float: "right" }}
+                        onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}
+                    >
+                        Give Credits
+                    </button>
+                )}
             </div>
             <div className="profile-header">
                 <div>
@@ -444,7 +517,7 @@ export default function Profile({ userId }: ProfileProps) {
                     <div className="profile-shop-section">
                         <h2 className="profile-inventory-title">Inventory</h2>
                         {/* Pass inventoryReloadFlag as a prop */}
-                        <Inventory userId={search || "@me"} isMe={!search || search === user?.id} reloadFlag={inventoryReloadFlag} />
+                        <Inventory userId={search || "@me"} isMe={isMe} reloadFlag={inventoryReloadFlag} />
                     </div>
                 </div>
                 <div style={{ flex: "0 0 30%" }}>
@@ -455,6 +528,18 @@ export default function Profile({ userId }: ProfileProps) {
                     />
                 </div>
             </div>
+            {/* Give Credits Modal */}
+            <GiveCreditsModal
+                open={giveCreditsOpen}
+                onClose={() => setGiveCreditsOpen(false)}
+                onSubmit={amount => { setGiveCreditsOpen(false); handleGiveCredits(amount); }}
+                maxAmount={user?.balance}
+                username={profile.global_name || profile.username}
+            />
+            {/* Feedback for give credits */}
+            {giveCreditsLoading && <div className="shop-alert-overlay"><div className="shop-alert"><div>Sending credits...</div></div></div>}
+            {giveCreditsError && <div className="shop-alert-overlay"><div className="shop-alert"><div style={{color:'red'}}>{giveCreditsError}</div><button className="shop-alert-ok-btn" onClick={()=>setGiveCreditsError(null)}>OK</button></div></div>}
+            {giveCreditsSuccess && <div className="shop-alert-overlay"><div className="shop-alert"><div>{giveCreditsSuccess}</div><button className="shop-alert-ok-btn" onClick={()=>setGiveCreditsSuccess(null)}>OK</button></div></div>}
         </div>
     );
 }
