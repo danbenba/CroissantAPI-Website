@@ -25,12 +25,8 @@ const nextConfig = {
                 destination: '/api/banners-icons/:path*',
             },
             {
-                source: '/launcher/home',
-                destination: '/launcher/index.html',
-            },
-            {
-                source: '/launcher/:path*',
-                destination: '/launcher/index.html',
+                source: '/launcher',
+                destination: '/launcher/home',
             },
             {
                 source: '/upload/avatar',

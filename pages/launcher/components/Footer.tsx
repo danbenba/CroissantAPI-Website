@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default class extends Component {
     render(): React.ReactNode {
@@ -7,8 +7,8 @@ export default class extends Component {
             <footer>
                 <p>Copyright © 2025 Croissant Inventory System</p>
                 <div style={{ display: 'flex', gap: '1rem', textAlign: 'center', verticalAlign: 'middle', justifyContent: 'center' }}>
-                    <Link to="/tos">Terms of Service</Link>
-                    <Link to="/privacy">Privacy Policy</Link>
+                    <Link href="/terms">Terms of Service</Link>
+                    <Link href="/privacy">Privacy Policy</Link>
                 </div>
             </footer>
         );        
