@@ -242,7 +242,7 @@ const Library: React.FC = () => {
                             ))}
                         </ul>
                     </aside>
-                    <main className="steam-library-main">
+                    <main className="steam-library-main launcher">
                         <div className="main-details-steam gamepage-blur">
                             <div className="banner-container">
                                 <div className="main-banner-steam skeleton-banner" />
@@ -310,7 +310,7 @@ const Library: React.FC = () => {
                     </ul>
                 )}
             </aside>
-            <main className="steam-library-main">
+            <main className="steam-library-main launcher">
                 {!selected ? (
                     <div className="main-empty">Please select a game.</div>
                 ) : (
