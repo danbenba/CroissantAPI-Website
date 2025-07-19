@@ -9,11 +9,16 @@ export default function Searchbar() {
         setValue(e.target.value);
     };
 
+    const isFromLauncher = () => {
+        return typeof window !== "undefined" &&
+        (window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")) ? "&from=launcher" : "";
+    };
+
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             const query = encodeURIComponent(e.currentTarget.value);
             if (query) {
-                router.push("/search?q=" + query);
+                router.push("/search?q=" + query + isFromLauncher());
             }
         }
     };

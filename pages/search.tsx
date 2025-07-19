@@ -3,12 +3,17 @@ import Link from "next/link";
 import { useSearchParams } from 'next/navigation'
 import useAuth from "../hooks/useAuth";
 
-const url = "https://croissant-api.fr"; // Replace with your actual API URL
 const endpoint = "/api"; // Replace with your actual API endpoint
 
 export default function SearchPage() {
     const [users, setUsers] = useState<any[]>([]);
     const { token } = useAuth(); // Assuming useAuth is imported from your auth hook
+
+    const isFromLauncher = () => {
+        return typeof window !== "undefined" &&
+        (window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")) ? "&from=launcher" : "";
+    };
+
 
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || "";
@@ -40,7 +45,7 @@ export default function SearchPage() {
                     </div>
                 )}
                 {users.map((user, idx) => (
-                    <Link href={`/profile?user=${user.id}`} style={{ textDecoration: "none" }}>
+                    <Link href={`/profile?user=${user.id}` + isFromLauncher()} style={{ textDecoration: "none" }}>
                         <div
                             key={user.id || idx}
                             className="search-user-card"
@@ -49,7 +54,7 @@ export default function SearchPage() {
                             onMouseOut={e => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)")}
                         >
                             <img
-                                src={url + "/avatar/" + user.id}
+                                src={"/avatar/" + user.id}
                                 alt="User Avatar"
                                 className="search-user-avatar"
                             />

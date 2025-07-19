@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from 'next/navigation'
-import Link from "next/link";
-
-const endpoint = "/api"; // Replace with your actual API endpoint
-
-import useAuth from "../hooks/useAuth";
+import { Link } from "react-router-dom";
+import { endpoint, url } from "../config/config";
 
 export interface InventoryItem {
     user_id: string;
@@ -31,24 +27,19 @@ interface Props {
 }
 
 export default function Inventory({ userId, isMe, reloadFlag }: Props) {
-
-    const searchParams = useSearchParams()
-
     const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; item: Item } | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item: Item } | null>(null);
-    const [prompt, setPrompt] = useState<{
-        message: string;
-        resolve: (value: { confirmed: boolean, amount?: number }) => void;
+    const [prompt, setPrompt] = useState<{ 
+        message: string; 
+        resolve: (value: { confirmed: boolean, amount?: number }) => void; 
         maxAmount?: number;
         amount?: number;
     } | null>(null);
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [ownerUser, setOwnerUser] = useState<any | null>(null);
-
-    const { user, token } = useAuth();
 
     useEffect(() => {
         refreshInventory();
@@ -60,29 +51,27 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
         }
     }, [reloadFlag]);
 
-    const selectedUser = userId === "me" ? user?.id || "me" : userId;
-
     const refreshInventory = () => {
         // setLoading(true);
-        fetch(endpoint + "/inventory/" + selectedUser, {
+        fetch(endpoint + "/inventory/" + userId, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + token || "",
+                Authorization: "Bearer " + localStorage.getItem("token") || "",
             },
         })
-            .then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch inventory");
-                return res.json();
-            })
-            .then((data) => {
-                setItems([...data]);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+        .then((res) => {
+            if (!res.ok) throw new Error("Failed to fetch inventory");
+            return res.json();
+        })
+        .then((data) => {
+            setItems([...data]);
+            setLoading(false);
+        })
+        .catch((err) => {
+            setError(err.message);
+            setLoading(false);
+        });
     }
 
     const handleMouseEnter = (e: React.MouseEvent, item: Item) => {
@@ -99,7 +88,6 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
     };
 
     const handleContextMenu = (e: React.MouseEvent, item: Item) => {
-        // console.log("Context menu for item:", item);
         e.preventDefault();
         setContextMenu({
             x: e.clientX,
@@ -138,24 +126,24 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: "Bearer " + token || "",
+                    Authorization: "Bearer " + localStorage.getItem("token") || "",
                 },
                 body: JSON.stringify({
                     amount: result.amount,
                 })
             })
-                .then(async (res) => {
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || "Failed to sell item");
-                    return data;
-                })
-                .then(() => {
-                    setContextMenu(null);
-                    refreshInventory();
-                })
-                .catch((err) => {
-                    setError(err.message);
-                });
+            .then(async (res) => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to sell item");
+                return data;
+            })
+            .then(() => {
+                setContextMenu(null);
+                refreshInventory();
+            })
+            .catch((err) => {
+                setError(err.message);
+            });
         }
     };
 
@@ -167,24 +155,24 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: "Bearer " + token || "",
+                    Authorization: "Bearer " + localStorage.getItem("token") || "",
                 },
                 body: JSON.stringify({
                     amount: result.amount,
                 })
             })
-                .then(async (res) => {
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || "Failed to drop item");
-                    return data;
-                })
-                .then(() => {
-                    setContextMenu(null);
-                    refreshInventory();
-                })
-                .catch((err) => {
-                    setError(err.message);
-                });
+            .then(async (res) => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to drop item");
+                return data;
+            })
+            .then(() => {
+                setContextMenu(null);
+                refreshInventory();
+            })
+            .catch((err) => {
+                setError(err.message);
+            });
         }
     };
 
@@ -193,12 +181,12 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
             const res = await fetch(`${endpoint}/items/${item.itemId}`, {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: "Bearer " + (token || ""),
+                    Authorization: "Bearer " + (localStorage.getItem("token") || ""),
                 },
             });
             if (!res.ok) throw new Error("Failed to fetch item details");
             const details = await res.json();
-
+    
             let ownerUser = null;
             if (details.owner) {
                 const userRes = await fetch(endpoint + "/users/" + details.owner);
@@ -206,7 +194,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                     ownerUser = await userRes.json();
                 }
             }
-
+    
             setSelectedItem({
                 ...item,
                 ...details,
@@ -246,7 +234,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                 </button>
                 <div className="inventory-details-main">
                     <img
-                        src={"/items-icons/" + (selectedItem?.iconHash || selectedItem.itemId)}
+                        src={url + "/items-icons/" + (selectedItem?.iconHash || selectedItem.itemId)}
                         alt={selectedItem.name}
                         className="inventory-details-img"
                     />
@@ -256,18 +244,18 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                         <div className="inventory-details-qty">Quantity: x{selectedItem.amount}</div>
                         {selectedItem.price !== undefined && (
                             <div className="inventory-details-price">
-                                Price: {selectedItem.price} <img src="./credit.png" className="inventory-credit-icon" />
+                                Price: {selectedItem.price} <img src="./credit.png" className="inventory-credit-icon"/>
                             </div>
                         )}
                         {selectedItem.owner && ownerUser && (
                             <div className="inventory-details-creator">
                                 Creator:{" "}
                                 <Link
-                                    href={`/profile?user=${selectedItem.owner}`}
+                                    to={`/profile?user=${selectedItem.owner}`}
                                     className="inventory-details-creator-link"
                                 >
                                     <img className="inventory-details-creator-avatar"
-                                        src={"/avatar/" + selectedItem.owner} />
+                                        src={url + "/avatar/" + selectedItem.owner }/>
                                     {ownerUser.global_name || ownerUser.username}
                                 </Link>
                             </div>
@@ -317,7 +305,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                             >
                                 <>
                                     <img
-                                        src={"/items-icons/" + (item?.iconHash || item.itemId)}
+                                        src={url + "/items-icons/" + (item?.iconHash || item.itemId)}
                                         alt={item.name}
                                         className="inventory-item-img"
                                         draggable={false}

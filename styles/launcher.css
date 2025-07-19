@@ -443,7 +443,7 @@ strong {
     margin: 0px;
     padding: 36px;
     width: calc(100% - 36px - 36px);
-    height: calc(100% - 4.5rem);
+    /* height: calc(100% - 4.5rem); */
     background: linear-gradient(135deg, #23232a 0, #18181c 100%);
     /* border-radius: 18px; */
     box-shadow: 0 4px 32px rgba(0, 0, 0, .22)
@@ -1721,7 +1721,7 @@ input[type=text].required:focus {
     color: var(--text-color-primary);
     box-shadow: 0 2px 12px rgba(0, 0, 0, .4);
     border: 2px solid var(--text-color-secondary);
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
     height: fit-content
 }
 

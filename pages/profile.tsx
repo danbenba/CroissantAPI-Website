@@ -4,7 +4,6 @@ import { useSearchParams } from 'next/navigation'
 import Link from "next/link";
 import Inventory from "../components/Inventory";
 
-const url = "https://croissant-api.fr"; // Replace with your actual API URL
 const endpoint = "/api"; // Replace with your actual API endpoint
 
 import useAuth from "../hooks/useAuth";
@@ -177,7 +176,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
 
     if (loading) return <p>Loading shop...</p>;
     if (error) return <p style={{ color: "red" }}>{error}</p>;
-    if (!items.length) return <p>No items created by this user.</p>;
+    // if (!items.length) return <p>No items created by this user.</p>;
 
     return (
         <div className="profile-shop-section">
@@ -200,7 +199,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                         style={{ cursor: "pointer" }}
                     >
                         <img
-                            src={url + "/items-icons/" + (item?.iconHash || item.itemId)}
+                            src={"/items-icons/" + (item?.iconHash || item.itemId)}
                             data-raw={JSON.stringify(item)}
                             alt={item.name}
                             className="inventory-item-img"
@@ -239,7 +238,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                         {prompt.item && (
                             <div className="shop-prompt-item-details">
                                 <img
-                                    src={url + "/items-icons/" + prompt.item?.iconHash || prompt.item.itemId}
+                                    src={"/items-icons/" + prompt.item?.iconHash || prompt.item.itemId}
                                     alt={prompt.item.name}
                                     className="shop-prompt-item-img"
                                 />
@@ -264,7 +263,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                             >
                                                 <img
                                                     className="shop-prompt-owner-avatar"
-                                                    src={url + "/avatar/" + (prompt.item as any).owner}
+                                                    src={"/avatar/" + (prompt.item as any).owner}
                                                 />
                                                 {promptOwnerUser.global_name || promptOwnerUser.username}
                                             </Link>
