@@ -44,6 +44,7 @@ const Library: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showFetchError, setShowFetchError] = useState(false);
     const [search, setSearch] = useState("");
 
     const { user } = useAuth(); // Assuming useAuth is defined and provides user info
@@ -57,7 +58,7 @@ const Library: React.FC = () => {
             },
         })
             .then(async (res) => {
-                if (!res.ok) throw new Error("Erreur lors du chargement des jeux");
+                if (!res.ok) throw new Error("Failed to fetch games");
                 return res.json();
             })
             .then((data) => {
@@ -69,7 +70,9 @@ const Library: React.FC = () => {
             })
             .catch((err) => {
                 setError(err.message);
+                setShowFetchError(true);
                 setLoading(false);
+                setTimeout(() => setShowFetchError(false), 4000);
             });
     }, []);
 
@@ -222,7 +225,8 @@ const Library: React.FC = () => {
         game.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    if (loading) {
+
+    if (loading || error) {
         return (
             <div style={{ position: "relative" }}>
                 {/* Skeleton UI */}
@@ -259,15 +263,41 @@ const Library: React.FC = () => {
                         </div>
                     </main>
                 </div>
-                {/* Loading spinner overlay */}
-                <div className="gamepage-loading-overlay">
-                    <div className="inventory-loading-spinner" />
-                </div>
+                {/* Loading spinner or error overlay */}
+                {error ? (
+                    <div className="gamepage-loading-overlay" style={{ background: "rgba(34,34,34,0.92)", position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div style={{ color: "#fff", fontSize: 18, fontWeight: 500, textAlign: "center", padding: "32px 0" }}>
+                            {error}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="gamepage-loading-overlay">
+                        <div className="inventory-loading-spinner" />
+                    </div>
+                )}
+                {showFetchError && (
+                    <div style={{
+                        position: "fixed",
+                        top: 24,
+                        right: 24,
+                        background: "#222",
+                        color: "#fff",
+                        padding: "16px 28px",
+                        borderRadius: 8,
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+                        zIndex: 9999,
+                        fontSize: 16,
+                        fontWeight: 500,
+                        letterSpacing: 0.2,
+                        minWidth: 220,
+                        textAlign: "center"
+                    }}>
+                        Failed to fetch games. Please check your connection or try again later.
+                    </div>
+                )}
             </div>
         );
     }
-
-    if (error) return <div style={{ color: "red" }}>{error}</div>;
 
     return (
         <div className="steam-library-layout">

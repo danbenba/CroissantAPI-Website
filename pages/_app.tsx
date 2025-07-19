@@ -181,7 +181,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     // --- Layouts ---
     const LauncherLayout = () => (
         <>
-            <BackgroundImage />
+            {/* <BackgroundImage /> */}
             <MetaLinks />
             <nav className="titlebar" style={launcherTitlebarStyle}>
                 <img src="/launcher/icon.png" alt="Icon" style={launcherIconStyle} />
@@ -197,7 +197,7 @@ function AppContent({ Component, pageProps }: AppProps) {
 
     const LauncherLogin = () => (
         <>
-            <BackgroundImage />
+            {/* <BackgroundImage /> */}
             <MetaLinks />
             <div style={loginContainerStyle}>
                 <div style={loginBoxStyle}>
