@@ -4,7 +4,7 @@ export default class extends Component {
     render() {
         return (
             <>
-                <div className="container" style={{ padding: "20px", backgroundColor: "#3c3c3c", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)" }}>
+                <div className="container" style={{ padding: "20px", backgroundColor: "#3c3c3cee", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)" }}>
                     <h1 id="about-us"><span className="method put">Download the Launcher</span></h1>
                     <p>
                         To download the Croissant launcher:
@@ -18,7 +18,7 @@ export default class extends Component {
                     <p>
                         The Croissant launcher is important because it allows you to easily access and manage your Croissant account and items, discover and launch games, and automatically stay updated with the latest platform features.
                     </p>
-                    <img src="/assets/launcher.png" alt="Croissant Launcher Screenshot" style={{maxWidth: '100%', height: 'auto'}}/>
+                    <img src="/assets/launcher.png" alt="Croissant Launcher Screenshot" style={{maxWidth: '100%', height: 'auto', borderRadius: '8px'}}/>
                 </div>
             </>
         );

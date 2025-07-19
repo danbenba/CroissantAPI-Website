@@ -17,7 +17,7 @@ function useResponsiveStyles() {
         border: "1px solid #333",
         borderRadius: 8,
         marginBottom: isMobile ? "0.8rem" : "1.5rem",
-        background: "#23272f",
+        background: "#23272faa",
         boxShadow: isMobile ? undefined : "0 2px 8px rgba(0,0,0,0.24)",
         padding: isMobile ? "0.3rem 0.5rem 0.7rem 0.5rem" : "0.5rem 1.2rem 1rem 1.2rem",
         color: "#f3f3f3"
@@ -33,10 +33,12 @@ function useResponsiveStyles() {
     const aboutStyle: React.CSSProperties = {
         border: "1px solid #333",
         borderRadius: 8,
-        background: "#181a20",
+        background: "#181a20aa",
         padding: isMobile ? "0.7rem" : "1.2rem",
         marginTop: isMobile ? "1rem" : "2rem",
-        color: "#f3f3f3"
+        color: "#f3f3f3",
+        marginLeft: isMobile ? "0.5rem" : "1.5rem",
+        marginRight: isMobile ? "0.5rem" : "1.5rem",
     };
     return { detailsStyle, summaryStyle, aboutStyle };
 }
@@ -44,14 +46,16 @@ function useResponsiveStyles() {
 
 // Style constant for the top <span>
 const topSpanStyle: React.CSSProperties = {
-  fontSize: 16,
-  marginTop: 0,
-  marginBottom: 16,
-  opacity: 0.7,
-  whiteSpace: "nowrap",
-  textAlign: "center",
-  justifyContent: "center",
-  display: "flex",
+    fontSize: 16,
+    marginTop: 0,
+    marginBottom: 16,
+    opacity: 0.7,
+    textAlign: "center",
+    justifyContent: "center",
+    display: "flex",
+    flexWrap: "wrap", // Allow wrapping to new line if too many words
+    whiteSpace: "normal", // Allow line breaks
+    wordBreak: "break-word", // Break long words if needed
 };
 
 // Overview details content as an array for easier maintenance
@@ -217,7 +221,7 @@ export default function Home() {
       <span style={topSpanStyle}>
         Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology
       </span>
-      <div className="container">
+      <div className="container" style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}>
         <h1>
           <span className="method post">CROISSANT PLATFORM OVERVIEW</span>
         </h1>

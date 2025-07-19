@@ -26,9 +26,9 @@ button {
 }
 
 :root {
-    --background-dark: #222;
-    --background-medium: #232323;
-    --background-light: #2c2c2c;
+    --background-dark: #222222ee;
+    --background-medium: #232323ee;
+    --background-light: #2c2c2cee;
     --text-color-primary: #fff;
     --text-color-secondary: #bcbcbc;
     --border-color: #444;

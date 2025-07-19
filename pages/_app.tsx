@@ -141,48 +141,83 @@ export default function App({ Component, pageProps }: AppProps) {
         };
     }, []);
 
-    if (isLauncher) {
-        if (user) {
-            return (
-                <>
-                    <MetaLinks />
-                    <nav className="titlebar" style={launcherTitlebarStyle}>
-                        <img src="/launcher/icon.png" alt="Icon" style={launcherIconStyle} />
-                        <span className="navbar-title" style={launcherTitleStyle}>Croissant Launcher</span>
-                    </nav>
-                    <LauncherNavbar />
-                    <main style={launcherMainStyle} className="launcher">
-                        <Component {...pageProps} />
-                    </main>
-                    <LauncherLobby />
-                </>
-            );
-        } else {
-            return (
-                <>
-                    <MetaLinks />
-                    <div style={loginContainerStyle}>
-                        <div style={loginBoxStyle}>
-                            <h1 style={loginTitleStyle}>Login required</h1>
-                            <button
-                                style={loginButtonStyle}
-                                onClick={() => {
-                                    // Redirects to the website login page
-                                    window?.electron?.window?.openEmailLogin?.();
-                                }}
-                            >
-                                Log in on the website
-                            </button>
-                        </div>
-                    </div>
-                </>
-            );
-        }
-    }
+    // --- Background image component ---
+    const BackgroundImage = () => (
+        <div
+            style={{
+                position: 'fixed',
+                zIndex: -1,
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                pointerEvents: 'none',
+                background: 'linear-gradient(to bottom, rgba(24,24,27,0.85) 0%, rgba(24,24,27,0.7) 60%, rgba(24,24,27,1) 100%)',
+                overflow: 'hidden',
+                objectFit: 'cover',
+            }}
+            aria-hidden="true"
+        >
+            <img
+                src="/backgrounds/raiden-crow.webp"
+                alt="background"
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    objectFit: 'cover',
+                    opacity: 0.32,
+                    filter: 'blur(0.5px)',
+                    transition: 'opacity 0.8s',
+                    maxWidth: '100%',
+                }}
+            />
+        </div>
+    );
 
-    // Default website layout
-    return (
+    // --- Layouts ---
+    const LauncherLayout = () => (
+        <>
+            <BackgroundImage />
+            <MetaLinks />
+            <nav className="titlebar" style={launcherTitlebarStyle}>
+                <img src="/launcher/icon.png" alt="Icon" style={launcherIconStyle} />
+                <span className="navbar-title" style={launcherTitleStyle}>Croissant Launcher</span>
+            </nav>
+            <LauncherNavbar />
+            <main style={launcherMainStyle} className="launcher">
+                <Component {...pageProps} />
+            </main>
+            <LauncherLobby />
+        </>
+    );
+
+    const LauncherLogin = () => (
+        <>
+            <BackgroundImage />
+            <MetaLinks />
+            <div style={loginContainerStyle}>
+                <div style={loginBoxStyle}>
+                    <h1 style={loginTitleStyle}>Login required</h1>
+                    <button
+                        style={loginButtonStyle}
+                        onClick={() => {
+                            // Redirects to the website login page
+                            window?.electron?.window?.openEmailLogin?.();
+                        }}
+                    >
+                        Log in on the website
+                    </button>
+                </div>
+            </div>
+        </>
+    );
+
+    const WebsiteLayout = () => (
         <div>
+            <BackgroundImage />
             <MetaLinks />
             <Navbar />
             <main style={mainStyle}>
@@ -191,4 +226,9 @@ export default function App({ Component, pageProps }: AppProps) {
             <Footer />
         </div>
     );
+
+    if (isLauncher) {
+        return user ? <LauncherLayout /> : <LauncherLogin />;
+    }
+    return <WebsiteLayout />;
 }
