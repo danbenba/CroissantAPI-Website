@@ -18,16 +18,18 @@ const Navbar: React.FC = () => {
                         <Link href="/launcher/home">Library</Link>
                         <Link href="/launcher/shop">Shop</Link>
                         <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
-                        <div className="create-dropdown">
+                        <Link href="/dev-zone/my-items?from=launcher">My Items</Link>
+                        <Link href="/dev-zone/my-games?from=launcher">My Games</Link>
+                        {/* <div className="create-dropdown">
                             Create
                             <div className="create-dropdown-content">
-                                <Link href="/launcher/dev-zone/my-games">My Games</Link>
-                                <Link href="/launcher/dev-zone/my-items">My Items</Link>
+                                <Link href="/dev-zone/my-games?from=launcher">My Games</Link>
+                                <Link href="/dev-zone/my-items?from=launcher">My Items</Link>
                                 <hr />
-                                <Link href="/launcher/dev-zone/create-game">Create Game</Link>
-                                <Link href="/launcher/dev-zone/create-item">Create Item</Link>
+                                <Link href="/dev-zone/create-game?from=launcher">Create Game</Link>
+                                <Link href="/dev-zone/create-item?from=launcher">Create Item</Link>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     <SearchBar />
                     <div className="navbar-user-group">

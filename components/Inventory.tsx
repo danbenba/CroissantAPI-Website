@@ -255,7 +255,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                         <div className="inventory-details-qty">Quantity: x{selectedItem.amount}</div>
                         {selectedItem.price !== undefined && (
                             <div className="inventory-details-price">
-                                Price: {selectedItem.price} <img src="./credit.png" className="inventory-credit-icon" />
+                                Price: {selectedItem.price} <img src="/credit.png" className="inventory-credit-icon" />
                             </div>
                         )}
                         {selectedItem.owner && ownerUser && (

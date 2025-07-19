@@ -296,7 +296,7 @@ const Shop: React.FC = () => {
                                                 gap: 4,
                                             }}>
                                                 {game.price}
-                                                <img src="./credit.png" className="shop-credit-icon" alt="credits" />
+                                                <img src="/credit.png" className="shop-credit-icon" alt="credits" />
                                             </div>
                                             <div style={{
                                                 color: "var(--text-color-secondary)",

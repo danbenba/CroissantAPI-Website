@@ -45,7 +45,7 @@ export default class extends Component {
                                 className="credit-tier-img"
                             />
                             <div className="credit-tier-credits">
-                                {tier.credits} <img src="./credit.png" className="credit-icon navbar-credit-img" style={{position: "relative", top: "4px"}}/>
+                                {tier.credits} <img src="/credit.png" className="credit-icon navbar-credit-img" style={{position: "relative", top: "4px"}}/>
                             </div>
                             <div className="credit-tier-price">
                                 {tier.price}

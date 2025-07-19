@@ -170,9 +170,17 @@ export default function NavBar() {
                             </Link>
                             <a href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923" style={linkStyle}>Bot</a>
                             {!loading && user && (
-                                <Link href="/oauth2/apps" legacyBehavior>
-                                    <a style={linkStyle}>Apps</a>
-                                </Link>
+                                <>
+                                    <Link href="/oauth2/apps" legacyBehavior>
+                                        <a style={linkStyle}>Apps</a>
+                                    </Link>
+                                    <Link href="/dev-zone/my-items" legacyBehavior>
+                                        <a style={linkStyle}>My Items</a>
+                                    </Link>
+                                    <Link href="/dev-zone/my-games" legacyBehavior>
+                                        <a style={linkStyle}>My Games</a>
+                                    </Link>
+                                </>
                             )}
                             {!loading && user ? (
                                 <div style={userBlockStyle}>
@@ -181,7 +189,7 @@ export default function NavBar() {
                                     </Link>
                                     <Link href="/launcher/buy-credits" style={{ textDecoration: "none" }}>
                                         <div className="navbar-credits">
-                                            <img src="./credit.png" className="navbar-credit-img" />
+                                            <img src="/credit.png" className="navbar-credit-img" />
                                             <div className="navbar-balance">
                                                 <span id="my-balance">{user?.balance}</span>
                                             </div>

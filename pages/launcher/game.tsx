@@ -68,7 +68,7 @@ const GamePage: React.FC = () => {
                     {game.release_date && <div><b>Release Date:</b> {game.release_date}</div>}
                     {game.platforms && <div><b>Platforms:</b> {game.platforms}</div>}
                     {game.rating !== undefined && <div><b>Rating:</b> {game.rating}</div>}
-                    {game.price !== undefined && <div><b>Price:</b> {game.price} <img src="./credit.png" className="gamepage-credit-icon" /></div>}
+                    {game.price !== undefined && <div><b>Price:</b> {game.price} <img src="/credit.png" className="gamepage-credit-icon" /></div>}
                 </div>
                 {/* Add more details or actions as needed */}
             </div>

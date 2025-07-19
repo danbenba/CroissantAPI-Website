@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from '../../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
+import Link from 'next/link';
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -236,9 +237,12 @@ const MyGames = () => {
     return (
         <>
             <div className="mygames-container">
-                <h1 className="mygames-title">
-                    <span className="mygames-title-span">My Games</span>
-                </h1>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                    <h1 className="mygames-title">
+                        <span className="mygames-title-span">My Games</span>
+                    </h1>
+                    <Link href="/dev-zone/create-game" className="mygames-add-btn" style={{ background: '#333', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 500, padding: '10px 18px', fontSize: '1rem', textDecoration: 'none', cursor: 'pointer' }}>+ Add Game</Link>
+                </div>
                 {loading ? (
                     <div className="mygames-loading">Loading...</div>
                 ) : (

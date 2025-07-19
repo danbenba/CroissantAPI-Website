@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
-import useAuth from '../../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
+import Link from 'next/link';
 const endpoint = "/api"; // Replace with your actual API endpoint
 
 const CreateItem = () => {
@@ -36,6 +37,7 @@ const CreateItem = () => {
         if (!formData.name) newErrors.name = 'Name is required';
         if (!formData.description) newErrors.description = 'Description is required';
         if (!formData.price) newErrors.price = 'Price is required';
+        // iconFile is now optional
         return newErrors;
     };
 
@@ -120,6 +122,9 @@ const CreateItem = () => {
     return (
         <>
             <div className="createitem-container">
+                <div style={{ marginBottom: 18 }}>
+                    <Link href="/dev-zone/my-items" style={{ background: '#222', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 500, padding: '8px 16px', fontSize: '0.95rem', textDecoration: 'none', cursor: 'pointer' }}>&larr; Back to My Items</Link>
+                </div>
                 <h1 className="createitem-title">
                     <span>Submit an Item</span>
                 </h1>
@@ -186,7 +191,7 @@ const CreateItem = () => {
                     </div>
                     <div className="form-row">
                         <label htmlFor="icon">
-                            Icon
+                            Icon (optional)
                         </label>
                         <label htmlFor="icon" className="custom-file-label createitem-file-label">
                             {iconFile ? "Change Icon" : "Choose Icon"}

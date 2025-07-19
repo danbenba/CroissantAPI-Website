@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from '../../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
+import Link from 'next/link';
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -178,9 +179,12 @@ const MyItems = () => {
     return (
         <>
             <div className="myitems-container">
-                <h1 className="myitems-title">
-                    <span className="myitems-title-span">My Items</span>
-                </h1>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                    <h1 className="myitems-title">
+                        <span className="myitems-title-span">My Items</span>
+                    </h1>
+                    <Link href="/dev-zone/create-item" className="myitems-add-btn" style={{ background: '#333', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 500, padding: '10px 18px', fontSize: '1rem', textDecoration: 'none', cursor: 'pointer' }}>+ Add Item</Link>
+                </div>
                 {loading ? (
                     <div className="myitems-loading">Loading...</div>
                 ) : (

@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 const endpoint = "/api"; // Replace with your actual API endpoint
-import useAuth from '../../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
+import Link from 'next/link';
 
 const GameForm = () => {
     const { token } = useAuth();
@@ -56,7 +57,7 @@ const GameForm = () => {
         if (!formData.description) newErrors.description = 'Description is required';
         if (!formData.price) newErrors.price = 'Price is required';
         if (!formData.downloadLink) newErrors.downloadLink = 'Download link is required';
-        if (!iconFile && !formData.iconHash) newErrors.iconHash = 'Game icon is required';
+        // iconFile is now optional
         if (!bannerFile && !formData.bannerHash) newErrors.bannerHash = 'Banner is required';
         return newErrors;
     };
@@ -187,6 +188,9 @@ const GameForm = () => {
     return (
         <>
             <div className="creategame-container">
+                <div style={{ marginBottom: 18 }}>
+                    <Link href="/dev-zone/my-games" style={{ background: '#222', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 500, padding: '8px 16px', fontSize: '0.95rem', textDecoration: 'none', cursor: 'pointer' }}>&larr; Back to My Games</Link>
+                </div>
                 <h1 className="creategame-title">
                     <span>Submit a Game</span>
                 </h1>
@@ -255,7 +259,7 @@ const GameForm = () => {
                     {errors.downloadLink && <span className="error">{errors.downloadLink}</span>}
                     <div className="form-row">
                         <label htmlFor="image">
-                            Game Icon <span className="required">*</span>
+                            Game Icon (optional)
                         </label>
                         <label htmlFor="image" className="custom-file-label creategame-file-label">
                             {iconFile || formData.iconHash ? "Change Icon" : "Choose Icon"}
@@ -265,7 +269,6 @@ const GameForm = () => {
                                 name="image"
                                 accept="image/*"
                                 onChange={handleIconChange}
-                                required={!formData.iconHash}
                                 className="dark-input"
                                 style={{ display: "none" }}
                             />

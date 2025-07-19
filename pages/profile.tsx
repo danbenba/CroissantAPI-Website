@@ -237,7 +237,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                     <div className="shop-tooltip-desc">{tooltip.item.description}</div>
                     <div className="shop-tooltip-price">
                         Price: {tooltip.item.price}
-                        <img src="./credit.png" className="shop-credit-icon" />
+                        <img src="/credit.png" className="shop-credit-icon" />
                         {tooltip.item.stock !== undefined && (
                             <span className="shop-tooltip-stock">Stock: {tooltip.item.stock}</span>
                         )}
@@ -260,7 +260,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                     <div className="shop-prompt-item-desc">{prompt.item.description}</div>
                                     <div className="shop-prompt-item-price">
                                         Price: {prompt.item.price}
-                                        <img src="./credit.png" className="shop-credit-icon" />
+                                        <img src="/credit.png" className="shop-credit-icon" />
                                         {prompt.item.stock !== undefined && (
                                             <span className="shop-prompt-item-stock">Stock: {prompt.item.stock}</span>
                                         )}
@@ -300,7 +300,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                 {prompt.item && (
                                     <span className="shop-prompt-amount-total">
                                         Total: {(prompt.amount || 1) * (prompt.item.price || 0)}
-                                        <img src="./credit.png" className="shop-credit-icon" />
+                                        <img src="/credit.png" className="shop-credit-icon" />
                                     </span>
                                 )}
                             </div>
