@@ -13,6 +13,22 @@ export default function OAuth2Apps() {
     const [spoilers, setSpoilers] = useState<{[k:string]: boolean}>({});
     const { token } = useAuth();
 
+    const [isLauncher, setIsLauncher] = useState(false);
+
+    useEffect(() => {
+        // This is a workaround to ensure that the page is fully loaded before applying styles
+        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+        window.addEventListener('resize', () => {
+            document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+        });
+
+        window.location.pathname.startsWith('/launcher') ? setIsLauncher(true) : setIsLauncher(false);
+        // Checking for query "from" to be "launcher" too
+        if (window.location.search.includes('from=launcher')) {
+            setIsLauncher(true);
+        }
+    }, []);
+
     useEffect(() => {
         fetch("/api/oauth2/apps", { credentials: "include", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } })
             .then(res => res.json())
@@ -106,10 +122,16 @@ export default function OAuth2Apps() {
         setSpoilers(s => ({ ...s, [client_id]: !s[client_id] }));
     };
 
+    const isFromLauncher = () => {
+        return typeof window !== "undefined" &&
+        (window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")) ? "&from=launcher" : "";
+    };
+
+
     return (
         <div className="container-oauth2" style={{ position: "relative" }}>
             <Link
-                href="/oauth2/test"
+                href={"/oauth2/test" + isFromLauncher()}
                 style={{
                     position: "absolute",
                     top: 18,

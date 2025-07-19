@@ -9,16 +9,16 @@ export default function Login() {
   React.useEffect(() => {
     if (!loading && user) {
       // router.back();
-      location.href = "/transmitToken.html";
+      router.push("/transmitToken");
     }
   }, [user, loading, router]);
 
   const handleDiscord = () => {
-    window.location.href = "/auth/discord";
+    router.push("/auth/discord");
   };
 
   const handleGoogle = () => {
-    window.location.href = "/auth/google";
+    router.push("/auth/google");
   };
 
   return (

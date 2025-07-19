@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useAuth from "../../hooks/useAuth";
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
@@ -44,6 +45,8 @@ const Library: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
+
+    const { user } = useAuth(); // Assuming useAuth is defined and provides user info
 
     useEffect(() => {
         fetch(myUrl + "/list", {
@@ -192,7 +195,7 @@ const Library: React.FC = () => {
 
     const handlePlay = () => {
         if (selected && selected.state === "installed") {
-            ws.send(JSON.stringify({ action: "playGame", gameId: selected.gameId, playerId: window.me.userId, verificationKey: localStorage.getItem("verificationKey") }));
+            ws.send(JSON.stringify({ action: "playGame", gameId: selected.gameId, playerId: user.id, verificationKey: localStorage.getItem("verificationKey") }));
             setIsPlaying(true);
         }
     };

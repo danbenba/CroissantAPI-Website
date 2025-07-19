@@ -13,9 +13,31 @@ import LauncherNavbar from './launcher/components/Navbar';
 import LauncherLobby from './launcher/components/Lobby';
 import useAuth from '../hooks/useAuth';
 
+const endpoint = "/api";
+
+export async function fetchMe(token: string, callback: () => void) {
+  await fetch(endpoint + "/users/@me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      // window.location.reload();
+    }
+    return res.json();
+  }).then((data) => {
+    localStorage.setItem("verificationKey", data.verificationKey);
+    callback();
+  });
+}
+
 export default function App({ Component, pageProps }: AppProps) {
     const [isLauncher, setIsLauncher] = useState(false);
-    const { user } = useAuth();
+    const { user, token } = useAuth();
+    fetchMe(token, () => {});
 
     useEffect(() => {
         // This is a workaround to ensure that the page is fully loaded before applying styles

@@ -9,11 +9,6 @@ const Navbar: React.FC = () => {
         return null; // or a loading spinner
     }
 
-    useEffect(() => {
-        document.title = "Home Page | Croissant";
-        // document.getElementById("my-balance")!.innerText = window.me.balance.toString();
-    }, []);
-
     return (
         <div className="navbar-fixed">
             <header>

@@ -131,6 +131,7 @@ export default function NavBar() {
 
     const handleLogout = () => {
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        localStorage.removeItem("token");
         setUser(null);
         window.location.reload();
     };
@@ -153,7 +154,9 @@ export default function NavBar() {
                         </Link>
 
                     </div>
-                    <Searchbar />
+                    {!loading && user && (
+                        <Searchbar />
+                    )}
                     <nav>
                         <div
                             className="links-group"
