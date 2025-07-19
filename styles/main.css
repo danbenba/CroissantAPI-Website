@@ -5,7 +5,7 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    overflow-y: scroll; /* Enable vertical scrolling */
+    /* overflow-y: scroll; Enable vertical scrolling */
     scrollbar-width: thin; /* For Firefox */
     scrollbar-color: #555 #333; /* For Firefox */
 }
