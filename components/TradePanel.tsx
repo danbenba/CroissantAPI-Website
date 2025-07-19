@@ -173,10 +173,10 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
             >
                 ×
             </div>
-            <h2>Trade avec {profile?.global_name || profile?.username}</h2>
+            <h2>Trade with {profile?.global_name || profile?.username}</h2>
             <div className="trade-main-columns">
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                    <h3>Vos objets dans l'échange</h3>
+                    <h3>Your items in the trade</h3>
                     <div
                         className={
                             "trade-column" +
@@ -196,7 +196,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
                                     <div style={{ marginTop: 4 }}>
                                         <button onClick={() => removeItem({ ...item, amount: 1 })}>–1</button>
                                         {/* <button onClick={() => removeItem({ ...item, amount: 10 })}>–10</button> */}
-                                        {/* <button onClick={() => removeItem({ ...item, amount: item.amount })}>Tout retirer</button> */}
+                                        {/* <button onClick={() => removeItem({ ...item, amount: item.amount })}>Remove all</button> */}
                                     </div>
                                 </div>
                             )}
@@ -204,7 +204,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
                     </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                    <h3>Objets de l'autre</h3>
+                    <h3>Other user's items</h3>
                     <div
                         className={
                             "trade-column" +
@@ -228,7 +228,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
                 </div>
             </div>
             <div className="trade-inventory-section">
-                <h3>Votre inventaire</h3>
+                <h3>Your inventory</h3>
                 <div className="trade-inventory-grid" style={{justifyContent: "flex-start"}}>
                     {inventory
                         .map(item => {
@@ -243,7 +243,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
                                 key={item.itemId}
                                 className="trade-inventory-item"
                                 onClick={() => addItem({ itemId: item.itemId, amount: 1 })}
-                                title={`Ajouter ${item.name} à l'échange`}
+                                title={`Add ${item.name} to the trade`}
                             >
                                 <img src={"/items-icons/" + (item.iconHash || item.itemId)} alt={item.name} />
                                 <div>x{item.available}</div>
@@ -259,8 +259,8 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
             <div className="trade-status">
                 <span>
                     {trade.fromUserId === userId
-                        ? (trade.approvedFromUser ? "Vous avez approuvé" : "Vous n'avez pas approuvé")
-                        : (trade.approvedToUser ? "Vous avez approuvé" : "Vous n'avez pas approuvé")}
+                        ? (trade.approvedFromUser ? "You have approved" : "You have not approved yet")
+                        : (trade.approvedToUser ? "You have approved" : "You have not approved yet")}
                 </span>
             </div>
         </div>

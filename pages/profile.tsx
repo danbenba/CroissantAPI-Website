@@ -525,7 +525,7 @@ export default function Profile({ userId }: ProfileProps) {
                             style={{ marginTop: 8, marginRight: 8, float: "right" }}
                             onClick={handleStartTrade}
                         >
-                            Ouvrir un échange
+                            Trade
                         </button>
                     </div>
 
