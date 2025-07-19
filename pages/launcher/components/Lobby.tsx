@@ -130,6 +130,13 @@ export default function LobbyPage() {
         }
     }, [AUTH_HEADER, lobby]);
 
+    const isFromLauncher = useCallback(() => {
+        if (typeof window === "undefined") return "";
+        return window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")
+            ? "&from=launcher"
+            : "";
+    }, []);
+
     // UI helpers
     const isUserInLobby = !!lobby;
     const isUserSelected = !!selectedUser;
@@ -184,12 +191,12 @@ export default function LobbyPage() {
                                                     <li key={lobbyUser.id}>
                                                         <button
                                                             className="lobby-user-btn"
-                                                            onClick={() => router.push(`/launcher/profile?user=${lobbyUser.id}`)}
+                                                            onClick={() => router.push(`/profile?user=${lobbyUser.id}` + isFromLauncher())}
                                                         >
                                                             <img className="lobby-user-avatar"
                                                                 src={`/avatar/${lobbyUser.id}`} />
                                                             <span className="lobby-user-name">
-                                                                {lobbyUser.global_name} {lobbyUser.id === user.id ? "(You)": ""}
+                                                                {lobbyUser.global_name} {lobbyUser.id === user.id ? "(You)" : ""}
                                                             </span>
                                                         </button>
                                                     </li>

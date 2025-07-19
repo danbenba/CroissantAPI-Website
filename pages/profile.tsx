@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import Link from "next/link";
@@ -73,6 +73,12 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
     const [promptOwnerUser, setPromptOwnerUser] = useState<any | null>(null);
     const [alert, setAlert] = useState<{ message: string } | null>(null);
     const { token } = useAuth();
+    const isFromLauncher = useCallback(() => {
+        if (typeof window === "undefined") return "";
+        return window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")
+            ? "&from=launcher"
+            : "";
+    }, []);
 
     // Fetch shop items for the owner
     useEffect(() => {
@@ -263,7 +269,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                         <div className="shop-prompt-item-owner">
                                             Creator:{" "}
                                             <Link
-                                                href={`/launcher/profile?user=${(prompt.item as any).owner}`}
+                                                href={`/profile?user=${(prompt.item as any).owner}` + isFromLauncher()}
                                                 className="shop-prompt-owner-link"
                                             >
                                                 <img
