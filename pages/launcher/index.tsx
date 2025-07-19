@@ -54,8 +54,7 @@ const LauncherPage: React.FC = () => {
   useEffect(() => {
     console.log("Croissant Launcher v0.1.0");
     console.log("Croissant Launcher is running in " + process.env.NODE_ENV + " mode.");
-    const router = useRouter();
-    router.push("/launcher/home");
+    location.href = "/launcher/home";
 
     if (typeof window !== "undefined") {
       if (token === null) {

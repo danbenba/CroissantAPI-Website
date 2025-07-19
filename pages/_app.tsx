@@ -39,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     <span className="navbar-title" style={{ position: "relative", top: "2px", right: "10px" }}>Croissant Launcher</span>
                 </nav>
                 <LauncherNavbar />
-                <main style={{ position: "fixed", left: 0, right: 0, top: "7rem", bottom: 0, overflowX: "hidden", overflowY: "auto" }}>
+                <main style={{ position: "fixed", left: 0, right: 0, top: "7rem", bottom: 0, overflowX: "hidden", overflowY: "auto" }} className="launcher">
                     <Component {...pageProps} />
                 </main>
                 <LauncherLobby />
