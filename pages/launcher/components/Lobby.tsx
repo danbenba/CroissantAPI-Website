@@ -1,25 +1,25 @@
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
 
 const ENDPOINT = "/api";
 
-interface DiscordUser {
-    id: string;
-    username: string;
-    avatar: string | null;
-    discriminator: string;
-    global_name?: string;
-    banner?: string | null;
-    accent_color?: number | null;
-    banner_color?: string | null;
-}
+// interface DiscordUser {
+//     id: string;
+//     username: string;
+//     avatar: string | null;
+//     discriminator: string;
+//     global_name?: string;
+//     banner?: string | null;
+//     accent_color?: number | null;
+//     banner_color?: string | null;
+// }
 
 type Lobby = {
     lobbyId: string;
-    users: DiscordUser[];
+    users: any[];
 };
 
 export default function LobbyPage() {
@@ -30,6 +30,11 @@ export default function LobbyPage() {
     const [actionLoading, setActionLoading] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [tooltip, setTooltip] = useState<string | null>(null);
+    // Pour le polling adaptatif
+    const pollingInterval = useRef<number>(2000); // ms
+    const pollingTimer = useRef<NodeJS.Timeout | null>(null);
+    const lastLobbyUsers = useRef<string>("");
+    const pageVisible = useRef<boolean>(true);
 
 
     const router = useRouter();
@@ -52,38 +57,74 @@ export default function LobbyPage() {
         setTimeout(() => setTooltip(null), 2000);
     }, []);
 
-    // Récupération du lobby
-    const fetchLobby = useCallback((showLoading = true) => {
-        setLoading(showLoading);
-        fetch(`${ENDPOINT}/lobbies/user/@me`, { headers: AUTH_HEADER })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.message || "Failed to fetch lobby");
-                }
-                return res.json();
-            })
-            .then(async (data) => {
-                const usersIds = JSON.parse(data.users) as string[];
-                const users: DiscordUser[] = [];
-                for (const userId of usersIds) {
-                    const res = await fetch(`${ENDPOINT}/users/${userId}`);
-                    if (!res.ok) {
-                        const data = await res.json().catch(() => ({}));
-                        throw new Error(data.message || "Failed to fetch user");
-                    }
-                    const user = await res.json();
-                    users.push(user);
-                }
-                setLobby({ lobbyId: data.lobbyId, users });
-            })
-            .catch(() => setLobby(null))
-            .finally(() => setLoading(false));
+    // Polling adaptatif : si la liste des users change, on réduit l'intervalle, sinon on l'augmente
+    const fetchLobby = useCallback(async (showLoading = true) => {
+        if (showLoading) setLoading(true);
+        try {
+            const res = await fetch(`${ENDPOINT}/lobbies/user/@me`, { headers: AUTH_HEADER });
+            if (!res.ok) {
+                throw new Error("Failed to fetch lobby");
+            }
+            const data = await res.json();
+            const users = data.users;
+            const usersString = users.map(u => u.id).sort().join(",");
+            if (lastLobbyUsers.current !== usersString) {
+                pollingInterval.current = 2000; // 2s si changement
+            } else {
+                pollingInterval.current = Math.min(pollingInterval.current + 1000, 10000); // max 10s
+            }
+            lastLobbyUsers.current = usersString;
+            setLobby({ lobbyId: data.lobbyId, users });
+        } catch {
+            setLobby(null);
+        } finally {
+            if (showLoading) setLoading(false);
+        }
     }, [AUTH_HEADER]);
 
 
+    // Gestion de la visibilité de l'onglet
     useEffect(() => {
-        fetchLobby();
+        const handleVisibility = () => {
+            pageVisible.current = !document.hidden;
+            if (pageVisible.current && !pollingTimer.current) {
+                startPolling();
+            } else if (!pageVisible.current && pollingTimer.current) {
+                stopPolling();
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibility);
+        return () => document.removeEventListener("visibilitychange", handleVisibility);
+    }, []);
+
+    // Fonction pour démarrer le polling
+    const startPolling = useCallback(() => {
+        if (pollingTimer.current) return;
+        const poll = async () => {
+            if (!pageVisible.current) return;
+            try {
+                // On ne montre pas le loading spinner à chaque tick
+                await fetchLobby(false);
+            } finally {
+                pollingTimer.current = setTimeout(poll, pollingInterval.current);
+            }
+        };
+        pollingTimer.current = setTimeout(poll, pollingInterval.current);
+    }, [fetchLobby]);
+
+    // Fonction pour arrêter le polling
+    const stopPolling = useCallback(() => {
+        if (pollingTimer.current) {
+            clearTimeout(pollingTimer.current);
+            pollingTimer.current = null;
+        }
+    }, []);
+
+    // Démarre le polling au montage
+    useEffect(() => {
+        fetchLobby(); // premier chargement
+        startPolling();
+        return () => stopPolling();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -106,6 +147,8 @@ export default function LobbyPage() {
         } finally {
             setActionLoading(false);
         }
+        // Force un polling rapide après action
+        pollingInterval.current = 2000;
     }, [AUTH_HEADER, fetchLobby]);
 
 
@@ -128,6 +171,8 @@ export default function LobbyPage() {
         } finally {
             setActionLoading(false);
         }
+        // Force un polling rapide après action
+        pollingInterval.current = 2000;
     }, [AUTH_HEADER, lobby]);
 
     const isFromLauncher = useCallback(() => {
@@ -187,16 +232,16 @@ export default function LobbyPage() {
                                     {isUserInLobby ? (
                                         <div>
                                             <ul className="lobby-users-list">
-                                                {lobby!.users.map((lobbyUser: DiscordUser) => (
+                                                {lobby!.users.map((lobbyUser) => (
                                                     <li key={lobbyUser.id}>
                                                         <button
                                                             className="lobby-user-btn"
                                                             onClick={() => router.push(`/profile?user=${lobbyUser.id}` + isFromLauncher())}
                                                         >
                                                             <img className="lobby-user-avatar"
-                                                                src={`/avatar/${lobbyUser.id}`} />
+                                                                src={`/avatar/${lobbyUser.id}`} style={{ objectFit: "cover" }} />
                                                             <span className="lobby-user-name">
-                                                                {lobbyUser.global_name} {lobbyUser.id === user.id ? "(You)" : ""}
+                                                                {lobbyUser?.global_name || lobbyUser.username} {lobbyUser.id === user.id ? "(You)" : ""}
                                                             </span>
                                                         </button>
                                                     </li>
