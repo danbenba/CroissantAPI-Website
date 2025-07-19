@@ -612,6 +612,7 @@ strong {
         gap: 12px;
     }
     .trade-column {
+        width: 95%;
         min-width: 0;
         padding: 10px 6px;
     }
@@ -636,4 +637,49 @@ strong {
     box-shadow: 0 0 12px 0 #3cbf7f55;
     background: linear-gradient(135deg, #233323 80%, #2c3c2c 100%);
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.inventory-grid {
+    grid-template-columns: repeat(8, 1fr);
+}
+
+/* Inventory & Shop grid responsive for mobile */
+@media (max-width: 600px) {
+    .inventory-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+    }
+    .inventory-item,
+    .inventory-item-empty {
+        min-width: 0;
+        min-height: 54px;
+        height: 54px;
+        max-width: 100%;
+        padding: 2px;
+    }
+    .inventory-item-img {
+        width: 38px !important;
+        height: 38px !important;
+    }
+    .inventory-item-qty {
+        font-size: 0.85em;
+    }
+    .profile-shop-section .inventory-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    .profile-shop-section .inventory-item,
+    .profile-shop-section .inventory-item-empty {
+        min-height: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 400px) {
+    .inventory-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .profile-shop-section .inventory-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
 }
