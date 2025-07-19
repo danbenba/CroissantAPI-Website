@@ -444,7 +444,7 @@ export default function Profile({ userId }: ProfileProps) {
                     <div className="profile-shop-section">
                         <h2 className="profile-inventory-title">Inventory</h2>
                         {/* Pass inventoryReloadFlag as a prop */}
-                        <Inventory userId={search || "@me"} isMe={!search || search !== user?.id} reloadFlag={inventoryReloadFlag} />
+                        <Inventory userId={search || "@me"} isMe={!search || search === user?.id} reloadFlag={inventoryReloadFlag} />
                     </div>
                 </div>
                 <div style={{ flex: "0 0 30%" }}>
