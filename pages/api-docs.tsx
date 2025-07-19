@@ -84,7 +84,7 @@ export default function ApiDocs() {
                 boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 overflow: "auto",
                 maxWidth: "100%",
-                zoom:0.7
+                zoom: 0.7
             }}
         >
             {/* Sidebar */}
@@ -146,7 +146,7 @@ export default function ApiDocs() {
                                 }}
                             >
                                 {cat}
-                                <ul style={{ listStyle: "none", paddingLeft: "20px" }}>
+                                <ul style={{ listStyle: "none", paddingLeft: "20px", paddingTop: "14px" }}>
                                     {categories[cat]?.map((endpointGroup, index) => {
                                         const doc = endpointGroup[0]; // Assuming all docs in the group have the same endpoint
                                         return (
@@ -237,21 +237,21 @@ export default function ApiDocs() {
             </aside>
 
             {/* Main Content */}
-            <div className="api-docs-main" style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
                 <h2 style={{ color: "#ffffff" }}>API Documentation</h2>
                 <div style={{ fontSize: "16px", color: "#cccccc" }}>
                     You will find the API documentation below.<br /><br />
                     <div>
-                    <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> Requires authentication via headers Authorization: "Bearer [token]" (use <code>/api-key</code> command on Discord to generate your API key)<br />
-                    <br />
-                    <strong>Precisions:</strong><br /><br />
-                    - <code>iconHash</code> is linked to <code>/games-icons</code> and <code>/items-icons</code>.<br />
-                    - <code>bannerHash</code> is linked to <code>/banners-icons</code>.<br />
-                    - <code>splashHash</code> is now deprecated and will be removed in the future.<br />
-                    - Both hashes can be used to construct URLs for fetching the respective assets icons.
+                        <FontAwesomeIcon icon={faUsers} style={{ color: "#808080", marginLeft: "5px" }} /> Requires authentication via headers Authorization: "Bearer [token]" (use <code>/api-key</code> command on Discord to generate your API key)<br />
+                        <br />
+                        <strong>Precisions:</strong><br /><br />
+                        - <code>iconHash</code> is linked to <code>/games-icons</code> and <code>/items-icons</code>.<br />
+                        - <code>bannerHash</code> is linked to <code>/banners-icons</code>.<br />
+                        - <code>splashHash</code> is now deprecated and will be removed in the future.<br />
+                        - Both hashes can be used to construct URLs for fetching the respective assets icons.
                     </div>
                 </div>
-                <div className="content" style={{ color: "#ffffff" }}>
+                <div className="api-docs-main" style={{ color: "#ffffff", padding: "16px", background: "#2c2c2c", borderRadius: "8px", marginTop: "16px" }}>
                     {loading ? (
                         <div className="loading-container" style={{ display: "flex", alignItems: "center" }}>
                             <div className="loader" style={{
@@ -353,7 +353,7 @@ function InfoSection({
 }) {
     return (
         <>
-            {content ? 
+            {content ?
                 <div className={`${title.toLowerCase().replace(" ", "-")}-info`}>
                     <h4>{title}:</h4>
                     <pre>
@@ -365,7 +365,7 @@ function InfoSection({
                         </Highlight>
                     </pre>
                 </div>
-             : ""}
+                : ""}
         </>
     );
 }

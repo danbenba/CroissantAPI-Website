@@ -22,6 +22,7 @@ const Navbar: React.FC = () => {
                     <div className="links-group">
                         <Link href="/launcher/home">Library</Link>
                         <Link href="/launcher/shop">Shop</Link>
+                        <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
                         <div className="create-dropdown">
                             Create
                             <div className="create-dropdown-content">
@@ -47,6 +48,7 @@ const Navbar: React.FC = () => {
                             <img
                                 className="navbar-avatar"
                                 src={`https://croissant-api.fr/avatar/${user?.id}`}
+                                style={{ objectFit: "cover" }}
                             />
                         </Link>
                         <button className="method navbar-logout-btn"
