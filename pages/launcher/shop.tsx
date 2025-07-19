@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 
-const endpoint = "/api"; // Replace with your actual API endpoint
+const ENDPOINT = "/api";
 
 interface Game {
     gameId: string;
@@ -32,15 +33,21 @@ const Shop: React.FC = () => {
     const [prompt, setPrompt] = useState<PromptState | null>(null);
     const [alert, setAlert] = useState<AlertState | null>(null);
 
-    const { token } = useAuth(); // Assuming useAuth is imported from your hooks
+
+    const { token } = useAuth();
+
+    // Constantes réutilisées
+    const AUTH_HEADER = useMemo(() => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token || ""}`,
+    }), [token]);
+
+    // Récupération des jeux
     const fetchGames = useCallback(() => {
         setLoading(true);
-        fetch(endpoint + "/games", {
+        fetch(`${ENDPOINT}/games`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + (token || ""),
-            },
+            headers: AUTH_HEADER,
         })
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch games");
@@ -54,37 +61,38 @@ const Shop: React.FC = () => {
                 setError(err.message);
                 setLoading(false);
             });
-    }, []);
+    }, [AUTH_HEADER]);
 
     useEffect(() => {
         fetchGames();
     }, [fetchGames]);
 
-    const customPrompt = (message: string, item?: Game) => {
+
+    // Prompt personnalisé
+    const customPrompt = useCallback((message: string, item?: Game) => {
         return new Promise<{ confirmed: boolean }>((resolve) => {
             setPrompt({ message, resolve, item });
         });
-    };
+    }, []);
 
-    const handlePromptResult = (confirmed: boolean) => {
+    // Résultat du prompt
+    const handlePromptResult = useCallback((confirmed: boolean) => {
         if (prompt) {
             prompt.resolve({ confirmed });
             setPrompt(null);
         }
-    };
+    }, [prompt]);
 
-    const handleBuyGame = async (game: Game) => {
+    // Achat d'un jeu
+    const handleBuyGame = useCallback(async (game: Game) => {
         const result = await customPrompt(
             `Buy "${game.name}"?\nPrice: ${game.price}`,
             game
         );
         if (result.confirmed) {
-            fetch(endpoint + "/games/" + game.gameId + "/buy", {
+            fetch(`${ENDPOINT}/games/${game.gameId}/buy`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + (token || ""),
-                },
+                headers: AUTH_HEADER,
             })
                 .then(async (res) => {
                     const data = await res.json();
@@ -98,10 +106,11 @@ const Shop: React.FC = () => {
                     setAlert({ message: err.message });
                 });
         }
-    };
+    }, [AUTH_HEADER, customPrompt, fetchGames]);
+
 
     // Shop skeleton cards for loading
-    const skeletons = Array.from({ length: 3 }).map((_, i) => (
+    const skeletons = useMemo(() => Array.from({ length: 3 }).map((_, i) => (
         <div
             key={i}
             className="shop-game-modern-card shop-blur"
@@ -137,7 +146,7 @@ const Shop: React.FC = () => {
                 <div className="skeleton-properties" style={{ width: "40%", height: 32 }} />
             </div>
         </div>
-    ));
+    )), []);
 
     return (
         <div className="shop-root">

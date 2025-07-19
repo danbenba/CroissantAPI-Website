@@ -1,11 +1,10 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-
-const endpoint = "/api"; // Replace with your actual API endpoint
-
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
+
+const ENDPOINT = "/api";
 
 interface DiscordUser {
     id: string;
@@ -32,78 +31,70 @@ export default function LobbyPage() {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [tooltip, setTooltip] = useState<string | null>(null);
 
+
     const router = useRouter();
     const { user, token } = useAuth();
 
-    const fetchLobby = (loading=true) => {
-        setLoading(loading);
-        fetch(endpoint + "/lobbies/user/@me", {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + (token || ""),
-            }
-        })
-        .then(async (res) => {
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.message || "Failed to fetch lobby");
-            }
-            return res.json();
-        })
-        .then(async (data) => {
-            const usersIds = JSON.parse(data.users) as string[];
-            const users: DiscordUser[] = [];
+    // Constantes réutilisées
+    const AUTH_HEADER = useMemo(() => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token || ""}`,
+    }), [token]);
 
-            for (const userId of usersIds) {
-                const res = await fetch(endpoint + "/users/" + userId);
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.message || "Failed to fetch user");
-                }
-                const user = await res.json();
-                users.push(user);
-            }
-            setLobby({
-                lobbyId: data.lobbyId,
-                users: users, 
-            });
-        })
-        .catch(() => setLobby(null))
-        .finally(() => setLoading(false));
-    };
+    const lobbyLink = useMemo(() =>
+        lobby ? `https://croissant-api.fr/join-lobby?lobbyId=${lobby.lobbyId}` : "",
+        [lobby]
+    );
 
-    const showTooltip = (msg: string) => {
+    // Tooltip
+    const showTooltip = useCallback((msg: string) => {
         setTooltip(msg);
         setTimeout(() => setTooltip(null), 2000);
-    };
+    }, []);
+
+    // Récupération du lobby
+    const fetchLobby = useCallback((showLoading = true) => {
+        setLoading(showLoading);
+        fetch(`${ENDPOINT}/lobbies/user/@me`, { headers: AUTH_HEADER })
+            .then(async (res) => {
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.message || "Failed to fetch lobby");
+                }
+                return res.json();
+            })
+            .then(async (data) => {
+                const usersIds = JSON.parse(data.users) as string[];
+                const users: DiscordUser[] = [];
+                for (const userId of usersIds) {
+                    const res = await fetch(`${ENDPOINT}/users/${userId}`);
+                    if (!res.ok) {
+                        const data = await res.json().catch(() => ({}));
+                        throw new Error(data.message || "Failed to fetch user");
+                    }
+                    const user = await res.json();
+                    users.push(user);
+                }
+                setLobby({ lobbyId: data.lobbyId, users });
+            })
+            .catch(() => setLobby(null))
+            .finally(() => setLoading(false));
+    }, [AUTH_HEADER]);
+
 
     useEffect(() => {
         fetchLobby();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // useEffect(() => {
-    //     let interval: NodeJS.Timeout | undefined;
-    //     if (!isCollapsed) {
-    //         // Poll every 10 seconds when collapsed
-    //         // interval = setInterval(() => {
-    //         //     fetchLobby(false);
-    //         // }, 1000);
-    //     }
-    //     return () => {
-    //         if (interval) clearInterval(interval);
-    //     };
-    // }, [isCollapsed]);
 
-    const handleCreateLobby = async () => {
+    const handleCreateLobby = useCallback(async () => {
         setActionLoading(true);
         setError(null);
         try {
-            const res = await fetch(endpoint + "/lobbies", {
+            const res = await fetch(`${ENDPOINT}/lobbies`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + (token || ""),
-                },
+                headers: AUTH_HEADER,
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
@@ -115,19 +106,17 @@ export default function LobbyPage() {
         } finally {
             setActionLoading(false);
         }
-    };
+    }, [AUTH_HEADER, fetchLobby]);
 
-    const handleLeaveLobby = async () => {
+
+    const handleLeaveLobby = useCallback(async () => {
         if (!lobby) return;
         setActionLoading(true);
         setError(null);
         try {
-            const res = await fetch(endpoint + `/lobbies/${lobby.lobbyId}/leave`, {
+            const res = await fetch(`${ENDPOINT}/lobbies/${lobby.lobbyId}/leave`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + (token || ""),
-                },
+                headers: AUTH_HEADER,
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
@@ -139,7 +128,11 @@ export default function LobbyPage() {
         } finally {
             setActionLoading(false);
         }
-    };
+    }, [AUTH_HEADER, lobby]);
+
+    // UI helpers
+    const isUserInLobby = !!lobby;
+    const isUserSelected = !!selectedUser;
 
     return (
         <>
@@ -173,28 +166,28 @@ export default function LobbyPage() {
                             {loading && <p>Loading...</p>}
                             {error && <p className="lobby-error">{error}</p>}
 
-                            {selectedUser && (
+                            {isUserSelected && (
                                 <div className="lobby-profile-wrapper">
                                     <button onClick={() => setSelectedUser(null)} className="lobby-back-btn">
                                         ← Retour au lobby
                                     </button>
-                                    <Profile userId={selectedUser} />
+                                    <Profile userId={selectedUser!} />
                                 </div>
                             )}
 
-                            {!selectedUser && (
+                            {!isUserSelected && (
                                 <>
-                                    {lobby ? (
+                                    {isUserInLobby ? (
                                         <div>
                                             <ul className="lobby-users-list">
-                                                {lobby.users.map((lobbyUser: DiscordUser) => (
+                                                {lobby!.users.map((lobbyUser: DiscordUser) => (
                                                     <li key={lobbyUser.id}>
                                                         <button
                                                             className="lobby-user-btn"
-                                                            onClick={() => router.push("/launcher/profile?user=" + lobbyUser.id)}
+                                                            onClick={() => router.push(`/launcher/profile?user=${lobbyUser.id}`)}
                                                         >
                                                             <img className="lobby-user-avatar"
-                                                                src={"/avatar/" + lobbyUser.id} />
+                                                                src={`/avatar/${lobbyUser.id}`} />
                                                             <span className="lobby-user-name">
                                                                 {lobbyUser.global_name} {lobbyUser.id === user.id ? "(You)": ""}
                                                             </span>
@@ -206,7 +199,6 @@ export default function LobbyPage() {
                                             <div className="lobby-actions">
                                                 <button
                                                     onClick={async () => {
-                                                        const lobbyLink = "https://croissant-api.fr/join-lobby?lobbyId=" + lobby.lobbyId;
                                                         try {
                                                             await navigator.clipboard.writeText(lobbyLink);
                                                             showTooltip("Lobby link copied!");

@@ -1,3 +1,4 @@
+import { useRouter } from "next/dist/client/components/navigation";
 import React, { useEffect, useState } from "react";
 
 const endpoint = "/api";
@@ -25,10 +26,12 @@ declare global {
 }
 
 const LauncherPage: React.FC = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     console.log("Croissant Launcher v0.1.0");
     console.log("Croissant Launcher is running in " + process.env.NODE_ENV + " mode.");
-    location.href = "/launcher/home";
+    router.push("/launcher/home");
 
   }, []);
   return (<></>)
