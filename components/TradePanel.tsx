@@ -190,7 +190,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
                         <div className="trade-inventory-grid">
                             {(trade.fromUserId === userId ? trade.fromUserItems : trade.toUserItems).map(item =>
                                 <div key={item.itemId} className="trade-inventory-item">
-                                    <img src={"/items-icons/" + (item.itemId)} alt={item.name} />
+                                    <img src={"/items-icons/" + (item.iconHash || item.itemId)} alt={item.name} />
                                     <div>x{item.amount}</div>
                                     <div>{item.name}</div>
                                     <div style={{ marginTop: 4 }}>
@@ -229,7 +229,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
             </div>
             <div className="trade-inventory-section">
                 <h3>Your inventory</h3>
-                <div className="trade-inventory-grid" style={{justifyContent: "flex-start"}}>
+                <div className="trade-inventory-grid" style={{ justifyContent: "flex-start" }}>
                     {inventory
                         .map(item => {
                             const inTrade = (trade.fromUserId === userId ? trade.fromUserItems : trade.toUserItems)
