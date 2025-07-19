@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
+import Link from "next/link";
 
 export default function OAuth2Apps() {
     const [apps, setApps] = useState<any[]>([]);
@@ -107,7 +108,7 @@ export default function OAuth2Apps() {
 
     return (
         <div className="container-oauth2" style={{ position: "relative" }}>
-            <a
+            <Link
                 href="/oauth2/test"
                 style={{
                     position: "absolute",
@@ -125,7 +126,7 @@ export default function OAuth2Apps() {
                 tabIndex={-1}
             >
                 Test OAuth2 ↗
-            </a>
+            </Link>
 
             <h2 style={{marginBottom: 18}}>My OAuth2 Applications</h2>
             <button className="add-app-btn" onClick={() => { setShowForm(true); setEditing(null); setName(""); setRedirectUrls(""); }}>+ Add Application</button>

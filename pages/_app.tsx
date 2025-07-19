@@ -1,6 +1,8 @@
+import '../styles/launcher.css';
 import '../styles/main.css';
 import '../styles/atom-one-dark.min.css';
 import '../styles/oauth2.css';
+
 import type { AppProps } from 'next/app';
 import MetaLinks from '../components/MetaLinks';
 import Navbar from '../components/NavBar';

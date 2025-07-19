@@ -9,7 +9,7 @@ type ListSectionProps = {
     items: ReactNode[];
 };
 
-export default function({ title, description, items }: ListSectionProps) {
+export default function ({ title, description, items }: ListSectionProps) {
     return (
         <Section title={title}>
             {description && <p>{description}</p>}

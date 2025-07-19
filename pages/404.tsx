@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Link from "next/link";
 
 export default class extends Component {
     componentDidMount() {
@@ -17,9 +18,9 @@ export default class extends Component {
                 <div className="indent">
                     <p>Try the following options:</p>
                     <ul>
-                        <li><a href="/">Return to Home</a></li>
-                        <li><a href="/contact">Contact Support</a></li>
-                        <li><a href="/api-docs">View API Documentation</a></li>
+                        <li><Link href="/" legacyBehavior><a>Return to Home</a></Link></li>
+                        <li><Link href="/contact" legacyBehavior><a>Contact Support</a></Link></li>
+                        <li><Link href="/api-docs" legacyBehavior><a>View API Documentation</a></Link></li>
                     </ul>
                 </div>
             </div>

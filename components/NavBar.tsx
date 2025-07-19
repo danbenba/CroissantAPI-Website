@@ -1,4 +1,5 @@
 import React, { use, useEffect, useState } from "react";
+import Link from "next/link";
 function useNavBarResponsive() {
     const [isMobile, setIsMobile] = React.useState(false);
     React.useEffect(() => {
@@ -140,50 +141,55 @@ export default function NavBar() {
         <header style={{ ...headerStyle, display: show }}>
             <div style={containerStyle}>
                 <div style={rowStyle}>
-                    <div style={{display: "flex", flexDirection: "column", alignItems: !isMobile ? "flex-start" : "center", minWidth: 0}}>
-                        <a href="/" style={logoStyle}>
-                            <span style={logoSpanStyle}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: !isMobile ? "flex-start" : "center", minWidth: 0 }}>
+                        <Link style={{ ...logoStyle }} href="/" legacyBehavior>
+                            <span style={{
+                                cursor: "pointer"
+                            }}>
                                 <img src="/favicon.png" alt="Croissant Logo" style={logoImgStyle} />
                                 Croissant Inventory System
                             </span>
-                        </a>
-                        <span
-                            style={{
-                                display: isMobile ? "none" : "inline-block",
-                                color: "#888",
-                                fontSize: 12,
-                                marginTop: 0,
-                                marginLeft: 2,
-                                opacity: 0.7,
-                                whiteSpace: "nowrap",
-                                // overflow: "hidden",
-                                // // textOverflow: "ellipsis",
-                                // maxWidth: 220
-                            }}
-                        >
-                            Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology
-                        </span>
+                        </Link>
+
                     </div>
                     <nav>
                         <div
                             className="links-group"
                             style={linksGroupStyle}
                         >
-                            <a href="/download-launcher" style={linkStyle}>Launcher</a>
-                            <a href="/api-docs" style={linkStyle}>API Docs</a>
+                            <Link href="/download-launcher" legacyBehavior>
+                                <a style={linkStyle}>Launcher</a>
+                            </Link>
+                            <Link href="/api-docs" legacyBehavior>
+                                <a style={linkStyle}>API Docs</a>
+                            </Link>
                             <a href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923" style={linkStyle}>Bot</a>
                             {!loading && user && (
-                                <a href="/oauth2/apps" style={linkStyle}>Apps</a>
+                                <Link href="/oauth2/apps" legacyBehavior>
+                                    <a style={linkStyle}>Apps</a>
+                                </Link>
                             )}
                             {!loading && user ? (
                                 <div style={userBlockStyle}>
-                                    <img src={"/avatar/" + user.id} alt="avatar" style={avatarStyle} />
+                                    <Link href="/profile" legacyBehavior>
+                                        <a><img src={"/avatar/" + user.id} alt="avatar" style={avatarStyle} /></a>
+                                    </Link>
+                                    <Link href="/launcher/buy-credits" style={{ textDecoration: "none" }}>
+                                        <div className="navbar-credits">
+                                            <img src="./credit.png" className="navbar-credit-img" />
+                                            <div className="navbar-balance">
+                                                <span id="my-balance">{user?.balance}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
                                     <button onClick={handleLogout} style={logoutBtnStyle} title="Logout">
                                         <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             ) : (
-                                <a href="/login" style={loginStyle}>Login</a>
+                                <Link href="/login" legacyBehavior>
+                                    <a style={loginStyle}>Login</a>
+                                </Link>
                             )}
                         </div>
                     </nav>
