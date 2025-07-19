@@ -108,6 +108,7 @@ function useNavBarResponsive() {
     return { headerStyle, containerStyle, rowStyle, logoStyle, logoSpanStyle, logoImgStyle, linksGroupStyle, linkStyle, loginStyle, userBlockStyle, avatarStyle, logoutBtnStyle };
 }
 import useAuth from "../hooks/useAuth";
+import Searchbar from "./Searchbar";
 
 export default function NavBar() {
     const { user, loading, setUser } = useAuth();
@@ -152,6 +153,7 @@ export default function NavBar() {
                         </Link>
 
                     </div>
+                    <Searchbar />
                     <nav>
                         <div
                             className="links-group"
