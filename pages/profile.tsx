@@ -308,7 +308,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                                     className="shop-prompt-owner-avatar"
                                                     src={"/avatar/" + (prompt.item as any).owner}
                                                 />
-                                                {promptOwnerUser.usernameomptOwnerUser.username}
+                                                {promptOwnerUser.username}
                                             </Link>
                                         </div>
                                     )}
