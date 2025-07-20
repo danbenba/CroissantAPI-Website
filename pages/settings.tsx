@@ -120,6 +120,14 @@ export default function Settings() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [linkText, setLinkText] = useState("Link Steam Account");
+
+  useEffect(() => {
+    if( typeof window === "undefined" || !user) return;
+    setLinkText(
+      typeof window !== "undefined" && window.location.search.includes("from=launcher") ? "Go on website to link" : "Link Steam Account"
+    );
+  }, [linkText]);
 
   useEffect(() => {
     if (typeof document == "undefined") return;
@@ -307,39 +315,47 @@ export default function Settings() {
           {loading ? "Saving..." : "Save Changes"}
         </button>
         {!user?.steam_id ? (
-          <button style={steamBtnStyle} onClick={(event) => {
-            event.preventDefault();
-            router.push("/api/auth/steam");
-          }}>
-            <span className="fab fa-steam" style={{
-              fontSize: "22px"
-            }} aria-hidden="true" />
-            Link Steam Account
+          <button
+            style={steamBtnStyle}
+            onClick={(event) => {
+              if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+              event.preventDefault();
+              router.push("/api/auth/steam");
+            }}
+            disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+          >
+            <span
+              className="fab fa-steam"
+              style={{ fontSize: "22px" }}
+              aria-hidden="true"
+            />
+            {linkText}
           </button>
         ) : (
-          <button style={steamBtnStyle} onClick={(event) => {
-            event.preventDefault();
-            confirm("Are you sure you want to unlink your Steam account?") &&
-              fetch("/api/users/unlink-steam", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`
-                }
-              })
-                .then(res => {
-                  if (!res.ok) throw new Error("Failed to unlink Steam account");
-                  return res.json();
+          <button
+            style={steamBtnStyle}
+            onClick={(event) => {
+              if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+              event.preventDefault();
+              confirm("Are you sure you want to unlink your Steam account?") &&
+                fetch("/api/users/unlink-steam", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
                 })
-                .then(data => {
-                  setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
-                })
-                .catch(err => setError(err.message));
-            // router.push("/api/auth/steam");
-          }}>
-            {/* <span className="fab fa-steam" style={{
-              fontSize: "22px"
-            }} aria-hidden="true" /> */}
+                  .then((res) => {
+                    if (!res.ok) throw new Error("Failed to unlink Steam account");
+                    return res.json();
+                  })
+                  .then((data) => {
+                    setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+                  })
+                  .catch((err) => setError(err.message));
+            }}
+            disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
               <span style={{ fontWeight: "normal" }}>
