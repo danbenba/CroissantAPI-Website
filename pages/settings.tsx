@@ -55,6 +55,23 @@ const avatarStyle: React.CSSProperties = {
   border: "2px solid #444"
 };
 
+const steamBtnStyle: React.CSSProperties = {
+  // width: "260px",
+  height: "48px",
+  background: "linear-gradient(90deg, #1b2838 60%, #171a21 100%)",
+  color: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "16px",
+  fontWeight: 600,
+  cursor: "pointer",
+  marginBottom: "18px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "12px"
+};
+
 
 export default function Settings() {
   const { user, token } = useAuth();
@@ -69,10 +86,6 @@ export default function Settings() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (!user) router.push("/login");
-  }, [user, router]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -122,7 +135,7 @@ export default function Settings() {
         if (!res.ok) throw new Error("Failed to update email");
       }
       // Update password (if any field is filled)
-      if ( newPassword || confirmPassword) {
+      if (newPassword || confirmPassword) {
         if (!newPassword || !confirmPassword) {
           throw new Error("Please fill all password fields.");
         }
@@ -224,6 +237,33 @@ export default function Settings() {
         <button type="submit" style={buttonStyle} disabled={loading}>
           {loading ? "Saving..." : "Save Changes"}
         </button>
+        {!user?.steam_id ? (
+          <button style={steamBtnStyle} onClick={(event) => {
+            event.preventDefault();
+            router.push("/api/auth/steam");
+          }}>
+            <span className="fab fa-steam" style={{
+              fontSize: "22px"
+            }} aria-hidden="true" />
+            Link Steam Account
+          </button>
+        ) : (
+          <button style={steamBtnStyle} onClick={(event) => {
+            event.preventDefault();
+            // router.push("/api/auth/steam");
+          }}>
+            {/* <span className="fab fa-steam" style={{
+              fontSize: "22px"
+            }} aria-hidden="true" /> */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
+              <span style={{ fontWeight: "normal" }}>
+                Linked as <b>{user?.steam_username}</b>
+              </span>
+            </div>
+          </button>
+        )}
+
         {success && <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>}
         {error && <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>}
       </form>
