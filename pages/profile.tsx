@@ -60,6 +60,7 @@ type Props = {
 };
 
 interface DiscordUser {
+    verified: boolean;
     id: string;
     username: string;
     avatar: string | null;
@@ -308,7 +309,19 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                                     className="shop-prompt-owner-avatar"
                                                     src={"/avatar/" + (prompt.item as any).owner}
                                                 />
-                                                {promptOwnerUser.username}
+                                                {promptOwnerUser.username} {promptOwnerUser?.verified ? (
+                                                    <img
+                                                        src="/assets/verified-mark.png"
+                                                        alt="Verified"
+                                                        style={{
+                                                            marginLeft: "4px",
+                                                            width: "16px",
+                                                            height: "16px",
+                                                            position: "relative",
+                                                            top: "3px"
+                                                        }}
+                                                    />
+                                                ) : null}
                                             </Link>
                                         </div>
                                     )}
@@ -551,7 +564,7 @@ export default function Profile({ userId }: ProfileProps) {
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
+                                    {profile.username} {profile.verified && (<img src="/assets/verified-mark.png" alt="Verified" style={{ marginLeft: 4, width: 20, height: 20 }} />)} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
                                 </div>
                             </div>
                         </div>

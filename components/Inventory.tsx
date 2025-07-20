@@ -267,11 +267,23 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                                 >
                                     <img className="inventory-details-creator-avatar"
                                         src={"/avatar/" + selectedItem.owner} />
-                                    {ownerUser.username || ownerUser.username}
+                                    {ownerUser.username || ownerUser.username} {ownerUser.verified && (
+                                        <img
+                                            src="/assets/verified-mark.png"
+                                            alt="Verified"
+                                            style={{
+                                                marginLeft: "4px",
+                                                width: "16px",
+                                                height: "16px",
+                                                position: "relative",
+                                                top: "2px"
+                                            }}
+                                        />
+                                    )}
                                 </Link>
                             </div>
                         )}
-                        {selectedItem.showInStore !== undefined && (
+                        {/* {selectedItem.showInStore !== undefined && (
                             <div className="inventory-details-store">
                                 Show in Store: {selectedItem.showInStore ? "Yes" : "No"}
                             </div>
@@ -280,7 +292,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                             <div className="inventory-details-deleted">
                                 Deleted: {selectedItem.deleted ? "Yes" : "No"}
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>

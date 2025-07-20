@@ -10,6 +10,7 @@ const API_ENDPOINT = "/api";
 interface User {
   id: string;
   username: string;
+  verified: boolean;
 }
 
 // Game type (from Shop.tsx)
@@ -46,7 +47,7 @@ const SearchPage: React.FC = () => {
   // Fetch users when query or token changes
   useEffect(() => {
     // if(!user) return;
-    fetch(`${API_ENDPOINT}/users${user?.admin?"/admin":""}/search?q=${encodeURIComponent(query)}`,
+    fetch(`${API_ENDPOINT}/users${user?.admin ? "/admin" : ""}/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
@@ -110,7 +111,18 @@ const SearchPage: React.FC = () => {
                     className="search-user-avatar"
                   />
                   <div className="search-user-name">
-                    {user.username || user.username}
+                    {user.username || user.username} {user?.verified ? (
+                      <img
+                        src="/assets/verified-mark.png"
+                        alt="Verified"
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          position: "relative",
+                          top: "2px"
+                        }}
+                      />
+                    ) : null}
                   </div>
                   <div className="search-user-username">@{user.username}</div>
                 </div>

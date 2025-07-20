@@ -239,9 +239,21 @@ export default function LobbyPage() {
                                                             onClick={() => router.push(`/profile?user=${lobbyUser.id}` + isFromLauncher())}
                                                         >
                                                             <img className="lobby-user-avatar"
-                                                                src={`/avatar/${lobbyUser.id}`} style={{ objectFit: "cover" }} />
+                                                                src={`/avatar/${lobbyUser.user_id}`} style={{ objectFit: "cover" }} />
                                                             <span className="lobby-user-name">
-                                                                {lobbyUser?.username || lobbyUser.username} {lobbyUser.id === user.id ? "(You)" : ""}
+                                                                {lobbyUser?.username} {lobbyUser?.verified ? (
+                                                                    <img
+                                                                        src="/assets/verified-mark.png"
+                                                                        alt="Verified"
+                                                                        style={{
+                                                                            marginLeft: "4px",
+                                                                            width: "16px",
+                                                                            height: "16px",
+                                                                            position: "relative",
+                                                                            top: "2px"
+                                                                        }}
+                                                                    />
+                                                                ): null} {lobbyUser.user_id === user.id ? "(You)" : ""}
                                                             </span>
                                                         </button>
                                                     </li>
