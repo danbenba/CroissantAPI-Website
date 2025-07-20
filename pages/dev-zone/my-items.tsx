@@ -218,7 +218,7 @@ const MyItems = () => {
                                     <div className="myitems-card-name">{item.name}</div>
                                     <div className="myitems-card-price">
                                         {item.price}
-                                        <img src="/launcher/credit.png" className="myitems-card-credit" />
+                                        <img src="/credit.png" className="myitems-card-credit" />
                                     </div>
                                     <button
                                         className="myitems-card-editbtn"
@@ -247,7 +247,7 @@ const MyItems = () => {
                                 <div className="myitems-tooltip-desc">{tooltip.item.description}</div>
                                 <div className="myitems-tooltip-price">
                                     Price: {tooltip.item.price}
-                                    <img src="/launcher/credit.png" className="myitems-card-credit" />
+                                    <img src="/credit.png" className="myitems-card-credit" />
                                     <span className="myitems-tooltip-store">
                                         Show in Store: {tooltip.item.showInStore ? "Yes" : "No"}
                                     </span>
