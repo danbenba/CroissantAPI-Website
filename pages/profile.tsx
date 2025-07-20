@@ -542,7 +542,7 @@ export default function Profile({ userId }: ProfileProps) {
                     <label htmlFor="profile-picture-input" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "64px", cursor: isMe ? "pointer" : "default" }}>
                         <img
                             src={
-                                "/avatar/" + (search || user.id)
+                                "/avatar/" + (search || user?.id)
                             }
                             alt={profile.username}
                             className="profile-avatar"
