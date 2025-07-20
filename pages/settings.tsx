@@ -77,10 +77,44 @@ export default function Settings() {
   const { user, token, setUser } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(user?.email || "");
+  const [username, setUsername] = useState(user?.username || "");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    setUsernameError(null);
+    setUsernameSuccess(null);
+  };
+
+  const handleUsernameSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUsernameLoading(true);
+    setUsernameError(null);
+    setUsernameSuccess(null);
+    try {
+      const res = await fetch("/api/users/change-username", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ username })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update username");
+      setUsernameSuccess("Username updated!");
+      setUser && setUser({ ...user, username });
+    } catch (e: any) {
+      setUsernameError(e.message);
+    } finally {
+      setUsernameLoading(false);
+    }
+  };
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState(user?.avatar ? `https://croissant-api.fr/avatar/${user.id}` : "/avatar/default.png");
+  const [avatar, setAvatar] = useState(user?.id ? `https://croissant-api.fr/avatar/${user.id}` : "/avatar/default.png");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -88,9 +122,9 @@ export default function Settings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if(typeof document == "undefined") return;
-    setTimeout(()=>{
-      if(document.querySelector("img[alt='Profile']")?.getAttribute("src")?.includes("default.png")) {
+    if (typeof document == "undefined") return;
+    setTimeout(() => {
+      if (document.querySelector("img[alt='Profile']")?.getAttribute("src")?.includes("default.png")) {
         // Do something with the document
         console.log("Default avatar detected, setting to user avatar");
         router.push("/login");
@@ -178,29 +212,53 @@ export default function Settings() {
   return (
     <div className="container" style={containerStyle}>
       <h2 style={{ marginBottom: 32 }}>Settings</h2>
-      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <img
-            src={avatar}
-            alt="Profile"
-            style={avatarStyle}
-            onClick={() => fileInputRef.current?.click()}
-            title="Change profile picture"
-          />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <img
+          src={avatar}
+          alt="Profile"
+          style={avatarStyle}
+          onClick={() => fileInputRef.current?.click()}
+          title="Change profile picture"
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleAvatarChange}
+        />
+        {avatarFile && (
+          <button type="button" style={{ ...buttonStyle, marginTop: 8, background: "#444" }} onClick={handleAvatarUpload} disabled={loading}>
+            {loading ? "Uploading..." : "Upload new picture"}
+          </button>
+        )}
+      </div>
+      <div style={{ marginTop: 24 }}>
+        <label style={labelStyle}>Username</label>
+        <form onSubmit={handleUsernameSave} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
           <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleAvatarChange}
+            type="text"
+            style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
+            value={username}
+            onChange={handleUsernameChange}
+            autoComplete="username"
+            minLength={3}
+            maxLength={32}
+            required
+            disabled={usernameLoading}
           />
-          {avatarFile && (
-            <button type="button" style={{ ...buttonStyle, marginTop: 8, background: "#444" }} onClick={handleAvatarUpload} disabled={loading}>
-              {loading ? "Uploading..." : "Upload new picture"}
-            </button>
-          )}
-        </div>
-        <div style={{ marginTop: 24 }}>
+          <button type="submit" style={{ ...buttonStyle, width: "auto", padding: "8px 18px", marginTop: 0 }} disabled={usernameLoading}>
+            {usernameLoading ? "Saving..." : "Save"}
+          </button>
+        </form>
+        {usernameSuccess && <div style={{ color: "#4caf50", marginTop: 2 }}>{usernameSuccess}</div>}
+        {usernameError && <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>}
+      </div>
+      <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ flex: 1, height: 1, background: "#444" }} />
+      </div>
+      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
+        <div>
           <label style={labelStyle}>Email</label>
           <input
             type="email"
@@ -262,21 +320,21 @@ export default function Settings() {
           <button style={steamBtnStyle} onClick={(event) => {
             event.preventDefault();
             confirm("Are you sure you want to unlink your Steam account?") &&
-            fetch("/api/users/unlink-steam", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-              }
-            })
-              .then(res => {
-                if(!res.ok) throw new Error("Failed to unlink Steam account");
-                return res.json();
+              fetch("/api/users/unlink-steam", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+                }
               })
-              .then(data => {
+                .then(res => {
+                  if (!res.ok) throw new Error("Failed to unlink Steam account");
+                  return res.json();
+                })
+                .then(data => {
                   setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
-              })
-              .catch(err => setError(err.message)); 
+                })
+                .catch(err => setError(err.message));
             // router.push("/api/auth/steam");
           }}>
             {/* <span className="fab fa-steam" style={{

@@ -241,7 +241,7 @@ export default function LobbyPage() {
                                                             <img className="lobby-user-avatar"
                                                                 src={`/avatar/${lobbyUser.id}`} style={{ objectFit: "cover" }} />
                                                             <span className="lobby-user-name">
-                                                                {lobbyUser?.global_name || lobbyUser.username} {lobbyUser.id === user.id ? "(You)" : ""}
+                                                                {lobbyUser?.username || lobbyUser.username} {lobbyUser.id === user.id ? "(You)" : ""}
                                                             </span>
                                                         </button>
                                                     </li>

@@ -64,7 +64,6 @@ interface DiscordUser {
     username: string;
     avatar: string | null;
     discriminator: string;
-    global_name?: string;
     banner?: string | null;
     accent_color?: number | null;
     banner_color?: string | null;
@@ -309,7 +308,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                                     className="shop-prompt-owner-avatar"
                                                     src={"/avatar/" + (prompt.item as any).owner}
                                                 />
-                                                {promptOwnerUser.global_name || promptOwnerUser.username}
+                                                {promptOwnerUser.usernameomptOwnerUser.username}
                                             </Link>
                                         </div>
                                     )}
@@ -552,7 +551,7 @@ export default function Profile({ userId }: ProfileProps) {
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.global_name || profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
+                                    {profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
                                 </div>
                             </div>
                         </div>
@@ -664,7 +663,7 @@ export default function Profile({ userId }: ProfileProps) {
                 onClose={() => setGiveCreditsOpen(false)}
                 onSubmit={amount => { setGiveCreditsOpen(false); handleGiveCredits(amount); }}
                 maxAmount={user?.balance}
-                username={profile.global_name || profile.username}
+                username={profile.username || profile.username}
             />
             {/* Feedback for give credits */}
             {giveCreditsLoading && <div className="shop-alert-overlay"><div className="shop-alert"><div>Sending credits...</div></div></div>}

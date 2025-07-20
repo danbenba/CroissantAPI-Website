@@ -10,7 +10,6 @@ const API_ENDPOINT = "/api";
 interface User {
   id: string;
   username: string;
-  global_name?: string;
 }
 
 // Game type (from Shop.tsx)
@@ -111,7 +110,7 @@ const SearchPage: React.FC = () => {
                     className="search-user-avatar"
                   />
                   <div className="search-user-name">
-                    {user.global_name || user.username}
+                    {user.username || user.username}
                   </div>
                   <div className="search-user-username">@{user.username}</div>
                 </div>

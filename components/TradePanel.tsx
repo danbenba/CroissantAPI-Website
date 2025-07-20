@@ -30,7 +30,7 @@ interface TradePanelProps {
     reloadInventory: () => void;
     onClose: () => void;
     profile?: {
-        global_name?: string;
+        username?: string;
         username: string;
     };
     apiBase?: string; // e.g. "/api"
@@ -173,7 +173,7 @@ export default function TradePanel({ tradeId, userId, token, inventory, reloadIn
             >
                 ×
             </div>
-            <h2>Trade with {profile?.global_name || profile?.username}</h2>
+            <h2>Trade with {profile?.username || profile?.username}</h2>
             <div className="trade-main-columns">
                 <div style={{ display: "flex", flexDirection: "column" }}>
                     <h3>Your items in the trade</h3>

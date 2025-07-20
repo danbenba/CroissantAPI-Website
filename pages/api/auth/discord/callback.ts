@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: user.email,
         provider: "discord",
         providerId: user.id,
-        username: user.username,
+        username: user?.global_name || user.username,
       }),
     });
     const loginData = await loginRes.json();

@@ -267,7 +267,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                                 >
                                     <img className="inventory-details-creator-avatar"
                                         src={"/avatar/" + selectedItem.owner} />
-                                    {ownerUser.global_name || ownerUser.username}
+                                    {ownerUser.username || ownerUser.username}
                                 </Link>
                             </div>
                         )}
