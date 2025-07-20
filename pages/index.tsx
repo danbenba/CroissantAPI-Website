@@ -68,6 +68,7 @@ const overviewDetails = [
         <li>Trade, buy, or sell your items with other users.</li>
         <li>Join multiplayer games easily using lobbies.</li>
         <li>Manage your inventory and credits via Discord or the launcher.</li>
+        <li><span style={{ color: "red" }}>NEW:</span> Link your Steam account to access your Steam inventory.</li>
       </ul>
     ),
   },
@@ -81,6 +82,7 @@ const overviewDetails = [
           <li>Create and sell your own items or bundles in the marketplace.</li>
           <li>Use lobbies to manage private multiplayer sessions.</li>
           <li><span style={{ color: "red" }}>NEW:</span> Use OAuth2 as authentication on your website.</li>
+          <li><span style={{ color: "red" }}>NEW:</span> Users can now link their Steam accounts. If you decide to make your game on Steam, you can find a user by their Steam ID and recover their inventory.</li>
         </ul>
         <p>
           <b>Get started:</b> Generate your API key with <Link href="/api-key" legacyBehavior><a>/api-key</a></Link> and see the <Link href="/api-docs" legacyBehavior><a>documentation</a></Link>.
