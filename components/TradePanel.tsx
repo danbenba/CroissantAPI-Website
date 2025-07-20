@@ -30,7 +30,6 @@ interface TradePanelProps {
     reloadInventory: () => void;
     onClose: () => void;
     profile?: {
-        username?: string;
         username: string;
     };
     apiBase?: string; // e.g. "/api"
