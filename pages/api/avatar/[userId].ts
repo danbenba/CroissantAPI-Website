@@ -12,7 +12,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   // Chemin absolu vers le dossier avatars (à adapter selon ton arborescence)
   const avatarsDir = path.join(process.cwd(), "avatars");
     // Recherche automatique de l'extension du fichier avatar
-    const exts = [".png", ".jpg", ".jpeg", ".webp"];
+    const exts = [".png", ".jpg", ".jpeg", ".webp", ".gif"];
     let avatarPath: string | undefined;
     for (const ext of exts) {
         const candidate = path.join(avatarsDir, `${userId}${ext}`);
