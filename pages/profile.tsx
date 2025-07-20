@@ -564,7 +564,7 @@ export default function Profile({ userId }: ProfileProps) {
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.username} {profile.verified && (<img src="/assets/verified-mark.png" alt="Verified" style={{ marginLeft: 4, width: 20, height: 20 }} />)} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
+                                    {profile.username} {profile.verified ? (<img src="/assets/verified-mark.png" alt="Verified" style={{ marginLeft: 4, width: 32, height: 32, position:"relative", top: "8px" }} />) : null} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
                                 </div>
                             </div>
                         </div>
