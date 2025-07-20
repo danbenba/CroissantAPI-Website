@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 const ENDPOINT = "/api";
 
@@ -150,7 +150,8 @@ const Shop: React.FC = () => {
 
     return (
         <div className="shop-root">
-            <div className="shop-games-section" style={{ padding: 0, background: "none", border: "none", boxShadow: "none" }}>
+            <div className="shop-games-section" style={{ padding: 0, background: "none", border: "none", boxShadow: "none",
+                            width: "95vw", overflowY: "auto", maxHeight: "calc(100vh - 120px)" }}>
                 {loading && (
                     <div style={{ position: "relative" }}>
                         <div style={{
@@ -161,6 +162,7 @@ const Shop: React.FC = () => {
                             marginTop: 24,
                             filter: "blur(0.5px) grayscale(0.2) brightness(0.8)",
                             pointerEvents: "none",
+                            width: "95vw"
                         }}>
                             {skeletons}
                         </div>
@@ -202,15 +204,16 @@ const Shop: React.FC = () => {
                                     }}
                                 >
                                     <div style={{ position: "relative", width: "100%", height: 160, background: "#18181c" }}>
-                                        {game.bannerHash && (
+                                        {(
                                             <img
-                                                src={"/banners-icons/" + game.bannerHash}
+                                                src={"/banners-icons/" + game?.bannerHash}
                                                 alt="banner"
                                                 style={{
                                                     width: "100%",
                                                     height: "100%",
+                                                    maxWidth: "100%",
                                                     objectFit: "cover",
-                                                    opacity: 0.22,
+                                                    opacity: 0.52,
                                                     position: "absolute",
                                                     left: 0,
                                                     top: 0,
@@ -327,7 +330,7 @@ const Shop: React.FC = () => {
                                                 Buy
                                             </button>
                                             <Link
-                                                href={`/launcher/game?gameId=${game.gameId}`}
+                                                href={`/game?gameId=${game.gameId}`}
                                                 className="shop-game-view-btn"
                                                 style={{
                                                     padding: "10px 32px",

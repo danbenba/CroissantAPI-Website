@@ -47,7 +47,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         body: JSON.stringify({
           userId,
           username: user.name || user.email.split('@')[0],
-          balance: 1000,
+          email: user.email,
+          password: null, // Google OAuth does not provide a password
+          balance: 0,
         }),
       });
     }

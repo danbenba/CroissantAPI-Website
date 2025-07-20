@@ -493,7 +493,7 @@ export default function Profile({ userId }: ProfileProps) {
         <div className="profile-root">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div className="profile-picture-container">
-                    <label htmlFor="profile-picture-input">
+                    <label htmlFor="profile-picture-input" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "64px", cursor: "pointer" }}>
                         <img
                             src={
                                 "https://croissant-api.fr/avatar/" + (search || user.id)
@@ -501,6 +501,14 @@ export default function Profile({ userId }: ProfileProps) {
                             alt={profile.username}
                             className="profile-avatar"
                         />
+                        
+                        <div className="profile-header">
+                            <div>
+                                <div className="profile-name">
+                                    {profile.global_name || profile.username}
+                                </div>
+                            </div>
+                        </div>
                     </label>
                     <input
                         id="profile-picture-input"
@@ -511,7 +519,7 @@ export default function Profile({ userId }: ProfileProps) {
                     />
                 </div>
                 {/* Give Credits button if not our own profile */}
-                {!isMe && (
+                {!isMe ? (
                     <div>
                         <button
                             className="shop-prompt-buy-btn"
@@ -528,15 +536,11 @@ export default function Profile({ userId }: ProfileProps) {
                             Trade
                         </button>
                     </div>
-
+                ) : (
+                    <Link href="/settings" style={{ marginTop: 8, marginRight: 8, float: "right", fontSize: 24, color: "#888" }} title="Settings">
+                        <i className="fa fa-cog" aria-hidden="true"></i>
+                    </Link>
                 )}
-            </div>
-            <div className="profile-header">
-                <div>
-                    <div className="profile-name">
-                        {profile.global_name || profile.username}
-                    </div>
-                </div>
             </div>
             <div
                 style={{

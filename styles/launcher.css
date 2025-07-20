@@ -1108,7 +1108,7 @@ input[type=text].required:focus {
     background: var(--background-medium);
     box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
     margin: 0;
-    width: 100vw;
+    width: 95vw;
     max-width: 1600px;
     height: 100vh
 }

@@ -73,6 +73,10 @@ const infoTextStyle: React.CSSProperties = {
 export default function Login() {
   const { user, loading, token } = useAuth();
   const router = useRouter();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [loginLoading, setLoginLoading] = React.useState(false);
+  const [loginError, setLoginError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!loading && user) {
@@ -88,9 +92,66 @@ export default function Login() {
     router.push("/auth/google");
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+    try {
+      const res = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      // Option: set token in context or reload page to trigger useAuth
+      document.cookie = `token=${data.token}; path=/; max-age=31536000`; // 1 year
+      location.href = "/";
+    } catch (e: any) {
+      setLoginError(e.message);
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
   return (
     <div className="container" style={containerStyle}>
       <h2 style={titleStyle}>Login</h2>
+      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleLogin}>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            autoComplete="email"
+            required
+          />
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            autoComplete="current-password"
+            required
+          />
+        </div>
+        <button type="submit" style={{ width: "100%", padding: "12px", background: "#5865F2", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: "pointer", marginTop: 8 }} disabled={loginLoading}>
+          {loginLoading ? "Logging in..." : "Login"}
+        </button>
+        {loginError && <div style={{ color: "#ff5252", marginTop: 12 }}>{loginError}</div>}
+      </form>
+      {/* Separator */}
+      <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ flex: 1, height: 1, background: "#444" }} />
+        <span style={{ color: "#888", fontSize: 14 }}>or</span>
+        <div style={{ flex: 1, height: 1, background: "#444" }} />
+      </div>
+      {/* OAuth buttons */}
       <button style={discordBtnStyle} onClick={handleDiscord}>
         <span className="fab fa-discord" style={discordIconStyle} aria-hidden="true" />
         Sign in with Discord
@@ -99,10 +160,10 @@ export default function Login() {
         <span style={googleIconSpanStyle}>
           <svg width="22" height="22" viewBox="0 0 48 48">
             <g>
-              <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.86-6.86C36.64 2.69 30.74 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.98 6.2C12.41 13.41 17.74 9.5 24 9.5z"/>
-              <path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.41c-.54 2.91-2.16 5.38-4.61 7.04l7.1 5.53C43.96 37.47 46.1 31.61 46.1 24.55z"/>
-              <path fill="#FBBC05" d="M10.67 28.29a14.5 14.5 0 0 1 0-8.58l-7.98-6.2A23.97 23.97 0 0 0 0 24c0 3.77.9 7.34 2.69 10.49l7.98-6.2z"/>
-              <path fill="#EA4335" d="M24 48c6.48 0 11.92-2.15 15.89-5.85l-7.1-5.53c-2 1.34-4.56 2.13-8.79 2.13-6.26 0-11.59-3.91-13.33-9.29l-7.98 6.2C6.73 42.2 14.82 48 24 48z"/>
+              <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.86-6.86C36.64 2.69 30.74 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.98 6.2C12.41 13.41 17.74 9.5 24 9.5z" />
+              <path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.41c-.54 2.91-2.16 5.38-4.61 7.04l7.1 5.53C43.96 37.47 46.1 31.61 46.1 24.55z" />
+              <path fill="#FBBC05" d="M10.67 28.29a14.5 14.5 0 0 1 0-8.58l-7.98-6.2A23.97 23.97 0 0 0 0 24c0 3.77.9 7.34 2.69 10.49l7.98-6.2z" />
+              <path fill="#EA4335" d="M24 48c6.48 0 11.92-2.15 15.89-5.85l-7.1-5.53c-2 1.34-4.56 2.13-8.79 2.13-6.26 0-11.59-3.91-13.33-9.29l-7.98 6.2C6.73 42.2 14.82 48 24 48z" />
             </g>
           </svg>
         </span>

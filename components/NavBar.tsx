@@ -58,11 +58,12 @@ function useNavBarResponsive() {
         marginRight: 6
     };
     const linksGroupStyle: React.CSSProperties = {
-        display: isMobile ? "block" : "flex",
+        display: isMobile ? "flex" : "flex",
         alignItems: "center",
         gap: isMobile ? undefined : 12,
         marginTop: isMobile ? 8 : 0,
-        textAlign: isMobile ? "center" : undefined
+        textAlign: isMobile ? "center" : undefined,
+        flexDirection: isMobile ? "column" : "row"
     };
     const linkStyle: React.CSSProperties = {
         color: "#bdbdbd",
@@ -133,7 +134,6 @@ export default function NavBar() {
         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         localStorage.removeItem("token");
         setUser(null);
-        window.location.reload();
     };
 
     const {
@@ -162,32 +162,113 @@ export default function NavBar() {
                             className="links-group"
                             style={linksGroupStyle}
                         >
-                            <Link href="/download-launcher" legacyBehavior>
-                                <a style={linkStyle}>Launcher</a>
-                            </Link>
                             <Link href="/api-docs" legacyBehavior>
                                 <a style={linkStyle}>API Docs</a>
                             </Link>
-                            <a href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923" style={linkStyle}>Bot</a>
+                            <Link href="/game-shop" legacyBehavior>
+                                <a style={linkStyle}>Game Shop</a>
+                            </Link>
+                            {(
+                                <div style={{ display: "inline-block", position: "relative" }}>
+                                    <button
+                                        style={{
+                                            ...linkStyle,
+                                            cursor: "pointer",
+                                            background: "none",
+                                            border: "none",
+                                            outline: "none",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            fontWeight: 600,
+                                            gap: 4
+                                        }}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            setShow(prev => prev === "install" ? "" : "install");
+                                        }}
+                                    >
+                                        Install <span style={{ fontSize: 12 }}>▼</span>
+                                    </button>
+                                    {show === "install" && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "100%",
+                                                left: 0,
+                                                background: "#23242a",
+                                                border: "1px solid #23242a",
+                                                borderRadius: 6,
+                                                minWidth: 140,
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                                                zIndex: 100,
+                                                marginTop: 2
+                                            }}
+                                            onMouseLeave={() => setShow("")}
+                                        >
+                                            <Link href="/download-launcher" legacyBehavior>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Launcher</a>
+                                            </Link>
+                                            <a href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923" style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Bot</a>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             {!loading && user && (
-                                <>
-                                    <Link href="/oauth2/apps" legacyBehavior>
-                                        <a style={linkStyle}>Apps</a>
-                                    </Link>
-                                    <Link href="/dev-zone/my-items" legacyBehavior>
-                                        <a style={linkStyle}>My Items</a>
-                                    </Link>
-                                    <Link href="/dev-zone/my-games" legacyBehavior>
-                                        <a style={linkStyle}>My Games</a>
-                                    </Link>
-                                </>
+                                <div style={{ display: "inline-block", position: "relative" }}>
+                                    <button
+                                        style={{
+                                            ...linkStyle,
+                                            cursor: "pointer",
+                                            background: "none",
+                                            border: "none",
+                                            outline: "none",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            fontWeight: 600,
+                                            gap: 4
+                                        }}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            setShow(prev => prev === "manage" ? "" : "manage");
+                                        }}
+                                    >
+                                        Manage <span style={{ fontSize: 12 }}>▼</span>
+                                    </button>
+                                    {show === "manage" && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "100%",
+                                                left: 0,
+                                                background: "#23242a",
+                                                border: "1px solid #23242a",
+                                                borderRadius: 6,
+                                                minWidth: 140,
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                                                zIndex: 100,
+                                                marginTop: 2
+                                            }}
+                                            onMouseLeave={() => setShow("")}
+                                        >
+                                            <Link href="/oauth2/apps" legacyBehavior>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Apps</a>
+                                            </Link>
+                                            <Link href="/dev-zone/my-items" legacyBehavior>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>My Items</a>
+                                            </Link>
+                                            <Link href="/dev-zone/my-games" legacyBehavior>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>My Games</a>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                             {!loading && user ? (
                                 <div style={userBlockStyle}>
                                     <Link href="/profile" legacyBehavior>
                                         <a><img src={"/avatar/" + user.id} alt="avatar" style={avatarStyle} /></a>
                                     </Link>
-                                    <Link href="/launcher/buy-credits" style={{ textDecoration: "none" }}>
+                                    <Link href="/buy-credits" style={{ textDecoration: "none" }}>
                                         <div className="navbar-credits">
                                             <img src="/credit.png" className="navbar-credit-img" />
                                             <div className="navbar-balance">

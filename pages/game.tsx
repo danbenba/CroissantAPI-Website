@@ -22,7 +22,7 @@ const GamePage: React.FC = () => {
     const skeleton = (
         <div className="main-details-steam gamepage-root gamepage-blur">
             <button className="gamepage-back-btn" style={{ opacity: 0 }}>← Back</button>
-            <div className="banner-container" style={{ width: "106vw"}}>
+            <div className="banner-container" style={{ width: "105%"}}>
                 <div className="main-banner-steam skeleton-banner" />
                 <div className="main-icon-steam skeleton-icon" />
             </div>
@@ -54,7 +54,7 @@ const GamePage: React.FC = () => {
             >
                 ← Back
             </button>
-            <div className="banner-container" style={{ width: "106vw"}}>
+            <div className="banner-container" style={{ width: "105%"}}>
                 <img src={`/banners-icons/${game.bannerHash}`} alt={game.name} className="main-banner-steam" />
                 <img src={`/games-icons/${game.iconHash}`} alt={game.name} className="main-icon-steam" />
             </div>

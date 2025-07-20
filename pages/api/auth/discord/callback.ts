@@ -41,13 +41,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const apiBase = process.env.API_BASE_URL || "http://localhost:3456";
     const userApiRes = await fetch(`${apiBase}/api/users/${userId}`);
     if (userApiRes.status === 404) {
-      await fetch(`${apiBase}/api/users/create`, {
+      await fetch(`${apiBase}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           username: user.username,
-          balance: 1000,
+          email: user.email,
+          password: null,
+          balance: 0,
         }),
       });
     }

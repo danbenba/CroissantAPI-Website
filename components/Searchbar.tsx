@@ -34,7 +34,7 @@ export default function Searchbar() {
                 backgroundColor: "#2a2a2a",
                 color: "#fff",
             }}
-            placeholder="Search for users..."
+            placeholder="Search for users and games..."
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}

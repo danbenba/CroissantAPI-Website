@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
                 <nav className="navbar-nav">
                     <div className="links-group">
                         <Link href="/launcher/home">Library</Link>
-                        <Link href="/launcher/shop">Shop</Link>
+                        <Link href="/game-shop?from=launcher">Shop</Link>
                         <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
                         <Link href="/dev-zone/my-items?from=launcher">My Items</Link>
                         <Link href="/dev-zone/my-games?from=launcher">My Games</Link>
@@ -33,9 +33,9 @@ const Navbar: React.FC = () => {
                     </div>
                     <SearchBar />
                     <div className="navbar-user-group">
-                        <Link href="/launcher/buy-credits" style={{ textDecoration: "none" }}>
+                        <Link href="/buy-credits?from=launcher" style={{ textDecoration: "none" }}>
                             <div className="navbar-credits">
-                                <img src="/launcher/credit.png" className="navbar-credit-img" />
+                                <img src="/credit.png" className="navbar-credit-img" />
                                 <div className="navbar-balance">
                                     <span id="my-balance">{user?.balance}</span>
                                 </div>
