@@ -185,6 +185,7 @@ export default function Settings() {
             onChange={e => setEmail(e.target.value)}
             autoComplete="email"
             required
+            disabled={true}
           />
         </div>
         <div>

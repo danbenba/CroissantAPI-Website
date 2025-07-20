@@ -154,9 +154,7 @@ export default function NavBar() {
                         </Link>
 
                     </div>
-                    {!loading && user && (
-                        <Searchbar />
-                    )}
+                    <Searchbar />
                     <nav>
                         <div
                             className="links-group"

@@ -68,6 +68,8 @@ interface DiscordUser {
     banner?: string | null;
     accent_color?: number | null;
     banner_color?: string | null;
+    disabled?: boolean;
+    admin?: boolean;
 }
 
 type ProfileProps = {
@@ -366,6 +368,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
     );
 }
 
+
 export default function Profile({ userId }: ProfileProps) {
     const [profile, setProfile] = useState<DiscordUser | null>(null);
     const [loading, setLoading] = useState(true);
@@ -390,15 +393,11 @@ export default function Profile({ userId }: ProfileProps) {
     const { user, token } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
+    // Helper to reload profile
+    const reloadProfile = useCallback(() => {
         setLoading(true);
         const selectedUserId = search || "@me";
-        fetch(endpoint + "/users/" + selectedUserId, {
+        fetch(endpoint + "/users" + (user?.admin ? "/admin" : "") + "/" + selectedUserId, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -410,7 +409,47 @@ export default function Profile({ userId }: ProfileProps) {
             .then(setProfile)
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
-    }, [userId, search, token]); // Add 'search' and 'token' as dependencies
+    }, [search, token, user?.admin]);
+
+    useEffect(() => {
+        if ((search || "@me") == "@me" && !token) {
+            router.push("/login");
+            return;
+        }
+        reloadProfile();
+    }, [userId, search, token, reloadProfile]);
+
+    // Désactiver le compte (admin)
+    const handleDisableAccount = async () => {
+        if (!user?.admin || !token || !profile) return;
+        try {
+            const res = await fetch(`/api/users/admin/disable/${profile.id}`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to disable account");
+            reloadProfile();
+        } catch (e: any) {
+            setError(e.message);
+        }
+    };
+
+    // Réactiver le compte (admin)
+    const handleReenableAccount = async () => {
+        if (!user?.admin || !token || !profile) return;
+        try {
+            const res = await fetch(`/api/users/admin/enable/${profile.id}`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to re-enable account");
+            reloadProfile();
+        } catch (e: any) {
+            setError(e.message);
+        }
+    };
 
     // Inventory fetch effect
     useEffect(() => {
@@ -501,11 +540,11 @@ export default function Profile({ userId }: ProfileProps) {
                             alt={profile.username}
                             className="profile-avatar"
                         />
-                        
+
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.global_name || profile.username}
+                                    {profile.global_name || profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)}
                                 </div>
                             </div>
                         </div>
@@ -518,28 +557,51 @@ export default function Profile({ userId }: ProfileProps) {
                         onChange={handleProfilePictureChange}
                     />
                 </div>
-                {/* Give Credits button if not our own profile */}
-                {!isMe ? (
-                    <div>
-                        <button
-                            className="shop-prompt-buy-btn"
-                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
-                            onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}
-                        >
-                            Give Credits
-                        </button>
-                        <button
-                            className="shop-prompt-buy-btn"
-                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
-                            onClick={handleStartTrade}
-                        >
-                            Trade
-                        </button>
-                    </div>
-                ) : (
-                    <Link href="/settings" style={{ marginTop: 8, marginRight: 8, float: "right", fontSize: 24, color: "#888" }} title="Settings">
-                        <i className="fa fa-cog" aria-hidden="true"></i>
-                    </Link>
+                {user && (
+                    <>
+                        {!isMe ? (
+                            <div>
+                                {user.admin && (
+                                    profile.disabled ? (
+                                        <button className="shop-prompt-buy-btn"
+                                            style={{ marginTop: 8, marginRight: 8, float: "right", background: "#4c7aafff" }}
+                                            onClick={handleReenableAccount}>
+                                            Reenable Account
+                                        </button>
+                                    ) : (
+                                        <button className="shop-prompt-buy-btn"
+                                            style={{ marginTop: 8, marginRight: 8, float: "right", background: "#f44336" }}
+                                            onClick={handleDisableAccount}>
+                                            Disable Account
+                                        </button>
+                                    )
+                                )}
+                                {!profile.disabled && (
+                                    <>
+                                        <button
+                                            className="shop-prompt-buy-btn"
+                                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
+                                            onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}
+                                        >
+                                            Give Credits
+                                        </button>
+                                        <button
+                                            className="shop-prompt-buy-btn"
+                                            style={{ marginTop: 8, marginRight: 8, float: "right" }}
+                                            onClick={handleStartTrade}
+                                        >
+                                            Trade
+                                        </button>
+                                    </>
+                                )}
+
+                            </div>
+                        ) : (
+                            <Link href="/settings" style={{ marginTop: 8, marginRight: 8, float: "right", fontSize: 24, color: "#888" }} title="Settings">
+                                <i className="fa fa-cog" aria-hidden="true"></i>
+                            </Link>
+                        )}
+                    </>
                 )}
             </div>
             <div

@@ -32,7 +32,7 @@ interface Game {
 const SearchPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [games, setGames] = useState<Game[]>([]);
-  const { token } = useAuth();
+  const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
@@ -46,13 +46,8 @@ const SearchPage: React.FC = () => {
 
   // Fetch users when query or token changes
   useEffect(() => {
-    if (!query || !token) {
-      setUsers([]);
-      setGames([]);
-      return;
-    }
-    // Fetch users
-    fetch(`${API_ENDPOINT}/users/search?q=${encodeURIComponent(query)}`,
+    if(!user) return;
+    fetch(`${API_ENDPOINT}/users${user?.admin?"/admin":""}/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
