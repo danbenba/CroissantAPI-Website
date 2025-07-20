@@ -74,7 +74,7 @@ const steamBtnStyle: React.CSSProperties = {
 
 
 export default function Settings() {
-  const { user, token } = useAuth();
+  const { user, token, setUser } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(user?.email || "");
   const [oldPassword, setOldPassword] = useState("");
@@ -261,6 +261,22 @@ export default function Settings() {
         ) : (
           <button style={steamBtnStyle} onClick={(event) => {
             event.preventDefault();
+            confirm("Are you sure you want to unlink your Steam account?") &&
+            fetch("/api/users/unlink-steam", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+              }
+            })
+              .then(res => {
+                if(!res.ok) throw new Error("Failed to unlink Steam account");
+                return res.json();
+              })
+              .then(data => {
+                  setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+              })
+              .catch(err => setError(err.message)); 
             // router.push("/api/auth/steam");
           }}>
             {/* <span className="fab fa-steam" style={{
