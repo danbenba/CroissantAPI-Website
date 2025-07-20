@@ -46,7 +46,7 @@ const SearchPage: React.FC = () => {
 
   // Fetch users when query or token changes
   useEffect(() => {
-    if(!user) return;
+    // if(!user) return;
     fetch(`${API_ENDPOINT}/users${user?.admin?"/admin":""}/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
