@@ -1,5 +1,5 @@
+
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { genKey } from '../GenKey';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
@@ -35,32 +35,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).send("Failed to fetch user info");
     }
     const user = await userRes.json();
-    const userId = user.id;
 
-    // 3. Vérifie/crée l'utilisateur côté API backend
+    // 3. Appelle le backend pour login/register OAuth
     const apiBase = process.env.API_BASE_URL || "http://localhost:3456";
-    const userApiRes = await fetch(`${apiBase}/api/users/${userId}`);
-    if (userApiRes.status === 404) {
-      await fetch(`${apiBase}/api/users/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          username: user.username,
-          email: user.email,
-          password: null,
-          balance: 0,
-        }),
-      });
+    const loginRes = await fetch(`${apiBase}/users/login-oauth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email,
+        provider: "discord",
+        providerId: user.id,
+        username: user.username,
+      }),
+    });
+    const loginData = await loginRes.json();
+    if (!loginRes.ok || !loginData.token) {
+      return res.status(401).send(loginData.message || "OAuth login failed");
     }
-
-    // 4. Génère un token et le met en cookie
+    // 4. Place le token backend en cookie et redirige
     res.setHeader(
       'Set-Cookie',
-      `token=${genKey(userId)}; Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT`
+      `token=${loginData.token}; Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT`
     );
-
-    // 5. Redirige vers la page login ou dashboard
     res.redirect('/');
   } catch (error) {
     console.error(error);
