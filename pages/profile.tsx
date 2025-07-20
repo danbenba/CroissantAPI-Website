@@ -384,6 +384,7 @@ export default function Profile({ userId }: ProfileProps) {
     const [currentTradeId, setCurrentTradeId] = useState<string | null>(null);
     const [inventoryReloadFlag, setInventoryReloadFlag] = useState(0);
     const [inventory, setInventory] = useState<Item[]>([]);
+    const [isProfileReloading, setIsProfileReloading] = useState(false);
 
     const reloadInventory = () => setInventoryReloadFlag(f => f + 1);
 
@@ -396,6 +397,7 @@ export default function Profile({ userId }: ProfileProps) {
     // Helper to reload profile
     const reloadProfile = useCallback(() => {
         setLoading(true);
+        setIsProfileReloading(true);
         const selectedUserId = search || "@me";
         fetch(endpoint + "/users" + (selectedUserId !== "@me" && user?.admin ? "/admin" : "") + "/" + selectedUserId, {
             headers: {
@@ -407,17 +409,23 @@ export default function Profile({ userId }: ProfileProps) {
                 return res.json();
             })
             .then(setProfile)
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
+            .catch(e => {
+                setError(e.message);
+                if ((search || "@me") == "@me" && !token) {
+                    router.push("/login");
+                    return;
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, [search, token, user?.admin]);
 
     useEffect(() => {
-        if ((search || "@me") == "@me" && !token) {
-            router.push("/login");
-            return;
-        }
+        if (isProfileReloading) return;
         reloadProfile();
-    }, [userId, search, token, reloadProfile]);
+        setIsProfileReloading(false);
+    }, [search, isProfileReloading, reloadProfile]);
 
     // Désactiver le compte (admin)
     const handleDisableAccount = async () => {

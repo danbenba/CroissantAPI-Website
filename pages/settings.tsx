@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 
@@ -86,6 +86,17 @@ export default function Settings() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if(typeof document == "undefined") return;
+    setTimeout(()=>{
+      if(document.querySelector("img[alt='Profile']")?.getAttribute("src")?.includes("default.png")) {
+        // Do something with the document
+        console.log("Default avatar detected, setting to user avatar");
+        router.push("/login");
+      }
+    }, 2000);
+  }, []);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
