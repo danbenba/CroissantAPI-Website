@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
@@ -56,7 +57,7 @@ export default function ForgotPassword() {
   return (
     <div className="container" style={containerStyle}>
       <h2 style={titleStyle}>Forgot Password</h2>
-      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSubmit}>
+      <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
           <input
@@ -64,7 +65,7 @@ export default function ForgotPassword() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             style={{
-              width: "100%",
+              width: "240px",
               padding: "10px 12px",
               borderRadius: 6,
               border: "1px solid #444",
@@ -79,7 +80,7 @@ export default function ForgotPassword() {
         <button
           type="submit"
           style={{
-            width: "100%",
+            width: "260px",
             padding: "12px",
             background: "#5865F2",
             color: "#fff",
@@ -97,8 +98,13 @@ export default function ForgotPassword() {
         {error && <div style={{ color: "#ff5252", marginTop: 12 }}>{error}</div>}
         {success && <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>}
       </form>
-      <div style={infoTextStyle}>
+      <div style={{ ...infoTextStyle, width: "260px", maxWidth: 340, textAlign: "center" }}>
         Enter your email address and we'll send you a link to reset your password.
+      </div>
+      <div style={{ width: "260px", maxWidth: 340, marginTop: 16, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <span style={{ color: "#aaa", fontSize: 14, alignSelf: "center" }}>
+          <Link href="/login" style={{ color: "#8ab4f8", textDecoration: "none" }}>I just remembered my password</Link>
+        </span>
       </div>
     </div>
   );

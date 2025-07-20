@@ -1,6 +1,7 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 
 // Style constants
@@ -132,14 +133,14 @@ export default function Register() {
   return (
     <div className="container" style={containerStyle}>
       <h2 style={titleStyle}>Register</h2>
-      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleRegister}>
+      <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleRegister}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="email"
             required
           />
@@ -150,7 +151,7 @@ export default function Register() {
             type="text"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="username"
             required
           />
@@ -161,7 +162,7 @@ export default function Register() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="new-password"
             required
           />
@@ -172,19 +173,25 @@ export default function Register() {
             type="password"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="new-password"
             required
           />
         </div>
-        <button type="submit" style={{ width: "100%", padding: "12px", background: "#5865F2", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: "pointer", marginTop: 8 }} disabled={registerLoading}>
+        <button type="submit" style={{ width: "260px", padding: "12px", background: "#5865F2", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: "pointer", marginTop: 8 }} disabled={registerLoading}>
           {registerLoading ? "Registering..." : "Register"}
         </button>
         {registerError && <div style={{ color: "#ff5252", marginTop: 12 }}>{registerError}</div>}
         {registerSuccess && <div style={{ color: "#4caf50", marginTop: 12 }}>{registerSuccess}</div>}
       </form>
+      {/* Link below form */}
+      <div style={{ width: "260px", maxWidth: 340, marginTop: 16, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <span style={{ color: "#aaa", fontSize: 14, alignSelf: "flex-end" }}>
+          <Link href="/login" style={{ color: "#8ab4f8", textDecoration: "none" }}>Have an account? </Link>
+        </span>
+      </div>
       {/* Separator */}
-      <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ width: "260px", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{ flex: 1, height: 1, background: "#444" }} />
         <span style={{ color: "#888", fontSize: 14 }}>or</span>
         <div style={{ flex: 1, height: 1, background: "#444" }} />

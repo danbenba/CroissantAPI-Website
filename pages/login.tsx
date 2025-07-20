@@ -1,6 +1,7 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 
 // Style constants
@@ -24,7 +25,7 @@ const titleStyle: React.CSSProperties = {
 const discordBtnStyle: React.CSSProperties = {
   width: "260px",
   height: "48px",
-  background: "linear-gradient(90deg, #5865F2 60%, #404EED 100%)",
+  background: "linear-gradient(90deg, #5865F2 60%, #404EED 260px)",
   color: "#fff",
   border: "none",
   borderRadius: "8px",
@@ -117,14 +118,14 @@ export default function Login() {
   return (
     <div className="container" style={containerStyle}>
       <h2 style={titleStyle}>Login</h2>
-      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleLogin}>
+      <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleLogin}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="email"
             required
           />
@@ -135,18 +136,23 @@ export default function Login() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
+            style={{ width: "240px", padding: "10px 12px", borderRadius: 6, border: "1px solid #444", background: "#18181c", color: "#fff", fontSize: 16 }}
             autoComplete="current-password"
             required
           />
         </div>
-        <button type="submit" style={{ width: "100%", padding: "12px", background: "#5865F2", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: "pointer", marginTop: 8 }} disabled={loginLoading}>
+        <button type="submit" style={{ width: "260px", padding: "12px", background: "#5865F2", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: "pointer", marginTop: 8 }} disabled={loginLoading}>
           {loginLoading ? "Logging in..." : "Login"}
         </button>
         {loginError && <div style={{ color: "#ff5252", marginTop: 12 }}>{loginError}</div>}
       </form>
+      {/* Links below form */}
+      <div style={{ width: "260px", maxWidth: 340, marginTop: 16, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+        <Link href="/forgot-password" style={{ color: "#8ab4f8", fontSize: 14, textDecoration: "none", alignSelf: "flex-start" }}>Forgot password?</Link>
+        <Link href="/register" style={{ color: "#8ab4f8", textDecoration: "none", alignSelf: "flex-start" }}>Register</Link>
+      </div>
       {/* Separator */}
-      <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ width: "260px", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{ flex: 1, height: 1, background: "#444" }} />
         <span style={{ color: "#888", fontSize: 14 }}>or</span>
         <div style={{ flex: 1, height: 1, background: "#444" }} />

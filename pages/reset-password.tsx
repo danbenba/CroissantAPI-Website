@@ -112,7 +112,7 @@ export default function ResetPassword() {
         <div style={{ color: "#4caf50", marginBottom: 16 }}>
           Welcome {user.username}, please reset your password.
 
-          <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSubmit}>
+          <form style={{ width: "300px", maxWidth: 340 }} onSubmit={handleSubmit}>
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>New Password</label>
               <input
@@ -120,7 +120,7 @@ export default function ResetPassword() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 style={{
-                  width: "100%",
+                  width: "280px",
                   padding: "10px 12px",
                   borderRadius: 6,
                   border: "1px solid #444",
@@ -140,7 +140,7 @@ export default function ResetPassword() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 style={{
-                  width: "100%",
+                  width: "280px",
                   padding: "10px 12px",
                   borderRadius: 6,
                   border: "1px solid #444",
@@ -156,7 +156,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               style={{
-                width: "100%",
+                width: "300px",
                 padding: "12px",
                 background: "#5865F2",
                 color: "#fff",
