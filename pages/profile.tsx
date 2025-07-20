@@ -397,7 +397,7 @@ export default function Profile({ userId }: ProfileProps) {
     const reloadProfile = useCallback(() => {
         setLoading(true);
         const selectedUserId = search || "@me";
-        fetch(endpoint + "/users" + (user?.admin ? "/admin" : "") + "/" + selectedUserId, {
+        fetch(endpoint + "/users" + (selectedUserId !== "@me" && user?.admin ? "/admin" : "") + "/" + selectedUserId, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -532,7 +532,7 @@ export default function Profile({ userId }: ProfileProps) {
         <div className="profile-root">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div className="profile-picture-container">
-                    <label htmlFor="profile-picture-input" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "64px", cursor: "pointer" }}>
+                    <label htmlFor="profile-picture-input" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "64px", cursor: isMe ? "pointer" : "default" }}>
                         <img
                             src={
                                 "https://croissant-api.fr/avatar/" + (search || user.id)
@@ -544,18 +544,21 @@ export default function Profile({ userId }: ProfileProps) {
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.global_name || profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)}
+                                    {profile.global_name || profile.username} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
                                 </div>
                             </div>
                         </div>
                     </label>
-                    <input
-                        id="profile-picture-input"
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={handleProfilePictureChange}
-                    />
+                    {isMe && (
+                        <input
+                            id="profile-picture-input"
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={handleProfilePictureChange}
+                        />
+                    )}
+
                 </div>
                 {user && (
                     <>
