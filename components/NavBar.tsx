@@ -305,12 +305,14 @@ export default function NavBar() {
                                                                 if (res.ok) {
                                                                     return res.json()
                                                                 } else {
-                                                                    console.error("Failed to change role");
+                                                                    throw new Error("Failed to change role");
                                                                 }
                                                             }).then(data => {
                                                                 if(data.user) {
                                                                     setUser(data.user);
                                                                 }
+                                                            }).catch(err => {
+                                                                console.error(err);
                                                             });
                                                         }}
                                                     >
