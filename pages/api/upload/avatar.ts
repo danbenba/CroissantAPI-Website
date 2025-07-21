@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!authHeader) return res.status(401).json({ error: 'Authorization header missing' });
 
   // Ici, tu dois vérifier l'utilisateur via ton API si besoin
-  const user = await fetch('https://croissant-api.fr/api/users/@me', {method: 'GET', headers: { Authorization: authHeader } });
+  const user = await fetch('http://localhost:3456/users/@me', {method: 'GET', headers: { Authorization: authHeader } });
   if (!user.ok) return res.status(401).json({ error: 'Unauthorized' });
   const userData = await user.json();
 
@@ -32,10 +32,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const tempPath = (file.filepath || file.path);
     if (!tempPath) return res.status(500).json({ error: 'File path missing' });
 
-    // console.log('Temp file path:', userData);
-
     // Ici, récupère l'userId (ex: depuis le token ou un champ)
     const userId = (userData.id as string) || 'unknown';
+    console.log(`Uploading avatar for user:`, userData);
     const destPath = path.join(avatarsDir, `${userId}.png`);
     fs.renameSync(tempPath, destPath);
 

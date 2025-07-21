@@ -114,7 +114,7 @@ export default function Settings() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState(user?.id ? `https://croissant-api.fr/avatar/${user.id}` : "/avatar/default.png");
+  const [avatar, setAvatar] = useState(user?.id ? `/avatar/${user.id}` : "/avatar/default.png");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -123,7 +123,7 @@ export default function Settings() {
   const [linkText, setLinkText] = useState("Link Steam Account");
 
   useEffect(() => {
-    if( typeof window === "undefined" || !user) return;
+    if (typeof window === "undefined" || !user) return;
     setLinkText(
       typeof window !== "undefined" && window.location.search.includes("from=launcher") ? "Go on website to link" : "Link Steam Account"
     );
@@ -261,113 +261,117 @@ export default function Settings() {
         </form>
         {usernameSuccess && <div style={{ color: "#4caf50", marginTop: 2 }}>{usernameSuccess}</div>}
         {usernameError && <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>}
-      </div>
-      <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ flex: 1, height: 1, background: "#444" }} />
-      </div>
-      <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
-        <div>
-          <label style={labelStyle}>Email</label>
-          <input
-            type="email"
-            style={inputStyle}
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-            disabled={true}
-          />
-        </div>
-        <div>
-          <label style={labelStyle}>Current Password</label>
-          <input
-            type="password"
-            style={inputStyle}
-            value={oldPassword}
-            onChange={e => setOldPassword(e.target.value)}
-            autoComplete="current-password"
-            placeholder="Enter your current password"
-          />
-        </div>
-        <div>
-          <label style={labelStyle}>New Password</label>
-          <input
-            type="password"
-            style={inputStyle}
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            autoComplete="new-password"
-            placeholder="Enter new password"
-          />
-        </div>
-        <div>
-          <label style={labelStyle}>Confirm New Password</label>
-          <input
-            type="password"
-            style={inputStyle}
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-            placeholder="Confirm new password"
-          />
-        </div>
-        <button type="submit" style={buttonStyle} disabled={loading}>
-          {loading ? "Saving..." : "Save Changes"}
-        </button>
-        {!user?.steam_id ? (
-          <button
-            style={steamBtnStyle}
-            onClick={(event) => {
-              if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
-              event.preventDefault();
-              router.push("/api/auth/steam");
-            }}
-            disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
-          >
-            <span
-              className="fab fa-steam"
-              style={{ fontSize: "22px" }}
-              aria-hidden="true"
-            />
-            {linkText}
-          </button>
-        ) : (
-          <button
-            style={steamBtnStyle}
-            onClick={(event) => {
-              if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
-              event.preventDefault();
-              confirm("Are you sure you want to unlink your Steam account?") &&
-                fetch("/api/users/unlink-steam", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
-                })
-                  .then((res) => {
-                    if (!res.ok) throw new Error("Failed to unlink Steam account");
-                    return res.json();
-                  })
-                  .then((data) => {
-                    setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
-                  })
-                  .catch((err) => setError(err.message));
-            }}
-            disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
-              <span style={{ fontWeight: "normal" }}>
-                Linked as <b>{user?.steam_username}</b>
-              </span>
+      </div> {
+        user && !user?.isStudio? (<>
+          <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ flex: 1, height: 1, background: "#444" }} />
+          </div>
+          <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
+            <div>
+              <label style={labelStyle}>Email</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+                disabled={true}
+              />
             </div>
-          </button>
-        )}
+            <div>
+              <label style={labelStyle}>Current Password</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={oldPassword}
+                onChange={e => setOldPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter your current password"
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>New Password</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="Enter new password"
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Confirm New Password</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="Confirm new password"
+              />
+            </div>
+            <button type="submit" style={buttonStyle} disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+            {!user?.steam_id ? (
+              <button
+                style={steamBtnStyle}
+                onClick={(event) => {
+                  if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+                  event.preventDefault();
+                  router.push("/api/auth/steam");
+                }}
+                disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+              >
+                <span
+                  className="fab fa-steam"
+                  style={{ fontSize: "22px" }}
+                  aria-hidden="true"
+                />
+                {linkText}
+              </button>
+            ) : (
+              <button
+                style={steamBtnStyle}
+                onClick={(event) => {
+                  if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+                  event.preventDefault();
+                  confirm("Are you sure you want to unlink your Steam account?") &&
+                    fetch("/api/users/unlink-steam", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                    })
+                      .then((res) => {
+                        if (!res.ok) throw new Error("Failed to unlink Steam account");
+                        return res.json();
+                      })
+                      .then((data) => {
+                        setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+                      })
+                      .catch((err) => setError(err.message));
+                }}
+                disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
+                  <span style={{ fontWeight: "normal" }}>
+                    Linked as <b>{user?.steam_username}</b>
+                  </span>
+                </div>
+              </button>
+            )}
 
-        {success && <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>}
-        {error && <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>}
-      </form>
+            {success && <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>}
+            {error && <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>}
+          </form>
+        </>) : null
+      }
+
     </div>
   );
 }

@@ -11,6 +11,8 @@ interface User {
   id: string;
   username: string;
   verified: boolean;
+  isStudio?: boolean;
+  admin?: boolean;
 }
 
 // Game type (from Shop.tsx)
@@ -113,7 +115,7 @@ const SearchPage: React.FC = () => {
                   <div className="search-user-name">
                     {user.username || user.username} {user?.verified ? (
                       <img
-                        src="/assets/verified-mark.png"
+                        src={!user.admin ? (user.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png") : "/assets/admin-mark.png"}
                         alt="Verified"
                         style={{
                           width: "16px",

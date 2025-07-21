@@ -112,7 +112,7 @@ import useAuth from "../hooks/useAuth";
 import Searchbar from "./Searchbar";
 
 export default function NavBar() {
-    const { user, loading, setUser } = useAuth();
+    const { user, token, loading, setUser } = useAuth();
     const [show, setShow] = useState("");
     const [isMobile, setIsMobile] = React.useState(false);
     useEffect(() => {
@@ -248,15 +248,77 @@ export default function NavBar() {
                                             }}
                                             onMouseLeave={() => setShow("")}
                                         >
+                                            {!user.isStudio && (
+                                                <Link href="/studios" legacyBehavior>
+                                                    <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</a>
+                                                </Link>
+                                            )}
                                             <Link href="/oauth2/apps" legacyBehavior>
                                                 <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Apps</a>
                                             </Link>
                                             <Link href="/dev-zone/my-items" legacyBehavior>
-                                                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>My Items</a>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</a>
                                             </Link>
                                             <Link href="/dev-zone/my-games" legacyBehavior>
-                                                <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>My Games</a>
+                                                <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</a>
                                             </Link>
+                                        </div>
+                                    )}
+                                    {show === "roles" && (
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: "100%",
+                                                left: 0,
+                                                background: "#23242a",
+                                                border: "1px solid #23242a",
+                                                borderRadius: 6,
+                                                minWidth: 140,
+                                                width: 300,
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                                                zIndex: 100,
+                                                marginTop: 2
+                                            }}
+                                            onMouseLeave={() => setShow("")}
+                                        >
+                                            {
+                                                user && user?.roles.map((role: any) => (
+                                                    <button
+                                                        style={{
+                                                            ...linkStyle,
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: 8,
+                                                            width: "100%",
+                                                            textAlign: "left"
+                                                        }}
+                                                        key={role}
+                                                        onClick={() => {
+                                                            fetch("/api/users/change-role", {
+                                                                headers: {
+                                                                    "Content-Type": "application/json",
+                                                                    "Authorization": `Bearer ${token}`
+                                                                },
+                                                                method: "POST",
+                                                                body: JSON.stringify({ role })
+                                                            }).then(res => {
+                                                                if (res.ok) {
+                                                                    return res.json()
+                                                                } else {
+                                                                    console.error("Failed to change role");
+                                                                }
+                                                            }).then(data => {
+                                                                if(data.user) {
+                                                                    setUser(data.user);
+                                                                }
+                                                            });
+                                                        }}
+                                                    >
+                                                        <img src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
+                                                        <span style={{ whiteSpace: "nowrap" }}>{user.studios.find(studio => studio.user_id === role)?.username || "Me"}</span>
+                                                    </button>
+                                                ))
+                                            }
                                         </div>
                                     )}
                                 </div>
@@ -264,8 +326,27 @@ export default function NavBar() {
                             {!loading && user ? (
                                 <div style={userBlockStyle}>
                                     <Link href="/profile" legacyBehavior>
-                                        <a><img src={"/avatar/" + user.id} alt="avatar" style={avatarStyle} /></a>
+                                        <a><img src={"/avatar/" + (user.role || user.id) } alt="avatar" style={avatarStyle} /></a>
                                     </Link>
+                                    <button
+                                        style={{
+                                            ...linkStyle,
+                                            cursor: "pointer",
+                                            background: "none",
+                                            border: "none",
+                                            outline: "none",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            fontWeight: 600,
+                                            gap: 4
+                                        }}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            setShow(prev => prev === "roles" ? "" : "roles");
+                                        }}
+                                    >
+                                        <span style={{ fontSize: 12 }}>▼</span>
+                                    </button>
                                     <Link href="/buy-credits" style={{ textDecoration: "none" }}>
                                         <div className="navbar-credits">
                                             <img src="/credit.png" className="navbar-credit-img" />

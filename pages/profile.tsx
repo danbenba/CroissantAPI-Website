@@ -70,6 +70,7 @@ interface DiscordUser {
     banner_color?: string | null;
     disabled?: boolean;
     admin?: boolean;
+    isStudio?: boolean;
 }
 
 type ProfileProps = {
@@ -311,7 +312,7 @@ function ProfileShop({ ownerId, onBuySuccess }: { ownerId: string; onBuySuccess:
                                                 />
                                                 {promptOwnerUser.username} {promptOwnerUser?.verified ? (
                                                     <img
-                                                        src="/assets/verified-mark.png"
+                                                        src={"/assets/" + (!promptOwnerUser.admin ? (promptOwnerUser.isStudio ? "brand-verified-mark.png" : "verified-mark.png") : "admin-mark.png")}
                                                         alt="Verified"
                                                         style={{
                                                             marginLeft: "4px",
@@ -431,7 +432,7 @@ export default function Profile({ userId }: ProfileProps) {
             .finally(() => {
                 setLoading(false);
             });
-    }, [search, token, user?.admin]);
+    }, [token, user?.admin]);
 
     useEffect(() => {
         if (isProfileReloading) return;
@@ -564,7 +565,11 @@ export default function Profile({ userId }: ProfileProps) {
                         <div className="profile-header">
                             <div>
                                 <div className="profile-name">
-                                    {profile.username} {profile.verified ? (<img src="/assets/verified-mark.png" alt="Verified" style={{ marginLeft: 4, width: 32, height: 32, position:"relative", top: "8px" }} />) : null} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)} {profile.admin && (<><span style={{ color: "green" }}>(Admin)</span></>)}
+                                    {profile.username} {profile.admin ? (
+                                        <img src={"/assets/admin-mark.png"} alt="Admin" style={{ marginLeft: 4, width: 32, height: 32, position:"relative", top: "8px" }} />
+                                    ) : (profile.verified ? (
+                                        <img src={profile.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 32, height: 32, position:"relative", top: "8px" }} />
+                                    ) : null)} {profile.disabled && (<><span style={{ color: "red" }}>(Disabled)</span></>)}
                                 </div>
                             </div>
                         </div>

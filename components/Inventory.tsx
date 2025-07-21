@@ -269,7 +269,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
                                         src={"/avatar/" + selectedItem.owner} />
                                     {ownerUser.username || ownerUser.username} {ownerUser.verified && (
                                         <img
-                                            src="/assets/verified-mark.png"
+                                            src={"/assets/" + (!ownerUser.admin ? (ownerUser.isStudio ? "brand-verified-mark.png" : "verified-mark.png") : "admin-mark.png")}
                                             alt="Verified"
                                             style={{
                                                 marginLeft: "4px",

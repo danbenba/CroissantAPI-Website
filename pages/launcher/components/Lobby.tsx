@@ -243,7 +243,7 @@ export default function LobbyPage() {
                                                             <span className="lobby-user-name">
                                                                 {lobbyUser?.username} {lobbyUser?.verified ? (
                                                                     <img
-                                                                        src="/assets/verified-mark.png"
+                                                                        src={!lobbyUser.admin ? (lobbyUser.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png") : "/assets/admin-mark.png"}
                                                                         alt="Verified"
                                                                         style={{
                                                                             marginLeft: "4px",
