@@ -3,51 +3,72 @@ import Highlight from 'react-highlight'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
+
+
 const API_URL = "https://croissant-api.fr/api";
 
+// Memoized docs and grouped state (module-level, survives remounts)
+let apiDocsCache: any[] | null = null;
+let apiDocsGroupedCache: Record<string, any[]> | null = null;
+let apiDocsCategoryListCache: string[] | null = null;
+
+function useApiDocs() {
+  const [docs, setDocs] = useState<any[]>(apiDocsCache || []);
+  const [categories, setCategories] = useState<Record<string, any[]>>(apiDocsGroupedCache || {});
+  const [categoryList, setCategoryList] = useState<string[]>(apiDocsCategoryListCache || []);
+  const [loading, setLoading] = useState(!apiDocsCache);
+
+  useEffect(() => {
+    if (apiDocsCache && apiDocsGroupedCache && apiDocsCategoryListCache) {
+      setDocs(apiDocsCache);
+      setCategories(apiDocsGroupedCache);
+      setCategoryList(apiDocsCategoryListCache);
+      setLoading(false);
+    } else {
+      setLoading(true);
+      fetch(API_URL + "/describe")
+        .then((res) => res.json())
+        .then((data) => {
+          apiDocsCache = data;
+          setDocs(data);
+          // Group docs by category and then by endpoint
+          const grouped = data.reduce((acc: Record<string, any[]>, doc: any) => {
+            const cat = doc.category || "Uncategorized";
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(doc);
+            return acc;
+          }, {});
+          // Further group by endpoint
+          Object.keys(grouped).forEach(category => {
+            const endpoints: Record<string, any[]> = {};
+            grouped[category].forEach((doc: any) => {
+              const endpointKey = doc.method + ' ' + doc.endpoint;
+              if (!endpoints[endpointKey]) {
+                endpoints[endpointKey] = [];
+              }
+              endpoints[endpointKey].push(doc);
+            });
+            grouped[category] = Object.values(endpoints);
+          });
+          apiDocsGroupedCache = grouped;
+          apiDocsCategoryListCache = Object.keys(grouped);
+          setCategories(grouped);
+          setCategoryList(Object.keys(grouped));
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, []);
+
+  return { docs, categories, categoryList, loading };
+}
+
+
 export default function ApiDocs() {
-    const [docs, setDocs] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { docs, categories, categoryList, loading } = useApiDocs();
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [categories, setCategories] = useState<Record<string, any[]>>({});
-    const [categoryList, setCategoryList] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [filteredDocs, setFilteredDocs] = useState<any[]>([]);
-
-    useEffect(() => {
-        fetch(API_URL + "/describe")
-            .then((res) => res.json())
-            .then((data) => {
-                setDocs(data);
-
-                // Group docs by category and then by endpoint
-                const grouped = data.reduce((acc: Record<string, any[]>, doc: any) => {
-                    const cat = doc.category || "Uncategorized";
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(doc);
-                    return acc;
-                }, {});
-
-                // Further group by endpoint
-                Object.keys(grouped).forEach(category => {
-                    const endpoints: Record<string, any[]> = {};
-                    grouped[category].forEach((doc: any) => {
-                        const endpointKey = doc.method + ' ' + doc.endpoint;
-                        if (!endpoints[endpointKey]) {
-                            endpoints[endpointKey] = [];
-                        }
-                        endpoints[endpointKey].push(doc);
-                    });
-                    grouped[category] = Object.values(endpoints);
-                });
-
-                setCategories(grouped);
-                setCategoryList(Object.keys(grouped));
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-        // document.title = "Api Docs | Croissant";
-    }, []);
 
     useEffect(() => {
         // Filter docs based on searchTerm

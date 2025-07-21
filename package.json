@@ -4,7 +4,7 @@
   "description": "template",
   "main": "server/serve.js",
   "scripts": {
-    "dev": "next dev --port=8580",
+    "dev": "next dev --port=8580 --turbopack",
     "build": "next build",
     "start": "next start --port=8580",
     "test": "react-scripts test --env=jsdom",
