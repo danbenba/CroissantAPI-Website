@@ -414,7 +414,7 @@ export default function NavBar() {
                               )?.username || "Me"}
                               {user.studios.find(
                                 (studio) => studio.user_id === role
-                              )?.verified && (
+                              )?.verified ? (
                                 <span style={{ color: "#8fa1c7" }}>
                                   <img
                                     src="/assets/brand-verified-mark.png"
@@ -429,7 +429,7 @@ export default function NavBar() {
                                     }}
                                   />
                                 </span>
-                              )}
+                              ) : null}
                             </span>
                           </button>
                         ))}
