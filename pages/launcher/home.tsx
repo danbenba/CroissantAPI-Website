@@ -47,9 +47,10 @@ const Library: React.FC = () => {
     const [showFetchError, setShowFetchError] = useState(false);
     const [search, setSearch] = useState("");
 
-    const { user } = useAuth(); // Assuming useAuth is defined and provides user info
+    const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
 
     useEffect(() => {
+        if(!token) return;
         fetch(myUrl + "/list", {
             method: "GET",
             headers: {
@@ -69,10 +70,24 @@ const Library: React.FC = () => {
                 setLoading(false);
             })
             .catch((err) => {
-                setError(err.message);
-                setShowFetchError(true);
-                setLoading(false);
-                setTimeout(() => setShowFetchError(false), 4000);
+                fetch('/api/games/list/@me', {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }).then(async (res) => {
+                    if (!res.ok) throw new Error("Failed to fetch games from API");
+                    return res.json();
+                }).then((data) => {
+                    setGames(data);
+                    const lastGameId = localStorage.getItem("lastSelectedGameId");
+                    const lastGame = data.find((g: Game) => g.gameId === lastGameId);
+                    setSelected(lastGame || data[0] || null);
+                    setLoading(false);
+                }).catch((err) => {
+                    setError(err.message);
+                });
             });
     }, []);
 
