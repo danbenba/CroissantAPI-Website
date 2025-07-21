@@ -27,6 +27,17 @@ interface Game {
   iconHash?: string;
 }
 
+// Item type for search results
+interface Item {
+  itemId: string;
+  name: string;
+  description: string;
+  owner: string;
+  price: number;
+  iconHash?: string;
+  showInStore?: boolean;
+}
+
 /**
  * Search page for users.
  * Fetches and displays users matching the search query.
@@ -34,6 +45,7 @@ interface Game {
 const SearchPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [games, setGames] = useState<Game[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -75,12 +87,100 @@ const SearchPage: React.FC = () => {
       .then((res) => res.json())
       .then((data) => setGames(Array.isArray(data) ? data : []))
       .catch(() => setGames([]));
+
+    // Fetch items (from ItemController)
+    fetch(`${API_ENDPOINT}/items/search?q=${encodeURIComponent(query)}`)
+      .then((res) => res.json())
+      .then((data) => setItems(Array.isArray(data) ? data : []))
+      .catch(() => setItems([]));
   }, [query, token]);
+
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [buyLoading, setBuyLoading] = useState(false);
+  const [buyError, setBuyError] = useState<string | null>(null);
+  const [buySuccess, setBuySuccess] = useState<string | null>(null);
+
+  // Buy handler
+  const handleBuy = (item: Item) => {
+    setSelectedItem(item);
+    setBuyModalOpen(true);
+    setBuyError(null);
+    setBuySuccess(null);
+  };
+  const handleBuySubmit = async (amount: number) => {
+    if (!selectedItem) return;
+    setBuyLoading(true);
+    setBuyError(null);
+    setBuySuccess(null);
+    try {
+      const res = await fetch(`/api/items/buy/${selectedItem.itemId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to buy item");
+      setBuySuccess("Item purchased!");
+      setBuyModalOpen(false);
+    } catch (e: any) {
+      setBuyError(e.message);
+    } finally {
+      setBuyLoading(false);
+    }
+  };
 
   if (!query) {
     return (
       <div className="search-container">
         <div className="search-header">Please enter a search query.</div>
+      </div>
+    );
+  }
+
+  // ItemBuyModal: Modal for buying an item from search
+  function ItemBuyModal({ open, onClose, onBuy, item }: { open: boolean; onClose: () => void; onBuy: (amount: number) => void; item: Item | null }) {
+    const [amount, setAmount] = useState(1);
+    useEffect(() => { if (open) setAmount(1); }, [open]);
+    if (!open || !item) return null;
+    return (
+      <div className="shop-prompt-overlay">
+        <div className="shop-prompt">
+          <div className="shop-prompt-item-details">
+            <img
+              src={"/items-icons/" + (item.iconHash || item.itemId)}
+              alt={item.name}
+              className="shop-prompt-item-img"
+            />
+            <div className="shop-prompt-item-info">
+              <div className="shop-prompt-item-name">{item.name}</div>
+              <div className="shop-prompt-item-desc">{item.description}</div>
+              <div className="shop-prompt-item-price">
+                Price: {item.price}
+                <img src="/credit.png" className="shop-credit-icon" />
+              </div>
+            </div>
+          </div>
+          <div className="shop-prompt-message">Buy how many "{item.name}"?</div>
+          <div className="shop-prompt-amount">
+            <input
+              type="number"
+              min={1}
+              value={amount}
+              onChange={e => setAmount(Math.max(1, Number(e.target.value)))}
+              className="shop-prompt-amount-input"
+            />
+            <span className="shop-prompt-amount-total">
+              Total: {amount * (item.price || 0)}
+              <img src="/credit.png" className="shop-credit-icon" />
+            </span>
+          </div>
+          <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>Buy</button>
+          <button className="shop-prompt-cancel-btn" onClick={onClose}>Cancel</button>
+        </div>
       </div>
     );
   }
@@ -172,6 +272,53 @@ const SearchPage: React.FC = () => {
           </div>
         </>
       )}
+      {/* Section Items */}
+      {items.length > 0 && (
+        <>
+          <h1 className="search-title" style={{ marginTop: 40 }}>Items</h1>
+          <div className="search-items-grid">
+            {items.map((item) => (
+              <Link
+                key={item.itemId}
+                href={"about:blank"}
+                onClick={e => {
+                  e.preventDefault();
+                  handleBuy(item);
+                }}
+                style={{ textDecoration: "none" }}
+              >
+                <div
+                  className="search-item-card"
+                  tabIndex={0}
+                  onMouseOver={e => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.28)")}
+                  onMouseOut={e => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)")}
+                  style={{ display: "flex", alignItems: "center", gap: 18, padding: 16, borderRadius: 12, background: "var(--background-medium)", marginBottom: 18, border: "2px solid var(--border-color)" }}
+                >
+                  <img
+                    src={`/items-icons/${(item?.iconHash || item.itemId) ? (item.iconHash || item.itemId) : "default.png"}`}
+                    alt={item.name}
+                    className="search-item-icon"
+                    style={{ width: 64, height: 64, objectFit: "contain", borderRadius: 12, background: "#23232a", border: "2px solid #888" }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 20, color: "var(--text-color-primary)" }}>{item.name}</div>
+                    <div style={{ color: "var(--text-color-secondary)", fontSize: 15 }}>{item.description}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
+                      <span style={{ color: "var(--gold-color)", fontWeight: 700, fontSize: 16 }}>{item.price} <img src="/credit.png" alt="credits" style={{ width: 18, verticalAlign: "middle" }} /></span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+      {/* Item Buy Modal */}
+      <ItemBuyModal open={buyModalOpen} onClose={() => setBuyModalOpen(false)} onBuy={handleBuySubmit} item={selectedItem} />
+      {/* Buy feedback overlays */}
+      {buyLoading && <div className="shop-alert-overlay"><div className="shop-alert"><div>Buying item...</div></div></div>}
+      {buyError && <div className="shop-alert-overlay"><div className="shop-alert"><div style={{ color: 'red' }}>{buyError}</div><button className="shop-alert-ok-btn" onClick={() => setBuyError(null)}>OK</button></div></div>}
+      {buySuccess && <div className="shop-alert-overlay"><div className="shop-alert"><div>{buySuccess}</div><button className="shop-alert-ok-btn" onClick={() => setBuySuccess(null)}>OK</button></div></div>}
     </div>
   );
 };
