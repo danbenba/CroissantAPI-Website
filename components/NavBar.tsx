@@ -49,12 +49,15 @@ function useNavBarResponsive() {
   const logoSpanStyle: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
-    fontFamily: "monospace",
     fontWeight: 900,
+    position: "relative",
+    top: isMobile ? 2 : 0,
   };
   const logoImgStyle: React.CSSProperties = {
     width: isMobile ? 22 : 28,
     height: isMobile ? 22 : 28,
+    position: "relative",
+    top: isMobile ? 0 : -4,
     verticalAlign: "middle",
     marginRight: 6,
   };
@@ -107,6 +110,14 @@ function useNavBarResponsive() {
     cursor: "pointer",
     fontSize: isMobile ? 13 : 15,
   };
+  const logoGroupStyle: React.CSSProperties = {
+    // display: "flex",
+    // alignItems: "center",
+    // flexDirection: "column",
+    // gap: 8,
+    marginRight: isMobile ? 0 : 20,
+    marginBottom: isMobile ? 10 : 0,
+  };
   return {
     headerStyle,
     containerStyle,
@@ -120,6 +131,8 @@ function useNavBarResponsive() {
     userBlockStyle,
     avatarStyle,
     logoutBtnStyle,
+    logoGroupStyle,
+    isMobile,
   };
 }
 import useAuth from "../hooks/useAuth";
@@ -165,19 +178,13 @@ export default function NavBar() {
     userBlockStyle,
     avatarStyle,
     logoutBtnStyle,
+    logoGroupStyle,
   } = useNavBarResponsive();
   return (
     <header style={{ ...headerStyle, display: show }}>
       <div style={containerStyle}>
         <div style={rowStyle}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: !isMobile ? "flex-start" : "center",
-              minWidth: 0,
-            }}
-          >
+          <div style={logoGroupStyle}>
             <Link style={{ ...logoStyle }} href="/" legacyBehavior>
               <span
                 style={{
@@ -189,7 +196,7 @@ export default function NavBar() {
                   alt="Croissant Logo"
                   style={logoImgStyle}
                 />
-                Croissant
+                <div style={logoSpanStyle}>Croissant</div>
               </span>
             </Link>
           </div>
@@ -440,6 +447,14 @@ export default function NavBar() {
               )}
               {!loading && user ? (
                 <div style={userBlockStyle}>
+                  <Link href="/buy-credits" style={{ textDecoration: "none" }}>
+                    <div className="navbar-credits">
+                      <img src="/credit.png" className="navbar-credit-img" />
+                      <div className="navbar-balance">
+                        <span id="my-balance">{user?.balance}</span>
+                      </div>
+                    </div>
+                  </Link>
                   <Link href="/profile" legacyBehavior>
                     <a>
                       <img
@@ -468,14 +483,6 @@ export default function NavBar() {
                   >
                     <span style={{ fontSize: 12 }}>▼</span>
                   </button>
-                  <Link href="/buy-credits" style={{ textDecoration: "none" }}>
-                    <div className="navbar-credits">
-                      <img src="/credit.png" className="navbar-credit-img" />
-                      <div className="navbar-balance">
-                        <span id="my-balance">{user?.balance}</span>
-                      </div>
-                    </div>
-                  </Link>
                   <button
                     onClick={handleLogout}
                     style={logoutBtnStyle}
