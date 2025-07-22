@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   oauthBtn.style = style =
     "display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:1rem;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;";
   oauthBtn.addEventListener("click", () => {
-    const clientId = oauthBtn.getAttribute("client_id");
+    const clientId = oauthBtn.getAttribute("data-client_id");
     const redirectUri = location.origin;
     // console.log("OAuth2 button clicked", clientId);
     page = window.open(
@@ -26,7 +26,7 @@ function lookForCode() {
     if (code) {
       page.close();
       const oauthBtn = document.querySelector(".croissant-oauth2-btn");
-      const clientId = oauthBtn.getAttribute("client_id");
+      const clientId = oauthBtn.getAttribute("data-client_id");
       fetch(
         `${croissantWebsiteOrigin}/api/oauth2/user?code=${code}&client_id=${clientId}`
       )

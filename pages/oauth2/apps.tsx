@@ -160,7 +160,7 @@ export default function OAuth2Apps() {
     setIframeCode(
       `<script src="https://croissant-api.fr/oauth2/script.js"></script>
 <button 
-  client_id="${client_id}"
+  data-client_id="${client_id}"
   class="croissant-oauth2-btn">
   <img src="https://croissant-api.fr/assets/icons/favicon-32x32.png" alt="icon"/>
   Login with Croissant

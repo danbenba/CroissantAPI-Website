@@ -117,22 +117,37 @@ export default function OAuth2Demo() {
         <br />
         2. Click the button below to start authentication:
       </p>
+      {/* Croissant OAuth2 Button via external script */}
+      <script src="https://croissant-api.fr/oauth2/script.js"></script>
       <button
-        style={oauthBtnStyle}
-        onMouseOver={(e) => (e.currentTarget.style.background = "#444")}
-        onMouseOut={(e) => (e.currentTarget.style.background = "#333")}
-        onClick={() => {
-          window.open(
-            window.location.origin +
-              "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
-            "_blank",
-            "width=428,height=320"
-          );
-        }}
+        data-client_id="2b90be46-3fdb-45f1-98bd-081b70cc3d9f"
+        className="croissant-oauth2-btn"
       >
-        <img src="/assets/icons/favicon-32x32.png" alt="icon" style={oauthBtnImgStyle} />
-        <span style={oauthBtnSpanStyle}>Connect with OAuth2</span>
+        <img
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+          alt="icon"
+          style={oauthBtnImgStyle}
+        />
+        Connect with Croissant
       </button>
+
+      {/* Manual OAuth2 Button */}
+      {/* <button
+      style={oauthBtnStyle}
+      onMouseOver={(e) => (e.currentTarget.style.background = "#444")}
+      onMouseOut={(e) => (e.currentTarget.style.background = "#333")}
+      onClick={() => {
+        window.open(
+        window.location.origin +
+          "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
+        "_blank",
+        "width=428,height=320"
+        );
+      }}
+      >
+      <img src="/assets/icons/favicon-32x32.png" alt="icon" style={oauthBtnImgStyle} />
+      <span style={oauthBtnSpanStyle}>Connect with OAuth2</span>
+      </button> */}
 
       <h2 style={resultTitleStyle}>Expected result</h2>
       <img
