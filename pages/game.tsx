@@ -1,6 +1,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
+import useAuth from "../hooks/useAuth";
 
 const endpoint = "/api";
 
@@ -10,6 +11,10 @@ const GamePage: React.FC = () => {
   const [game, setGame] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const router = useRouter();
+  const { token } = useAuth();
+  const [prompt, setPrompt] = React.useState<string | null>(null);
+  const [alert, setAlert] = React.useState<string | null>(null);
+  const [buying, setBuying] = React.useState(false);
 
   React.useEffect(() => {
     fetch(endpoint + "/games/" + gameId)
@@ -47,6 +52,33 @@ const GamePage: React.FC = () => {
     );
   }
   if (!game) return <div>Game not found.</div>;
+
+  // Buy game logic
+  const handleBuyGame = async () => {
+    if (!game) return;
+    setPrompt(`Buy "${game.name}"?\nPrice: ${game.price}`);
+  };
+
+  const confirmBuy = async () => {
+    setPrompt(null);
+    setBuying(true);
+    try {
+      const res = await fetch(`${endpoint}/games/${game.gameId}/buy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || ""}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to buy game");
+      setAlert("Purchase successful!");
+    } catch (err: any) {
+      setAlert(err.message);
+    } finally {
+      setBuying(false);
+    }
+  };
 
   return (
     <div className="main-details-steam gamepage-root">
@@ -100,14 +132,59 @@ const GamePage: React.FC = () => {
             </div>
           )}
           {game.price !== undefined && (
-            <div>
-              <b>Price:</b> {game.price}{" "}
-              <img src="/assets/credit.png" className="gamepage-credit-icon" />
+            <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "16px 0" }}>
+              <div>
+                <b>Price:</b> {game.price}{" "}
+                <img src="/assets/credit.png" className="gamepage-credit-icon" />
+              </div>
+              <button
+                className="shop-game-buy-btn"
+                style={{
+                  padding: "10px 32px",
+                  fontSize: 16,
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  background: "#4caf50",
+                  color: "var(--text-color-primary)",
+                  border: "none",
+                  cursor: buying ? "not-allowed" : "pointer",
+                  opacity: buying ? 0.7 : 1,
+                }}
+                onClick={handleBuyGame}
+                disabled={buying}
+              >
+                Buy
+              </button>
             </div>
           )}
         </div>
         {/* Add more details or actions as needed */}
       </div>
+      {/* Prompt overlay */}
+      {prompt && (
+        <div className="shop-prompt-overlay">
+          <div className="shop-prompt">
+            <div className="shop-prompt-message">{prompt}</div>
+            <button className="shop-prompt-buy-btn" onClick={confirmBuy} disabled={buying}>
+              Buy
+            </button>
+            <button className="shop-prompt-cancel-btn" onClick={() => setPrompt(null)} disabled={buying}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Alert overlay */}
+      {alert && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div className="shop-alert-message">{alert}</div>
+            <button className="shop-alert-ok-btn" onClick={() => setAlert(null)}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
