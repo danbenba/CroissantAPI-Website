@@ -161,8 +161,12 @@ export default function OAuth2Apps() {
       `<script src="https://croissant-api.fr/oauth2/script.js"></script>
 <button 
   data-client_id="${client_id}"
+  data-callback="function(user) { console.log('User data:', user); }"
   class="croissant-oauth2-btn">
-  <img src="https://croissant-api.fr/assets/icons/favicon-32x32.png" alt="icon"/>
+  <img
+    src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+    alt="icon"
+  />
   Login with Croissant
 </button>`
     );
