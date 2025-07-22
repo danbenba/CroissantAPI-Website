@@ -2,71 +2,80 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function Footer() {
-    const [show, setShow] = useState("");
-    const [footerPosition, setFooterPosition] = useState<"relative" | "absolute">("relative");
+  const [show, setShow] = useState("");
+  const [footerPosition, setFooterPosition] = useState<"relative" | "absolute">(
+    "relative"
+  );
 
-    useEffect(() => {
-        if (
-            window.location.href.startsWith(window.location.origin + "/oauth2/auth") ||
-            window.location.href.startsWith(window.location.origin + "/api-docs")
-        ) {
-            setShow("none");
-        } else {
-            setShow("");
-        }
+  useEffect(() => {
+    if (
+      window.location.href.startsWith(
+        window.location.origin + "/oauth2/auth"
+      ) ||
+      window.location.href.startsWith(window.location.origin + "/api-docs")
+    ) {
+      setShow("none");
+    } else {
+      setShow("");
+    }
 
-        const checkFooterPosition = () => {
-            // console.log("Checking footer position...");
-            // Si la hauteur du contenu est inférieure ou égale à la fenêtre, footer en absolute
-            if (document.body.scrollHeight <= window.innerHeight) {
-                setFooterPosition("absolute");
-            } else {
-                setFooterPosition("relative");
-            }
+    const checkFooterPosition = () => {
+      if (document.body.scrollHeight <= window.innerHeight) {
+        setFooterPosition("absolute");
+      } else {
+        setFooterPosition("relative");
+      }
 
-            requestAnimationFrame(checkFooterPosition);
-        };
+      requestAnimationFrame(checkFooterPosition);
+    };
 
-        checkFooterPosition();
-        // const handleResize = () => {
-        //     requestAnimationFrame(checkFooterPosition);
-        // };
+    checkFooterPosition();
 
+    return () => {
+      window.removeEventListener("resize", checkFooterPosition);
+    };
+  }, []);
 
-        // window.addEventListener("resize", handleResize);
-        // window.addEventListener("popstate", handleResize);
-        // window.addEventListener("pushstate", handleResize);
-        // window.addEventListener("replacestate", handleResize);
-
-        return () => {
-            window.removeEventListener("resize", checkFooterPosition);
-        };
-    }, []);
-
-    return (
-        <footer
-            style={{
-                display: show,
-                width: "100%",
-                background: "#191b20",
-                color: "#bdbdbd",
-                fontSize: "0.92rem",
-                textAlign: "center",
-                padding: "1.4rem 0 1.2rem 0",
-                borderTop: "1px solid #23242a",
-                position: footerPosition,
-                bottom: 0,
-                left: 0
-            }}
+  return (
+    <footer
+      style={{
+        display: show,
+        width: "100%",
+        background: "#191b20",
+        color: "#bdbdbd",
+        fontSize: "0.92rem",
+        textAlign: "center",
+        padding: "1.4rem 0 1.2rem 0",
+        borderTop: "1px solid #23242a",
+        position: footerPosition,
+        bottom: 0,
+        left: 0,
+      }}
+    >
+      <span style={{ marginRight: 8 }}>Copyright © 2025 Croissant API</span>
+      <Link href="/tos" legacyBehavior>
+        <a
+          style={{
+            color: "#8fa1c7",
+            textDecoration: "none",
+            margin: "0 0.5rem",
+          }}
         >
-            <span style={{ marginRight: 8 }}>Copyright © 2025 Croissant API</span>
-            <Link href="/tos" legacyBehavior>
-                <a style={{ color: "#8fa1c7", textDecoration: "none", margin: "0 0.5rem" }}>Terms</a>
-            </Link>
-            <span style={{ color: "#444" }}>|</span>
-            <Link href="/privacy" legacyBehavior>
-                <a style={{ color: "#8fa1c7", textDecoration: "none", margin: "0 0.5rem" }}>Privacy</a>
-            </Link>
-        </footer>
-    );
+          Terms
+        </a>
+      </Link>
+      <span style={{ color: "#444" }}>|</span>
+      <Link href="/privacy" legacyBehavior>
+        <a
+          style={{
+            color: "#8fa1c7",
+            textDecoration: "none",
+            margin: "0 0.5rem",
+          }}
+        >
+          Privacy
+        </a>
+      </Link>
+    </footer>
+  );
 }
