@@ -75,11 +75,10 @@ const resultTitleStyle: React.CSSProperties = {
   marginTop: 32,
 };
 const resultImgStyle: React.CSSProperties = {
-  display: "block",
-  margin: "32px auto 0 auto",
   maxWidth: "100%",
   borderRadius: 12,
   boxShadow: "0 2px 12px rgba(58,143,220,0.08)",
+  textAlign: "left"
 };
 
 export default function OAuth2Demo() {
@@ -94,28 +93,12 @@ export default function OAuth2Demo() {
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>Croissant OAuth2 Integration Example</h1>
-      <p style={descStyle}>
-        Here is a minimal Node.js server example to test OAuth2 authentication
-        with the Croissant API.
-        <br />
-        Download the script, run it, then follow the authentication flow to get
-        user information.
-      </p>
-      <a
-        href={OAUTH2_SERVER_URL}
-        download
-        style={downloadLinkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.background = "#2563eb")}
-        onMouseOut={(e) => (e.currentTarget.style.background = "#3a8fdc")}
-      >
-        📥 Download the example Node.js server
-      </a>
 
       <h2 style={demoTitleStyle}>OAuth2 Demo</h2>
       <p style={demoDescStyle}>
-        1. Start the downloaded Node.js server.
-        <br />
-        2. Click the button below to start authentication:
+        Open the console to see the OAuth2 flow in action. This example
+        demonstrates how to authenticate users with Croissant's OAuth2 service.
+        Just click the button below to start authentication:
       </p>
       {/* Croissant OAuth2 Button via external script */}
       <button
@@ -185,25 +168,12 @@ export default function OAuth2Demo() {
         Connect with Croissant
       </button>
 
-      {/* Manual OAuth2 Button */}
-      {/* <button
-      style={oauthBtnStyle}
-      onMouseOver={(e) => (e.currentTarget.style.background = "#444")}
-      onMouseOut={(e) => (e.currentTarget.style.background = "#333")}
-      onClick={() => {
-        window.open(
-        window.location.origin +
-          "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
-        "_blank",
-        "width=428,height=320"
-        );
-      }}
-      >
-      <img src="/assets/icons/favicon-32x32.png" alt="icon" style={oauthBtnImgStyle} />
-      <span style={oauthBtnSpanStyle}>Connect with OAuth2</span>
-      </button> */}
-
       <h2 style={resultTitleStyle}>Expected result</h2>
+      <p>
+        After clicking the button, a popup will open for authentication. Once
+        you log in, the popup will close and the user data will be logged in the
+        console.
+      </p>
       <img
         src={OAUTH2_RESULT_IMG}
         alt="Expected result of OAuth2 authentication"
