@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 
-
 // --- Style constants ---
 const popupContainerStyle: React.CSSProperties = {
-//   minWidth: 340, 
+  //   minWidth: 340,
   minHeight: 180,
   margin: "0 auto",
   marginTop: 0,
@@ -110,7 +109,10 @@ const redirectInfoBottomStyle: React.CSSProperties = {
 };
 
 export default function OAuth2Auth() {
-  const [params, setParams] = useState<{ client_id?: string; redirect_uri?: string }>({});
+  const [params, setParams] = useState<{
+    client_id?: string;
+    redirect_uri?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userFromApp, setUserFromApp] = useState<any | null>(null);
@@ -140,14 +142,18 @@ export default function OAuth2Auth() {
   }, [token]);
 
   const handleLogin = () => {
-    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    window.location.href = `/login?redirect=${encodeURIComponent(
+      window.location.pathname + window.location.search
+    )}`;
   };
 
   const handleAuth = async () => {
     setLoading(true);
     setError(null);
     try {
-      const url = `/api/oauth2/authorize?client_id=${encodeURIComponent(params.client_id!)}&redirect_uri=${encodeURIComponent(params.redirect_uri!)}`;
+      const url = `/api/oauth2/authorize?client_id=${encodeURIComponent(
+        params.client_id!
+      )}&redirect_uri=${encodeURIComponent(params.redirect_uri!)}`;
       const res = await fetch(url, {
         credentials: "include",
         headers: {
@@ -162,7 +168,9 @@ export default function OAuth2Auth() {
         return;
       }
       const data = await res.json();
-      window.location.href = `${params.redirect_uri}?code=${encodeURIComponent(data.code)}`;
+      window.location.href = `${params.redirect_uri}?code=${encodeURIComponent(
+        data.code
+      )}`;
     } catch (e) {
       setError("Network error.");
       setLoading(false);
@@ -179,7 +187,11 @@ export default function OAuth2Auth() {
         <img src={"/favicon.png"} alt="App avatar" style={appAvatarStyle} />
         <div>
           <div style={appDescStyle}>
-            Do you want to authorize <b style={{ color: "white" }}>{userFromApp?.name || "Unknown application"}</b> to access your user data?
+            Do you want to authorize{" "}
+            <b style={{ color: "white" }}>
+              {userFromApp?.name || "Unknown application"}
+            </b>{" "}
+            to access your user data?
           </div>
         </div>
       </div>
@@ -187,7 +199,9 @@ export default function OAuth2Auth() {
       {/* Bouton déplacé en bas */}
       <div style={btnBottomStyle}>
         {!authLoading && !user && (
-          <button style={oauthBtnLoginStyle} onClick={handleLogin}>Log in</button>
+          <button style={oauthBtnLoginStyle} onClick={handleLogin}>
+            Log in
+          </button>
         )}
         {!authLoading && user && (
           <button

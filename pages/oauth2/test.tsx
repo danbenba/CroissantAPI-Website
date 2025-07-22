@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 
 const OAUTH2_SERVER_URL = "/downloadables/oauth2-test-server.js";
 const OAUTH2_RESULT_IMG = "/assets/oauth2_result.png";
-
 
 // --- Style constants ---
 const containerStyle: React.CSSProperties = {
@@ -89,7 +87,7 @@ export default function OAuth2Demo() {
 
   useEffect(() => {
     fetch(OAUTH2_SERVER_URL)
-      .then(r => r.text())
+      .then((r) => r.text())
       .then(setServerCode);
   }, []);
 
@@ -97,38 +95,42 @@ export default function OAuth2Demo() {
     <div style={containerStyle}>
       <h1 style={titleStyle}>Croissant OAuth2 Integration Example</h1>
       <p style={descStyle}>
-        Here is a minimal Node.js server example to test OAuth2 authentication with the Croissant API.<br />
-        Download the script, run it, then follow the authentication flow to get user information.
+        Here is a minimal Node.js server example to test OAuth2 authentication
+        with the Croissant API.
+        <br />
+        Download the script, run it, then follow the authentication flow to get
+        user information.
       </p>
       <a
         href={OAUTH2_SERVER_URL}
         download
         style={downloadLinkStyle}
-        onMouseOver={e => (e.currentTarget.style.background = "#2563eb")}
-        onMouseOut={e => (e.currentTarget.style.background = "#3a8fdc")}
+        onMouseOver={(e) => (e.currentTarget.style.background = "#2563eb")}
+        onMouseOut={(e) => (e.currentTarget.style.background = "#3a8fdc")}
       >
         📥 Download the example Node.js server
       </a>
 
       <h2 style={demoTitleStyle}>OAuth2 Demo</h2>
-      <p style={demoDescStyle}>1. Start the downloaded Node.js server.<br />2. Click the button below to start authentication:</p>
+      <p style={demoDescStyle}>
+        1. Start the downloaded Node.js server.
+        <br />
+        2. Click the button below to start authentication:
+      </p>
       <button
         style={oauthBtnStyle}
-        onMouseOver={e => (e.currentTarget.style.background = "#444")}
-        onMouseOut={e => (e.currentTarget.style.background = "#333")}
+        onMouseOver={(e) => (e.currentTarget.style.background = "#444")}
+        onMouseOut={(e) => (e.currentTarget.style.background = "#333")}
         onClick={() => {
           window.open(
-            window.location.origin + "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
+            window.location.origin +
+              "/oauth2/auth?client_id=2b90be46-3fdb-45f1-98bd-081b70cc3d9f&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcroissant-oauth",
             "_blank",
             "width=428,height=320"
           );
         }}
       >
-        <img
-          src="/favicon.png"
-          alt="icon"
-          style={oauthBtnImgStyle}
-        />
+        <img src="/favicon.png" alt="icon" style={oauthBtnImgStyle} />
         <span style={oauthBtnSpanStyle}>Connect with OAuth2</span>
       </button>
 
