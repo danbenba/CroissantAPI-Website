@@ -22,12 +22,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (bannerPath && fs.existsSync(bannerPath)) {
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(bannerPath).pipe(res);
   } else {
     const fallbackPath = path.join(process.cwd(), "public", "Generic-Banner-03-blue-Game.png");
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(fallbackPath).pipe(res);
   }
 }

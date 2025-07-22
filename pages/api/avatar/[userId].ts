@@ -24,13 +24,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (fs.existsSync(avatarPath)) {
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(avatarPath).pipe(res);
   } else {
     // Fallback: avatar par défaut
     const fallbackPath = path.join(process.cwd(), "public", "default-avatar.png");
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(fallbackPath).pipe(res);
   }
 }

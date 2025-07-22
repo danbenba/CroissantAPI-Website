@@ -22,12 +22,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (iconPath && fs.existsSync(iconPath)) {
     res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(iconPath).pipe(res);
   } else {
     const fallbackPath = path.join(process.cwd(), "public", "System_Shop.webp");
     res.setHeader("Content-Type", "image/webp");
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(fallbackPath).pipe(res);
   }
 }
