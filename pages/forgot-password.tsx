@@ -13,17 +13,17 @@ const containerStyle: React.CSSProperties = {
   color: "#fff",
   display: "flex",
   flexDirection: "column",
-  alignItems: "center"
+  alignItems: "center",
 };
 
 const titleStyle: React.CSSProperties = {
-  marginBottom: 32
+  marginBottom: 32,
 };
 
 const infoTextStyle: React.CSSProperties = {
   marginTop: 24,
   color: "#aaa",
-  fontSize: 14
+  fontSize: 14,
 };
 
 export default function ForgotPassword() {
@@ -42,10 +42,11 @@ export default function ForgotPassword() {
       const res = await fetch("/api/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send reset email");
+      if (!res.ok)
+        throw new Error(data.message || "Failed to send reset email");
       setSuccess("Password reset email sent.");
     } catch (e: any) {
       setError(e.message);
@@ -59,11 +60,13 @@ export default function ForgotPassword() {
       <h2 style={titleStyle}>Forgot Password</h2>
       <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
+          <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
+            Email
+          </label>
           <input
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             style={{
               width: "240px",
               padding: "10px 12px",
@@ -71,7 +74,7 @@ export default function ForgotPassword() {
               border: "1px solid #444",
               background: "#18181c",
               color: "#fff",
-              fontSize: 16
+              fontSize: 16,
             }}
             autoComplete="email"
             required
@@ -89,21 +92,47 @@ export default function ForgotPassword() {
             fontSize: 16,
             fontWeight: 600,
             cursor: "pointer",
-            marginTop: 8
+            marginTop: 8,
           }}
           disabled={loading}
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
-        {error && <div style={{ color: "#ff5252", marginTop: 12 }}>{error}</div>}
-        {success && <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>}
+        {error && (
+          <div style={{ color: "#ff5252", marginTop: 12 }}>{error}</div>
+        )}
+        {success && (
+          <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>
+        )}
       </form>
-      <div style={{ ...infoTextStyle, width: "260px", maxWidth: 340, textAlign: "center" }}>
-        Enter your email address and we'll send you a link to reset your password.
+      <div
+        style={{
+          ...infoTextStyle,
+          width: "260px",
+          maxWidth: 340,
+          textAlign: "center",
+        }}
+      >
+        Enter your email address and we'll send you a link to reset your
+        password.
       </div>
-      <div style={{ width: "260px", maxWidth: 340, marginTop: 16, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+      <div
+        style={{
+          width: "260px",
+          maxWidth: 340,
+          marginTop: 16,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
         <span style={{ color: "#aaa", fontSize: 14, alignSelf: "center" }}>
-          <Link href="/login" style={{ color: "#8ab4f8", textDecoration: "none" }}>I just remembered my password</Link>
+          <Link
+            href="/login"
+            style={{ color: "#8ab4f8", textDecoration: "none" }}
+          >
+            I just remembered my password
+          </Link>
         </span>
       </div>
     </div>

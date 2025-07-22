@@ -53,7 +53,8 @@ const SearchPage: React.FC = () => {
   // Helper to check if the request is from the launcher
   const isFromLauncher = useCallback(() => {
     if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") || window.location.search.includes("from=launcher")
+    return window.location.pathname.startsWith("/launcher") ||
+      window.location.search.includes("from=launcher")
       ? "&from=launcher"
       : "";
   }, []);
@@ -61,7 +62,10 @@ const SearchPage: React.FC = () => {
   // Fetch users when query or token changes
   useEffect(() => {
     // if(!user) return;
-    fetch(`${API_ENDPOINT}/users${user?.admin ? "/admin" : ""}/search?q=${encodeURIComponent(query)}`,
+    fetch(
+      `${API_ENDPOINT}/users${
+        user?.admin ? "/admin" : ""
+      }/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
@@ -75,15 +79,13 @@ const SearchPage: React.FC = () => {
       .catch(() => setUsers([]));
 
     // Fetch games (en utilisant GameController côté API)
-    fetch(`${API_ENDPOINT}/games/search?q=${encodeURIComponent(query)}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
+    fetch(`${API_ENDPOINT}/games/search?q=${encodeURIComponent(query)}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => setGames(Array.isArray(data) ? data : []))
       .catch(() => setGames([]));
@@ -142,9 +144,21 @@ const SearchPage: React.FC = () => {
   }
 
   // ItemBuyModal: Modal for buying an item from search
-  function ItemBuyModal({ open, onClose, onBuy, item }: { open: boolean; onClose: () => void; onBuy: (amount: number) => void; item: Item | null }) {
+  function ItemBuyModal({
+    open,
+    onClose,
+    onBuy,
+    item,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onBuy: (amount: number) => void;
+    item: Item | null;
+  }) {
     const [amount, setAmount] = useState(1);
-    useEffect(() => { if (open) setAmount(1); }, [open]);
+    useEffect(() => {
+      if (open) setAmount(1);
+    }, [open]);
     if (!open || !item) return null;
     return (
       <div className="shop-prompt-overlay">
@@ -170,7 +184,7 @@ const SearchPage: React.FC = () => {
               type="number"
               min={1}
               value={amount}
-              onChange={e => setAmount(Math.max(1, Number(e.target.value)))}
+              onChange={(e) => setAmount(Math.max(1, Number(e.target.value)))}
               className="shop-prompt-amount-input"
             />
             <span className="shop-prompt-amount-total">
@@ -178,8 +192,12 @@ const SearchPage: React.FC = () => {
               <img src="/credit.png" className="shop-credit-icon" />
             </span>
           </div>
-          <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>Buy</button>
-          <button className="shop-prompt-cancel-btn" onClick={onClose}>Cancel</button>
+          <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>
+            Buy
+          </button>
+          <button className="shop-prompt-cancel-btn" onClick={onClose}>
+            Cancel
+          </button>
         </div>
       </div>
     );
@@ -204,8 +222,14 @@ const SearchPage: React.FC = () => {
                 <div
                   className="search-user-card"
                   tabIndex={0}
-                  onMouseOver={(e) => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.28)")}
-                  onMouseOut={(e) => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)")}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 4px 16px rgba(0,0,0,0.28)")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.18)")
+                  }
                 >
                   <img
                     src={`/avatar/${user.id}`}
@@ -213,15 +237,22 @@ const SearchPage: React.FC = () => {
                     className="search-user-avatar"
                   />
                   <div className="search-user-name">
-                    {user.username || user.username} {user?.verified ? (
+                    {user.username || user.username}{" "}
+                    {user?.verified ? (
                       <img
-                        src={!user.admin ? (user.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png") : "/assets/admin-mark.png"}
+                        src={
+                          !user.admin
+                            ? user.isStudio
+                              ? "/assets/brand-verified-mark.png"
+                              : "/assets/verified-mark.png"
+                            : "/assets/admin-mark.png"
+                        }
                         alt="Verified"
                         style={{
                           width: "16px",
                           height: "16px",
                           position: "relative",
-                          top: "2px"
+                          top: "2px",
                         }}
                       />
                     ) : null}
@@ -236,7 +267,9 @@ const SearchPage: React.FC = () => {
       {/* Section Games */}
       {games.length > 0 && (
         <>
-          <h1 className="search-title" style={{ marginTop: 40 }}>Games</h1>
+          <h1 className="search-title" style={{ marginTop: 40 }}>
+            Games
+          </h1>
           <div className="search-games-grid">
             {games.map((game) => (
               <Link
@@ -247,23 +280,103 @@ const SearchPage: React.FC = () => {
                 <div
                   className="search-game-card"
                   tabIndex={0}
-                  onMouseOver={(e) => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.28)")}
-                  onMouseOut={(e) => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)")}
-                  style={{ display: "flex", alignItems: "center", gap: 18, padding: 16, borderRadius: 12, background: "var(--background-medium)", marginBottom: 18, border: "2px solid var(--border-color)" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 4px 16px rgba(0,0,0,0.28)")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.18)")
+                  }
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 18,
+                    padding: 16,
+                    borderRadius: 12,
+                    background: "var(--background-medium)",
+                    marginBottom: 18,
+                    border: "2px solid var(--border-color)",
+                  }}
                 >
                   <img
-                    src={game.iconHash ? `/games-icons/${game.iconHash}` : "/games-icons/default.png"}
+                    src={
+                      game.iconHash
+                        ? `/games-icons/${game.iconHash}`
+                        : "/games-icons/default.png"
+                    }
                     alt={game.name}
                     className="search-game-icon"
-                    style={{ width: 64, height: 64, objectFit: "contain", borderRadius: 12, background: "#23232a", border: "2px solid #888" }}
+                    style={{
+                      width: 64,
+                      height: 64,
+                      objectFit: "contain",
+                      borderRadius: 12,
+                      background: "#23232a",
+                      border: "2px solid #888",
+                    }}
                   />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 20, color: "var(--text-color-primary)" }}>{game.name}</div>
-                    <div style={{ color: "var(--text-color-secondary)", fontSize: 15 }}>{game.genre}</div>
-                    <div style={{ color: "var(--text-color-secondary)", fontSize: 14, marginTop: 4, minHeight: 18, maxHeight: 36, overflow: "hidden", textOverflow: "ellipsis" }}>{game.description}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
-                      <span style={{ color: "var(--gold-color)", fontWeight: 700, fontSize: 16 }}>{game.price} <img src="/credit.png" alt="credits" style={{ width: 18, verticalAlign: "middle" }} /></span>
-                      <span style={{ color: "var(--text-color-secondary)", fontSize: 14 }}>Rating: {game.rating ?? "N/A"}</span>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 20,
+                        color: "var(--text-color-primary)",
+                      }}
+                    >
+                      {game.name}
+                    </div>
+                    <div
+                      style={{
+                        color: "var(--text-color-secondary)",
+                        fontSize: 15,
+                      }}
+                    >
+                      {game.genre}
+                    </div>
+                    <div
+                      style={{
+                        color: "var(--text-color-secondary)",
+                        fontSize: 14,
+                        marginTop: 4,
+                        minHeight: 18,
+                        maxHeight: 36,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {game.description}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        marginTop: 6,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "var(--gold-color)",
+                          fontWeight: 700,
+                          fontSize: 16,
+                        }}
+                      >
+                        {game.price}{" "}
+                        <img
+                          src="/credit.png"
+                          alt="credits"
+                          style={{ width: 18, verticalAlign: "middle" }}
+                        />
+                      </span>
+                      <span
+                        style={{
+                          color: "var(--text-color-secondary)",
+                          fontSize: 14,
+                        }}
+                      >
+                        Rating: {game.rating ?? "N/A"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -275,13 +388,15 @@ const SearchPage: React.FC = () => {
       {/* Section Items */}
       {items.length > 0 && (
         <>
-          <h1 className="search-title" style={{ marginTop: 40 }}>Items</h1>
+          <h1 className="search-title" style={{ marginTop: 40 }}>
+            Items
+          </h1>
           <div className="search-items-grid">
             {items.map((item) => (
               <Link
                 key={item.itemId}
                 href={"about:blank"}
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   handleBuy(item);
                 }}
@@ -290,21 +405,82 @@ const SearchPage: React.FC = () => {
                 <div
                   className="search-item-card"
                   tabIndex={0}
-                  onMouseOver={e => (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.28)")}
-                  onMouseOut={e => (e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.18)")}
-                  style={{ display: "flex", alignItems: "center", gap: 18, padding: 16, borderRadius: 12, background: "var(--background-medium)", marginBottom: 18, border: "2px solid var(--border-color)" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 4px 16px rgba(0,0,0,0.28)")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.18)")
+                  }
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 18,
+                    padding: 16,
+                    borderRadius: 12,
+                    background: "var(--background-medium)",
+                    marginBottom: 18,
+                    border: "2px solid var(--border-color)",
+                  }}
                 >
                   <img
-                    src={`/items-icons/${(item?.iconHash || item.itemId) ? (item.iconHash || item.itemId) : "default.png"}`}
+                    src={`/items-icons/${
+                      item?.iconHash || item.itemId
+                        ? item.iconHash || item.itemId
+                        : "default.png"
+                    }`}
                     alt={item.name}
                     className="search-item-icon"
-                    style={{ width: 64, height: 64, objectFit: "contain", borderRadius: 12, background: "#23232a", border: "2px solid #888" }}
+                    style={{
+                      width: 64,
+                      height: 64,
+                      objectFit: "contain",
+                      borderRadius: 12,
+                      background: "#23232a",
+                      border: "2px solid #888",
+                    }}
                   />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 20, color: "var(--text-color-primary)" }}>{item.name}</div>
-                    <div style={{ color: "var(--text-color-secondary)", fontSize: 15 }}>{item.description}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
-                      <span style={{ color: "var(--gold-color)", fontWeight: 700, fontSize: 16 }}>{item.price} <img src="/credit.png" alt="credits" style={{ width: 18, verticalAlign: "middle" }} /></span>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 20,
+                        color: "var(--text-color-primary)",
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                    <div
+                      style={{
+                        color: "var(--text-color-secondary)",
+                        fontSize: 15,
+                      }}
+                    >
+                      {item.description}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        marginTop: 6,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "var(--gold-color)",
+                          fontWeight: 700,
+                          fontSize: 16,
+                        }}
+                      >
+                        {item.price}{" "}
+                        <img
+                          src="/credit.png"
+                          alt="credits"
+                          style={{ width: 18, verticalAlign: "middle" }}
+                        />
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -314,11 +490,46 @@ const SearchPage: React.FC = () => {
         </>
       )}
       {/* Item Buy Modal */}
-      <ItemBuyModal open={buyModalOpen} onClose={() => setBuyModalOpen(false)} onBuy={handleBuySubmit} item={selectedItem} />
+      <ItemBuyModal
+        open={buyModalOpen}
+        onClose={() => setBuyModalOpen(false)}
+        onBuy={handleBuySubmit}
+        item={selectedItem}
+      />
       {/* Buy feedback overlays */}
-      {buyLoading && <div className="shop-alert-overlay"><div className="shop-alert"><div>Buying item...</div></div></div>}
-      {buyError && <div className="shop-alert-overlay"><div className="shop-alert"><div style={{ color: 'red' }}>{buyError}</div><button className="shop-alert-ok-btn" onClick={() => setBuyError(null)}>OK</button></div></div>}
-      {buySuccess && <div className="shop-alert-overlay"><div className="shop-alert"><div>{buySuccess}</div><button className="shop-alert-ok-btn" onClick={() => setBuySuccess(null)}>OK</button></div></div>}
+      {buyLoading && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div>Buying item...</div>
+          </div>
+        </div>
+      )}
+      {buyError && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div style={{ color: "red" }}>{buyError}</div>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setBuyError(null)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+      {buySuccess && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div>{buySuccess}</div>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setBuySuccess(null)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

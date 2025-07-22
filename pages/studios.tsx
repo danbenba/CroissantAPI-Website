@@ -1,11 +1,9 @@
 import React, { useState, useRef } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function StudiosPage() {
   const { user, token, setUser } = useAuth();
-  const router = useRouter();
   const [studioName, setStudioName] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,11 +17,6 @@ export default function StudiosPage() {
   const [addUserDropdownOpen, setAddUserDropdownOpen] = useState(false);
   const addUserInputRef = useRef<HTMLInputElement>(null);
   const [addUserError, setAddUserError] = useState<string | null>(null);
-
-  //   if (!user) {
-  //     if (typeof window !== "undefined") router.push("/login");
-  //     return null;
-  //   }
 
   const handleCreateStudio = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,8 +35,6 @@ export default function StudiosPage() {
         const data = await res.json();
         setError(data.message || "Error creating studio");
       } else {
-        // Refresh page or update user context
-        // window.location.reload();
         refreshStudiosList();
       }
     } catch (err) {

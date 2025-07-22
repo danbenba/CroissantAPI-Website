@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
@@ -13,7 +12,7 @@ const containerStyle: React.CSSProperties = {
   color: "#fff",
   display: "flex",
   flexDirection: "column",
-  alignItems: "center"
+  alignItems: "center",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -24,13 +23,13 @@ const inputStyle: React.CSSProperties = {
   background: "#18181c",
   color: "#fff",
   marginBottom: 18,
-  fontSize: 16
+  fontSize: 16,
 };
 
 const labelStyle: React.CSSProperties = {
   alignSelf: "flex-start",
   marginBottom: 6,
-  fontWeight: 600
+  fontWeight: 600,
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -43,7 +42,7 @@ const buttonStyle: React.CSSProperties = {
   fontSize: 16,
   fontWeight: 600,
   cursor: "pointer",
-  marginTop: 12
+  marginTop: 12,
 };
 
 const avatarStyle: React.CSSProperties = {
@@ -52,7 +51,7 @@ const avatarStyle: React.CSSProperties = {
   borderRadius: "50%",
   objectFit: "cover",
   marginBottom: 16,
-  border: "2px solid #444"
+  border: "2px solid #444",
 };
 
 const steamBtnStyle: React.CSSProperties = {
@@ -69,9 +68,8 @@ const steamBtnStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "12px"
+  gap: "12px",
 };
-
 
 export default function Settings() {
   const { user, token, setUser } = useAuth();
@@ -97,9 +95,9 @@ export default function Settings() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ username }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update username");
@@ -114,7 +112,9 @@ export default function Settings() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState(user?.id ? `/avatar/${user.id}` : "/avatar/default.png");
+  const [avatar, setAvatar] = useState(
+    user?.id ? `/avatar/${user.id}` : "/avatar/default.png"
+  );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -125,14 +125,22 @@ export default function Settings() {
   useEffect(() => {
     if (typeof window === "undefined" || !user) return;
     setLinkText(
-      typeof window !== "undefined" && window.location.search.includes("from=launcher") ? "Go on website to link" : "Link Steam Account"
+      typeof window !== "undefined" &&
+        window.location.search.includes("from=launcher")
+        ? "Go on website to link"
+        : "Link Steam Account"
     );
   }, [linkText]);
 
   useEffect(() => {
     if (typeof document == "undefined") return;
     setTimeout(() => {
-      if (document.querySelector("img[alt='Profile']")?.getAttribute("src")?.includes("default.png")) {
+      if (
+        document
+          .querySelector("img[alt='Profile']")
+          ?.getAttribute("src")
+          ?.includes("default.png")
+      ) {
         // Do something with the document
         console.log("Default avatar detected, setting to user avatar");
         router.push("/login");
@@ -158,7 +166,7 @@ export default function Settings() {
       const res = await fetch("/upload/avatar", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: formData
+        body: formData,
       });
       if (!res.ok) throw new Error("Failed to upload avatar");
       setSuccess("Profile picture updated!");
@@ -181,9 +189,9 @@ export default function Settings() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email }),
         });
         if (!res.ok) throw new Error("Failed to update email");
       }
@@ -199,12 +207,13 @@ export default function Settings() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ oldPassword, newPassword, confirmPassword })
+          body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to update password");
+        if (!res.ok)
+          throw new Error(data.message || "Failed to update password");
       }
       setSuccess("Settings updated!");
       setOldPassword("");
@@ -220,7 +229,13 @@ export default function Settings() {
   return (
     <div className="container" style={containerStyle}>
       <h2 style={{ marginBottom: 32 }}>Settings</h2>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <img
           src={avatar}
           alt="Profile"
@@ -236,14 +251,27 @@ export default function Settings() {
           onChange={handleAvatarChange}
         />
         {avatarFile && (
-          <button type="button" style={{ ...buttonStyle, marginTop: 8, background: "#444" }} onClick={handleAvatarUpload} disabled={loading}>
+          <button
+            type="button"
+            style={{ ...buttonStyle, marginTop: 8, background: "#444" }}
+            onClick={handleAvatarUpload}
+            disabled={loading}
+          >
             {loading ? "Uploading..." : "Upload new picture"}
           </button>
         )}
       </div>
       <div style={{ marginTop: 24 }}>
         <label style={labelStyle}>Username</label>
-        <form onSubmit={handleUsernameSave} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+        <form
+          onSubmit={handleUsernameSave}
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
           <input
             type="text"
             style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
@@ -255,15 +283,40 @@ export default function Settings() {
             required
             disabled={usernameLoading}
           />
-          <button type="submit" style={{ ...buttonStyle, width: "auto", padding: "8px 18px", marginTop: 0 }} disabled={usernameLoading}>
+          <button
+            type="submit"
+            style={{
+              ...buttonStyle,
+              width: "auto",
+              padding: "8px 18px",
+              marginTop: 0,
+            }}
+            disabled={usernameLoading}
+          >
             {usernameLoading ? "Saving..." : "Save"}
           </button>
         </form>
-        {usernameSuccess && <div style={{ color: "#4caf50", marginTop: 2 }}>{usernameSuccess}</div>}
-        {usernameError && <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>}
-      </div> {
-        user && !user?.isStudio? (<>
-          <div style={{ width: "100%", textAlign: "center", margin: "24px 0 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
+        {usernameSuccess && (
+          <div style={{ color: "#4caf50", marginTop: 2 }}>
+            {usernameSuccess}
+          </div>
+        )}
+        {usernameError && (
+          <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>
+        )}
+      </div>{" "}
+      {user && !user?.isStudio ? (
+        <>
+          <div
+            style={{
+              width: "100%",
+              textAlign: "center",
+              margin: "24px 0 16px 0",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
             <div style={{ flex: 1, height: 1, background: "#444" }} />
           </div>
           <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
@@ -273,7 +326,7 @@ export default function Settings() {
                 type="email"
                 style={inputStyle}
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 required
                 disabled={true}
@@ -285,7 +338,7 @@ export default function Settings() {
                 type="password"
                 style={inputStyle}
                 value={oldPassword}
-                onChange={e => setOldPassword(e.target.value)}
+                onChange={(e) => setOldPassword(e.target.value)}
                 autoComplete="current-password"
                 placeholder="Enter your current password"
               />
@@ -296,7 +349,7 @@ export default function Settings() {
                 type="password"
                 style={inputStyle}
                 value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
+                onChange={(e) => setNewPassword(e.target.value)}
                 autoComplete="new-password"
                 placeholder="Enter new password"
               />
@@ -307,7 +360,7 @@ export default function Settings() {
                 type="password"
                 style={inputStyle}
                 value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
                 placeholder="Confirm new password"
               />
@@ -319,11 +372,18 @@ export default function Settings() {
               <button
                 style={steamBtnStyle}
                 onClick={(event) => {
-                  if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+                  if (
+                    typeof window !== "undefined" &&
+                    window.location.search.includes("from=launcher")
+                  )
+                    return;
                   event.preventDefault();
                   router.push("/api/auth/steam");
                 }}
-                disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+                disabled={
+                  typeof window !== "undefined" &&
+                  window.location.search.includes("from=launcher")
+                }
               >
                 <span
                   className="fab fa-steam"
@@ -336,9 +396,15 @@ export default function Settings() {
               <button
                 style={steamBtnStyle}
                 onClick={(event) => {
-                  if (typeof window !== "undefined" && window.location.search.includes("from=launcher")) return;
+                  if (
+                    typeof window !== "undefined" &&
+                    window.location.search.includes("from=launcher")
+                  )
+                    return;
                   event.preventDefault();
-                  confirm("Are you sure you want to unlink your Steam account?") &&
+                  confirm(
+                    "Are you sure you want to unlink your Steam account?"
+                  ) &&
                     fetch("/api/users/unlink-steam", {
                       method: "POST",
                       headers: {
@@ -347,18 +413,31 @@ export default function Settings() {
                       },
                     })
                       .then((res) => {
-                        if (!res.ok) throw new Error("Failed to unlink Steam account");
+                        if (!res.ok)
+                          throw new Error("Failed to unlink Steam account");
                         return res.json();
                       })
                       .then((data) => {
-                        setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+                        setUser({
+                          ...user,
+                          steam_id: null,
+                          steam_username: null,
+                          steam_avatar_url: null,
+                        });
                       })
                       .catch((err) => setError(err.message));
                 }}
-                disabled={typeof window !== "undefined" && window.location.search.includes("from=launcher")}
+                disabled={
+                  typeof window !== "undefined" &&
+                  window.location.search.includes("from=launcher")
+                }
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
+                  <img
+                    src={user?.steam_avatar_url}
+                    alt="Steam Avatar"
+                    style={{ width: 32, height: 32, borderRadius: "20%" }}
+                  />
                   <span style={{ fontWeight: "normal" }}>
                     Linked as <b>{user?.steam_username}</b>
                   </span>
@@ -366,12 +445,15 @@ export default function Settings() {
               </button>
             )}
 
-            {success && <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>}
-            {error && <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>}
+            {success && (
+              <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>
+            )}
+            {error && (
+              <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>
+            )}
           </form>
-        </>) : null
-      }
-
+        </>
+      ) : null}
     </div>
   );
 }

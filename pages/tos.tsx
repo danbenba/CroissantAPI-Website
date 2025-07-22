@@ -10,15 +10,18 @@ const TermsOfService: React.FC = () => {
       <h2>Croissant - Terms of Service</h2>
       <div className="content">
         <p>
-          Welcome to Croissant! These Terms of Service govern your use of our inventory system, including our Discord bot, API, and web interface.
+          Welcome to Croissant! These Terms of Service govern your use of our
+          inventory system, including our Discord bot, API, and web interface.
         </p>
 
         <b>1. Service Usage</b>
         <p className="indent">
-          1.1. Our services are provided free of charge and are intended for managing virtual items in games.
+          1.1. Our services are provided free of charge and are intended for
+          managing virtual items in games.
         </p>
         <p className="indent">
-          1.2. You must use our services in accordance with Discord's Terms of Service when using our bot.
+          1.2. You must use our services in accordance with Discord's Terms of
+          Service when using our bot.
         </p>
 
         <b>2. Item Creation and Ownership</b>
@@ -26,7 +29,8 @@ const TermsOfService: React.FC = () => {
           2.1. Users can create and customize their own items using launcher.
         </p>
         <p className="indent">
-          2.2. Item creators receive 75% of the sale price when their items are sold.
+          2.2. Item creators receive 75% of the sale price when their items are
+          sold.
         </p>
         <p className="indent">
           2.3. We reserve the right to remove inappropriate or offensive items.
@@ -37,10 +41,13 @@ const TermsOfService: React.FC = () => {
           3.1. All trades must be confirmed by both parties to be completed.
         </p>
         <p className="indent">
-          3.2. Users are responsible for verifying trade details before confirmation.
+          3.2. Users are responsible for verifying trade details before
+          confirmation.
         </p>
         <p className="indent">
-          3.3. Virtual items and credits have no real-world monetary value. Credits can be converted into real life money by contacting us to make a cooperation operation.
+          3.3. Virtual items and credits have no real-world monetary value.
+          Credits can be converted into real life money by contacting us to make
+          a cooperation operation.
         </p>
 
         <b>4. API Usage</b>

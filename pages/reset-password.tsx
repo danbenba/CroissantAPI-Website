@@ -12,17 +12,17 @@ const containerStyle: React.CSSProperties = {
   color: "#fff",
   display: "flex",
   flexDirection: "column",
-  alignItems: "center"
+  alignItems: "center",
 };
 
 const titleStyle: React.CSSProperties = {
-  marginBottom: 32
+  marginBottom: 32,
 };
 
 const infoTextStyle: React.CSSProperties = {
   marginTop: 24,
   color: "#aaa",
-  fontSize: 14
+  fontSize: 14,
 };
 
 export default function ResetPassword() {
@@ -36,7 +36,8 @@ export default function ResetPassword() {
   const [tokenChecked, setTokenChecked] = React.useState(false);
 
   // Read token from query params
-  const resetToken = typeof router.query.token === "string" ? router.query.token : "";
+  const resetToken =
+    typeof router.query.token === "string" ? router.query.token : "";
 
   // Validate token on mount
   React.useEffect(() => {
@@ -46,10 +47,17 @@ export default function ResetPassword() {
       return;
     }
     // Validate token with backend
-    fetch(`/api/users/validate-reset-token?reset_token=${encodeURIComponent(resetToken)}`)
-      .then(async res => {
+    fetch(
+      `/api/users/validate-reset-token?reset_token=${encodeURIComponent(
+        resetToken
+      )}`
+    )
+      .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Invalid reset token, please try again.");
+        if (!res.ok)
+          throw new Error(
+            data.message || "Invalid reset token, please try again."
+          );
         setUser(data.user);
         setError(null);
       })
@@ -86,8 +94,8 @@ export default function ResetPassword() {
         body: JSON.stringify({
           reset_token: resetToken,
           new_password: newPassword,
-          confirm_password: confirmPassword
-        })
+          confirm_password: confirmPassword,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to reset password");
@@ -111,14 +119,20 @@ export default function ResetPassword() {
       {tokenChecked && !error && user && (
         <div style={{ color: "#4caf50", marginBottom: 16 }}>
           Welcome {user.username}, please reset your password.
-
-          <form style={{ width: "300px", maxWidth: 340 }} onSubmit={handleSubmit}>
+          <form
+            style={{ width: "300px", maxWidth: 340 }}
+            onSubmit={handleSubmit}
+          >
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>New Password</label>
+              <label
+                style={{ fontWeight: 600, marginBottom: 6, display: "block" }}
+              >
+                New Password
+              </label>
               <input
                 type="password"
                 value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
+                onChange={(e) => setNewPassword(e.target.value)}
                 style={{
                   width: "280px",
                   padding: "10px 12px",
@@ -126,7 +140,7 @@ export default function ResetPassword() {
                   border: "1px solid #444",
                   background: "#18181c",
                   color: "#fff",
-                  fontSize: 16
+                  fontSize: 16,
                 }}
                 autoComplete="new-password"
                 required
@@ -134,11 +148,15 @@ export default function ResetPassword() {
               />
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>Confirm Password</label>
+              <label
+                style={{ fontWeight: 600, marginBottom: 6, display: "block" }}
+              >
+                Confirm Password
+              </label>
               <input
                 type="password"
                 value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 style={{
                   width: "280px",
                   padding: "10px 12px",
@@ -146,7 +164,7 @@ export default function ResetPassword() {
                   border: "1px solid #444",
                   background: "#18181c",
                   color: "#fff",
-                  fontSize: 16
+                  fontSize: 16,
                 }}
                 autoComplete="new-password"
                 required
@@ -165,13 +183,15 @@ export default function ResetPassword() {
                 fontSize: 16,
                 fontWeight: 600,
                 cursor: "pointer",
-                marginTop: 8
+                marginTop: 8,
               }}
               disabled={loading || !!error}
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>
-            {success && <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>}
+            {success && (
+              <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>
+            )}
           </form>
         </div>
       )}

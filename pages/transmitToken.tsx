@@ -14,7 +14,9 @@ const TransmitTokenPage = () => {
   useEffect(() => {
     // If token exists, transmit it to the launcher and redirect to close page
     if (token) {
-      window.location.href = `croissant-launcher://set-token?token=${encodeURIComponent(token)}`;
+      window.location.href = `croissant-launcher://set-token?token=${encodeURIComponent(
+        token
+      )}`;
       // Use replace to avoid adding to browser history
       router.replace("/close");
     } else {
