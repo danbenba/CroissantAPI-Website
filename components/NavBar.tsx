@@ -189,7 +189,7 @@ export default function NavBar() {
                   alt="Croissant Logo"
                   style={logoImgStyle}
                 />
-                Croissant Inventory System
+                Croissant
               </span>
             </Link>
           </div>
