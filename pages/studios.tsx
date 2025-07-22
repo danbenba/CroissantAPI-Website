@@ -406,6 +406,12 @@ export default function StudiosPage() {
                         <li>No users</li>
                       )}
                     </ul>
+                    <div>
+                      <span>
+                        API Key: <code>{studio.apiKey}</code> <a style={{ cursor: "pointer", color: "#007bff" }} onClick={() => navigator.clipboard.writeText(studio.apiKey)}>Copy</a>
+                      </span>
+                    </div>
+                    <br />
                     <button
                       style={{
                         marginBottom: 24,
