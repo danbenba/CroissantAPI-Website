@@ -8,25 +8,25 @@ export default class extends Component {
         <div className="credits-images">
           {[
             {
-              img: "/credits/tier1.png",
+              img: "/assets/credits/tier1.png",
               alt: "Credit 1",
               credits: "200",
               price: "0.99€",
             },
             {
-              img: "/credits/tier2.png",
+              img: "/assets/credits/tier2.png",
               alt: "Credit 2",
               credits: "400",
               price: "1.99€",
             },
             {
-              img: "/credits/tier3.png",
+              img: "/assets/credits/tier3.png",
               alt: "Credit 3",
               credits: "1000",
               price: "4.99€",
             },
             {
-              img: "/credits/tier4.png",
+              img: "/assets/credits/tier4.png",
               alt: "Credit 4",
               credits: "2000",
               price: "9.99€",
