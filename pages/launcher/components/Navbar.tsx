@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
               style={{ textDecoration: "none" }}
             >
               <div className="navbar-credits">
-                <img src="/credit.png" className="navbar-credit-img" />
+                <img src="/assets/credit.png" className="navbar-credit-img" />
                 <div className="navbar-balance">
                   <span id="my-balance">{user?.balance}</span>
                 </div>

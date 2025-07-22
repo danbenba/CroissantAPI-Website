@@ -102,7 +102,7 @@ const GamePage: React.FC = () => {
           {game.price !== undefined && (
             <div>
               <b>Price:</b> {game.price}{" "}
-              <img src="/credit.png" className="gamepage-credit-icon" />
+              <img src="/assets/credit.png" className="gamepage-credit-icon" />
             </div>
           )}
         </div>

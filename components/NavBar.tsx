@@ -449,7 +449,7 @@ export default function NavBar() {
                 <div style={userBlockStyle}>
                   <Link href="/buy-credits" style={{ textDecoration: "none" }}>
                     <div className="navbar-credits">
-                      <img src="/credit.png" className="navbar-credit-img" />
+                      <img src="/assets/credit.png" className="navbar-credit-img" />
                       <div className="navbar-balance">
                         <span id="my-balance">{user?.balance}</span>
                       </div>

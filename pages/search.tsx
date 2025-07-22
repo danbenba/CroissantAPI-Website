@@ -174,7 +174,7 @@ const SearchPage: React.FC = () => {
               <div className="shop-prompt-item-desc">{item.description}</div>
               <div className="shop-prompt-item-price">
                 Price: {item.price}
-                <img src="/credit.png" className="shop-credit-icon" />
+                <img src="/assets/credit.png" className="shop-credit-icon" />
               </div>
             </div>
           </div>
@@ -189,7 +189,7 @@ const SearchPage: React.FC = () => {
             />
             <span className="shop-prompt-amount-total">
               Total: {amount * (item.price || 0)}
-              <img src="/credit.png" className="shop-credit-icon" />
+              <img src="/assets/credit.png" className="shop-credit-icon" />
             </span>
           </div>
           <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>
@@ -364,7 +364,7 @@ const SearchPage: React.FC = () => {
                       >
                         {game.price}{" "}
                         <img
-                          src="/credit.png"
+                          src="/assets/credit.png"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}
                         />
@@ -476,7 +476,7 @@ const SearchPage: React.FC = () => {
                       >
                         {item.price}{" "}
                         <img
-                          src="/credit.png"
+                          src="/assets/credit.png"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}
                         />

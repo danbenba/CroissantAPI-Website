@@ -357,7 +357,7 @@ const Shop: React.FC = () => {
                       >
                         {game.price}
                         <img
-                          src="/credit.png"
+                          src="/assets/credit.png"
                           className="shop-credit-icon"
                           alt="credits"
                         />

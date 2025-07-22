@@ -30,8 +30,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Fallback: avatar par défaut
     const fallbackPath = path.join(
       process.cwd(),
-      "public",
-      "default-avatar.png"
+      "public/assets/default-avatar.png"
     );
     res.setHeader("Content-Type", "image/png");
     // res.setHeader("Cache-Control", "public, max-age=300");
