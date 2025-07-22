@@ -20,12 +20,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./Website
 
       - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
-        working-directory: ./Website
+        run: npm run lint
 
       - name: Run TypeScript compiler
         run: npm run build --noEmit
-        working-directory: ./Website

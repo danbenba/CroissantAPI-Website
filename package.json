@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start --port=8580",
     "test": "react-scripts test --env=jsdom",
+    "lint": "npx eslint src --ext .ts",
     "eject": "react-scripts eject",
     "serve": "nodemon .\\dist\\server\\serve.js",
     "publish": "git add . && git commit -m \"update\" && git push",
