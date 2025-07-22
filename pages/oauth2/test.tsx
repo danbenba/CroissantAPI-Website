@@ -179,6 +179,16 @@ export default function OAuth2Demo() {
         alt="Expected result of OAuth2 authentication"
         style={resultImgStyle}
       />
+
+      <a
+        href="/downloadables/oauth2-test.html"
+        style={downloadLinkStyle}
+        download
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Download OAuth2 Test HTML to study the code
+      </a>
     </div>
   );
 }

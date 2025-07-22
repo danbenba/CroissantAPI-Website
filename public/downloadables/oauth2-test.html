@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <title>OAuth2 Test</title>
+    <link rel="icon" href="/assets/icons/favicon-32x32.png" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      img {
+        width: 32px;
+        height: 32px;
+      }
+    </style>
+    <script>
+      function alertUser(user) {
+        alert(`User data received: ${JSON.stringify(user.username)}`);
+      }
+    </script>
+  </head>
+  <body>
+    <script src="https://croissant-api.fr/oauth2/script.js"></script>
+    <button
+      data-client_id="2b90be46-3fdb-45f1-98bd-081b70cc3d9f"
+      data-callback="alertUser"
+      class="croissant-oauth2-btn"
+    >
+      <img
+        src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+        alt="icon"
+      />
+      Connect with Croissant
+    </button>
+  </body>
+</html>
