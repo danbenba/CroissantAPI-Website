@@ -57,7 +57,7 @@ function lookForCode() {
           const user = data;
           const callback = oauthBtn.getAttribute("data-callback");
           if (callback) {
-            window[callback](user);
+            eval(`(${callback})(user)`);
           }
         });
     }
