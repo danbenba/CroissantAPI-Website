@@ -178,7 +178,7 @@ export default function OAuth2Demo() {
         src={OAUTH2_RESULT_IMG}
         alt="Expected result of OAuth2 authentication"
         style={resultImgStyle}
-      />
+      /><br /><br/>
 
       <a
         href="/downloadables/oauth2-test.html"
