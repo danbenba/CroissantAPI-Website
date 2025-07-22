@@ -16,7 +16,7 @@ const containerStyle: React.CSSProperties = {
 };
 
 const inputStyle: React.CSSProperties = {
-  width: "100%",
+  width: "auto",
   padding: "10px 12px",
   borderRadius: 6,
   border: "1px solid #444",
@@ -319,52 +319,53 @@ export default function Settings() {
           >
             <div style={{ flex: 1, height: 1, background: "#444" }} />
           </div>
-          <form style={{ width: "100%", maxWidth: 340 }} onSubmit={handleSave}>
-            <div>
-              <label style={labelStyle}>Email</label>
-              <input
-                type="email"
-                style={inputStyle}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-                disabled={true}
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Current Password</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                autoComplete="current-password"
-                placeholder="Enter your current password"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>New Password</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                autoComplete="new-password"
-                placeholder="Enter new password"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Confirm New Password</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                placeholder="Confirm new password"
-              />
-            </div>
+          <form
+            style={{
+              width: "100%",
+              maxWidth: 340,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            onSubmit={handleSave}
+          >
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              style={inputStyle}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+              disabled={true}
+            />
+            <label style={labelStyle}>Current Password</label>
+            <input
+              type="password"
+              style={inputStyle}
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              autoComplete="current-password"
+              placeholder="Enter your current password"
+            />
+            <label style={labelStyle}>New Password</label>
+            <input
+              type="password"
+              style={inputStyle}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              placeholder="Enter new password"
+            />
+            <label style={labelStyle}>Confirm New Password</label>
+            <input
+              type="password"
+              style={inputStyle}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              placeholder="Confirm new password"
+            />
             <button type="submit" style={buttonStyle} disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
             </button>
