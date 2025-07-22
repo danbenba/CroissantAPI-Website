@@ -8,8 +8,8 @@ api = CroissantAPI(token=TOKEN)
 
 def check_premium_access(user_id: str):
     inventory = api.inventory.get(user_id)
-    # L'API retourne probablement une liste d'objets avec 'item_id'
-    has_item = any(item.get('item_id') == ITEM_ID for item in inventory.get('inventory', []))
+    # Utiliser 'itemId' (nouveau SDK)
+    has_item = any(item.get('itemId') == ITEM_ID for item in inventory.get('inventory', []))
     
     if has_item:
         return {

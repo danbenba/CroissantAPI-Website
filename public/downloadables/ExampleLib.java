@@ -16,7 +16,8 @@ public class ExampleLib {
         boolean hasItem = false;
         for (JsonElement el : inventoryArr) {
             JsonObject item = el.getAsJsonObject();
-            if (ITEM_ID.equals(item.get("item_id").getAsString())) {
+            // Utiliser 'itemId' (nouveau SDK)
+            if (ITEM_ID.equals(item.get("itemId").getAsString())) {
                 hasItem = true;
                 break;
             }

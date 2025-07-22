@@ -128,7 +128,7 @@ export interface Item {
  */
 export interface Lobby {
     lobbyId: string; // Unique identifier for the lobby
-    users: string; // Array of user IDs in the lobby
+    users: string[]; // Array of user IDs in the lobby
 }
 
 /**
@@ -166,6 +166,20 @@ export interface User {
     accent_color: number | null;
     global_name: string;
     balance: number;
+}
+
+/**
+ * Represents a studio in the Croissant API.
+ * @property studio_id - Unique identifier for the studio.
+ * @property name - Name of the studio.
+ * @property admin_id - ID of the studio admin.
+ * @property users - Array of users in the studio.
+ */
+export interface Studio {
+    studio_id: string;
+    name: string;
+    admin_id: string;
+    users: User[];
 }
 
 /**
@@ -287,6 +301,19 @@ class CroissantAPI {
                 },
                 body: JSON.stringify(options)
             });
+            if (!res.ok) return {} as User;
+            return await res.json();
+        },
+
+        /**
+         * Get a user by their Steam ID.
+         * @param steamId - The user's Steam ID.
+         * @returns The user.
+         * @example
+         * const user = await api.users.getUserBySteamId('1234567890');
+         */
+        getUserBySteamId: async (steamId: string): Promise<User> => {
+            const res = await fetch(`${croissantBaseUrl}/users/getUserBySteamId?steamId=${encodeURIComponent(steamId)}`);
             if (!res.ok) return {} as User;
             return await res.json();
         }
@@ -790,6 +817,48 @@ class CroissantAPI {
                 }
             });
             if (!res.ok) return { message: "failed" };
+            return await res.json();
+        }
+    };
+
+    // --- STUDIOS ---
+    /**
+     * Studio-related API methods.
+     */
+    studios = {
+        /**
+         * Get a studio by its ID.
+         * @param studioId - The studio's ID.
+         * @returns The studio.
+         * @example
+         * const studio = await api.studios.getStudio('studio123');
+         */
+        getStudio: async (studioId: string): Promise<Studio> => {
+            const res = await fetch(`${croissantBaseUrl}/studios/${studioId}`);
+            if (!res.ok) return {} as Studio;
+            return await res.json();
+        }
+    };
+
+    // --- OAUTH2 ---
+    /**
+     * OAuth2-related API methods.
+     */
+    oauth2 = {
+        /**
+         * Get a user by OAuth2 code.
+         * @param code - The authorization code.
+         * @param client_id - The client ID.
+         * @param client_secret - The client secret.
+         * @param redirect_uri - The redirect URI.
+         * @returns The user object.
+         * @example
+         * const user = await api.oauth2.getUserByCode('code', 'clientId', 'secret', 'https://redirect');
+         */
+        getUserByCode: async (code: string, client_id: string, client_secret: string, redirect_uri: string): Promise<{ user: User }> => {
+            const params = new URLSearchParams({ code, client_id, client_secret, redirect_uri });
+            const res = await fetch(`${croissantBaseUrl}/oauth2/user?${params.toString()}`);
+            if (!res.ok) return { user: {} as User };
             return await res.json();
         }
     };

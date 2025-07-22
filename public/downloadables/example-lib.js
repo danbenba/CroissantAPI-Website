@@ -4,9 +4,15 @@ const croissantApi = new CroissantAPI({
 });
 const itemId = "6ef3f681-a8b3-4480-804e-7c6168e7f0ce";
 const userId = "724847846897221642";
+/**
+ * Check if a user has premium access (owns the Weathley Crab item).
+ * @param userId - The user's ID.
+ * @returns An object describing the user's premium access status.
+ */
 async function checkPremiumAccess(userId) {
+    // Utilise le nouveau SDK : api.inventory.get(userId)
     const inventory = await croissantApi.inventory.get(userId);
-    const hasItem = inventory.some(item => item.item_id === itemId);
+    const hasItem = inventory.some(item => item.itemId === itemId);
     if (hasItem) {
         return {
             color: "#00ff00",
@@ -24,4 +30,5 @@ async function checkPremiumAccess(userId) {
         };
     }
 }
+// Exemple d'utilisation
 checkPremiumAccess(userId).then(console.log);

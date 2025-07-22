@@ -20,7 +20,8 @@ class ExampleLib
         {
             foreach (var item in inventoryArr)
             {
-                if ((string)item["item_id"] == ITEM_ID)
+                // Utiliser 'itemId' (nouveau SDK)
+                if ((string)item["itemId"] == ITEM_ID)
                 {
                     hasItem = true;
                     break;

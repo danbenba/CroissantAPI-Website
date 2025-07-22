@@ -100,6 +100,14 @@ public class CroissantAPI {
             // Create a new user
             return sendRequest("/users/create", "POST", gson.toJson(options), true);
         }
+        public String getUserBySteamId(String steamId) {
+            try {
+                return sendRequest("/users/getUserBySteamId?steamId=" + java.net.URLEncoder.encode(steamId, "UTF-8"), "GET", null, false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "{}";
+            }
+        }
     }
     public final Users users = new Users();
 
@@ -216,4 +224,29 @@ public class CroissantAPI {
         }
     }
     public final Lobbies lobbies = new Lobbies();
+
+    // --- STUDIOS ---
+    public class Studios {
+        public String getStudio(String studioId) {
+            return sendRequest("/studios/" + studioId, "GET", null, false);
+        }
+    }
+    public final Studios studios = new Studios();
+
+    // --- OAUTH2 ---
+    public class OAuth2 {
+        public String getUserByCode(String code, String clientId, String clientSecret, String redirectUri) {
+            try {
+                String params = "?code=" + java.net.URLEncoder.encode(code, "UTF-8") +
+                        "&client_id=" + java.net.URLEncoder.encode(clientId, "UTF-8") +
+                        "&client_secret=" + java.net.URLEncoder.encode(clientSecret, "UTF-8") +
+                        "&redirect_uri=" + java.net.URLEncoder.encode(redirectUri, "UTF-8");
+                return sendRequest("/oauth2/user" + params, "GET", null, false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "{}";
+            }
+        }
+    }
+    public final OAuth2 oauth2 = new OAuth2();
 }

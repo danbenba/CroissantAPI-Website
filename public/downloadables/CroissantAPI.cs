@@ -79,6 +79,14 @@ public class CroissantAPI
             var json = await res.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<User>(json);
         }
+
+        public async Task<User> GetUserBySteamId(string steamId)
+        {
+            var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/users/getUserBySteamId?steamId={Uri.EscapeDataString(steamId)}");
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<User>(json);
+        }
     }
     public Users users => new Users(this);
 
@@ -378,6 +386,39 @@ public class CroissantAPI
         }
     }
     public Lobbies lobbies => new Lobbies(this);
+
+    // --- STUDIOS ---
+    public class Studios
+    {
+        private readonly CroissantAPI api;
+        public Studios(CroissantAPI api) { this.api = api; }
+
+        public async Task<dynamic> GetStudio(string studioId)
+        {
+            var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/studios/{studioId}");
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+    }
+    public Studios studios => new Studios(this);
+
+    // --- OAUTH2 ---
+    public class OAuth2
+    {
+        private readonly CroissantAPI api;
+        public OAuth2(CroissantAPI api) { this.api = api; }
+
+        public async Task<dynamic> GetUserByCode(string code, string clientId, string clientSecret, string redirectUri)
+        {
+            var url = $"{CROISSANT_BASE_URL}/oauth2/user?code={Uri.EscapeDataString(code)}&client_id={Uri.EscapeDataString(clientId)}&client_secret={Uri.EscapeDataString(clientSecret)}&redirect_uri={Uri.EscapeDataString(redirectUri)}";
+            var res = await api.http.GetAsync(url);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+    }
+    public OAuth2 oauth2 => new OAuth2(this);
 }
 
 // --- Models ---

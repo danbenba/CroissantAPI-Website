@@ -279,6 +279,66 @@ export default function ApiDocs() {
                 [C# Library]
               </a>
             </li>
+            <li>
+              <a
+                href="/downloadables/croissant_api.php"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [PHP Library]
+              </a>
+            </li>
+            <li>
+              <a
+                href="/downloadables/croissant_api.rb"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [Ruby Library]
+              </a>
+            </li>
+            <li>
+              <a
+                href="/downloadables/croissant_api.rs"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [Rust Library]
+              </a>
+            </li>
+            <li>
+              <a
+                href="/downloadables/croissantapi.go"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [Go Library]
+              </a>
+            </li>
+            <li>
+              <a
+                href="/downloadables/croissant_api.cpp"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [C++ Library]
+              </a>
+            </li>
+            <li>
+              <a
+                href="/downloadables/croissant_api.hpp"
+                target="_blank"
+                download
+                style={{ color: "#1e90ff", textDecoration: "none" }}
+              >
+                [C++ Header]
+              </a>
+            </li>
           </ul>
           <div style={{ marginTop: "12px", display: "none" }}>
             <h4 style={{ color: "#fff" }}>Examples</h4>
