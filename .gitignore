@@ -135,7 +135,6 @@ out
 .pnp.*
 
 dist
-package-lock.json
 itemsIcons
 gameIcons
 bannersIcons
