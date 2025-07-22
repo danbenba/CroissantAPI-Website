@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("OAuth2 button not found");
     return;
   }
-  if (location.origin !== croissantWebsiteOrigin) {
+  if (location.origin === croissantWebsiteOrigin) {
     console.warn(
       "OAuth2 script loaded from a different origin than expected:",
       location.origin
