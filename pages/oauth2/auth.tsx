@@ -184,7 +184,7 @@ export default function OAuth2Auth() {
   return (
     <div style={popupContainerStyle}>
       <div style={appInfoStyle}>
-        <img src={"/favicon.png"} alt="App avatar" style={appAvatarStyle} />
+        <img src={"/assets/icons/favicon-96x96.png"} alt="App avatar" style={appAvatarStyle} />
         <div>
           <div style={appDescStyle}>
             Do you want to authorize{" "}

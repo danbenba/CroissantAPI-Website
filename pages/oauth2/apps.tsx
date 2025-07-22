@@ -158,13 +158,12 @@ export default function OAuth2Apps() {
         ? app.redirect_urls[0]
         : "";
     setIframeCode(
-      `<button style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:1rem;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;" onclick="window.open('${
-        window.location.origin
-      }/oauth2/auth?client_id=${client_id}${
-        redirect ? `&redirect_uri=${encodeURIComponent(redirect)}` : ""
-      }', '_blank', 'width=428,height=320')">
-    <img src="https://croissant-api.fr/favicon.png" alt="icon" style="width:20px;height:20px;vertical-align:middle;display:inline-block;" />
-    <span style="vertical-align:middle;">Login with Croissant</span>
+      `<script src="https://croissant-api.fr/oauth2/script.js"></script>
+<button 
+  client_id="${client_id}"
+  class="croissant-oauth2-btn">
+  <img src="https://croissant-api.fr/assets/icons/favicon-32x32.png" alt="icon"/>
+  Login with Croissant
 </button>`
     );
   };

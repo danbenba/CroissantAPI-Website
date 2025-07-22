@@ -130,7 +130,7 @@ export default function OAuth2Demo() {
           );
         }}
       >
-        <img src="/favicon.png" alt="icon" style={oauthBtnImgStyle} />
+        <img src="/assets/icons/favicon-32x32.png" alt="icon" style={oauthBtnImgStyle} />
         <span style={oauthBtnSpanStyle}>Connect with OAuth2</span>
       </button>
 
