@@ -118,10 +118,64 @@ export default function OAuth2Demo() {
         2. Click the button below to start authentication:
       </p>
       {/* Croissant OAuth2 Button via external script */}
-      <script src="https://croissant-api.fr/oauth2/script.js"></script>
       <button
         data-client_id="2b90be46-3fdb-45f1-98bd-081b70cc3d9f"
         className="croissant-oauth2-btn"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 16px",
+          fontSize: "1rem",
+          borderRadius: "6px",
+          border: "none",
+          background: "#333",
+          color: "#fff",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          const clientId = e.currentTarget.getAttribute("data-client_id");
+          const redirectUri = location.origin;
+          let page = window.open(
+            `/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`,
+            "_oauth2",
+            "width=600,height=600"
+          );
+
+          function lookForCode() {
+            requestAnimationFrame(lookForCode);
+            if (!page || page.closed) return;
+            try {
+              const code = new URL(page.location.href).searchParams.get("code");
+              if (code) {
+                page.close();
+                const oauthBtn = document.querySelector(
+                  ".croissant-oauth2-btn"
+                );
+                const clientId = oauthBtn.getAttribute("data-client_id");
+                fetch(`/api/oauth2/user?code=${code}&client_id=${clientId}`)
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.error) {
+                      console.error("Error fetching user by code:", data.error);
+                      return;
+                    }
+                    // console.log("User data received:", data);
+                    const user = data;
+                    console.log("User data:", user);
+                    const callback = oauthBtn.getAttribute("data-callback");
+                    if (callback) {
+                      window[callback](user);
+                    }
+                  });
+              }
+            } catch (e) {
+              // console.error("Error checking for OAuth2 code:", e);
+            }
+          }
+
+          lookForCode();
+        }}
       >
         <img
           src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
