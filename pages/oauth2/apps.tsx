@@ -249,7 +249,15 @@ export default function OAuth2Apps() {
                 <div className="app-card-title">{app.name}</div>
                 <div className="app-card-meta">
                   <span>Client ID:</span>{" "}
-                  <code className="oauth2-code">{app.client_id}</code>
+                  <code
+                    className="oauth2-code"
+                    style={{ userSelect: "all", cursor: "pointer" }}
+                    tabIndex={0}
+                    onClick={() => navigator.clipboard.writeText(app.client_id)}
+                    title="Click to copy"
+                  >
+                    {app.client_id}
+                  </code>
                 </div>
                 {app.client_secret && (
                   <div className="app-card-meta">
