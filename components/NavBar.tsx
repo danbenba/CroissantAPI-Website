@@ -3,9 +3,10 @@ import Link from "next/link";
 function useNavBarResponsive() {
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 700);
+    const check = () => setIsMobile(window.outerWidth <= 700);
     check();
     window.addEventListener("resize", check);
+    console.log("NavBar responsive check initialized, isMobile:", isMobile);
     return () => window.removeEventListener("resize", check);
   }, []);
   // Styles dynamiques
