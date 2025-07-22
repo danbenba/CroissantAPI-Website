@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const iconsDir = path.join(process.cwd(), "itemsIcons");
+  const iconsDir = path.join(process.cwd(), "uploads/itemsIcons");
   const exts = [".png", ".jpg", ".jpeg", ".webp"];
   let iconPath: string | undefined;
   for (const ext of exts) {
