@@ -27,14 +27,14 @@ declare global {
 
 const LauncherPage: React.FC = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     console.log("Croissant Launcher v0.1.0");
-    console.log("Croissant Launcher is running in " + process.env.NODE_ENV + " mode.");
+    console.log(
+      "Croissant Launcher is running in " + process.env.NODE_ENV + " mode."
+    );
     router.push("/launcher/home");
-
   }, []);
-  return (<></>)
+  return <></>;
 };
 
 export default LauncherPage;
