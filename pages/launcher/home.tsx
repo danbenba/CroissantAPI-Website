@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 
-const endpoint = "/api"; // Replace with your actual API endpoint
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 
 type Game = {

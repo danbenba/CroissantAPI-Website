@@ -169,7 +169,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       aria-hidden="true"
     >
       <img
-        src="/backgrounds/raiden-crow.webp"
+        src="/assets/backgrounds/raiden-crow.webp"
         alt="background"
         style={{
           position: "absolute",
@@ -193,7 +193,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       {/* <BackgroundImage /> */}
       <MetaLinks />
       <nav className="titlebar" style={launcherTitlebarStyle}>
-        <img src="/launcher/icon.png" alt="Icon" style={launcherIconStyle} />
+        <img src="/assets/icons/favicon-32x32.png" alt="Icon" style={launcherIconStyle} />
         <span className="navbar-title" style={launcherTitleStyle}>
           Croissant Launcher
         </span>

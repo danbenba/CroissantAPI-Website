@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
             >
               <img
                 className="navbar-avatar"
-                src={`https://croissant-api.fr/avatar/${user?.id}`}
+                src={`/avatar/${user?.id}`}
                 style={{ objectFit: "cover" }}
               />
             </Link>

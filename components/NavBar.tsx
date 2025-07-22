@@ -192,7 +192,7 @@ export default function NavBar() {
                 }}
               >
                 <img
-                  src="/favicon.png"
+                  src="/assets/icons/favicon-32x32.png"
                   alt="Croissant Logo"
                   style={logoImgStyle}
                 />
