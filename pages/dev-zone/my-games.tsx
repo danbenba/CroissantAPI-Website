@@ -43,11 +43,7 @@ const MyGames = () => {
     const fetchGames = async () => {
       setLoading(true);
       try {
-        const res = await fetch(endpoint + "/games/@mine", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(endpoint + "/games/@mine");
         if (res.ok) {
           const data = await res.json();
           setGames(Array.isArray(data) ? data : data.games || []);
@@ -143,9 +139,6 @@ const MyGames = () => {
       try {
         const res = await fetch("/upload/game-icon", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: iconData,
         });
         if (res.ok) {
@@ -170,9 +163,6 @@ const MyGames = () => {
       try {
         const res = await fetch("/upload/banner", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: bannerData,
         });
         if (res.ok) {
@@ -214,7 +204,6 @@ const MyGames = () => {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -309,7 +298,10 @@ const MyGames = () => {
                   <div className="mygames-card-name">{game.name}</div>
                   <div className="mygames-card-price">
                     {game.price}
-                    <img src="/assets/credit.png" className="mygames-card-credit" />
+                    <img
+                      src="/assets/credit.png"
+                      className="mygames-card-credit"
+                    />
                   </div>
                   <button
                     className="mygames-card-editbtn"
@@ -345,7 +337,10 @@ const MyGames = () => {
                 </div>
                 <div className="mygames-tooltip-price">
                   Price: {tooltip.game.price}
-                  <img src="/assets/credit.png" className="mygames-card-credit" />
+                  <img
+                    src="/assets/credit.png"
+                    className="mygames-card-credit"
+                  />
                   <span className="mygames-tooltip-store">
                     Show in Store: {tooltip.game.showInStore ? "Yes" : "No"}
                   </span>

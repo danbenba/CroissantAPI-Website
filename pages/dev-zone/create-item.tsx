@@ -64,9 +64,6 @@ const CreateItem = () => {
       try {
         const res = await fetch("/upload/item-icon", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: iconData,
         });
         if (res.ok) {
@@ -99,7 +96,6 @@ const CreateItem = () => {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });

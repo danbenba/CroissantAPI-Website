@@ -397,7 +397,6 @@ export default function NavBar() {
                               fetch("/api/users/change-role", {
                                 headers: {
                                   "Content-Type": "application/json",
-                                  Authorization: `Bearer ${token}`,
                                 },
                                 method: "POST",
                                 body: JSON.stringify({ role }),
@@ -412,7 +411,6 @@ export default function NavBar() {
                                 .then((data) => {
                                   fetch("/api/users/@me", {
                                     headers: {
-                                      Authorization: `Bearer ${token}`,
                                       "Content-Type": "application/json",
                                     },
                                   })

@@ -37,8 +37,7 @@ const Shop: React.FC = () => {
   // Constantes réutilisées
   const AUTH_HEADER = useMemo(
     () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token || ""}`,
+      "Content-Type": "application/json"
     }),
     [token]
   );

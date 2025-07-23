@@ -125,11 +125,7 @@ export default function OAuth2Auth() {
       redirect_uri: search.get("redirect_uri") || undefined,
     });
     if (search.get("client_id")) {
-      fetch("/api/oauth2/app/" + search.get("client_id"), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      fetch("/api/oauth2/app/" + search.get("client_id"))
         .then((res) => {
           if (res.ok) return res.json();
           throw new Error("Failed to fetch application info.");
@@ -160,7 +156,6 @@ export default function OAuth2Auth() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       });
       if (!res.ok) {
@@ -185,7 +180,11 @@ export default function OAuth2Auth() {
   return (
     <div style={popupContainerStyle}>
       <div style={appInfoStyle}>
-        <img src={"/assets/icons/favicon-96x96.png"} alt="App avatar" style={appAvatarStyle} />
+        <img
+          src={"/assets/icons/favicon-96x96.png"}
+          alt="App avatar"
+          style={appAvatarStyle}
+        />
         <div>
           <div style={appDescStyle}>
             Do you want to authorize{" "}
@@ -197,7 +196,9 @@ export default function OAuth2Auth() {
         </div>
       </div>
       {(error || missingParams) && (
-        <div style={errorMsgStyle}>{missingParams ? "Missing parameters." : error}</div>
+        <div style={errorMsgStyle}>
+          {missingParams ? "Missing parameters." : error}
+        </div>
       )}
       {/* Bouton déplacé en bas */}
       <div style={btnBottomStyle}>
@@ -217,7 +218,8 @@ export default function OAuth2Auth() {
         )}
       </div>
       <div style={redirectInfoBottomStyle}>
-        Redirect URI: {params.redirect_uri || <span style={{ color: '#b91c1c' }}>N/A</span>}
+        Redirect URI:{" "}
+        {params.redirect_uri || <span style={{ color: "#b91c1c" }}>N/A</span>}
       </div>
     </div>
   );

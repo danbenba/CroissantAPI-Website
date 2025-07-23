@@ -20,7 +20,6 @@ export async function fetchMe(token: string, callback: () => void) {
   await fetch(endpoint + "/users/@me", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   })
@@ -193,7 +192,11 @@ function AppContent({ Component, pageProps }: AppProps) {
       {/* <BackgroundImage /> */}
       <MetaLinks />
       <nav className="titlebar" style={launcherTitlebarStyle}>
-        <img src="/assets/icons/favicon-32x32.png" alt="Icon" style={launcherIconStyle} />
+        <img
+          src="/assets/icons/favicon-32x32.png"
+          alt="Icon"
+          style={launcherIconStyle}
+        />
         <span className="navbar-title" style={launcherTitleStyle}>
           Croissant Launcher
         </span>
@@ -233,7 +236,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       <MetaLinks />
       {!pageProps?.isOauth2Auth && <Navbar />}
       <main style={mainStyle}>
-      <Component {...pageProps} />
+        <Component {...pageProps} />
       </main>
       {!pageProps?.isOauth2Auth && <Footer />}
     </div>

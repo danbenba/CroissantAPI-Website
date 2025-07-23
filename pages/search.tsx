@@ -69,7 +69,6 @@ const SearchPage: React.FC = () => {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
@@ -82,7 +81,6 @@ const SearchPage: React.FC = () => {
     fetch(`${API_ENDPOINT}/games/search?q=${encodeURIComponent(query)}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     })
@@ -120,7 +118,6 @@ const SearchPage: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ amount }),
       });
@@ -257,7 +254,12 @@ const SearchPage: React.FC = () => {
                       />
                     ) : null}
                   </div>
-                  <div className="search-user-username" style={{fontSize: 10}}>{user.id}</div>
+                  <div
+                    className="search-user-username"
+                    style={{ fontSize: 10 }}
+                  >
+                    {user.id}
+                  </div>
                 </div>
               </Link>
             ))}

@@ -17,9 +17,6 @@ const JoinLobbyPage = () => {
     if (typeof lobbyId === "string" && lobbyId) {
       fetch(`/api/lobbies/${lobbyId}/join`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       })
         .then(async (res) => {
           setStatus(res.ok ? "success" : "error");

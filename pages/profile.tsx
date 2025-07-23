@@ -150,7 +150,6 @@ function ProfileShop({
     fetch(endpoint + "/items", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + (token || ""),
       },
     })
       .then((res) => {
@@ -229,7 +228,6 @@ function ProfileShop({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + (token || ""),
         },
         body: JSON.stringify({ amount: result.amount }),
       })
@@ -243,7 +241,6 @@ function ProfileShop({
           fetch(endpoint + "/items", {
             headers: {
               "Content-Type": "application/json",
-              Authorization: "Bearer " + (token || ""),
             },
           })
             .then((res) => res.json())
@@ -344,7 +341,10 @@ function ProfileShop({
                   </div>
                   <div className="shop-prompt-item-price">
                     Price: {prompt.item.price}
-                    <img src="/assets/credit.png" className="shop-credit-icon" />
+                    <img
+                      src="/assets/credit.png"
+                      className="shop-credit-icon"
+                    />
                     {prompt.item.stock !== undefined && (
                       <span className="shop-prompt-item-stock">
                         Stock: {prompt.item.stock}
@@ -411,7 +411,10 @@ function ProfileShop({
                 {prompt.item && (
                   <span className="shop-prompt-amount-total">
                     Total: {(prompt.amount || 1) * (prompt.item.price || 0)}
-                    <img src="/assets/credit.png" className="shop-credit-icon" />
+                    <img
+                      src="/assets/credit.png"
+                      className="shop-credit-icon"
+                    />
                   </span>
                 )}
               </div>
@@ -486,12 +489,7 @@ export default function Profile({ userId }: ProfileProps) {
         "/users" +
         (selectedUserId !== "@me" && user?.admin ? "/admin" : "") +
         "/" +
-        selectedUserId,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+        selectedUserId
     )
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch profile");
@@ -522,7 +520,6 @@ export default function Profile({ userId }: ProfileProps) {
     try {
       const res = await fetch(`/api/users/admin/disable/${profile.id}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to disable account");
@@ -538,7 +535,6 @@ export default function Profile({ userId }: ProfileProps) {
     try {
       const res = await fetch(`/api/users/admin/enable/${profile.id}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!res.ok)
@@ -552,9 +548,7 @@ export default function Profile({ userId }: ProfileProps) {
   // Inventory fetch effect
   useEffect(() => {
     if (!token) return;
-    fetch("/api/inventory/@me", {
-      headers: { Authorization: "Bearer " + token },
-    })
+    fetch("/api/inventory/@me")
       .then((res) => res.json())
       .then(setInventory);
   }, [inventoryReloadFlag, token]);
@@ -571,9 +565,6 @@ export default function Profile({ userId }: ProfileProps) {
     try {
       const response = await fetch("/upload/avatar", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -594,7 +585,6 @@ export default function Profile({ userId }: ProfileProps) {
   const handleStartTrade = async () => {
     const res = await fetch(`/api/trades/start-or-latest/${profile.id}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
     setCurrentTradeId(data.id);
@@ -610,7 +600,6 @@ export default function Profile({ userId }: ProfileProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ targetUserId: profile.id, amount }),
       });

@@ -34,11 +34,7 @@ const MyItems = () => {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const res = await fetch(endpoint + "/items/@mine", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(endpoint + "/items/@mine");
         if (res.ok) {
           const data = await res.json();
           setItems(Array.isArray(data) ? data : data.items || []);
@@ -121,9 +117,6 @@ const MyItems = () => {
       try {
         const res = await fetch("/upload/item-icon", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: iconData,
         });
         if (res.ok) {
@@ -156,7 +149,6 @@ const MyItems = () => {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });

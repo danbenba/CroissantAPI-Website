@@ -82,7 +82,6 @@ export default function OAuth2Apps() {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
@@ -98,7 +97,6 @@ export default function OAuth2Apps() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -126,7 +124,6 @@ export default function OAuth2Apps() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -198,7 +195,6 @@ export default function OAuth2Apps() {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     });
     if (res.ok) setApps(apps.filter((a) => a.client_id !== client_id));

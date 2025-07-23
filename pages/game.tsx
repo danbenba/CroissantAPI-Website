@@ -67,7 +67,6 @@ const GamePage: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token || ""}`,
         },
       });
       const data = await res.json();
@@ -132,10 +131,20 @@ const GamePage: React.FC = () => {
             </div>
           )}
           {game.price !== undefined && (
-            <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "16px 0" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                margin: "16px 0",
+              }}
+            >
               <div>
                 <b>Price:</b> {game.price}{" "}
-                <img src="/assets/credit.png" className="gamepage-credit-icon" />
+                <img
+                  src="/assets/credit.png"
+                  className="gamepage-credit-icon"
+                />
               </div>
               <button
                 className="shop-game-buy-btn"
@@ -165,10 +174,18 @@ const GamePage: React.FC = () => {
         <div className="shop-prompt-overlay">
           <div className="shop-prompt">
             <div className="shop-prompt-message">{prompt}</div>
-            <button className="shop-prompt-buy-btn" onClick={confirmBuy} disabled={buying}>
+            <button
+              className="shop-prompt-buy-btn"
+              onClick={confirmBuy}
+              disabled={buying}
+            >
               Buy
             </button>
-            <button className="shop-prompt-cancel-btn" onClick={() => setPrompt(null)} disabled={buying}>
+            <button
+              className="shop-prompt-cancel-btn"
+              onClick={() => setPrompt(null)}
+              disabled={buying}
+            >
               Cancel
             </button>
           </div>
@@ -179,7 +196,10 @@ const GamePage: React.FC = () => {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div className="shop-alert-message">{alert}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setAlert(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setAlert(null)}
+            >
               OK
             </button>
           </div>

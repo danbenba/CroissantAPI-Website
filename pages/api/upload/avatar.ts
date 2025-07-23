@@ -23,7 +23,6 @@ export default async function handler(
   // Ici, tu dois vérifier l'utilisateur via ton API si besoin
   const user = await fetch("http://localhost:3456/users/@me", {
     method: "GET",
-    headers: { Authorization: authHeader },
   });
   if (!user.ok) return res.status(401).json({ error: "Unauthorized" });
   const userData = await user.json();

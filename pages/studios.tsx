@@ -38,7 +38,6 @@ export default function StudiosPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ studioName }),
       });
@@ -59,7 +58,6 @@ export default function StudiosPage() {
     fetch(`/api/users/@me`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     })
@@ -82,7 +80,6 @@ export default function StudiosPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ userId }),
       });
@@ -125,7 +122,6 @@ export default function StudiosPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ userId }),
       });
@@ -152,7 +148,14 @@ export default function StudiosPage() {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h2 style={{ marginBottom: 18 }}>My studios</h2>
         <button
           onClick={() => setShowForm(true)}

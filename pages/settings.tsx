@@ -200,7 +200,6 @@ export default function Settings() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ username }),
       });
@@ -273,7 +272,6 @@ export default function Settings() {
       formData.append("avatar", avatarFile);
       const res = await fetch("/upload/avatar", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       if (!res.ok) throw new Error("Failed to upload avatar");
@@ -310,7 +308,6 @@ export default function Settings() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
@@ -513,7 +510,6 @@ export default function Settings() {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
                       },
                     })
                       .then((res) => {
