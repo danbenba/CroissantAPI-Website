@@ -347,10 +347,10 @@ export default function NavBar() {
                 </Link>
               )}
               <Link href="/api-docs" legacyBehavior>
-                <a style={linkStyle}>API Docs</a>
+                <a style={linkStyle}>Docs</a>
               </Link>
               <Link href="/game-shop" legacyBehavior>
-                <a style={linkStyle}>Game Shop</a>
+                <a style={linkStyle}>Shop</a>
               </Link>
               <DropdownButton label="Install" showKey="install">
                 {show === "install" && (
