@@ -329,7 +329,7 @@ export default function NavBar() {
                             borderRadius: 0,
                           }}
                         >
-                          Apps
+                          OAuth2
                         </a>
                       </Link>
                       <Link href="/dev-zone/my-items" legacyBehavior>
@@ -352,6 +352,18 @@ export default function NavBar() {
                           }}
                         >
                           Games
+                        </a>
+                      </Link>
+                      <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
+                      <Link href="/settings" legacyBehavior>
+                        <a
+                          style={{
+                            ...linkStyle,
+                            display: "block",
+                            borderRadius: "0 0 6px 6px",
+                          }}
+                        >
+                          Settings
                         </a>
                       </Link>
                     </div>
@@ -445,11 +457,63 @@ export default function NavBar() {
                   )}
                 </div>
               )}
-              {!loading && user ? (
+              {loading ? (
                 <div style={userBlockStyle}>
                   <Link href="/buy-credits" style={{ textDecoration: "none" }}>
                     <div className="navbar-credits">
-                      <img src="/assets/credit.png" className="navbar-credit-img" />
+                      <img
+                        src="/assets/credit.png"
+                        className="navbar-credit-img"
+                      />
+                      <div className="navbar-balance">
+                        <span id="my-balance">{"..."}</span>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link href="/profile" legacyBehavior>
+                    <a>
+                      <img
+                        src={"/avatar/default.png"}
+                        alt="avatar"
+                        style={avatarStyle}
+                      />
+                    </a>
+                  </Link>
+                  <button
+                    style={{
+                      ...linkStyle,
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      outline: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontWeight: 600,
+                      gap: 4,
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShow((prev) => (prev === "roles" ? "" : "roles"));
+                    }}
+                  >
+                    <span style={{ fontSize: 12 }}>▼</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    style={logoutBtnStyle}
+                    title="Logout"
+                  >
+                    <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
+                  </button>
+                </div>
+              ) : !loading && user ? (
+                <div style={userBlockStyle}>
+                  <Link href="/buy-credits" style={{ textDecoration: "none" }}>
+                    <div className="navbar-credits">
+                      <img
+                        src="/assets/credit.png"
+                        className="navbar-credit-img"
+                      />
                       <div className="navbar-balance">
                         <span id="my-balance">{user?.balance}</span>
                       </div>

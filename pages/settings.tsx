@@ -13,6 +13,7 @@ const containerStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  position: "relative",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -46,8 +47,8 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const avatarStyle: React.CSSProperties = {
-  width: 96,
-  height: 96,
+  width: 132,
+  height: 132,
   borderRadius: "50%",
   objectFit: "cover",
   marginBottom: 16,
@@ -64,12 +65,116 @@ const steamBtnStyle: React.CSSProperties = {
   fontSize: "16px",
   fontWeight: 600,
   cursor: "pointer",
-  marginBottom: "18px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   gap: "12px",
 };
+
+function ChangePasswordModal({
+  open,
+  onClose,
+  onSubmit,
+  loading,
+  error,
+  success,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => void;
+  loading: boolean;
+  error: string | null;
+  success: string | null;
+}) {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  useEffect(() => {
+    if (open) {
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  }, [open]);
+  if (!open) return null;
+  return (
+    <div className="shop-prompt-overlay">
+      <div className="shop-prompt">
+        <div className="shop-prompt-message">Change password</div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit({ oldPassword, newPassword, confirmPassword });
+          }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            alignItems: "stretch",
+            marginBottom: 8,
+          }}
+        >
+          <label style={labelStyle}>Current password</label>
+          <input
+            type="password"
+            style={{ ...inputStyle, marginBottom: 0, width: "256px" }}
+            placeholder="Enter current password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+          <label style={labelStyle}>New password</label>
+          <input
+            type="password"
+            style={{ ...inputStyle, marginBottom: 0, width: "256px" }}
+            placeholder="Enter new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
+          <label style={labelStyle}>Confirm new password</label>
+          <input
+            type="password"
+            style={{ ...inputStyle, marginBottom: 0, width: "256px" }}
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
+          <button
+            className="shop-prompt-buy-btn"
+            type="submit"
+            disabled={loading}
+            style={{ width: "280px", padding: "8px 18px" }}
+          >
+            {loading ? "Saving..." : "Change"}
+          </button>
+          <button
+            className="shop-prompt-cancel-btn"
+            type="button"
+            onClick={onClose}
+            style={{ width: "280px", padding: "8px 18px" }}
+          >
+            Cancel
+          </button>
+          {success && (
+            <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>
+          )}
+          {error && (
+            <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default function Settings() {
   const { user, token, setUser } = useAuth();
@@ -109,9 +214,6 @@ export default function Settings() {
       setUsernameLoading(false);
     }
   };
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [avatar, setAvatar] = useState(
     user?.id ? `/avatar/${user.id}` : "/avatar/default.png"
   );
@@ -121,6 +223,10 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [linkText, setLinkText] = useState("Link Steam Account");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || !user) return;
@@ -128,9 +234,11 @@ export default function Settings() {
       typeof window !== "undefined" &&
         window.location.search.includes("from=launcher")
         ? "Go on website to link"
-        : "Link Steam Account"
+        : !user?.isStudio
+        ? "Link Steam Account"
+        : "Studio can't link Steam"
     );
-  }, [linkText]);
+  }, [user, linkText]);
 
   useEffect(() => {
     if (typeof document == "undefined") return;
@@ -177,135 +285,163 @@ export default function Settings() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
+  const handlePasswordChange = async ({
+    oldPassword,
+    newPassword,
+    confirmPassword,
+  }: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    setPasswordLoading(true);
+    setPasswordError(null);
+    setPasswordSuccess(null);
     try {
-      // Update email
-      if (email && email !== user?.email) {
-        const res = await fetch("/api/users/update-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ email }),
-        });
-        if (!res.ok) throw new Error("Failed to update email");
+      if (!newPassword || !confirmPassword) {
+        throw new Error("Veuillez remplir tous les champs de mot de passe.");
       }
-      // Update password (if any field is filled)
-      if (newPassword || confirmPassword) {
-        if (!newPassword || !confirmPassword) {
-          throw new Error("Please fill all password fields.");
-        }
-        if (newPassword !== confirmPassword) {
-          throw new Error("New password and confirmation do not match.");
-        }
-        const res = await fetch("/api/users/change-password", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
-        });
-        const data = await res.json();
-        if (!res.ok)
-          throw new Error(data.message || "Failed to update password");
+      if (newPassword !== confirmPassword) {
+        throw new Error(
+          "Le nouveau mot de passe et la confirmation ne correspondent pas."
+        );
       }
-      setSuccess("Settings updated!");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      const res = await fetch("/api/users/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(
+          data.message || "Erreur lors du changement de mot de passe"
+        );
+      setPasswordSuccess("Mot de passe mis à jour !");
+      setShowPasswordModal(false);
     } catch (e: any) {
-      setError(e.message);
+      setPasswordError(e.message);
     } finally {
-      setLoading(false);
+      setPasswordLoading(false);
     }
   };
+
+  function handleSave(): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div className="container" style={containerStyle}>
       <h2 style={{ marginBottom: 32 }}>Settings</h2>
-      <div
+      <button
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          position: "absolute",
+          top: 24,
+          right: 24,
+          background: "none",
+          border: "none",
+          color: user?.isStudio ? "#aaa" : "#fff",
+          cursor: "pointer",
+          fontSize: 22,
+          zIndex: 2,
         }}
+        onClick={() => setShowPasswordModal(true)}
+        disabled={user?.isStudio}
+        type="button"
+        title="Change password"
       >
-        <img
-          src={avatar}
-          alt="Profile"
-          style={avatarStyle}
-          onClick={() => fileInputRef.current?.click()}
-          title="Change profile picture"
-        />
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          style={{ display: "none" }}
-          onChange={handleAvatarChange}
-        />
-        {avatarFile && (
-          <button
-            type="button"
-            style={{ ...buttonStyle, marginTop: 8, background: "#444" }}
-            onClick={handleAvatarUpload}
-            disabled={loading}
-          >
-            {loading ? "Uploading..." : "Upload new picture"}
-          </button>
-        )}
-      </div>
-      <div style={{ marginTop: 24 }}>
-        <label style={labelStyle}>Username</label>
-        <form
-          onSubmit={handleUsernameSave}
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            marginBottom: 8,
-          }}
-        >
-          <input
-            type="text"
-            style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
-            value={username}
-            onChange={handleUsernameChange}
-            autoComplete="username"
-            minLength={3}
-            maxLength={32}
-            required
-            disabled={usernameLoading}
+        <i className="fas fa-key" aria-hidden="true" />
+      </button>
+      <div style={{ display: "flex", flexDirection: "row", gap: 24 }}>
+        <div>
+          <img
+            src={avatar}
+            alt="Profile"
+            style={avatarStyle}
+            onClick={() => fileInputRef.current?.click()}
+            title="Change profile picture"
           />
-          <button
-            type="submit"
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleAvatarChange}
+          />
+          {avatarFile && (
+            <button
+              type="button"
+              style={{ ...buttonStyle, marginTop: 8, background: "#444" }}
+              onClick={handleAvatarUpload}
+              disabled={loading}
+            >
+              {loading ? "Uploading..." : "Upload new picture"}
+            </button>
+          )}
+        </div>
+        <div>
+          <form
+            onSubmit={handleUsernameSave}
             style={{
-              ...buttonStyle,
-              width: "auto",
-              padding: "8px 18px",
+              display: "flex",
+              gap: 8,
+              // alignItems: "center",
               marginTop: 0,
+              marginBottom: 8,
             }}
-            disabled={usernameLoading}
           >
-            {usernameLoading ? "Saving..." : "Save"}
-          </button>
-        </form>
-        {usernameSuccess && (
-          <div style={{ color: "#4caf50", marginTop: 2 }}>
-            {usernameSuccess}
-          </div>
-        )}
-        {usernameError && (
-          <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>
-        )}
-      </div>{" "}
+            <label style={labelStyle}>Username</label>
+            <input
+              type="text"
+              style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
+              value={username}
+              onChange={handleUsernameChange}
+              autoComplete="username"
+              minLength={3}
+              maxLength={32}
+              required
+              disabled={usernameLoading}
+            />
+            <button
+              type="submit"
+              style={{
+                ...buttonStyle,
+                width: "280px",
+                padding: "8px 18px",
+                // marginBottom: 16,
+              }}
+              disabled={usernameLoading}
+            >
+              {usernameLoading ? "Saving..." : "Save"}
+            </button>
+          </form>
+          {usernameSuccess && (
+            <div style={{ color: "#4caf50", marginTop: 2 }}>
+              {usernameSuccess}
+            </div>
+          )}
+          {usernameError && (
+            <div style={{ color: "#ff5252", marginTop: 2 }}>
+              {usernameError}
+            </div>
+          )}
+        </div>{" "}
+      </div>
       {user && !user?.isStudio ? (
+        <>
+          <ChangePasswordModal
+            open={showPasswordModal}
+            onClose={() => setShowPasswordModal(false)}
+            onSubmit={handlePasswordChange}
+            loading={passwordLoading}
+            error={passwordError}
+            success={passwordSuccess}
+          />
+        </>
+      ) : null}
+      {
         <>
           <div
             style={{
@@ -329,50 +465,17 @@ export default function Settings() {
             }}
             onSubmit={handleSave}
           >
-            <label style={labelStyle}>Email</label>
-            <input
-              type="email"
-              style={inputStyle}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              disabled={true}
-            />
-            <label style={labelStyle}>Current Password</label>
-            <input
-              type="password"
-              style={inputStyle}
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              autoComplete="current-password"
-              placeholder="Enter your current password"
-            />
-            <label style={labelStyle}>New Password</label>
-            <input
-              type="password"
-              style={inputStyle}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="Enter new password"
-            />
-            <label style={labelStyle}>Confirm New Password</label>
-            <input
-              type="password"
-              style={inputStyle}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="Confirm new password"
-            />
-            <button type="submit" style={buttonStyle} disabled={loading}>
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
             {!user?.steam_id ? (
               <button
                 style={steamBtnStyle}
                 onClick={(event) => {
+                  event.preventDefault();
+                  if (
+                    user?.isStudio ||
+                    (typeof window !== "undefined" &&
+                      window.location.search.includes("from=launcher"))
+                  )
+                    return;
                   if (
                     typeof window !== "undefined" &&
                     window.location.search.includes("from=launcher")
@@ -397,12 +500,12 @@ export default function Settings() {
               <button
                 style={steamBtnStyle}
                 onClick={(event) => {
+                  event.preventDefault();
                   if (
                     typeof window !== "undefined" &&
                     window.location.search.includes("from=launcher")
                   )
                     return;
-                  event.preventDefault();
                   confirm(
                     "Are you sure you want to unlink your Steam account?"
                   ) &&
@@ -428,10 +531,6 @@ export default function Settings() {
                       })
                       .catch((err) => setError(err.message));
                 }}
-                disabled={
-                  typeof window !== "undefined" &&
-                  window.location.search.includes("from=launcher")
-                }
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <img
@@ -454,7 +553,7 @@ export default function Settings() {
             )}
           </form>
         </>
-      ) : null}
+      }
     </div>
   );
 }

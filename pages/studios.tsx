@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 
 export default function StudiosPage() {
   const { user, token, setUser } = useAuth();
+  const router = useRouter();
   const [studioName, setStudioName] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,13 @@ export default function StudiosPage() {
   const [addUserDropdownOpen, setAddUserDropdownOpen] = useState(false);
   const addUserInputRef = useRef<HTMLInputElement>(null);
   const [addUserError, setAddUserError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.isStudio) {
+      router.push("/");
+    }
+  }, [user, router]);
+
   const [apiKeySpoilers, setApiKeySpoilers] = useState<{
     [k: string]: boolean;
   }>({});
@@ -47,6 +55,7 @@ export default function StudiosPage() {
   };
 
   const refreshStudiosList = async () => {
+    console.log("Refreshing studios list...");
     fetch(`/api/users/@me`, {
       method: "GET",
       headers: {
