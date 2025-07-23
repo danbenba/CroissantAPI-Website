@@ -124,21 +124,23 @@ export default function OAuth2Auth() {
       client_id: search.get("client_id") || undefined,
       redirect_uri: search.get("redirect_uri") || undefined,
     });
-    fetch("/api/oauth2/app/" + search.get("client_id"), {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("Failed to fetch application info.");
+    if (search.get("client_id")) {
+      fetch("/api/oauth2/app/" + search.get("client_id"), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then((data) => {
-        setUserFromApp(data);
-      })
-      .catch((err) => {
-        setError(err.message);
-      });
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error("Failed to fetch application info.");
+        })
+        .then((data) => {
+          setUserFromApp(data);
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    }
   }, [token]);
 
   const handleLogin = () => {
@@ -177,9 +179,8 @@ export default function OAuth2Auth() {
     }
   };
 
-  if (!params.client_id || !params.redirect_uri) {
-    return <div className="container">Missing parameters.</div>;
-  }
+  // Toujours afficher le squelette, même si params manquants
+  const missingParams = !params.client_id || !params.redirect_uri;
 
   return (
     <div style={popupContainerStyle}>
@@ -195,15 +196,17 @@ export default function OAuth2Auth() {
           </div>
         </div>
       </div>
-      {error && <div style={errorMsgStyle}>{error}</div>}
+      {(error || missingParams) && (
+        <div style={errorMsgStyle}>{missingParams ? "Missing parameters." : error}</div>
+      )}
       {/* Bouton déplacé en bas */}
       <div style={btnBottomStyle}>
-        {!authLoading && !user && (
+        {!authLoading && !user && !missingParams && (
           <button style={oauthBtnLoginStyle} onClick={handleLogin}>
             Log in
           </button>
         )}
-        {!authLoading && user && (
+        {!authLoading && user && !missingParams && (
           <button
             style={loading ? oauthBtnDisabledStyle : oauthBtnStyle}
             onClick={handleAuth}
@@ -214,7 +217,7 @@ export default function OAuth2Auth() {
         )}
       </div>
       <div style={redirectInfoBottomStyle}>
-        Redirect URI: {params.redirect_uri}
+        Redirect URI: {params.redirect_uri || <span style={{ color: '#b91c1c' }}>N/A</span>}
       </div>
     </div>
   );
