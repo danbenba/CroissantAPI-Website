@@ -766,7 +766,7 @@ const MyItems = () => {
                   >
                     &times;
                   </button>
-                  <h3 style={{ marginBottom: 18 }}>Transférer l'ownership</h3>
+                  <h3 style={{ marginBottom: 18 }}>Transfer ownership</h3>
                   <form autoComplete="off" onSubmit={handleConfirmOwnershipTransfer}>
                     <div style={{ position: "relative", marginBottom: 12 }}>
                       <label style={{ color: "#fff", marginBottom: 4, display: "block" }}>

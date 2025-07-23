@@ -230,6 +230,79 @@ const MyGames = () => {
     }
   };
 
+  const [showOwnershipModal, setShowOwnershipModal] = useState(false);
+  const [ownershipGame, setOwnershipGame] = useState<Game | null>(null);
+  const [ownershipUserId, setOwnershipUserId] = useState("");
+  const [ownershipUserSearch, setOwnershipUserSearch] = useState("");
+  const [ownershipUserResults, setOwnershipUserResults] = useState<any[]>([]);
+  const [ownershipUserDropdownOpen, setOwnershipUserDropdownOpen] = useState(false);
+  const [ownershipError, setOwnershipError] = useState<string | null>(null);
+  const [ownershipLoading, setOwnershipLoading] = useState(false);
+  const ownershipUserInputRef = React.useRef<HTMLInputElement>(null);
+
+  // User search for ownership transfer
+  const handleOwnershipUserSearch = async (q: string) => {
+    if (!q || q.length < 2) {
+      setOwnershipUserResults([]);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) return;
+      const users = await res.json();
+      setOwnershipUserResults(users.filter((u: any) => !u.isStudio));
+    } catch (e) {
+      setOwnershipUserResults([]);
+    }
+  };
+
+  // Handle ownership transfer button click
+  const handleOwnershipTransfer = (game: Game) => {
+    setOwnershipGame(game);
+    setShowOwnershipModal(true);
+    setOwnershipUserId("");
+    setOwnershipUserSearch("");
+    setOwnershipUserResults([]);
+    setOwnershipError(null);
+  };
+
+  // Confirm ownership transfer
+  const handleConfirmOwnershipTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ownershipGame || !ownershipUserId) {
+      setOwnershipError("Veuillez sélectionner un utilisateur.");
+      return;
+    }
+    setOwnershipLoading(true);
+    setOwnershipError(null);
+    try {
+      const res = await fetch(`/api/games/transfer-ownership/${ownershipGame.gameId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newOwnerId: ownershipUserId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setOwnershipError(data.message || "Erreur lors du transfert d'ownership");
+      } else {
+        setShowOwnershipModal(false);
+        setOwnershipGame(null);
+        setOwnershipUserId("");
+        setOwnershipUserSearch("");
+        setOwnershipUserResults([]);
+        setOwnershipError(null);
+        // Optionally refresh games
+        setGames((prev) => prev);
+      }
+    } catch (err) {
+      setOwnershipError("Erreur lors du transfert d'ownership");
+    } finally {
+      setOwnershipLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="mygames-container">
@@ -303,15 +376,27 @@ const MyGames = () => {
                       className="mygames-card-credit"
                     />
                   </div>
-                  <button
-                    className="mygames-card-editbtn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(game);
-                    }}
-                  >
-                    Edit
-                  </button>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <button
+                      className="mygames-card-editbtn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(game);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="mygames-card-editbtn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOwnershipTransfer(game);
+                      }}
+                    >
+                      Transfer
+                    </button>
+                  </div>
+
                 </div>
               ))}
               {Array.from({
@@ -544,6 +629,191 @@ const MyGames = () => {
                     </div>
                   </div>
                 </form>
+              </div>
+            )}
+            {showOwnershipModal && (
+              <div
+                className="modal-overlay"
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: "rgba(0,0,0,0.35)",
+                  zIndex: 1000,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={() => setShowOwnershipModal(false)}
+              >
+                <div
+                  className="modal-content"
+                  style={{
+                    background: "#232323",
+                    borderRadius: 10,
+                    padding: 32,
+                    minWidth: 320,
+                    position: "relative",
+                    boxShadow: "0 2px 16px #0005",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="close-modal-btn"
+                    onClick={() => setShowOwnershipModal(false)}
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 16,
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 24,
+                      cursor: "pointer",
+                    }}
+                  >
+                    &times;
+                  </button>
+                  <h3 style={{ marginBottom: 18 }}>Transfer ownership</h3>
+                  <form autoComplete="off" onSubmit={handleConfirmOwnershipTransfer}>
+                    <div style={{ position: "relative", marginBottom: 12 }}>
+                      <label style={{ color: "#fff", marginBottom: 4, display: "block" }}>
+                        Select user:
+                      </label>
+                      <input
+                        ref={ownershipUserInputRef}
+                        type="text"
+                        value={ownershipUserSearch}
+                        onChange={async (e) => {
+                          setOwnershipUserSearch(e.target.value);
+                          setOwnershipUserDropdownOpen(true);
+                          setOwnershipUserId("");
+                          await handleOwnershipUserSearch(e.target.value);
+                        }}
+                        onFocus={() => {
+                          if (ownershipUserSearch.length > 1) setOwnershipUserDropdownOpen(true);
+                        }}
+                        onBlur={() =>
+                          setTimeout(() => setOwnershipUserDropdownOpen(false), 150)
+                        }
+                        placeholder="Search user by name..."
+                        style={{
+                          marginRight: 8,
+                          padding: "10px 12px",
+                          borderRadius: 6,
+                          border: "1px solid #444",
+                          background: "#181818",
+                          color: "#fff",
+                          fontSize: "1rem",
+                          width: "280px",
+                        }}
+                      />
+                      {ownershipUserDropdownOpen && ownershipUserResults.length > 0 && (
+                        <ul
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            right: 0,
+                            top: 40,
+                            background: "#232323",
+                            border: "1px solid #444",
+                            borderRadius: 6,
+                            maxHeight: 200,
+                            overflowY: "auto",
+                            zIndex: 1001,
+                            listStyle: "none",
+                            margin: 0,
+                            padding: 0,
+                          }}
+                        >
+                          {ownershipUserResults.map((u) => (
+                            <li
+                              key={u.userId || u.user_id || u.id}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                padding: "8px 12px",
+                                cursor: "pointer",
+                                borderBottom: "1px solid #333",
+                              }}
+                              onMouseDown={() => {
+                                setOwnershipUserId(u.userId || u.user_id || u.id);
+                                setOwnershipUserSearch(u.username);
+                                setOwnershipUserDropdownOpen(false);
+                              }}
+                            >
+                              <img
+                                src={`/avatar/${u.userId || u.user_id || u.id}`}
+                                alt="avatar"
+                                style={{ width: 28, height: 28, borderRadius: "50%" }}
+                                onError={(e) => (e.currentTarget.src = "/avatar/default.png")}
+                              />
+                              <span style={{ color: "#fff" }}>{u.username}</span>
+                              {u.admin ? (
+                                <img
+                                  src="/assets/admin-mark.png"
+                                  alt="Admin"
+                                  style={{ width: 16, height: 16, verticalAlign: "middle" }}
+                                />
+                              ) : (
+                                <>
+                                  {u.verified ? (
+                                    <img
+                                      src="/assets/verified-mark.png"
+                                      alt="Verified"
+                                      style={{ width: 16, height: 16, verticalAlign: "middle" }}
+                                    />
+                                  ) : null}
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <button
+                        type="submit"
+                        disabled={ownershipLoading || !ownershipUserId}
+                        style={{
+                          background: "#333",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 6,
+                          fontWeight: 500,
+                          padding: "10px 24px",
+                          fontSize: "1rem",
+                          cursor: ownershipUserId ? "pointer" : "not-allowed",
+                        }}
+                      >
+                        {ownershipLoading ? "Transferring..." : "Transfer"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowOwnershipModal(false)}
+                        style={{
+                          background: "#222",
+                          border: "1px solid #444",
+                          color: "#fff",
+                          borderRadius: 6,
+                          padding: "10px 24px",
+                          fontSize: "1rem",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {ownershipError && (
+                      <div style={{ color: "red", marginTop: 12 }}>
+                        {ownershipError}
+                      </div>
+                    )}
+                  </form>
+                </div>
               </div>
             )}
           </>
