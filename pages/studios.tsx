@@ -17,6 +17,9 @@ export default function StudiosPage() {
   const [addUserDropdownOpen, setAddUserDropdownOpen] = useState(false);
   const addUserInputRef = useRef<HTMLInputElement>(null);
   const [addUserError, setAddUserError] = useState<string | null>(null);
+  const [apiKeySpoilers, setApiKeySpoilers] = useState<{
+    [k: string]: boolean;
+  }>({});
 
   const handleCreateStudio = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +135,11 @@ export default function StudiosPage() {
       setLoading(false);
     }
   };
+
+  // Helper to toggle API key spoiler
+  function toggleApiKeySpoiler(studioId: string) {
+    setApiKeySpoilers((s) => ({ ...s, [studioId]: !s[studioId] }));
+  }
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
@@ -408,7 +416,77 @@ export default function StudiosPage() {
                     </ul>
                     <div>
                       <span>
-                        API Key: <code>{studio.apiKey}</code> <a style={{ cursor: "pointer", color: "#007bff" }} onClick={() => navigator.clipboard.writeText(studio.apiKey)}>Copy</a>
+                        API Key:{" "}
+                        {apiKeySpoilers[studio.user_id] ? (
+                          <code
+                            style={{
+                              background: "#444",
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              fontWeight: 500,
+                              marginRight: 8,
+                              userSelect: "all",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigator.clipboard.writeText(studio.apiKey)
+                            }
+                            title="Click to copy"
+                          >
+                            {studio.apiKey}
+                          </code>
+                        ) : (
+                          <code
+                            style={{
+                              background: "#444",
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              fontWeight: 500,
+                              marginRight: 8,
+                              userSelect: "none",
+                              cursor: "pointer",
+                            }}
+                            title="Click to reveal"
+                          >
+                            {"*".repeat(
+                              Math.max(8, String(studio.apiKey).length)
+                            )}
+                          </code>
+                        )}
+                        <button
+                          type="button"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#fff",
+                            cursor: "pointer",
+                            fontSize: 13,
+                            textDecoration: "underline",
+                            opacity: 0.7,
+                            marginLeft: 4,
+                          }}
+                          onClick={() => toggleApiKeySpoiler(studio.user_id)}
+                        >
+                          {apiKeySpoilers[studio.user_id] ? "Hide" : "Show"}
+                        </button>
+                        <button
+                          type="button"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#fff",
+                            cursor: "pointer",
+                            fontSize: 13,
+                            textDecoration: "underline",
+                            opacity: 0.7,
+                            marginLeft: 8,
+                          }}
+                          onClick={() =>
+                            navigator.clipboard.writeText(studio.apiKey)
+                          }
+                        >
+                          Copy
+                        </button>
                       </span>
                     </div>
                     <br />
