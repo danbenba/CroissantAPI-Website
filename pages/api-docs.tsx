@@ -340,69 +340,6 @@ export default function ApiDocs() {
               </a>
             </li>
           </ul>
-          <div style={{ marginTop: "12px", display: "none" }}>
-            <h4 style={{ color: "#fff" }}>Examples</h4>
-            <ul
-              style={{
-                listStyleType: "none",
-                padding: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-              }}
-            >
-              <li>
-                <a
-                  href="/downloadables/example-lib.js"
-                  target="_blank"
-                  download
-                  style={{ color: "#1e90ff", textDecoration: "none" }}
-                >
-                  [NodeJs example]
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/downloadables/example-lib.ts"
-                  target="_blank"
-                  download
-                  style={{ color: "#1e90ff", textDecoration: "none" }}
-                >
-                  [Typescript example]
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/downloadables/example-lib.py"
-                  target="_blank"
-                  download
-                  style={{ color: "#1e90ff", textDecoration: "none" }}
-                >
-                  [Python example]
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/downloadables/ExampleLib.java"
-                  target="_blank"
-                  download
-                  style={{ color: "#1e90ff", textDecoration: "none" }}
-                >
-                  [Java example]
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/downloadables/ExampleLib.cs"
-                  target="_blank"
-                  download
-                  style={{ color: "#1e90ff", textDecoration: "none" }}
-                >
-                  [C# example]
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </aside>
 
