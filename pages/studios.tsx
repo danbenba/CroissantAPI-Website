@@ -112,6 +112,7 @@ export default function StudiosPage() {
     } catch (e) {
       setAddUserResults([]);
     }
+    console.log("User search results:", addUserResults);
   };
 
   const handleAddUser = async (studioId: string, userId: string) => {

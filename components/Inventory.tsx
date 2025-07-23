@@ -139,53 +139,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const totalCells = rows * columns;
   const emptyCells = totalCells - totalItems;
 
-  // Move details rendering to a variable instead of early return
-  let detailsView = null;
-  if (selectedItem) {
-    detailsView = (
-      <div className="inventory-details-container">
-        <button onClick={handleBackToInventory} className="inventory-back-btn">← Back to Inventory</button>
-        <div className="inventory-details-main">
-          <img src={"/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)} alt={selectedItem.name} className="inventory-details-img" />
-          <div>
-            <div className="inventory-details-name">{selectedItem.name}</div>
-            <div className="inventory-details-desc">{selectedItem.description}</div>
-            <div className="inventory-details-qty">Quantity: x{selectedItem.amount}</div>
-            {selectedItem.price !== undefined && (
-              <div className="inventory-details-price">
-                Price: {selectedItem.price} <img src="/assets/credit.png" className="inventory-credit-icon" />
-              </div>
-            )}
-            {selectedItem.owner && ownerUser && (
-              <div className="inventory-details-creator">
-                Creator:{" "}
-                <Link href={`/profile?user=${selectedItem.owner}`} className="inventory-details-creator-link">
-                  <img className="inventory-details-creator-avatar" src={"/avatar/" + selectedItem.owner} />
-                  {ownerUser.username}{" "}
-                  {ownerUser.verified && (
-                    <img
-                      src={
-                        "/assets/" +
-                        (!ownerUser.admin
-                          ? ownerUser.isStudio
-                            ? "brand-verified-mark.png"
-                            : "verified-mark.png"
-                          : "admin-mark.png")
-                      }
-                      alt="Verified"
-                      style={{ marginLeft: "4px", width: "16px", height: "16px", position: "relative", top: "2px" }}
-                    />
-                  )}
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Sous-composant pour gérer l'état de chargement de chaque image d'item et les interactions locales
   const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop }: {
     item: Item,
     onSelect: (item: Item) => void,
@@ -196,7 +149,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     const [loaded, setLoaded] = React.useState(false);
     const [showTooltip, setShowTooltip] = React.useState(false);
     const [showContext, setShowContext] = React.useState(false);
-    const [mousePos, setMousePos] = React.useState<{x: number, y: number} | null>(null);
+    const [mousePos, setMousePos] = React.useState<{ x: number, y: number } | null>(null);
     const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
     const fallbackUrl = "/assets/System_Shop.webp";
 
@@ -278,30 +231,74 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const memoHandleItemClick = useCallback((item: Item) => handleItemClick(item), [handleItemClick]);
 
   // Render detailsView if selectedItem, else render inventory grid
-  if (selectedItem) return detailsView;
+  // if (selectedItem) return detailsView;
 
   return (
     <div className="inventory-root">
       {loading && <div className="inventory-loading"><div className="inventory-loading-spinner"></div></div>}
       {error && <p className="inventory-error">{error}</p>}
-      <div className="inventory-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-        {!loading && !error && (
+      <div className="inventory-grid" style={{ gridTemplateColumns: !selectedItem ? `repeat(${columns}, 1fr)` : "auto", gap: selectedItem ? "0px" : undefined }}>
+        {selectedItem ? (<>
+          <button onClick={handleBackToInventory} className="inventory-back-btn">← Back to Inventory</button>
+          <div className="inventory-details-main">
+            <img src={"/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)} alt={selectedItem.name} className="inventory-details-img" />
+            <div>
+              <div className="inventory-details-name">{selectedItem.amount}x {selectedItem.name}</div>
+              <div className="inventory-details-desc">{selectedItem.description}</div>
+              <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+                {selectedItem.price !== undefined && (
+                  <div className="inventory-details-price">
+                    Price: {selectedItem.price} <img src="/assets/credit.png" className="inventory-credit-icon" />
+                  </div>
+                )}
+                {selectedItem.owner && ownerUser && (
+                  <div className="inventory-details-creator" style={{ position: "relative", top: "-6px" }}>
+                    Creator:{" "}
+                    <Link href={`/profile?user=${selectedItem.owner}`} className="inventory-details-creator-link">
+                      <img className="inventory-details-creator-avatar" src={"/avatar/" + selectedItem.owner} />
+                      {ownerUser.username}{" "}
+                      {ownerUser.verified && (
+                        <img
+                          src={
+                            "/assets/" +
+                            (!ownerUser.admin
+                              ? ownerUser.isStudio
+                                ? "brand-verified-mark.png"
+                                : "verified-mark.png"
+                              : "admin-mark.png")
+                          }
+                          alt="Verified"
+                          style={{ marginLeft: "4px", width: "16px", height: "16px", position: "relative", top: "2px" }}
+                        />
+                      )}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div></>
+        ) : (
           <>
-            {items.map((item) => (
-              <InventoryItem
-                key={item.itemId}
-                item={item}
-                onSelect={handleItemClick}
-                isMe={!!isMe}
-                onSell={handleSell}
-                onDrop={handleDrop}
-              />
-            ))}
-            {Array.from({ length: emptyCells }).map((_, idx) => (
-              <div key={`empty-${idx}`} className="inventory-item-empty" draggable={false} />
-            ))}
+            {!loading && !error && (
+              <>
+                {items.map((item) => (
+                  <InventoryItem
+                    key={item.itemId}
+                    item={item}
+                    onSelect={handleItemClick}
+                    isMe={!!isMe}
+                    onSell={handleSell}
+                    onDrop={handleDrop}
+                  />
+                ))}
+                {Array.from({ length: emptyCells }).map((_, idx) => (
+                  <div key={`empty-${idx}`} className="inventory-item-empty" draggable={false} />
+                ))}
+              </>
+            )}
           </>
         )}
+
       </div>
       {prompt && (
         <div className="inventory-prompt-overlay">
