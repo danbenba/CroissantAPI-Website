@@ -142,7 +142,25 @@ function ProfileShop({
   // Tooltip handlers
   const handleMouseEnter = (e: React.MouseEvent, item: ShopItem) => {
     const rect = (e.target as HTMLElement).getBoundingClientRect();
-    setTooltip({ x: rect.right + 8, y: rect.top, item });
+    // Calculate tooltip position to avoid out-of-bounds
+    const tooltipWidth = 320; // Approximate width of tooltip (px)
+    const tooltipHeight = 120; // Approximate height of tooltip (px)
+    const padding = 8;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    let x = rect.right + padding;
+    let y = rect.top;
+    // Adjust X if tooltip would overflow right
+    if (x + tooltipWidth > windowWidth) {
+      x = rect.left - tooltipWidth - padding;
+      if (x < 0) x = windowWidth - tooltipWidth - padding;
+    }
+    // Adjust Y if tooltip would overflow bottom
+    if (y + tooltipHeight > windowHeight) {
+      y = windowHeight - tooltipHeight - padding;
+      if (y < 0) y = padding;
+    }
+    setTooltip({ x, y, item });
   };
   const handleMouseLeave = () => setTooltip(null);
 
