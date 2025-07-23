@@ -231,11 +231,11 @@ function AppContent({ Component, pageProps }: AppProps) {
     <div>
       <BackgroundImage />
       <MetaLinks />
-      <Navbar />
+      {!pageProps?.isOauth2Auth && <Navbar />}
       <main style={mainStyle}>
-        <Component {...pageProps} />
+      <Component {...pageProps} />
       </main>
-      <Footer />
+      {!pageProps?.isOauth2Auth && <Footer />}
     </div>
   );
 

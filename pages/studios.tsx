@@ -152,23 +152,27 @@ export default function StudiosPage() {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h2 style={{ marginBottom: 18 }}>My studios</h2>
-      <button
-        onClick={() => setShowForm(true)}
-        style={{
-          marginBottom: 24,
-          background: "#333",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          fontWeight: 500,
-          padding: "12px 24px",
-          fontSize: "1.05rem",
-          cursor: "pointer",
-        }}
-      >
-        + Create a studio
-      </button>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <h2 style={{ marginBottom: 18 }}>My studios</h2>
+        <button
+          onClick={() => setShowForm(true)}
+          style={{
+            marginBottom: 24,
+            background: "#333",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            fontWeight: 500,
+            padding: "12px 24px",
+            fontSize: "1.05rem",
+            cursor: "pointer",
+            position: "relative",
+            top: "12px",
+          }}
+        >
+          + Create a studio
+        </button>
+      </div>
       {showForm && (
         <div
           className="modal-overlay"

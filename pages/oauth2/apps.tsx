@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 
 // --- Styles extracted as constants for readability ---
 const linkStyle: React.CSSProperties = {
-  position: "absolute",
+  position: "relative",
   top: 18,
   right: 18,
   fontSize: 13,
@@ -223,28 +223,38 @@ export default function OAuth2Apps() {
 
   return (
     <div className="container-oauth2" style={{ position: "relative" }}>
-      <Link
-        href={"/oauth2/test" + isFromLauncher()}
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.opacity = "0.95")}
-        onMouseOut={(e) => (e.currentTarget.style.opacity = "0.55")}
-        tabIndex={-1}
-      >
-        Test OAuth2 ↗
-      </Link>
-
-      <h2 style={{ marginBottom: 18 }}>My OAuth2 Applications</h2>
-      <button
-        className="add-app-btn"
-        onClick={() => {
-          setShowForm(true);
-          setEditing(null);
-          setName("");
-          setRedirectUrls("");
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        + Add Application
-      </button>
+        <h2 style={{ marginBottom: 18 }}>My OAuth2 Applications</h2>
+        <div style={{ display: "flex", gap: 16, flexDirection: "row" }}>
+          <Link
+            href={"/oauth2/test" + isFromLauncher()}
+            style={linkStyle}
+            onMouseOver={(e) => (e.currentTarget.style.opacity = "0.95")}
+            onMouseOut={(e) => (e.currentTarget.style.opacity = "0.55")}
+            tabIndex={-1}
+          >
+            Test OAuth2 ↗
+          </Link>
+          <button
+            className="add-app-btn"
+            onClick={() => {
+              setShowForm(true);
+              setEditing(null);
+              setName("");
+              setRedirectUrls("");
+            }}
+          >
+            + Add Application
+          </button>
+        </div>
+      </div>
       <div className="apps-grid">
         {apps &&
           apps.map((app) => (

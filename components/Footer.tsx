@@ -8,17 +8,6 @@ export default function Footer() {
   );
 
   useEffect(() => {
-    if (
-      window.location.href.startsWith(
-        window.location.origin + "/oauth2/auth"
-      ) ||
-      window.location.href.startsWith(window.location.origin + "/api-docs")
-    ) {
-      setShow("none");
-    } else {
-      setShow("");
-    }
-
     const checkFooterPosition = () => {
       if (document.body.scrollHeight <= window.innerHeight) {
         setFooterPosition("absolute");

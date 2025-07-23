@@ -219,3 +219,11 @@ export default function OAuth2Auth() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return {
+    props: {
+      isOauth2Auth: true,
+    },
+  };
+}

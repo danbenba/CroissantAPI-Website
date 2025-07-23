@@ -1064,7 +1064,7 @@ input[type=text].required:focus {
 
 .inventory-grid {
     max-width: 900px;
-    height: 444px;
+    height: 220px;
     display: grid;
     gap: 8px;
     padding: 16px;
@@ -2544,9 +2544,9 @@ main {
 .container-oauth2 {
     max-width: 900px;
     margin: 40px auto;
-    background: #23242a;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, .25);
+    /* background: #23242a; */
+    /* border-radius: 14px; */
+    /* box-shadow: 0 2px 12px rgba(0, 0, 0, .25); */
     padding: 32px 24px;
     color: #fff
 }

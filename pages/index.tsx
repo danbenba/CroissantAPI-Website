@@ -346,10 +346,7 @@ export default function Home() {
         Creative and Reusable Opensource Inventory System, Scalable, APIful, and
         Network Technology
       </span>
-      <div
-        className="container"
-        style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}
-      >
+      <div className="container" style={{ margin: "0 auto", padding: "1rem" }}>
         <h1>
           <span className="method post">CROISSANT PLATFORM OVERVIEW</span>
         </h1>

@@ -148,16 +148,6 @@ export default function NavBar() {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-  useEffect(() => {
-    if (loading) return;
-    if (
-      window.location.href.startsWith(window.location.origin + "/oauth2/auth")
-    ) {
-      setShow("none");
-    } else {
-      setShow("");
-    }
-  }, [loading]);
 
   const handleLogout = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -354,7 +344,13 @@ export default function NavBar() {
                           Games
                         </a>
                       </Link>
-                      <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
+                      <hr
+                        style={{
+                          border: "none",
+                          borderTop: "1px solid #35363b",
+                          margin: "6px 0",
+                        }}
+                      />
                       <Link href="/settings" legacyBehavior>
                         <a
                           style={{

@@ -261,7 +261,7 @@ function ProfileShop({
 
   // Grid layout calculations
   const columns = 3;
-  const minRows = 6;
+  const minRows = 3;
   const totalItems = items.length;
   const rows = Math.max(minRows, Math.ceil(totalItems / columns));
   const totalCells = rows * columns;
