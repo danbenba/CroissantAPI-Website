@@ -410,9 +410,17 @@ export default function NavBar() {
                                   }
                                 })
                                 .then((data) => {
-                                  if (data.user) {
-                                    setUser(data.user);
-                                  }
+                                  fetch("/api/users/@me", {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                      "Content-Type": "application/json",
+                                    },
+                                  })
+                                    .then((res) => res.json())
+                                    .then((userData) => {
+                                      setUser(userData);
+                                      setShow("");
+                                    });
                                 })
                                 .catch((err) => {
                                   console.error(err);
