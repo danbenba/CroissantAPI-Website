@@ -9,7 +9,7 @@ const footerLinks = [
 export default function Footer() {
   const [show, setShow] = useState("");
   const [footerPosition, setFooterPosition] = useState<"relative" | "absolute">(
-    "relative"
+    "absolute"
   );
 
   useEffect(() => {
