@@ -257,7 +257,7 @@ const SearchPage: React.FC = () => {
                       />
                     ) : null}
                   </div>
-                  <div className="search-user-username">@{user.username}</div>
+                  <div className="search-user-username" style={{fontSize: 10}}>{user.id}</div>
                 </div>
               </Link>
             ))}
