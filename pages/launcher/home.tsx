@@ -512,4 +512,12 @@ const Library: React.FC = () => {
   );
 };
 
+export async function getServerSideProps() {
+  return {
+    props: {
+      isLauncher: true,
+    },
+  };
+}
+
 export default Library;

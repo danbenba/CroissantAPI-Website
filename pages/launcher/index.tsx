@@ -37,4 +37,12 @@ const LauncherPage: React.FC = () => {
   return <></>;
 };
 
+export async function getServerSideProps() {
+  return {
+    props: {
+      isLauncher: true,
+    },
+  };
+}
+
 export default LauncherPage;

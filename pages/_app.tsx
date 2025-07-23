@@ -128,8 +128,15 @@ function AppContent({ Component, pageProps }: AppProps) {
     if (token) fetchMe(token, () => {});
   }, [token]);
 
-  // Handle launcher mode and app height
+  // Determine launcher mode synchronously to avoid hydration errors
+  const isLauncherPath =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/launcher");
+  const isFromLauncher =
+    typeof window !== "undefined" &&
+    window.location.search.includes("from=launcher");
   useEffect(() => {
+    // Set app height for CSS variable
     const setAppHeight = () => {
       document.documentElement.style.setProperty(
         "--app-height",
@@ -139,15 +146,14 @@ function AppContent({ Component, pageProps }: AppProps) {
     setAppHeight();
     window.addEventListener("resize", setAppHeight);
 
-    // Detect launcher mode
-    const isLauncherPath = window.location.pathname.startsWith("/launcher");
-    const isFromLauncher = window.location.search.includes("from=launcher");
-    setIsLauncher(isLauncherPath || isFromLauncher);
-
     return () => {
       window.removeEventListener("resize", setAppHeight);
     };
   }, []);
+
+  useEffect(() => {
+    setIsLauncher(isLauncherPath || isFromLauncher);
+  }, [isLauncherPath, isFromLauncher]);
 
   // --- Background image component ---
   const BackgroundImage = () => (
@@ -234,11 +240,11 @@ function AppContent({ Component, pageProps }: AppProps) {
     <div>
       <BackgroundImage />
       <MetaLinks />
-      {!pageProps?.isOauth2Auth && <Navbar />}
+      {(!pageProps?.isOauth2Auth || !pageProps?.isLauncher) && <Navbar />}
       <main style={mainStyle}>
         <Component {...pageProps} />
       </main>
-      {!pageProps?.isOauth2Auth && <Footer />}
+      {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}
     </div>
   );
 
