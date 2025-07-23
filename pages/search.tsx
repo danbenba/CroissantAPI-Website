@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import useAuth from "../hooks/useAuth";
+import useUserCache from "../hooks/useUserCache";
 
 // API endpoint for user search
 const API_ENDPOINT = "/api";
@@ -49,6 +50,7 @@ const SearchPage: React.FC = () => {
   const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
+  const { cacheUser } = useUserCache();
 
   // Helper to check if the request is from the launcher
   const isFromLauncher = useCallback(() => {
@@ -71,17 +73,23 @@ const SearchPage: React.FC = () => {
     const controller = new AbortController();
     const debounceTimeout = setTimeout(() => {
       fetch(
-      `${API_ENDPOINT}/search?q=${encodeURIComponent(query)}`,
+      `${API_ENDPOINT}/search${user?.admin ? "/admin" : ""}?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
-        "Content-Type": "application/json",
+          "Content-Type": "application/json",
         },
         signal: controller.signal,
       }
-      )
+    )
       .then((res) => res.json())
-      .then((data) => {
+      .then(async (data) => {
+        // On met en cache les users reçus
+        if (Array.isArray(data.users)) {
+          for (const u of data.users) {
+            await cacheUser(u); // met en cache si pas déjà
+          }
+        }
         setUsers(Array.isArray(data.users) ? data.users : []);
         setGames(Array.isArray(data.games) ? data.games : []);
         setItems(Array.isArray(data.items) ? data.items : []);

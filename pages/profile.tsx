@@ -57,6 +57,7 @@ import Inventory, { Item } from "../components/Inventory";
 const endpoint = "/api"; // Replace with your actual API endpoint
 
 import useAuth from "../hooks/useAuth";
+import useUserCache from "../hooks/useUserCache";
 
 export interface ShopItem {
   itemId: string;
@@ -126,7 +127,6 @@ function ProfileShop({
   } | null>(null);
   const [promptOwnerUser, setPromptOwnerUser] = useState<any | null>(null);
   const [alert, setAlert] = useState<{ message: string } | null>(null);
-  const { token } = useAuth();
   const isFromLauncher = useCallback(() => {
     if (typeof window === "undefined") return "";
     return window.location.pathname.startsWith("/launcher") ||
@@ -147,6 +147,7 @@ function ProfileShop({
   const handleMouseLeave = () => setTooltip(null);
 
   // Custom prompt for buying items
+  const { getUser: getUserFromCache } = useUserCache();
   const customPrompt = async (
     message: string,
     maxAmount?: number,
@@ -155,8 +156,7 @@ function ProfileShop({
     let ownerUser: any = null;
     if (item && (item as any).owner) {
       try {
-        const res = await fetch(endpoint + "/users/" + (item as any).owner);
-        if (res.ok) ownerUser = await res.json();
+        ownerUser = await getUserFromCache((item as any).owner);
       } catch { }
     }
     setPrompt({ message, resolve: () => { }, maxAmount, amount: 1, item });
@@ -452,9 +452,10 @@ export default function Profile({ userId }: ProfileProps) {
 
   const { user, token } = useAuth();
   const router = useRouter();
+  const { getUser: getUserFromCache } = useUserCache();
 
   // Helper to reload profile (debounced to avoid too many fetches)
-  const reloadProfile = useCallback(() => {
+  const reloadProfile = useCallback((reloadCache: boolean = false) => {
     setLoading(true);
     setIsProfileReloading(true);
     const selectedUserId = search || "@me";
@@ -463,17 +464,7 @@ export default function Profile({ userId }: ProfileProps) {
       setLoading(false);
       return;
     }
-    fetch(
-      endpoint +
-      "/users" +
-      (selectedUserId !== "@me" && user?.admin ? "/admin" : "") +
-      "/" +
-      selectedUserId
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        return res.json();
-      })
+    getUserFromCache(selectedUserId, !reloadCache, user?.admin)
       .then(setProfile)
       .catch((e) => {
         setError(e.message);
@@ -506,7 +497,7 @@ export default function Profile({ userId }: ProfileProps) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to disable account");
-      reloadProfile();
+      reloadProfile(true);
     } catch (e: any) {
       setError(e.message);
     }
@@ -522,7 +513,7 @@ export default function Profile({ userId }: ProfileProps) {
       const data = await res.json();
       if (!res.ok)
         throw new Error(data.message || "Failed to re-enable account");
-      reloadProfile();
+      reloadProfile(true);
     } catch (e: any) {
       setError(e.message);
     }
@@ -671,11 +662,11 @@ export default function Profile({ userId }: ProfileProps) {
                       }}
                     />
                   ) : null}{" "}
-                  {profile.disabled && (
+                  {profile.disabled ? (
                     <>
                       <span style={{ color: "red" }}>(Disabled)</span>
                     </>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>

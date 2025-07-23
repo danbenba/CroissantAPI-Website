@@ -103,7 +103,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   };
 
   async function handleAction(item: Item, action: "sell" | "drop", actionText: string) {
-    if (isMe) return;
+    if (!isMe) return;
     const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
     if (result.confirmed && result.amount && result.amount > 0) {
       fetch(`${endpoint}/items/${action}/${item.itemId}`, {

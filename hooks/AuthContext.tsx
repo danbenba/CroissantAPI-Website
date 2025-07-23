@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import useUserCache from "./useUserCache";
 
 export function getToken() {
   if (typeof document === "undefined") return null;
@@ -21,6 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [token, setTokenState] = useState<string | null>(getToken());
+  const { cacheUser } = useUserCache();
 
   useEffect(() => {
     const token = getToken();
@@ -33,7 +35,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     fetch("/api/users/@me")
       .then(async (res) => {
         if (res.status === 200) {
-          setUser(await res.json());
+          const user = await res.json();
+          setUser(user);
+          cacheUser(user);
         } else if (res.status === 401) {
           document.cookie =
             "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

@@ -13,6 +13,7 @@ import LauncherNavbar from "./launcher/components/Navbar";
 import LauncherLobby from "./launcher/components/Lobby";
 import useAuth from "../hooks/useAuth";
 import { AuthProvider } from "../hooks/AuthContext";
+import { UserCacheProvider } from "../hooks/UserCacheContext";
 
 // --- Style constants ---
 const launcherTitlebarStyle: React.CSSProperties = {
@@ -229,8 +230,10 @@ function AppContent({ Component, pageProps }: AppProps) {
 
 export default function App(props: AppProps) {
   return (
-    <AuthProvider>
-      <AppContent {...props} />
-    </AuthProvider>
+    <UserCacheProvider>
+      <AuthProvider>
+        <AppContent {...props} />
+      </AuthProvider>
+    </UserCacheProvider>
   );
 }
