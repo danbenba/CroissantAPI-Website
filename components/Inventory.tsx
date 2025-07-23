@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
@@ -41,8 +41,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; item: Item } | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item: Item } | null>(null);
   const [prompt, setPrompt] = useState<{
     message: string;
     resolve: (value: { confirmed: boolean; amount?: number }) => void;
@@ -70,19 +68,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     setLoading(false);
   }
 
-  const handleMouseEnter = (e: React.MouseEvent, item: Item) => {
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    setTooltip({ x: rect.right + 8, y: rect.top, item });
-  };
-  const handleMouseLeave = () => setTooltip(null);
-
-  const handleContextMenu = (e: React.MouseEvent, item: Item) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, item });
-  };
-
   const customPrompt = (message: string, maxAmount?: number) => {
-    setContextMenu(null);
     return new Promise<{ confirmed: boolean; amount?: number }>(resolve =>
       setPrompt({ message, resolve, maxAmount, amount: 1 })
     );
@@ -116,7 +102,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           if (!res.ok) throw new Error(data.message || `Failed to ${action} item`);
           return data;
         })
-        .then(() => { setContextMenu(null); refreshInventory(); })
+        .then(() => { refreshInventory(); })
         .catch(err => setError(err.message));
     }
   }
@@ -139,8 +125,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       setSelectedItem(item);
       setOwnerUser(null);
     }
-    setTooltip(null);
-    setContextMenu(null);
   };
 
   const handleBackToInventory = () => {
@@ -196,6 +180,98 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     </div>
   );
 
+  // Sous-composant pour gérer l'état de chargement de chaque image d'item et les interactions locales
+  const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop }: {
+    item: Item,
+    onSelect: (item: Item) => void,
+    isMe: boolean,
+    onSell: (item: Item) => void,
+    onDrop: (item: Item) => void
+  }) {
+    const [loaded, setLoaded] = React.useState(false);
+    const [showTooltip, setShowTooltip] = React.useState(false);
+    const [showContext, setShowContext] = React.useState(false);
+    const [mousePos, setMousePos] = React.useState<{x: number, y: number} | null>(null);
+    const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
+    const fallbackUrl = "/assets/System_Shop.webp";
+
+    const handleMouseEnter = (e: React.MouseEvent) => {
+      setShowTooltip(true);
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      setMousePos({ x: rect.right + 8, y: rect.top });
+    };
+    const handleMouseLeave = () => {
+      setShowTooltip(false);
+      setShowContext(false);
+    };
+    const handleContextMenu = (e: React.MouseEvent) => {
+      e.preventDefault();
+      setShowContext(true);
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    return (
+      <div className="inventory-item" tabIndex={0} draggable={false}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onContextMenu={handleContextMenu}
+        onClick={() => onSelect(item)}>
+        <div style={{ position: "relative", width: "48px", height: "48px" }}>
+          <img
+            src={fallbackUrl}
+            alt="default"
+            className="inventory-item-img inventory-item-img-blur"
+            style={{
+              filter: loaded ? "blur(0px)" : "blur(8px)",
+              transition: "filter 0.3s",
+              position: "absolute",
+              inset: 0,
+              width: "48px",
+              height: "48px",
+              objectFit: "contain",
+              zIndex: 1,
+              display: loaded ? "none" : undefined
+            }}
+            draggable={false}
+          />
+          <img
+            src={iconUrl}
+            alt={item.name}
+            className="inventory-item-img"
+            style={{
+              opacity: loaded ? 1 : 0,
+              transition: "opacity 0.3s",
+              position: "absolute",
+              inset: 0,
+              width: "48px",
+              height: "48px",
+              objectFit: "contain",
+              zIndex: 2
+            }}
+            draggable={false}
+            onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
+          />
+        </div>
+        <div className="inventory-item-qty" style={{ position: "absolute", zIndex: 3 }}>x{item.amount}</div>
+        {showTooltip && mousePos && (
+          <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
+            <div className="inventory-tooltip-name">{item.name}</div>
+            <div className="inventory-tooltip-desc">{item.description}</div>
+          </div>
+        )}
+        {showContext && isMe && mousePos && (
+          <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={e => e.stopPropagation()}>
+            <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>
+            <div className="inventory-context-drop" onClick={() => onDrop(item)}>Drop</div>
+          </div>
+        )}
+      </div>
+    );
+  });
+
+  // On mémorise les callbacks pour éviter de recréer les fonctions à chaque rendu
+  const memoHandleItemClick = useCallback((item: Item) => handleItemClick(item), [handleItemClick]);
+
   return (
     <div className="inventory-root">
       {loading && <div className="inventory-loading"><div className="inventory-loading-spinner"></div></div>}
@@ -204,14 +280,14 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         {!loading && !error && (
           <>
             {items.map((item) => (
-              <div key={item.itemId} className="inventory-item" tabIndex={0} draggable={false}
-                onMouseEnter={e => handleMouseEnter(e, item)}
-                onMouseLeave={handleMouseLeave}
-                onContextMenu={e => handleContextMenu(e, item)}
-                onClick={() => handleItemClick(item)}>
-                <img src={"/items-icons/" + (item?.iconHash || item.itemId)} alt={item.name} className="inventory-item-img" draggable={false} />
-                <div className="inventory-item-qty">x{item.amount}</div>
-              </div>
+              <InventoryItem
+                key={item.itemId}
+                item={item}
+                onSelect={handleItemClick}
+                isMe={!!isMe}
+                onSell={handleSell}
+                onDrop={handleDrop}
+              />
             ))}
             {Array.from({ length: emptyCells }).map((_, idx) => (
               <div key={`empty-${idx}`} className="inventory-item-empty" draggable={false} />
@@ -219,18 +295,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           </>
         )}
       </div>
-      {tooltip && (
-        <div className="inventory-tooltip" style={{ left: tooltip.x, top: tooltip.y }}>
-          <div className="inventory-tooltip-name">{tooltip.item.name}</div>
-          <div className="inventory-tooltip-desc">{tooltip.item.description}</div>
-        </div>
-      )}
-      {contextMenu && isMe && (
-        <div className="inventory-context-menu" style={{ left: contextMenu.x, top: contextMenu.y }} onClick={e => e.stopPropagation()}>
-          <div className="inventory-context-sell" onClick={() => handleSell(contextMenu.item)}>Sell</div>
-          <div className="inventory-context-drop" onClick={() => handleDrop(contextMenu.item)}>Drop</div>
-        </div>
-      )}
       {prompt && (
         <div className="inventory-prompt-overlay">
           <div className="inventory-prompt">
