@@ -10,30 +10,27 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Chemin absolu vers le dossier avatars (à adapter selon ton arborescence)
-  const avatarsDir = path.join(process.cwd(), "public/uploads/avatars");
-  // Recherche automatique de l'extension du fichier avatar
-  const exts = [".png", ".jpg", ".jpeg", ".webp", ".gif"];
-  let avatarPath: string | undefined;
-  for (const ext of exts) {
-    const candidate = path.join(avatarsDir, `${userId}${ext}`);
-    if (fs.existsSync(candidate)) {
-      avatarPath = candidate;
-      break;
+  const avatarsDir = path.join(process.cwd(), "uploads/avatars");
+    // Recherche automatique de l'extension du fichier avatar
+    const exts = [".png", ".jpg", ".jpeg", ".webp", ".gif"];
+    let avatarPath: string | undefined;
+    for (const ext of exts) {
+        const candidate = path.join(avatarsDir, `${userId}${ext}`);
+        if (fs.existsSync(candidate)) {
+            avatarPath = candidate;
+            break;
+        }
     }
-  }
 
   if (fs.existsSync(avatarPath)) {
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");
-    res.redirect(302, `/uploads/avatars/${userId}${path.extname(avatarPath)}`);
+    fs.createReadStream(avatarPath).pipe(res);
   } else {
     // Fallback: avatar par défaut
-    const fallbackPath = path.join(
-      process.cwd(),
-      "public/assets/default-avatar.png"
-    );
+    const fallbackPath = path.join(process.cwd(), "public", "default-avatar.png");
     res.setHeader("Content-Type", "image/png");
     // res.setHeader("Cache-Control", "public, max-age=300");
-    res.redirect(302, `/assets/default-avatar.png`);
+    fs.createReadStream(fallbackPath).pipe(res);
   }
 }

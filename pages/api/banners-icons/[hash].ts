@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const bannersDir = path.join(process.cwd(), "public/uploads/bannersIcons");
+  const bannersDir = path.join(process.cwd(), "uploads/bannersIcons");
   const exts = [".png", ".jpg", ".jpeg", ".webp"];
   let bannerPath: string | undefined;
   for (const ext of exts) {
@@ -23,16 +23,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (bannerPath && fs.existsSync(bannerPath)) {
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");
-    // fs.createReadStream(bannerPath).pipe(res);
-    res.redirect(302, `/uploads/bannersIcons/${hash}${path.extname(bannerPath)}`);
+    fs.createReadStream(bannerPath).pipe(res);
   } else {
-    const fallbackPath = path.join(
-      process.cwd(),
-      "public/assets/Generic-Banner-03-blue-Game.png"
-    );
+    const fallbackPath = path.join(process.cwd(), "public", "Generic-Banner-03-blue-Game.png");
     res.setHeader("Content-Type", "image/png");
     // res.setHeader("Cache-Control", "public, max-age=300");
-    // fs.createReadStream(fallbackPath).pipe(res);
-    res.redirect(302, `/assets/Generic-Banner-03-blue-Game.png`);
+    fs.createReadStream(fallbackPath).pipe(res);
   }
 }

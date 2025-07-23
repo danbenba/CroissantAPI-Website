@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const iconsDir = path.join(process.cwd(), "public/uploads/itemsIcons");
+  const iconsDir = path.join(process.cwd(), "uploads/itemsIcons");
   const exts = [".png", ".jpg", ".jpeg", ".webp"];
   let iconPath: string | undefined;
   for (const ext of exts) {
@@ -23,13 +23,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (iconPath && fs.existsSync(iconPath)) {
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");
-    // fs.createReadStream(iconPath).pipe(res);
-    res.redirect(302, `/uploads/itemsIcons/${hash}${path.extname(iconPath)}`);
+    fs.createReadStream(iconPath).pipe(res);
   } else {
-    const fallbackPath = path.join(process.cwd(), "public", "assets/System_Shop.webp");
+    const fallbackPath = path.join(process.cwd(), "public", "System_Shop.webp");
     res.setHeader("Content-Type", "image/webp");
     // res.setHeader("Cache-Control", "public, max-age=300");
-    // fs.createReadStream(fallbackPath).pipe(res);
-    res.redirect(302, `/assets/System_Shop.webp`);
+    fs.createReadStream(fallbackPath).pipe(res);
   }
 }

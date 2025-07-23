@@ -7,7 +7,7 @@ export const config = {
   api: { bodyParser: false },
 };
 
-const avatarsDir = path.join(process.cwd(), "public/uploads/avatars");
+const avatarsDir = path.join(process.cwd(), "uploads/avatars");
 if (!fs.existsSync(avatarsDir)) fs.mkdirSync(avatarsDir, { recursive: true });
 
 export default async function handler(

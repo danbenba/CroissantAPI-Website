@@ -8,7 +8,7 @@ export const config = {
   api: { bodyParser: false },
 };
 
-const bannersDir = path.join(process.cwd(), "public/uploads/bannersIcons");
+const bannersDir = path.join(process.cwd(), "uploads/bannersIcons");
 if (!fs.existsSync(bannersDir)) fs.mkdirSync(bannersDir, { recursive: true });
 
 export default async function handler(

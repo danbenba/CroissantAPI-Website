@@ -8,7 +8,7 @@ export const config = {
   api: { bodyParser: false },
 };
 
-const itemsIconsDir = path.join(process.cwd(), "public/uploads/itemsIcons");
+const itemsIconsDir = path.join(process.cwd(), "uploads/itemsIcons");
 if (!fs.existsSync(itemsIconsDir))
   fs.mkdirSync(itemsIconsDir, { recursive: true });
 
