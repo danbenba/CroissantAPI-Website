@@ -25,7 +25,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(iconPath).pipe(res);
   } else {
-    const fallbackPath = path.join(process.cwd(), "public", "System_Shop.webp");
+    const fallbackPath = path.join(process.cwd(), "public", "assets/System_Shop.webp");
     res.setHeader("Content-Type", "image/webp");
     // res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(fallbackPath).pipe(res);
