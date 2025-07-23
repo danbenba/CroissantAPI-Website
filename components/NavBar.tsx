@@ -170,8 +170,158 @@ export default function NavBar() {
     logoutBtnStyle,
     logoGroupStyle,
   } = useNavBarResponsive();
+
+  // Utilitaire pour bouton dropdown
+  const DropdownButton = ({ label, showKey, children }: any) => (
+    <div style={{ display: "inline-block", position: "relative" }}>
+      <button
+        style={{
+          ...linkStyle,
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+          outline: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          fontWeight: 600,
+          gap: 4,
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          setShow((prev) => (prev === showKey ? "" : showKey));
+        }}
+      >
+        {label} <span style={{ fontSize: 12 }}>▼</span>
+      </button>
+      {show === showKey && children}
+    </div>
+  );
+
+  // Utilitaire pour le bloc utilisateur (loading ou connecté)
+  const UserBlock = ({ loading, user }: any) => (
+    <div style={userBlockStyle}>
+      <Link href="/buy-credits" style={{ textDecoration: "none" }}>
+        <div className="navbar-credits">
+          <img src="/assets/credit.png" className="navbar-credit-img" />
+          <div className="navbar-balance">
+            <span id="my-balance">{loading ? "..." : user?.balance}</span>
+          </div>
+        </div>
+      </Link>
+      <Link href="/profile" legacyBehavior>
+        <a>
+          <img
+            src={loading ? "/avatar/default.png" : "/avatar/" + (user.role || user.id)}
+            alt="avatar"
+            style={avatarStyle}
+          />
+        </a>
+      </Link>
+      <button
+        style={{
+          ...linkStyle,
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+          outline: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          fontWeight: 600,
+          gap: 4,
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          setShow((prev) => (prev === "roles" ? "" : "roles"));
+        }}
+      >
+        <span style={{ fontSize: 12 }}>▼</span>
+      </button>
+      <button
+        onClick={handleLogout}
+        style={logoutBtnStyle}
+        title="Logout"
+      >
+        <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
+      </button>
+    </div>
+  );
+
+  // Utilitaire pour le menu déroulant des rôles
+  const RolesDropdown = ({ user }: any) => (
+    <div
+      style={{
+        position: "absolute",
+        top: "100%",
+        left: 0,
+        background: "#23242a",
+        border: "1px solid #23242a",
+        borderRadius: 6,
+        minWidth: 140,
+        width: 300,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+        zIndex: 100,
+        marginTop: 2,
+      }}
+      onMouseLeave={() => setShow("")}
+    >
+      {user &&
+        user?.roles.map((role: any) => {
+          const studio = user.studios.find((studio: any) => studio.user_id === role);
+          return (
+            <button
+              style={{
+                ...linkStyle,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                width: "100%",
+                textAlign: "left",
+              }}
+              key={role}
+              onClick={() => {
+                fetch("/api/users/change-role", {
+                  headers: { "Content-Type": "application/json" },
+                  method: "POST",
+                  body: JSON.stringify({ role }),
+                })
+                  .then((res) => res.ok ? res.json() : Promise.reject("Failed to change role"))
+                  .then(() => fetch("/api/users/@me", { headers: { "Content-Type": "application/json" } }))
+                  .then((res) => res.json())
+                  .then((userData) => {
+                    setUser(userData);
+                    setShow("");
+                  })
+                  .catch((err) => console.error(err));
+              }}
+            >
+              <img src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
+              <span style={{ whiteSpace: "nowrap" }}>
+                {studio?.username || "Me"}
+                {studio?.verified && (
+                  <span style={{ color: "#8fa1c7" }}>
+                    <img
+                      src="/assets/brand-verified-mark.png"
+                      alt="Verified"
+                      style={{
+                        width: 16,
+                        height: 16,
+                        marginLeft: 4,
+                        position: "relative",
+                        top: -2,
+                        verticalAlign: "middle",
+                      }}
+                    />
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+    </div>
+  );
+
   return (
-    <header style={{ ...headerStyle, display: show }}>
+    <header style={headerStyle}>
       <div style={containerStyle}>
         <div style={rowStyle}>
           <div style={logoGroupStyle}>
@@ -199,89 +349,37 @@ export default function NavBar() {
               <Link href="/game-shop" legacyBehavior>
                 <a style={linkStyle}>Game Shop</a>
               </Link>
-              {
-                <div style={{ display: "inline-block", position: "relative" }}>
-                  <button
+              <DropdownButton label="Install" showKey="install">
+                {show === "install" && (
+                  <div
                     style={{
-                      ...linkStyle,
-                      cursor: "pointer",
-                      background: "none",
-                      border: "none",
-                      outline: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      gap: 4,
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      background: "#23242a",
+                      border: "1px solid #23242a",
+                      borderRadius: 6,
+                      minWidth: 140,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                      zIndex: 100,
+                      marginTop: 2,
                     }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShow((prev) => (prev === "install" ? "" : "install"));
-                    }}
+                    onMouseLeave={() => setShow("")}
                   >
-                    Install <span style={{ fontSize: 12 }}>▼</span>
-                  </button>
-                  {show === "install" && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        background: "#23242a",
-                        border: "1px solid #23242a",
-                        borderRadius: 6,
-                        minWidth: 140,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                        zIndex: 100,
-                        marginTop: 2,
-                      }}
-                      onMouseLeave={() => setShow("")}
+                    <Link href="/download-launcher" legacyBehavior>
+                      <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Launcher</a>
+                    </Link>
+                    <a
+                      href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
+                      style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}
                     >
-                      <Link href="/download-launcher" legacyBehavior>
-                        <a
-                          style={{
-                            ...linkStyle,
-                            display: "block",
-                            borderRadius: 0,
-                          }}
-                        >
-                          Launcher
-                        </a>
-                      </Link>
-                      <a
-                        href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
-                        style={{
-                          ...linkStyle,
-                          display: "block",
-                          borderRadius: "0 0 6px 6px",
-                        }}
-                      >
-                        Bot
-                      </a>
-                    </div>
-                  )}
-                </div>
-              }
+                      Bot
+                    </a>
+                  </div>
+                )}
+              </DropdownButton>
               {!loading && user && (
-                <div style={{ display: "inline-block", position: "relative" }}>
-                  <button
-                    style={{
-                      ...linkStyle,
-                      cursor: "pointer",
-                      background: "none",
-                      border: "none",
-                      outline: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      gap: 4,
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShow((prev) => (prev === "manage" ? "" : "manage"));
-                    }}
-                  >
-                    Manage <span style={{ fontSize: 12 }}>▼</span>
-                  </button>
+                <DropdownButton label="Manage" showKey="manage">
                   {show === "manage" && (
                     <div
                       style={{
@@ -300,263 +398,29 @@ export default function NavBar() {
                     >
                       {!user.isStudio && (
                         <Link href="/studios" legacyBehavior>
-                          <a
-                            style={{
-                              ...linkStyle,
-                              display: "block",
-                              borderRadius: 0,
-                            }}
-                          >
-                            Studios
-                          </a>
+                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</a>
                         </Link>
                       )}
                       <Link href="/oauth2/apps" legacyBehavior>
-                        <a
-                          style={{
-                            ...linkStyle,
-                            display: "block",
-                            borderRadius: 0,
-                          }}
-                        >
-                          OAuth2
-                        </a>
+                        <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</a>
                       </Link>
                       <Link href="/dev-zone/my-items" legacyBehavior>
-                        <a
-                          style={{
-                            ...linkStyle,
-                            display: "block",
-                            borderRadius: 0,
-                          }}
-                        >
-                          Items
-                        </a>
+                        <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</a>
                       </Link>
                       <Link href="/dev-zone/my-games" legacyBehavior>
-                        <a
-                          style={{
-                            ...linkStyle,
-                            display: "block",
-                            borderRadius: "0 0 6px 6px",
-                          }}
-                        >
-                          Games
-                        </a>
+                        <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</a>
                       </Link>
-                      <hr
-                        style={{
-                          border: "none",
-                          borderTop: "1px solid #35363b",
-                          margin: "6px 0",
-                        }}
-                      />
+                      <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
                       <Link href="/settings" legacyBehavior>
-                        <a
-                          style={{
-                            ...linkStyle,
-                            display: "block",
-                            borderRadius: "0 0 6px 6px",
-                          }}
-                        >
-                          Settings
-                        </a>
+                        <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</a>
                       </Link>
                     </div>
                   )}
-                  {show === "roles" && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        background: "#23242a",
-                        border: "1px solid #23242a",
-                        borderRadius: 6,
-                        minWidth: 140,
-                        width: 300,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                        zIndex: 100,
-                        marginTop: 2,
-                      }}
-                      onMouseLeave={() => setShow("")}
-                    >
-                      {user &&
-                        user?.roles.map((role: any) => (
-                          <button
-                            style={{
-                              ...linkStyle,
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8,
-                              width: "100%",
-                              textAlign: "left",
-                            }}
-                            key={role}
-                            onClick={() => {
-                              fetch("/api/users/change-role", {
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                method: "POST",
-                                body: JSON.stringify({ role }),
-                              })
-                                .then((res) => {
-                                  if (res.ok) {
-                                    return res.json();
-                                  } else {
-                                    throw new Error("Failed to change role");
-                                  }
-                                })
-                                .then((data) => {
-                                  fetch("/api/users/@me", {
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                  })
-                                    .then((res) => res.json())
-                                    .then((userData) => {
-                                      setUser(userData);
-                                      setShow("");
-                                    });
-                                })
-                                .catch((err) => {
-                                  console.error(err);
-                                });
-                            }}
-                          >
-                            <img
-                              src={"/avatar/" + role}
-                              alt="avatar"
-                              style={avatarStyle}
-                            />
-                            <span style={{ whiteSpace: "nowrap" }}>
-                              {user.studios.find(
-                                (studio) => studio.user_id === role
-                              )?.username || "Me"}
-                              {user.studios.find(
-                                (studio) => studio.user_id === role
-                              )?.verified ? (
-                                <span style={{ color: "#8fa1c7" }}>
-                                  <img
-                                    src="/assets/brand-verified-mark.png"
-                                    alt="Verified"
-                                    style={{
-                                      width: 16,
-                                      height: 16,
-                                      marginLeft: 4,
-                                      position: "relative",
-                                      top: -2,
-                                      verticalAlign: "middle",
-                                    }}
-                                  />
-                                </span>
-                              ) : null}
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-                  )}
-                </div>
+                </DropdownButton>
               )}
-              {loading ? (
-                <div style={userBlockStyle}>
-                  <Link href="/buy-credits" style={{ textDecoration: "none" }}>
-                    <div className="navbar-credits">
-                      <img
-                        src="/assets/credit.png"
-                        className="navbar-credit-img"
-                      />
-                      <div className="navbar-balance">
-                        <span id="my-balance">{"..."}</span>
-                      </div>
-                    </div>
-                  </Link>
-                  <Link href="/profile" legacyBehavior>
-                    <a>
-                      <img
-                        src={"/avatar/default.png"}
-                        alt="avatar"
-                        style={avatarStyle}
-                      />
-                    </a>
-                  </Link>
-                  <button
-                    style={{
-                      ...linkStyle,
-                      cursor: "pointer",
-                      background: "none",
-                      border: "none",
-                      outline: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      gap: 4,
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShow((prev) => (prev === "roles" ? "" : "roles"));
-                    }}
-                  >
-                    <span style={{ fontSize: 12 }}>▼</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    style={logoutBtnStyle}
-                    title="Logout"
-                  >
-                    <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
-                  </button>
-                </div>
-              ) : !loading && user ? (
-                <div style={userBlockStyle}>
-                  <Link href="/buy-credits" style={{ textDecoration: "none" }}>
-                    <div className="navbar-credits">
-                      <img
-                        src="/assets/credit.png"
-                        className="navbar-credit-img"
-                      />
-                      <div className="navbar-balance">
-                        <span id="my-balance">{user?.balance}</span>
-                      </div>
-                    </div>
-                  </Link>
-                  <Link href="/profile" legacyBehavior>
-                    <a>
-                      <img
-                        src={"/avatar/" + (user.role || user.id)}
-                        alt="avatar"
-                        style={avatarStyle}
-                      />
-                    </a>
-                  </Link>
-                  <button
-                    style={{
-                      ...linkStyle,
-                      cursor: "pointer",
-                      background: "none",
-                      border: "none",
-                      outline: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      fontWeight: 600,
-                      gap: 4,
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShow((prev) => (prev === "roles" ? "" : "roles"));
-                    }}
-                  >
-                    <span style={{ fontSize: 12 }}>▼</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    style={logoutBtnStyle}
-                    title="Logout"
-                  >
-                    <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
-                  </button>
-                </div>
+              {show === "roles" && user && <RolesDropdown user={user} />}
+              {loading || user ? (
+                <UserBlock loading={loading} user={user} />
               ) : (
                 <Link href="/login" legacyBehavior>
                   <a style={loginStyle}>Login</a>

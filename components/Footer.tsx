@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
+const footerLinks = [
+  { href: "/tos", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
+];
+
 export default function Footer() {
   const [show, setShow] = useState("");
   const [footerPosition, setFooterPosition] = useState<"relative" | "absolute">(
@@ -25,6 +30,12 @@ export default function Footer() {
     };
   }, []);
 
+  const linkStyle = {
+    color: "#8fa1c7",
+    textDecoration: "none",
+    margin: "0 0.5rem",
+  };
+
   return (
     <footer
       style={{
@@ -42,29 +53,14 @@ export default function Footer() {
       }}
     >
       <span style={{ marginRight: 8 }}>Copyright © 2025 Croissant API</span>
-      <Link href="/tos" legacyBehavior>
-        <a
-          style={{
-            color: "#8fa1c7",
-            textDecoration: "none",
-            margin: "0 0.5rem",
-          }}
-        >
-          Terms
-        </a>
-      </Link>
-      <span style={{ color: "#444" }}>|</span>
-      <Link href="/privacy" legacyBehavior>
-        <a
-          style={{
-            color: "#8fa1c7",
-            textDecoration: "none",
-            margin: "0 0.5rem",
-          }}
-        >
-          Privacy
-        </a>
-      </Link>
+      {footerLinks.map((link, idx) => (
+        <React.Fragment key={link.href}>
+          {idx > 0 && <span style={{ color: "#444" }}>|</span>}
+          <Link href={link.href} legacyBehavior>
+            <a style={linkStyle}>{link.label}</a>
+          </Link>
+        </React.Fragment>
+      ))}
     </footer>
   );
 }
