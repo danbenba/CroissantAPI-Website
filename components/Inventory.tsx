@@ -2,14 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
+import { ShopItem } from "../pages/profile";
 
 const endpoint = "/api";
-
-export interface InventoryItem {
-  user_id: string;
-  item_id: string;
-  amount: number;
-}
 
 export interface Item {
   iconHash: string;
@@ -23,12 +18,24 @@ export interface Item {
   deleted?: boolean;
 }
 
+interface User {
+  verified: boolean;
+  id: string;
+  username: string;
+  disabled?: boolean;
+  admin?: boolean;
+  isStudio?: boolean;
+  inventory?: (Item & { amount: number })[];
+  ownedItems?: ShopItem[];
+}
+
 interface Props {
-  userId: string;
+  profile: User;
   isMe?: boolean;
   reloadFlag: number;
 }
-export default function Inventory({ userId, isMe, reloadFlag }: Props) {
+
+export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const searchParams = useSearchParams();
 
   const [items, setItems] = useState<Item[]>([]);
@@ -46,9 +53,13 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
   const [ownerUser, setOwnerUser] = useState<any | null>(null);
 
   const { user } = useAuth();
-  const selectedUser = userId === "me" ? user?.id || "me" : userId;
+  const selectedUser = profile.id === "me" ? user?.id || "me" : profile.id;
 
-  useEffect(() => { refreshInventory(); }, [userId]);
+
+  useEffect(() => {
+    setItems(profile.inventory || []);
+    setLoading(false);
+  }, [profile.id]);
   useEffect(() => { if (reloadFlag) refreshInventory(); }, [reloadFlag]);
 
   function refreshInventory() {
@@ -56,6 +67,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
       .then(res => res.ok ? res.json() : Promise.reject(new Error("Failed to fetch inventory")))
       .then(data => { setItems([...data]); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
+    setLoading(false);
   }
 
   const handleMouseEnter = (e: React.MouseEvent, item: Item) => {
@@ -91,7 +103,7 @@ export default function Inventory({ userId, isMe, reloadFlag }: Props) {
   };
 
   async function handleAction(item: Item, action: "sell" | "drop", actionText: string) {
-    if (userId === "me") return;
+    if (isMe) return;
     const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
     if (result.confirmed && result.amount && result.amount > 0) {
       fetch(`${endpoint}/items/${action}/${item.itemId}`, {

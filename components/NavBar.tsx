@@ -68,6 +68,7 @@ function useNavBarResponsive() {
     marginTop: isMobile ? 8 : 0,
     textAlign: isMobile ? "center" : undefined,
     flexDirection: isMobile ? "column" : "row",
+    position: 'relative'
   };
   const linkStyle: React.CSSProperties = {
     color: "#bdbdbd",
@@ -236,13 +237,6 @@ export default function NavBar() {
       >
         <span style={{ fontSize: 12 }}>▼</span>
       </button>
-      <button
-        onClick={handleLogout}
-        style={logoutBtnStyle}
-        title="Logout"
-      >
-        <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
-      </button>
     </div>
   );
 
@@ -343,6 +337,15 @@ export default function NavBar() {
           <Searchbar />
           <nav>
             <div className="links-group" style={linksGroupStyle}>
+
+              {show === "roles" && user && <RolesDropdown user={user} />}
+              {loading || user ? (
+                <UserBlock loading={loading} user={user} />
+              ) : (
+                <Link href="/login" legacyBehavior>
+                  <a style={loginStyle}>Login</a>
+                </Link>
+              )}
               <Link href="/api-docs" legacyBehavior>
                 <a style={linkStyle}>API Docs</a>
               </Link>
@@ -379,52 +382,54 @@ export default function NavBar() {
                 )}
               </DropdownButton>
               {!loading && user && (
-                <DropdownButton label="Manage" showKey="manage">
-                  {show === "manage" && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        background: "#23242a",
-                        border: "1px solid #23242a",
-                        borderRadius: 6,
-                        minWidth: 140,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                        zIndex: 100,
-                        marginTop: 2,
-                      }}
-                      onMouseLeave={() => setShow("")}
-                    >
-                      {!user.isStudio && (
-                        <Link href="/studios" legacyBehavior>
-                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</a>
+                <>
+                  <DropdownButton label="Manage" showKey="manage">
+                    {show === "manage" && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          background: "#23242a",
+                          border: "1px solid #23242a",
+                          borderRadius: 6,
+                          minWidth: 140,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          zIndex: 100,
+                          marginTop: 2,
+                        }}
+                        onMouseLeave={() => setShow("")}
+                      >
+                        {!user.isStudio && (
+                          <Link href="/studios" legacyBehavior>
+                            <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</a>
+                          </Link>
+                        )}
+                        <Link href="/oauth2/apps" legacyBehavior>
+                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</a>
                         </Link>
-                      )}
-                      <Link href="/oauth2/apps" legacyBehavior>
-                        <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</a>
-                      </Link>
-                      <Link href="/dev-zone/my-items" legacyBehavior>
-                        <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</a>
-                      </Link>
-                      <Link href="/dev-zone/my-games" legacyBehavior>
-                        <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</a>
-                      </Link>
-                      <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
-                      <Link href="/settings" legacyBehavior>
-                        <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</a>
-                      </Link>
-                    </div>
-                  )}
-                </DropdownButton>
-              )}
-              {show === "roles" && user && <RolesDropdown user={user} />}
-              {loading || user ? (
-                <UserBlock loading={loading} user={user} />
-              ) : (
-                <Link href="/login" legacyBehavior>
-                  <a style={loginStyle}>Login</a>
-                </Link>
+                        <Link href="/dev-zone/my-items" legacyBehavior>
+                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</a>
+                        </Link>
+                        <Link href="/dev-zone/my-games" legacyBehavior>
+                          <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</a>
+                        </Link>
+                        <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
+                        <Link href="/settings" legacyBehavior>
+                          <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</a>
+                        </Link>
+                      </div>
+                    )}
+                  </DropdownButton>
+
+                  <button
+                    onClick={handleLogout}
+                    style={logoutBtnStyle}
+                    title="Logout"
+                  >
+                    <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
+                  </button>
+                </>
               )}
             </div>
           </nav>

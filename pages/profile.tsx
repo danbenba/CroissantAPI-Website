@@ -72,24 +72,15 @@ interface InventoryHandle {
   reload: () => void;
 }
 
-type Props = {
-  userId: string;
-  isMe: boolean;
-  refreshKey?: number;
-};
-
-interface DiscordUser {
+interface User {
   verified: boolean;
   id: string;
   username: string;
-  avatar: string | null;
-  discriminator: string;
-  banner?: string | null;
-  accent_color?: number | null;
-  banner_color?: string | null;
   disabled?: boolean;
   admin?: boolean;
   isStudio?: boolean;
+  inventory?: (Item & { amount: number })[];
+  ownedItems?: ShopItem[];
 }
 
 type ProfileProps = {
@@ -112,10 +103,10 @@ const tooltipStyle = (x: number, y: number): React.CSSProperties => ({
 });
 
 function ProfileShop({
-  ownerId,
+  user,
   onBuySuccess,
 }: {
-  ownerId: string;
+  user: User;
   onBuySuccess: () => void;
 }) {
   const [items, setItems] = useState<ShopItem[]>([]);
@@ -144,25 +135,10 @@ function ProfileShop({
       : "";
   }, []);
 
-  // Fetch shop items for the owner
   useEffect(() => {
-    setLoading(true);
-    fetch(endpoint + "/items", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch shop items");
-        return res.json();
-      })
-      .then((data) => {
-        setItems(data.filter((item: any) => item.owner === ownerId));
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [ownerId, token]);
-
+    setItems(user.ownedItems || []);
+    setLoading(false);
+  }, [user.ownedItems]);
   // Tooltip handlers
   const handleMouseEnter = (e: React.MouseEvent, item: ShopItem) => {
     const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -181,9 +157,9 @@ function ProfileShop({
       try {
         const res = await fetch(endpoint + "/users/" + (item as any).owner);
         if (res.ok) ownerUser = await res.json();
-      } catch {}
+      } catch { }
     }
-    setPrompt({ message, resolve: () => {}, maxAmount, amount: 1, item });
+    setPrompt({ message, resolve: () => { }, maxAmount, amount: 1, item });
     setPromptOwnerUser(ownerUser);
     return new Promise<{ confirmed: boolean; amount?: number }>((resolve) => {
       setPrompt({ message, resolve, maxAmount, amount: 1, item });
@@ -217,8 +193,7 @@ function ProfileShop({
   const handleBuy = async (item: ShopItem) => {
     const maxAmount = item.stock ?? undefined;
     const result = await customPrompt(
-      `Buy how many "${item.name}"?\nPrice: ${item.price} each${
-        maxAmount ? `\nStock: ${maxAmount}` : ""
+      `Buy how many "${item.name}"?\nPrice: ${item.price} each${maxAmount ? `\nStock: ${maxAmount}` : ""
       }`,
       maxAmount,
       item
@@ -245,7 +220,7 @@ function ProfileShop({
           })
             .then((res) => res.json())
             .then((data) =>
-              setItems(data.filter((item: any) => item.owner === ownerId))
+              setItems(data.filter((item: any) => item.owner === user.id))
             )
             .finally(() => setLoading(false));
           onBuySuccess();
@@ -453,7 +428,7 @@ function ProfileShop({
 }
 
 export default function Profile({ userId }: ProfileProps) {
-  const [profile, setProfile] = useState<DiscordUser | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -468,7 +443,6 @@ export default function Profile({ userId }: ProfileProps) {
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [currentTradeId, setCurrentTradeId] = useState<string | null>(null);
   const [inventoryReloadFlag, setInventoryReloadFlag] = useState(0);
-  const [inventory, setInventory] = useState<Item[]>([]);
   const [isProfileReloading, setIsProfileReloading] = useState(false);
 
   const reloadInventory = () => setInventoryReloadFlag((f) => f + 1);
@@ -479,17 +453,22 @@ export default function Profile({ userId }: ProfileProps) {
   const { user, token } = useAuth();
   const router = useRouter();
 
-  // Helper to reload profile
+  // Helper to reload profile (debounced to avoid too many fetches)
   const reloadProfile = useCallback(() => {
     setLoading(true);
     setIsProfileReloading(true);
     const selectedUserId = search || "@me";
+    if (selectedUserId === "@me" || selectedUserId === user?.id) {
+      setProfile(user);
+      setLoading(false);
+      return;
+    }
     fetch(
       endpoint +
-        "/users" +
-        (selectedUserId !== "@me" && user?.admin ? "/admin" : "") +
-        "/" +
-        selectedUserId
+      "/users" +
+      (selectedUserId !== "@me" && user?.admin ? "/admin" : "") +
+      "/" +
+      selectedUserId
     )
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch profile");
@@ -506,12 +485,16 @@ export default function Profile({ userId }: ProfileProps) {
       .finally(() => {
         setLoading(false);
       });
-  }, [token, user?.admin]);
+  }, [token, user?.admin, search, router]);
 
+  // Debounce reloadProfile to avoid too many fetches
   useEffect(() => {
     if (isProfileReloading) return;
-    reloadProfile();
-    setIsProfileReloading(false);
+    const handler = setTimeout(() => {
+      reloadProfile();
+      setIsProfileReloading(false);
+    }, 250); // 250ms debounce
+    return () => clearTimeout(handler);
   }, [search, isProfileReloading, reloadProfile]);
 
   // Désactiver le compte (admin)
@@ -545,14 +528,6 @@ export default function Profile({ userId }: ProfileProps) {
     }
   };
 
-  // Inventory fetch effect
-  useEffect(() => {
-    if (!token) return;
-    fetch("/api/inventory/@me")
-      .then((res) => res.json())
-      .then(setInventory);
-  }, [inventoryReloadFlag, token]);
-
   const handleProfilePictureChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -573,9 +548,9 @@ export default function Profile({ userId }: ProfileProps) {
       }
 
       // Reload the profile picture
-      setProfile((prev) =>
-        prev ? { ...prev, avatar: `${prev.avatar}?t=${Date.now()}` } : null
-      );
+      // setProfile((prev) =>
+      //   prev ? { ...prev, avatar: `${prev.avatar}?t=${Date.now()}` } : null
+      // );
     } catch (error) {
       console.error("Error uploading avatar:", error);
     }
@@ -801,7 +776,7 @@ export default function Profile({ userId }: ProfileProps) {
             <h2 className="profile-inventory-title">Inventory</h2>
             {/* Pass inventoryReloadFlag as a prop */}
             <Inventory
-              userId={search || "@me"}
+              profile={profile}
               isMe={isMe}
               reloadFlag={inventoryReloadFlag}
             />
@@ -810,7 +785,7 @@ export default function Profile({ userId }: ProfileProps) {
         <div style={{ flex: "0 0 30%" }}>
           {/* Increment inventoryReloadFlag after buy */}
           <ProfileShop
-            ownerId={profile.id}
+            user={profile}
             onBuySuccess={() => setInventoryReloadFlag((f) => f + 1)}
           />
         </div>
@@ -823,7 +798,7 @@ export default function Profile({ userId }: ProfileProps) {
               tradeId={currentTradeId}
               userId={user.id}
               token={token}
-              inventory={inventory}
+              inventory={user.inventory}
               reloadInventory={reloadInventory}
               onClose={() => {
                 setCurrentTradeId(null);

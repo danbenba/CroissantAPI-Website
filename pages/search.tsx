@@ -59,41 +59,45 @@ const SearchPage: React.FC = () => {
       : "";
   }, []);
 
-  // Fetch users when query or token changes
+  // Fetch users/games/items with debounce when query or token changes
   useEffect(() => {
-    // if(!user) return;
-    fetch(
-      `${API_ENDPOINT}/users${
-        user?.admin ? "/admin" : ""
-      }/search?q=${encodeURIComponent(query)}`,
+    if (!query) {
+      setUsers([]);
+      setGames([]);
+      setItems([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const debounceTimeout = setTimeout(() => {
+      fetch(
+      `${API_ENDPOINT}/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => setUsers(Array.isArray(data) ? data : []))
-      .catch(() => setUsers([]));
-
-    // Fetch games (en utilisant GameController côté API)
-    fetch(`${API_ENDPOINT}/games/search?q=${encodeURIComponent(query)}`, {
-      method: "GET",
-      headers: {
         "Content-Type": "application/json",
-      },
-    })
+        },
+        signal: controller.signal,
+      }
+      )
       .then((res) => res.json())
-      .then((data) => setGames(Array.isArray(data) ? data : []))
-      .catch(() => setGames([]));
+      .then((data) => {
+        setUsers(Array.isArray(data.users) ? data.users : []);
+        setGames(Array.isArray(data.games) ? data.games : []);
+        setItems(Array.isArray(data.items) ? data.items : []);
+      })
+      .catch(() => {
+        setUsers([]);
+        setGames([]);
+        setItems([]);
+      });
+    }, 400); // 400ms debounce
 
-    // Fetch items (from ItemController)
-    fetch(`${API_ENDPOINT}/items/search?q=${encodeURIComponent(query)}`)
-      .then((res) => res.json())
-      .then((data) => setItems(Array.isArray(data) ? data : []))
-      .catch(() => setItems([]));
-  }, [query, token]);
+    return () => {
+      clearTimeout(debounceTimeout);
+      controller.abort();
+    };
+  }, [query, token, user?.admin]);
 
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);

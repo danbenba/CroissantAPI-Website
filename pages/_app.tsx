@@ -14,28 +14,6 @@ import LauncherLobby from "./launcher/components/Lobby";
 import useAuth from "../hooks/useAuth";
 import { AuthProvider } from "../hooks/AuthContext";
 
-const endpoint = "/api";
-
-export async function fetchMe(token: string, callback: () => void) {
-  await fetch(endpoint + "/users/@me", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        // window.location.reload();
-      }
-      return res.json();
-    })
-    .then((data) => {
-      localStorage.setItem("verificationKey", data.verificationKey);
-      callback();
-    });
-}
-
 // --- Style constants ---
 const launcherTitlebarStyle: React.CSSProperties = {
   display: "flex",
@@ -122,11 +100,6 @@ function AppContent({ Component, pageProps }: AppProps) {
         : {}
     );
   }, []);
-
-  // Only call fetchMe if token is present
-  useEffect(() => {
-    if (token) fetchMe(token, () => {});
-  }, [token]);
 
   // Determine launcher mode synchronously to avoid hydration errors
   const isLauncherPath =

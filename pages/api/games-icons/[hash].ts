@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const iconsDir = path.join(process.cwd(), "uploads/gameIcons");
+  const iconsDir = path.join(process.cwd(), "public/uploads/gameIcons");
   const exts = [".png", ".jpg", ".jpeg", ".webp"];
   let iconPath: string | undefined;
   for (const ext of exts) {
@@ -23,11 +23,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (iconPath && fs.existsSync(iconPath)) {
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");
-    fs.createReadStream(iconPath).pipe(res);
+    // fs.createReadStream(iconPath).pipe(res);
+    res.redirect(302, `/uploads/gameIcons/${hash}${path.extname(iconPath)}`);
   } else {
     const fallbackPath = path.join(process.cwd(), "public/assets/8293566.png");
     res.setHeader("Content-Type", "image/png");
     // res.setHeader("Cache-Control", "public, max-age=300");
-    fs.createReadStream(fallbackPath).pipe(res);
+    // fs.createReadStream(fallbackPath).pipe(res);
+    res.redirect(302, `/assets/8293566.png`);
   }
 }
