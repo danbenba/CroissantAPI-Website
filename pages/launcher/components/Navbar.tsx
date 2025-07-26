@@ -55,6 +55,8 @@ const Navbar: React.FC = () => {
               onClick={() => {
                 localStorage.removeItem("token");
                 localStorage.removeItem("verificationKey");
+                document.cookie =
+                  "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 // location.reload();
               }}
             >
