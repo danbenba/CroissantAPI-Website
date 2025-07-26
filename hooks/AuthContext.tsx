@@ -32,7 +32,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
       return;
     }
-    fetch("/api/users/@me")
+    fetch("/api/users/@me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include", // Ensure cookies are sent with the request
+    })
       .then(async (res) => {
         if (res.status === 200) {
           const user = await res.json();
