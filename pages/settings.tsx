@@ -315,6 +315,225 @@ function GoogleAuthenticatorSetupModal({
   );
 }
 
+function SecurityModal({
+  open,
+  onClose,
+  user,
+  setUser,
+  passkeyLoading,
+  passkeySuccess,
+  passkeyError,
+  handleRegisterPasskey,
+  showGoogleAuthModal,
+  setShowGoogleAuthModal,
+  success,
+  error,
+  setError,
+  setSuccess,
+  router,
+  linkText,
+}: any) {
+  if (!open) return null;
+  return (
+    <div className="shop-prompt-overlay">
+      <div className="shop-prompt">
+        <div className="shop-prompt-message">Security & Social Links</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Steam */}
+          {!user?.steam_id ? (
+            <button
+              style={steamBtnStyle}
+              onClick={() => router.push("/api/auth/steam")}
+              disabled={user?.isStudio}
+            >
+              <span className="fab fa-steam" style={{ fontSize: "22px" }} />
+              {linkText}
+            </button>
+          ) : (
+            <button
+              style={steamBtnStyle}
+              onClick={async () => {
+                if (confirm("Are you sure you want to unlink your Steam account?")) {
+                  try {
+                    const res = await fetch("/api/users/unlink-steam", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                    });
+                    if (!res.ok) throw new Error("Failed to unlink Steam account");
+                    setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+                  } catch (err: any) {
+                    setError(err.message);
+                  }
+                }
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
+                <span>Linked as <b>{user?.steam_username}</b></span>
+              </div>
+            </button>
+          )}
+
+          {/* Discord */}
+          {!user?.discord_id ? (
+            <button
+              type="button"
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "linear-gradient(90deg, #5865F2 60%, #404EED 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+              }}
+              onClick={() => router.push("/auth/discord")}
+              disabled={user?.isStudio}
+            >
+              <span className="fab fa-discord" style={{ fontSize: "22px" }} />
+              Link Discord
+            </button>
+          ) : (
+            <button
+              type="button"
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "linear-gradient(90deg, #5865F2 60%, #404EED 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "default",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+                opacity: 0.7,
+              }}
+              disabled
+            >
+              <span className="fab fa-discord" style={{ fontSize: "22px" }} />
+              Discord linked
+            </button>
+          )}
+
+          {/* Google */}
+          {!user?.google_id ? (
+            <button
+              type="button"
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "#fff",
+                color: "#222",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+              }}
+              onClick={() => router.push("/auth/google")}
+              disabled={user?.isStudio}
+            >
+              <span className="fab fa-google" style={{ fontSize: "22px" }} />
+              Link Google
+            </button>
+          ) : (
+            <button
+              type="button"
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "#fff",
+                color: "#222",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "default",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+                opacity: 0.7,
+              }}
+              disabled
+            >
+              <span className="fab fa-google" style={{ fontSize: "22px" }} />
+              Google linked
+            </button>
+          )}
+
+          {/* Passkey */}
+          <button
+            type="button"
+            style={{ ...buttonStyle, background: "#222", color: "#fff" }}
+            onClick={handleRegisterPasskey}
+            disabled={passkeyLoading || !user}
+          >
+            {passkeyLoading ? "Registering..." : "Register Passkey"}
+          </button>
+          {passkeySuccess && <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>}
+          {passkeyError && <div style={{ color: "#ff5252" }}>{passkeyError}</div>}
+
+          {/* Google Authenticator */}
+          {user && !user.haveAuthenticator ? (
+            <button
+              type="button"
+              style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+              onClick={() => setShowGoogleAuthModal(true)}
+              disabled={!user}
+            >
+              Setup Google Authenticator
+            </button>
+          ) : (
+            <button
+              type="button"
+              style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+              onClick={async () => {
+                const choice = confirm("Are you sure you want to delete Google Authenticator? This will disable 2FA for your account.");
+                if (choice) {
+                  const res = await fetch("/api/authenticator/delete", { method: "POST", body: JSON.stringify({ userId: user.user_id }), headers: { "Content-Type": "application/json" } });
+                  if (!res.ok) {
+                    alert("Failed to delete Google Authenticator.");
+                  } else {
+                    user.haveAuthenticator = false;
+                    setUser && setUser({ ...user });
+                  }
+                }
+              }}
+              disabled={!user}
+            >
+              Delete Google Authenticator
+            </button>
+          )}
+          {success && <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>}
+          {error && <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>}
+          <button
+            type="button"
+            style={{ ...buttonStyle, background: "#444", marginTop: 16 }}
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Settings() {
   const { user, token, setUser } = useAuth();
   const router = useRouter();
@@ -371,6 +590,7 @@ export default function Settings() {
   const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [showGoogleAuthModal, setShowGoogleAuthModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined" || !user) return;
@@ -577,6 +797,27 @@ export default function Settings() {
       >
         <i className="fas fa-key" aria-hidden="true" />
       </button>
+      {/* Bouton sécurité */}
+      {!user?.isStudio && (
+        <button
+          style={{
+            position: "absolute",
+            top: 24,
+            right: 64,
+            background: "none",
+            border: "none",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: 22,
+            zIndex: 2,
+          }}
+          onClick={() => setShowSecurityModal(true)}
+          type="button"
+          title="Security & Social Links"
+        >
+          <i className="fas fa-link" aria-hidden="true" />
+        </button>
+      )}
       <div style={{ display: "flex", flexDirection: "row", gap: 24 }}>
         <div>
           <img
@@ -664,7 +905,7 @@ export default function Settings() {
           />
         </>
       ) : null}
-      {
+      {/* {
         <>
           <div
             style={{
@@ -678,320 +919,31 @@ export default function Settings() {
           >
             <div style={{ flex: 1, height: 1, background: "#444" }} />
           </div>
-          <form
-            style={{
-              width: "100%",
-              maxWidth: 340,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-            onSubmit={handleSave}
-          >
-            {!user?.steam_id ? (
-              <button
-                style={steamBtnStyle}
-                onClick={(event) => {
-                  event.preventDefault();
-                  if (
-                    user?.isStudio ||
-                    (typeof window !== "undefined" &&
-                      window.location.search.includes("from=launcher"))
-                  )
-                    return;
-                  if (
-                    typeof window !== "undefined" &&
-                    window.location.search.includes("from=launcher")
-                  )
-                    return;
-                  event.preventDefault();
-                  router.push("/api/auth/steam");
-                }}
-                disabled={
-                  typeof window !== "undefined" &&
-                  window.location.search.includes("from=launcher")
-                }
-              >
-                <span
-                  className="fab fa-steam"
-                  style={{ fontSize: "22px" }}
-                  aria-hidden="true"
-                />
-                {linkText}
-              </button>
-            ) : (
-              <button
-                style={steamBtnStyle}
-                onClick={(event) => {
-                  event.preventDefault();
-                  if (
-                    typeof window !== "undefined" &&
-                    window.location.search.includes("from=launcher")
-                  )
-                    return;
-                  confirm(
-                    "Are you sure you want to unlink your Steam account?"
-                  ) &&
-                    fetch("/api/users/unlink-steam", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                    })
-                      .then((res) => {
-                        if (!res.ok)
-                          throw new Error("Failed to unlink Steam account");
-                        return res.json();
-                      })
-                      .then((data) => {
-                        setUser({
-                          ...user,
-                          steam_id: null,
-                          steam_username: null,
-                          steam_avatar_url: null,
-                        });
-                      })
-                      .catch((err) => setError(err.message));
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <img
-                    src={user?.steam_avatar_url}
-                    alt="Steam Avatar"
-                    style={{ width: 32, height: 32, borderRadius: "20%" }}
-                  />
-                  <span style={{ fontWeight: "normal" }}>
-                    Linked as <b>{user?.steam_username}</b>
-                  </span>
-                </div>
-              </button>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {/* Discord Link/Unlink Button */}
-              {!user?.discord_id ? (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%",
-                    height: "48px",
-                    background: "linear-gradient(90deg, #5865F2 60%, #404EED 100%)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                  }}
-                  onClick={() => {
-                    if (
-                      typeof window !== "undefined" &&
-                      window.location.search.includes("from=launcher")
-                    )
-                      return;
-                    router.push("/auth/discord");
-                  }}
-                  disabled={
-                    typeof window !== "undefined" &&
-                    window.location.search.includes("from=launcher")
-                  }
-                >
-                  <span className="fab fa-discord" style={{ fontSize: "22px" }} aria-hidden="true" />
-                  Link Discord
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%",
-                    height: "48px",
-                    background: "linear-gradient(90deg, #5865F2 60%, #404EED 100%)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    cursor: "default",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                    opacity: 0.7,
-                  }}
-                  disabled
-                >
-                  <span className="fab fa-discord" style={{ fontSize: "22px" }} aria-hidden="true" />
-                  Discord linked
-                </button>
-              )}
-
-              {/* Google Link/Unlink Button */}
-              {!user?.google_id ? (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%",
-                    height: "48px",
-                    background: "#fff",
-                    color: "#222",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                  }}
-                  onClick={() => {
-                    if (
-                      typeof window !== "undefined" &&
-                      window.location.search.includes("from=launcher")
-                    )
-                      return;
-                    router.push("/auth/google");
-                  }}
-                  disabled={
-                    typeof window !== "undefined" &&
-                    window.location.search.includes("from=launcher")
-                  }
-                >
-                  <span style={{ display: "flex", alignItems: "center" }}>
-                    <svg width="22" height="22" viewBox="0 0 48 48">
-                      <g>
-                        <path
-                          fill="#4285F4"
-                          d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.86-6.86C36.64 2.69 30.74 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.98 6.2C12.41 13.41 17.74 9.5 24 9.5z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.41c-.54 2.91-2.16 5.38-4.61 7.04l7.1 5.53C43.96 37.47 46.1 31.61 46.1 24.55z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M10.67 28.29a14.5 14.5 0 0 1 0-8.58l-7.98-6.2A23.97 23.97 0 0 0 0 24c0 3.77.9 7.34 2.69 10.49l7.98-6.2z"
-                        />
-                        <path
-                          fill="#EA4335"
-                          d="M24 48c6.48 0 11.92-2.15 15.89-5.85l-7.1-5.53c-2 1.34-4.56 2.13-8.79 2.13-6.26 0-11.59-3.91-13.33-9.29l-7.98 6.2C6.73 42.2 14.82 48 24 48z"
-                        />
-                      </g>
-                    </svg>
-                  </span>
-                  Link Google
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%",
-                    height: "48px",
-                    background: "#fff",
-                    color: "#222",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    cursor: "default",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                    opacity: 0.7,
-                  }}
-                  disabled
-                >
-                  <span style={{ display: "flex", alignItems: "center" }}>
-                    <svg width="22" height="22" viewBox="0 0 48 48">
-                      <g>
-                        <path
-                          fill="#4285F4"
-                          d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.86-6.86C36.64 2.69 30.74 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.98 6.2C12.41 13.41 17.74 9.5 24 9.5z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.41c-.54 2.91-2.16 5.38-4.61 7.04l7.1 5.53C43.96 37.47 46.1 31.61 46.1 24.55z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M10.67 28.29a14.5 14.5 0 0 1 0-8.58l-7.98-6.2A23.97 23.97 0 0 0 0 24c0 3.77.9 7.34 2.69 10.49l7.98-6.2z"
-                        />
-                        <path
-                          fill="#EA4335"
-                          d="M24 48c6.48 0 11.92-2.15 15.89-5.85l-7.1-5.53c-2 1.34-4.56 2.13-8.79 2.13-6.26 0-11.59-3.91-13.33-9.29l-7.98 6.2C6.73 42.2 14.82 48 24 48z"
-                        />
-                      </g>
-                    </svg>
-                  </span>
-                  Google linked
-                </button>
-              )}
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
-              <button
-                type="button"
-                style={{ ...buttonStyle, background: "#222", color: "#fff" }}
-                onClick={handleRegisterPasskey}
-                disabled={passkeyLoading || !user}
-              >
-                {passkeyLoading ? "Registering..." : "Register Passkey"}
-              </button>
-              {passkeySuccess && <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>}
-              {passkeyError && <div style={{ color: "#ff5252" }}>{passkeyError}</div>}
-            </div>
-
-            {user && !user.haveAuthenticator ? (
-              <button
-                type="button"
-                style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
-                onClick={() => setShowGoogleAuthModal(true)}
-                disabled={!user}
-              >
-                Setup Google Authenticator
-              </button>
-            ) : (
-              <button
-                type="button"
-                style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
-                onClick={async () => {
-                  const choice = confirm("Are you sure you want to delete Google Authenticator? This will disable 2FA for your account.");
-                  if (choice) {
-                    const res = await fetch("/api/authenticator/delete", { method: "POST", body: JSON.stringify({ userId: user.user_id }), headers: { "Content-Type": "application/json" } });
-                    if (!res.ok) {
-                      alert("Failed to delete Google Authenticator.");
-                      // Handle deletion error
-                    } else {
-                      user.haveAuthenticator = false;
-                      setUser && setUser({ ...user });
-                    }
-                  }
-                }}
-                disabled={!user}
-              >
-                Delete Google Authenticator
-              </button>
-            )}
-            {success && (
-              <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>
-            )}
-            {error && (
-              <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>
-            )}
-
-          </form>
         </>
-      }
+      } */}
       <div style={{ marginTop: 32 }} />
       <GoogleAuthenticatorSetupModal
         open={showGoogleAuthModal}
-        onClose={(success) => {setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); }}}
+        onClose={(success) => { setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); } }}
         user={user}
+      />
+      <SecurityModal
+        open={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        user={user}
+        setUser={setUser}
+        passkeyLoading={passkeyLoading}
+        passkeySuccess={passkeySuccess}
+        passkeyError={passkeyError}
+        handleRegisterPasskey={handleRegisterPasskey}
+        showGoogleAuthModal={showGoogleAuthModal}
+        setShowGoogleAuthModal={setShowGoogleAuthModal}
+        success={success}
+        error={error}
+        setError={setError}
+        setSuccess={setSuccess}
+        router={router}
+        linkText={linkText}
       />
     </div>
   );
