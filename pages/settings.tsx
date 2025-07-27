@@ -227,6 +227,11 @@ export default function Settings() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  // Passkey registration state
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined" || !user) return;
     setLinkText(
@@ -234,8 +239,8 @@ export default function Settings() {
         window.location.search.includes("from=launcher")
         ? "Go on website to link"
         : !user?.isStudio
-        ? "Link Steam Account"
-        : "Studio can't link Steam"
+          ? "Link Steam Account"
+          : "Studio can't link Steam"
     );
   }, [user, linkText]);
 
@@ -322,6 +327,87 @@ export default function Settings() {
       setPasswordError(e.message);
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const handleRegisterPasskey = async () => {
+    setPasskeyLoading(true);
+    setPasskeyError(null);
+    setPasskeySuccess(null);
+    try {
+      // 1. Get registration options from backend
+      const res = await fetch("/api/webauthn/register/options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user?.id, username: user?.username, email: user?.email }),
+      });
+      if (!res.ok) throw new Error("Failed to get registration options");
+      const options = await res.json();
+
+      // Ajoute les options pour credential discoverable si absent
+      if (!options.authenticatorSelection) {
+        options.authenticatorSelection = {
+          residentKey: "required",
+          userVerification: "required",
+        };
+      }
+      // Optionnel, pour compatibilité
+      options.requireResidentKey = true;
+
+      if (typeof options.challenge === "string") {
+        options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+      }
+      if (typeof options.user.id === "string") {
+        options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+      }
+      try {
+        const cred = await navigator.credentials.create({ publicKey: options });
+        if (!cred) throw new Error("Passkey creation failed");
+
+        // Serialize credential for transport
+        function bufferToBase64(buf) {
+          return btoa(String.fromCharCode(...new Uint8Array(buf)));
+        }
+
+        function bufferToBase64url(buf: ArrayBuffer): string {
+          // Convert ArrayBuffer to base64url string
+          let str = btoa(String.fromCharCode(...new Uint8Array(buf)));
+          // base64url: remplace + par -, / par _, retire les =
+          return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        }
+
+        const publicKeyCred = cred as PublicKeyCredential;
+        const credential = {
+          id: publicKeyCred.id, // <-- déjà base64url, ne pas encoder
+          rawId: bufferToBase64url(publicKeyCred.rawId), // <-- base64url
+          type: publicKeyCred.type,
+          response: {
+            attestationObject: bufferToBase64url(
+              (publicKeyCred.response as AuthenticatorAttestationResponse).attestationObject
+            ),
+            clientDataJSON: bufferToBase64url(
+              (publicKeyCred.response as AuthenticatorAttestationResponse).clientDataJSON
+            ),
+          },
+          clientExtensionResults: publicKeyCred.getClientExtensionResults(),
+        };
+
+        // Send credential to backend for verification
+        const verifyRes = await fetch("/api/webauthn/register/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential, userId: user?.id }),
+        });
+        if (!verifyRes.ok) throw new Error("Failed to register passkey");
+        setPasskeySuccess("Passkey registered!");
+      } catch (err) {
+        console.error("Passkey registration error:", err);
+        throw new Error("Passkey registration failed");
+      }
+    } catch (e: any) {
+      setPasskeyError(e.message);
+    } finally {
+      setPasskeyLoading(false);
     }
   };
 
@@ -705,6 +791,19 @@ export default function Settings() {
                   Google linked
                 </button>
               )}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
+              <button
+                type="button"
+                style={{ ...buttonStyle, background: "#222", color: "#fff" }}
+                onClick={handleRegisterPasskey}
+                disabled={passkeyLoading || !user}
+              >
+                {passkeyLoading ? "Registering..." : "Register Passkey"}
+              </button>
+              {passkeySuccess && <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>}
+              {passkeyError && <div style={{ color: "#ff5252" }}>{passkeyError}</div>}
             </div>
 
             {success && (

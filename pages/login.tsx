@@ -78,6 +78,10 @@ export default function Login() {
   const [loginLoading, setLoginLoading] = React.useState(false);
   const [loginError, setLoginError] = React.useState<string | null>(null);
 
+  // Passkey login state
+  const [passkeyLoading, setPasskeyLoading] = React.useState(false);
+  const [passkeyError, setPasskeyError] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     if (!loading && user) {
       router.push("/transmitToken");
@@ -111,6 +115,43 @@ export default function Login() {
       setLoginError(e.message);
     } finally {
       setLoginLoading(false);
+    }
+  };
+
+  const handlePasskeyLogin = async () => {
+    setPasskeyLoading(true);
+    setPasskeyError(null);
+    try {
+      // 1. Get authentication options from backend (sans identifiant)
+      const res = await fetch("/api/webauthn/authenticate/options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}), // pas d'email, pas d'identifiant
+      });
+      if (!res.ok) throw new Error("Failed to get authentication options");
+      const options = await res.json();
+      // 2. Get assertion
+      const assertion = await navigator.credentials.get({ publicKey: options });
+      if (!assertion) throw new Error("Passkey authentication failed");
+
+      const parsedCredential = {
+        id: assertion.id,
+      };
+      console.log("Parsed credential:", assertion);
+      // 3. Send assertion to backend for verification
+      const verifyRes = await fetch("/api/webauthn/authenticate/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: parsedCredential }),
+      });
+      const data = await verifyRes.json();
+      if (!verifyRes.ok) throw new Error(data.message || "Passkey login failed");
+      document.cookie = `token=${data.token}; path=/; max-age=31536000`;
+      location.href = "/";
+    } catch (e: any) {
+      setPasskeyError(e.message);
+    } finally {
+      setPasskeyLoading(false);
     }
   };
 
@@ -264,6 +305,17 @@ export default function Login() {
         </span>
         Sign in with Google
       </button>
+      <div style={{ width: "260px", maxWidth: 340, marginTop: 8 }}>
+        <button
+          type="button"
+          style={{ ...googleBtnStyle, background: "#222", color: "#fff", marginBottom: 8 }}
+          onClick={handlePasskeyLogin}
+          disabled={passkeyLoading || !email}
+        >
+          {passkeyLoading ? "Authenticating..." : "Login with Passkey"}
+        </button>
+        {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
+      </div>
       <div style={infoTextStyle}>
         You will be redirected automatically after login.
       </div>
