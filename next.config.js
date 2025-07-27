@@ -54,7 +54,7 @@ const nextConfig = {
             },
             {
                 source: '/explorer',
-                destination: 'http://localhost:8080',
+                destination: 'http://127.0.0.1:8080',
             }
         ];
     },
