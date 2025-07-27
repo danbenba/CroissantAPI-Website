@@ -32,7 +32,7 @@ type Game = {
 let ws: WebSocket;
 try {
   ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
-  ws.onerror = () => {};
+  ws.onerror = () => { };
 } catch {
   // Do nothing if connection fails
 }
@@ -53,8 +53,7 @@ const Library: React.FC = () => {
     fetch(myUrl + "/list", {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json"
       },
     })
       .then(async (res) => {
@@ -120,15 +119,15 @@ const Library: React.FC = () => {
             prevGames.map((game) =>
               game.gameId === message.gameId
                 ? {
-                    ...game,
-                    state:
-                      message.status === "installed" ||
+                  ...game,
+                  state:
+                    message.status === "installed" ||
                       message.status === "not_installed" ||
                       message.status === "playing" ||
                       message.status === "to_update"
-                        ? (message.status as Game["state"])
-                        : game.state,
-                  }
+                      ? (message.status as Game["state"])
+                      : game.state,
+                }
                 : game
             )
           );
@@ -137,9 +136,9 @@ const Library: React.FC = () => {
               ...selected,
               state:
                 message.status === "installed" ||
-                message.status === "not_installed" ||
-                message.status === "playing" ||
-                message.status === "to_update"
+                  message.status === "not_installed" ||
+                  message.status === "playing" ||
+                  message.status === "to_update"
                   ? (message.status as Game["state"])
                   : selected.state,
             });
@@ -198,7 +197,7 @@ const Library: React.FC = () => {
         if (message.action === "notFound" && message.gameId) {
           setError(`Game ${message.gameId} not found for deletion.`);
         }
-      } catch (e) {}
+      } catch (e) { }
     };
     return () => {
       ws.onmessage = null;
