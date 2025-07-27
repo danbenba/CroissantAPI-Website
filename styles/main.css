@@ -1581,7 +1581,8 @@ input[type=text].required:focus {
 
 .main-details-content {
     margin-top: 48px;
-    margin-left: 48px
+    margin-left: 48px;
+    width: 50vw;
 }
 
 .library-btn-col {

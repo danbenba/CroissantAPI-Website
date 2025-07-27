@@ -13,7 +13,7 @@ type Game = {
   owner_id?: string;
   showInStore?: boolean | number;
   image?: string;
-  state?: "installed" | "not_installed" | "playing" | "to_update";
+  state?: "installed" | "not_installed" | "playing" | "to_update" | "installing";
   download_link?: string;
   bannerHash?: string;
   iconHash?: string;
@@ -45,6 +45,7 @@ const Library: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showFetchError, setShowFetchError] = useState(false);
   const [search, setSearch] = useState("");
+  const [downloadPercent, setDownloadPercent] = useState<number>(0);
 
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
 
@@ -96,10 +97,14 @@ const Library: React.FC = () => {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        if (message.action === "downloadProgress" && message.gameId === selected?.gameId) {
+          setDownloadPercent(message.percent);
+        }
         if (
           message.action === "downloadComplete" ||
           message.action === "alreadyInstalled"
         ) {
+          setDownloadPercent(0); // Reset progress
           setGames((prevGames) => {
             const updatedGames = prevGames.map((game) =>
               game.gameId === message.gameId
@@ -207,6 +212,16 @@ const Library: React.FC = () => {
 
   const handleInstall = () => {
     if (selected && selected.state === "not_installed") {
+      setDownloadPercent(0); // Reset progress
+      // Met à jour l'état local en "installing"
+      setGames((prevGames) =>
+        prevGames.map((game) =>
+          game.gameId === selected.gameId
+            ? { ...game, state: "installing" }
+            : game
+        )
+      );
+      setSelected({ ...selected, state: "installing" });
       ws.send(
         JSON.stringify({
           action: "downloadGame",
@@ -469,6 +484,28 @@ const Library: React.FC = () => {
                     >
                       Install
                     </button>
+                  )}
+                  {selected.state === "installing" && (
+                    <div style={{ width: "100%" }}>
+                      <button className="library-play-btn installing" disabled>
+                        Installing... {downloadPercent > 0 ? `${downloadPercent}%` : ""}
+                      </button>
+                      <div style={{
+                        width: "100%",
+                        height: 8,
+                        background: "#333",
+                        borderRadius: 4,
+                        marginTop: 8,
+                        overflow: "hidden"
+                      }}>
+                        <div style={{
+                          width: `${downloadPercent}%`,
+                          height: "100%",
+                          background: "#4caf50",
+                          transition: "width 0.2s"
+                        }} />
+                      </div>
+                    </div>
                   )}
                   {selected.state === "to_update" && (
                     <button
