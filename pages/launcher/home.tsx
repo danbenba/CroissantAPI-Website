@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
@@ -52,6 +52,15 @@ const Library: React.FC = () => {
 
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
   const { getUser: getUserFromCache } = useUserCache();
+
+  useEffect(() => {
+    if(user && user.id) {
+      ws.send(JSON.stringify({
+        action: "updateState",
+        state: user.username,
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!token) return;

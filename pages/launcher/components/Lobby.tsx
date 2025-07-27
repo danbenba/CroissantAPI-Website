@@ -15,6 +15,14 @@ type Lobby = {
   users: any[];
 };
 
+let ws: WebSocket;
+try {
+  ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
+  ws.onerror = () => { };
+} catch {
+  // Do nothing if connection fails
+}
+
 export default function LobbyPage() {
   const [lobby, setLobby] = useState<Lobby | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +90,7 @@ export default function LobbyPage() {
         }
         lastLobbyUsers.current = usersString;
         setLobby({ lobbyId: data.lobbyId, users });
+        ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: data.lobbyId, users }));
       } catch {
         setLobby(null);
       } finally {

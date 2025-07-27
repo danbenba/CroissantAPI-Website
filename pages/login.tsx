@@ -88,7 +88,7 @@ export default function Login() {
 
   React.useEffect(() => {
     if (!loading && user) {
-      router.push("/transmitToken");
+      router.push("/");
     }
   }, [user, loading, router]);
 
