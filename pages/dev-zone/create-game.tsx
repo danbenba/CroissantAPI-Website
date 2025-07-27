@@ -267,7 +267,7 @@ const GameForm = () => {
           {errors.price && <span className="error">{errors.price}</span>}
           <div className="form-row">
             <label htmlFor="downloadLink">
-              Download Link (GitHub/GitLab repository)
+              Download Link (GitHub/GitLab repository or ZIP file link){" "}
               <span className="required">*</span>
             </label>
             <input
@@ -307,7 +307,7 @@ const GameForm = () => {
           {errors.iconHash && <span className="error">{errors.iconHash}</span>}
           <div className="form-row">
             <label htmlFor="banner">
-              Banner <span className="required">*</span>
+              Banner (Optional)
             </label>
             <label
               htmlFor="banner"
@@ -322,7 +322,6 @@ const GameForm = () => {
                 name="banner"
                 accept="image/*"
                 onChange={handleBannerChange}
-                required={!formData.bannerHash}
                 className="dark-input"
                 style={{ display: "none" }}
               />
