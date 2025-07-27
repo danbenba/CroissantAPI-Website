@@ -214,7 +214,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     <div>
       <BackgroundImage />
       <MetaLinks />
-      {(!pageProps?.isOauth2Auth || !pageProps?.isLauncher) && <Navbar />}
+      {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Navbar />}
       <main style={mainStyle}>
         <Component {...pageProps} />
       </main>
