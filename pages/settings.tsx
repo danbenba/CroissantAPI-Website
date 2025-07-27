@@ -176,6 +176,145 @@ function ChangePasswordModal({
   );
 }
 
+function GoogleAuthenticatorSetupModal({
+  open,
+  onClose,
+  user,
+}: {
+  open: boolean;
+  onClose: (success: boolean) => void;
+  user: any;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"generate" | "validate">("generate");
+  const [key, setKey] = useState<any>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [passcode, setPasscode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setStep("generate");
+      setKey(null);
+      setQrCode(null);
+      setPasscode("");
+      setError(null);
+      setSuccess(null);
+    }
+  }, [open]);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/authenticator/generateKey", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to generate key");
+      setKey(data.key);
+      setQrCode(data.qrCode);
+      setStep("validate");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleValidate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/authenticator/registerKey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, passcode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to validate key");
+      setSuccess("Google Authenticator setup complete!");
+      setStep("generate");
+      user.haveAuthenticator = true; // Update user state
+      onClose(true);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!open) return null;
+  return (
+    <div className="shop-prompt-overlay">
+      <div className="shop-prompt">
+        <div className="shop-prompt-message">Setup Google Authenticator</div>
+        {step === "generate" ? (
+          <button
+            style={{ ...buttonStyle, width: "100%" }}
+            onClick={handleGenerate}
+            disabled={loading}
+          >
+            {loading ? "Generating..." : "Generate Key & QR Code"}
+          </button>
+        ) : (
+          <>
+            {qrCode && (
+              <div style={{ textAlign: "center", marginBottom: 12 }}>
+                <img
+                  src={qrCode}
+                  alt="QR Code"
+                  style={{ width: 180, height: 180 }}
+                />
+                <div style={{ fontSize: 14, marginTop: 8 }}>
+                  Scan with Google Authenticator
+                </div>
+              </div>
+            )}
+            <form
+              onSubmit={handleValidate}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+              }}
+            >
+              <label style={labelStyle}>Enter passcode from app</label>
+              <input
+                type="text"
+                style={inputStyle}
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                placeholder="123456"
+                required
+                maxLength={6}
+                pattern="\d{6}"
+              />
+              <button
+                type="submit"
+                style={{ ...buttonStyle, width: "100%" }}
+                disabled={loading}
+              >
+                {loading ? "Validating..." : "Validate"}
+              </button>
+              <button
+                type="button"
+                style={{ ...buttonStyle, width: "100%", background: "#444" }}
+                onClick={() => { onClose(false) }}
+              >
+                Cancel
+              </button>
+            </form>
+          </>
+        )}
+        {error && <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>}
+        {success && <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>}
+      </div>
+    </div>
+  );
+}
+
 export default function Settings() {
   const { user, token, setUser } = useAuth();
   const router = useRouter();
@@ -231,6 +370,7 @@ export default function Settings() {
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [showGoogleAuthModal, setShowGoogleAuthModal] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined" || !user) return;
@@ -806,15 +946,53 @@ export default function Settings() {
               {passkeyError && <div style={{ color: "#ff5252" }}>{passkeyError}</div>}
             </div>
 
+            {user && !user.haveAuthenticator ? (
+              <button
+                type="button"
+                style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+                onClick={() => setShowGoogleAuthModal(true)}
+                disabled={!user}
+              >
+                Setup Google Authenticator
+              </button>
+            ) : (
+              <button
+                type="button"
+                style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+                onClick={async () => {
+                  const choice = confirm("Are you sure you want to delete Google Authenticator? This will disable 2FA for your account.");
+                  if (choice) {
+                    const res = await fetch("/api/authenticator/delete", { method: "POST", body: JSON.stringify({ userId: user.user_id }), headers: { "Content-Type": "application/json" } });
+                    if (!res.ok) {
+                      alert("Failed to delete Google Authenticator.");
+                      // Handle deletion error
+                    } else {
+                      user.haveAuthenticator = false;
+                      setUser && setUser({ ...user });
+                    }
+                  }
+                }}
+                disabled={!user}
+              >
+                Delete Google Authenticator
+              </button>
+            )}
             {success && (
               <div style={{ color: "#4caf50", marginTop: 16 }}>{success}</div>
             )}
             {error && (
               <div style={{ color: "#ff5252", marginTop: 16 }}>{error}</div>
             )}
+
           </form>
         </>
       }
+      <div style={{ marginTop: 32 }} />
+      <GoogleAuthenticatorSetupModal
+        open={showGoogleAuthModal}
+        onClose={(success) => {setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); }}}
+        user={user}
+      />
     </div>
   );
 }

@@ -81,6 +81,10 @@ export default function Login() {
   // Passkey login state
   const [passkeyLoading, setPasskeyLoading] = React.useState(false);
   const [passkeyError, setPasskeyError] = React.useState<string | null>(null);
+  const [showAuthenticatorModal, setShowAuthenticatorModal] = React.useState(false);
+  const [authenticatorCode, setAuthenticatorCode] = React.useState("");
+  const [authenticatorError, setAuthenticatorError] = React.useState<string | null>(null);
+  const [pendingUserId, setPendingUserId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!loading && user) {
@@ -109,8 +113,15 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
       // Option: set token in context or reload page to trigger useAuth
-      document.cookie = `token=${data.token}; path=/; max-age=31536000`; // 1 year
-      location.href = "/";
+      if (data.token) {
+        document.cookie = `token=${data.token}; path=/; max-age=31536000`;
+        location.href = "/";
+      } else if (data.user) {
+        // Google Authenticator Step
+        setPendingUserId(data.user.userId || data.user.user_id);
+        setShowAuthenticatorModal(true);
+      }
+
     } catch (e: any) {
       setLoginError(e.message);
     } finally {
@@ -126,7 +137,7 @@ export default function Login() {
       const res = await fetch("/api/webauthn/authenticate/options", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}), // pas d'email, pas d'identifiant
+        body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error("Failed to get authentication options");
       const options = await res.json();
@@ -152,6 +163,32 @@ export default function Login() {
       setPasskeyError(e.message);
     } finally {
       setPasskeyLoading(false);
+    }
+  };
+
+  const handleAuthenticatorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthenticatorError(null);
+    if (!pendingUserId) return;
+    try {
+      const res = await fetch("/api/authenticator/verifyKey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: pendingUserId,
+          code: authenticatorCode,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Invalid code");
+      if (data.token) {
+        document.cookie = `token=${data.token}; path=/; max-age=31536000`;
+        location.href = "/";
+      } else {
+        throw new Error("Unexpected response");
+      }
+    } catch (err: any) {
+      setAuthenticatorError(err.message);
     }
   };
 
@@ -316,6 +353,91 @@ export default function Login() {
         </button>
         {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
       </div>
+      {/* Authenticator Modal */}
+      {showAuthenticatorModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+          }}
+        >
+          <div style={{
+            background: "#23232a",
+            padding: 32,
+            borderRadius: 12,
+            boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
+            minWidth: 320,
+            color: "#fff"
+          }}>
+            <h3 style={{ marginBottom: 16 }}>Enter Google Authenticator Code</h3>
+            <form onSubmit={handleAuthenticatorSubmit}>
+              <input
+                type="text"
+                value={authenticatorCode}
+                onChange={e => setAuthenticatorCode(e.target.value)}
+                style={{
+                  width: "300px",
+                  padding: "10px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #444",
+                  background: "#18181c",
+                  color: "#fff",
+                  fontSize: 16,
+                  marginBottom: 12,
+                }}
+                placeholder="6-digit code"
+                autoFocus
+                required
+              />
+              <button
+                type="submit"
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: "#5865F2",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  marginBottom: 8,
+                }}
+              >
+                Verify
+              </button>
+              {authenticatorError && (
+                <div style={{ color: "#ff5252", marginTop: 8 }}>{authenticatorError}</div>
+              )}
+            </form>
+            <button
+              type="button"
+              style={{
+                width: "100%",
+                padding: "8px",
+                background: "#444",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: "pointer",
+                marginTop: 8,
+              }}
+              onClick={() => {
+                setShowAuthenticatorModal(false);
+                setAuthenticatorCode("");
+                setAuthenticatorError(null);
+                setPendingUserId(null);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       <div style={infoTextStyle}>
         You will be redirected automatically after login.
       </div>
