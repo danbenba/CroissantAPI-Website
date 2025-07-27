@@ -51,10 +51,6 @@ const nextConfig = {
             {
                 source: '/api-key',
                 destination: '/api/api-key',
-            },
-            {
-                source: '/explorer/:path*',
-                destination: 'http://127.0.0.1:8080/:path*',
             }
         ];
     },
