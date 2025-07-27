@@ -507,10 +507,10 @@ strong {
     --success-color: #3cbf7f;
     --error-color: red
 }
-
+/* 
 * {
     user-select: none
-}
+} */
 
 .links-group,
 nav {
