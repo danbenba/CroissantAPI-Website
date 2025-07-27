@@ -73,7 +73,6 @@ const Library: React.FC = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         })
           .then(async (res) => {
