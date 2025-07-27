@@ -53,7 +53,8 @@ const Library: React.FC = () => {
     fetch(myUrl + "/list", {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     })
       .then(async (res) => {
