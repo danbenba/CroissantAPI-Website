@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
+import useUserCache from "../../hooks/useUserCache";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 
@@ -46,8 +48,10 @@ const Library: React.FC = () => {
   const [showFetchError, setShowFetchError] = useState(false);
   const [search, setSearch] = useState("");
   const [downloadPercent, setDownloadPercent] = useState<number>(0);
+  const [ownerInfo, setOwnerInfo] = useState<{ id: string; username: string; verified?: boolean; admin?: boolean; isStudio?: boolean } | null>(null);
 
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
+  const { getUser: getUserFromCache } = useUserCache();
 
   useEffect(() => {
     if (!token) return;
@@ -272,6 +276,17 @@ const Library: React.FC = () => {
     game.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  useEffect(() => {
+    if (selected?.owner_id || selected?.ownerId) {
+      const ownerId = selected.owner_id || selected.ownerId;
+      getUserFromCache(ownerId)
+        .then(setOwnerInfo)
+        .catch(() => setOwnerInfo(null));
+    } else {
+      setOwnerInfo(null);
+    }
+  }, [selected, getUserFromCache]);
+
   if (loading || error) {
     return (
       <div style={{ position: "relative" }}>
@@ -442,6 +457,37 @@ const Library: React.FC = () => {
             </div>
             <div className="main-details-content">
               <h2>{selected.name}</h2>
+              {/* --- Ajout du propriétaire sous le nom du jeu --- */}
+              {ownerInfo && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <Link
+                    href={`/profile?user=${ownerInfo.id}&from=launcher`}
+                    style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+                  >
+                    <img
+                      src={`/avatar/${ownerInfo.id}`}
+                      alt={ownerInfo.username}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        marginRight: 8,
+                        objectFit: "cover",
+                        border: "2px solid #444"
+                      }}
+                    />
+                    <span style={{ fontWeight: 500 }}>
+                      {ownerInfo.username}
+                      {ownerInfo.admin ? (
+                        <img src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                      ) : ownerInfo.verified ? (
+                        <img src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                      ) : null}
+                    </span>
+                  </Link>
+                </div>
+              )}
+              {/* --- Fin ajout propriétaire --- */}
               <p style={{ color: "#bcbcbc" }}>{selected.description}</p>
               <div className="library-details-row">
                 <div className="game-properties">
