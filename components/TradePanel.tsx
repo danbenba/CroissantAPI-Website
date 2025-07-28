@@ -7,6 +7,7 @@ type TradeStatus = "pending" | "approved" | "completed" | "canceled";
 interface TradeItem extends Item {
   itemId: string;
   amount: number;
+  metadata?: { [key: string]: unknown; _unique_id?: string };
 }
 
 interface Trade {
@@ -35,6 +36,19 @@ interface TradePanelProps {
   apiBase?: string; // e.g. "/api"
 }
 
+// Fonction pour formater les métadonnées pour l'affichage
+const formatMetadata = (metadata?: { [key: string]: unknown }) => {
+  if (!metadata) return null;
+
+  // Exclure _unique_id de l'affichage
+  const displayMetadata = Object.entries(metadata)
+    .filter(([key]) => key !== "_unique_id")
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+
+  return displayMetadata || null;
+};
+
 // Sous-composant pour un item d'inventaire
 function TradeInventoryItem({
   item,
@@ -45,11 +59,30 @@ function TradeInventoryItem({
   onClick?: () => void;
   removable?: boolean;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const formattedMetadata = formatMetadata(item.metadata);
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    setShowTooltip(true);
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setMousePos({ x: rect.left, y: rect.top });
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
   return (
     <div
       className="trade-inventory-item"
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       title={onClick ? `Add ${item.name} to the trade` : undefined}
+      style={{ position: "relative" }}
     >
       <img
         src={"/items-icons/" + (item.iconHash || item.itemId)}
@@ -57,6 +90,72 @@ function TradeInventoryItem({
       />
       <div>x{item.amount}</div>
       <div>{item.name}</div>
+
+      {/* Indicateur visuel pour les items avec métadonnées */}
+      {item.metadata && (
+        <div
+          style={{
+            position: "absolute",
+            top: "2px",
+            right: "2px",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            backgroundColor: "#ffd700",
+            zIndex: 3,
+            border: "1px solid #000",
+          }}
+        />
+      )}
+
+      {/* Tooltip avec métadonnées */}
+      {showTooltip && mousePos && (
+        <div
+          className="trade-tooltip"
+          style={{
+            position: "fixed",
+            left: mousePos.x,
+            top: mousePos.y,
+            backgroundColor: "#333",
+            color: "white",
+            padding: "8px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            zIndex: 1000,
+            maxWidth: "200px",
+            wordWrap: "break-word",
+          }}
+        >
+          <div style={{ fontWeight: "bold" }}>{item.name}</div>
+          <div style={{ fontSize: "11px", color: "#ccc" }}>{item.description}</div>
+          {formattedMetadata && (
+            <div
+              style={{
+                color: "#888",
+                fontSize: "10px",
+                marginTop: "4px",
+                fontStyle: "italic",
+              }}
+            >
+              {formattedMetadata}
+            </div>
+          )}
+          {/* Affichage de l'unique ID pour debug (optionnel) */}
+          {item.metadata?._unique_id && (
+            <div
+              style={{
+                color: "#666",
+                fontSize: "9px",
+                marginTop: "2px",
+                fontFamily: "monospace",
+              }}
+            >
+              ID: {(item.metadata._unique_id as string).substring(0, 8)}...
+            </div>
+          )}
+        </div>
+      )}
+
       {removable && (
         <div style={{ marginTop: 4 }}>
           <button onClick={onClick}>–1</button>
@@ -83,20 +182,25 @@ function TradeColumn({
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <h3>{title}</h3>
-      <div
-        className={
-          "trade-column" + (approved ? " trade-approved" : "")
-        }
-      >
+      <div className={"trade-column" + (approved ? " trade-approved" : "")}>
         <div className="trade-inventory-grid">
           {items.map((item) => (
             <TradeInventoryItem
-              key={item.itemId}
+              key={
+                item.metadata?._unique_id
+                  ? `${item.itemId}-${item.metadata._unique_id}`
+                  : item.itemId
+              }
               item={item}
               removable={removable}
               onClick={
                 removable && onRemoveItem
-                  ? () => onRemoveItem({ ...item, amount: 1 })
+                  ? () =>
+                      onRemoveItem({
+                        ...item,
+                        amount: 1,
+                        metadata: item.metadata, // Conserver les métadonnées pour la suppression
+                      })
                   : undefined
               }
             />
@@ -191,9 +295,11 @@ export default function TradePanel({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userKey:
-            trade?.fromUserId === userId ? "fromUserItems" : "toUserItems",
-          tradeItem: item,
+          tradeItem: {
+            itemId: item.itemId,
+            amount: item.amount,
+            metadata: item.metadata, // Inclure les métadonnées pour identifier l'item unique
+          },
         }),
       });
       if (!res.ok) throw new Error("Failed to remove item");
@@ -207,25 +313,40 @@ export default function TradePanel({
 
   // Helpers
   const isCurrentUserFrom = trade?.fromUserId === userId;
-  const userItems = isCurrentUserFrom ? trade?.fromUserItems || [] : trade?.toUserItems || [];
-  const otherItems = isCurrentUserFrom ? trade?.toUserItems || [] : trade?.fromUserItems || [];
-  const userApproved = isCurrentUserFrom ? trade?.approvedFromUser : trade?.approvedToUser;
-  const otherApproved = isCurrentUserFrom ? trade?.approvedToUser : trade?.approvedFromUser;
+  const userItems = isCurrentUserFrom
+    ? trade?.fromUserItems || []
+    : trade?.toUserItems || [];
+  const otherItems = isCurrentUserFrom
+    ? trade?.toUserItems || []
+    : trade?.fromUserItems || [];
+  const userApproved = isCurrentUserFrom
+    ? trade?.approvedFromUser
+    : trade?.approvedToUser;
+  const otherApproved = isCurrentUserFrom
+    ? trade?.approvedToUser
+    : trade?.approvedFromUser;
 
   // UI
   if (loading && !trade) return <div>Loading trade...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!trade) return <div>Trade not found.</div>;
 
-  async function addItem(item: { itemId: string; amount: number }) {
+  async function addItem(item: {
+    itemId: string;
+    amount: number;
+    metadata?: { [key: string]: unknown; _unique_id?: string };
+  }) {
     setLoading(true);
     try {
       const res = await fetch(`${apiBase}/trades/${tradeId}/add-item`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userKey: isCurrentUserFrom ? "fromUserItems" : "toUserItems",
-          tradeItem: item,
+          tradeItem: {
+            itemId: item.itemId,
+            amount: item.amount,
+            metadata: item.metadata, // Inclure les métadonnées si l'item en a
+          },
         }),
       });
       if (!res.ok) throw new Error("Failed to add item");
@@ -279,17 +400,43 @@ export default function TradePanel({
         >
           {inventory
             .map((item) => {
-              const inTrade =
-                userItems.find((ti) => ti.itemId === item.itemId)?.amount || 0;
-              const available = item.amount - inTrade;
-              return { ...item, available };
+              // Pour les items avec métadonnées, vérifier s'ils sont déjà dans le trade par leur _unique_id
+              if (item.metadata?._unique_id) {
+                const isInTrade = userItems.some(
+                  (ti) =>
+                    ti.itemId === item.itemId &&
+                    ti.metadata?._unique_id === item.metadata?._unique_id
+                );
+                return { ...item, available: isInTrade ? 0 : 1 };
+              } else {
+                // Pour les items sans métadonnées, calculer comme avant
+                const inTrade = userItems
+                  .filter((ti) => ti.itemId === item.itemId && !ti.metadata?._unique_id)
+                  .reduce((sum, ti) => sum + ti.amount, 0);
+                const available = item.amount - inTrade;
+                return { ...item, available };
+              }
             })
             .filter((item) => item.available > 0)
             .map((item) => (
               <TradeInventoryItem
-                key={item.itemId}
-                item={{ ...item, amount: item.available }}
-                onClick={() => addItem({ itemId: item.itemId, amount: 1 })}
+                key={
+                  item.metadata?._unique_id
+                    ? `${item.itemId}-${item.metadata._unique_id}`
+                    : item.itemId
+                }
+                item={{
+                  ...item,
+                  amount: item.available,
+                  metadata: item.metadata, // Conserver les métadonnées
+                }}
+                onClick={() =>
+                  addItem({
+                    itemId: item.itemId,
+                    amount: 1,
+                    metadata: item.metadata, // Passer les métadonnées lors de l'ajout
+                  })
+                }
               />
             ))}
         </div>

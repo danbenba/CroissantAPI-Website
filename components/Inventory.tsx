@@ -16,6 +16,7 @@ export interface Item {
   owner?: string;
   showInStore?: boolean;
   deleted?: boolean;
+  metadata?: { [key: string]: unknown; _unique_id?: string };
 }
 
 interface User {
@@ -53,17 +54,30 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const { user } = useAuth();
   const selectedUser = profile.id === "me" ? user?.id || "me" : profile.id;
 
-
   useEffect(() => {
-    setItems(profile.inventory || []);
+    // Traiter les items de l'inventaire pour extraire l'uniqueId
+    const processedItems = (profile.inventory || []).map(item => ({
+      ...item,
+      uniqueId: item.metadata?._unique_id as string | undefined
+    }));
+    setItems(processedItems);
     setLoading(false);
-  }, [profile.id]);
+  }, [profile.inventory]);
+  
   useEffect(() => { if (reloadFlag) refreshInventory(); }, [reloadFlag]);
 
   function refreshInventory() {
     fetch(`${endpoint}/inventory/${selectedUser}`, { headers: { "Content-Type": "application/json" } })
       .then(res => res.ok ? res.json() : Promise.reject(new Error("Failed to fetch inventory")))
-      .then(data => { setItems([...data]); setLoading(false); })
+      .then(data => { 
+        // Traiter les items pour extraire l'uniqueId
+        const processedItems = (data.inventory || []).map((item: any) => ({
+          ...item,
+          uniqueId: item.metadata?._unique_id as string | undefined
+        }));
+        setItems(processedItems); 
+        setLoading(false); 
+      })
       .catch(err => { setError(err.message); setLoading(false); });
     setLoading(false);
   }
@@ -90,6 +104,37 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
   async function handleAction(item: Item, action: "sell" | "drop", actionText: string) {
     if (!isMe) return;
+    
+    // Pour les items avec métadonnées, ils ne peuvent pas être vendus/droppés normalement
+    if (item.metadata && action === "sell") {
+      setError("Items with metadata cannot be sold");
+      return;
+    }
+    
+    // Pour les items avec métadonnées, utiliser l'endpoint consume avec uniqueId
+    if (item.metadata && item.metadata._unique_id && action === "drop") {
+      const confirmed = await customPrompt(`Drop "${item.name}" with unique properties?`);
+      if (confirmed.confirmed) {
+        // Simuler un drop en utilisant l'endpoint consume (nécessiterait une adaptation côté serveur)
+        fetch(`${endpoint}/items/drop/${item.itemId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            uniqueId: item.metadata._unique_id,
+            userId: user?.id 
+          }),
+        })
+          .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || `Failed to ${action} item`);
+            return data;
+          })
+          .then(() => { refreshInventory(); })
+          .catch(err => setError(err.message));
+      }
+      return;
+    }
+    
     const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
     if (result.confirmed && result.amount && result.amount > 0) {
       fetch(`${endpoint}/items/${action}/${item.itemId}`, {
@@ -119,7 +164,12 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         const userRes = await fetch(`${endpoint}/users/${details.owner}`);
         if (userRes.ok) ownerUser = await userRes.json();
       }
-      setSelectedItem({ ...item, ...details, amount: item.amount });
+      setSelectedItem({ 
+        ...item, 
+        ...details, 
+        amount: item.amount,
+        uniqueId: item.metadata._unique_id // Conserver l'uniqueId
+      });
       setOwnerUser(ownerUser);
     } catch {
       setSelectedItem(item);
@@ -130,6 +180,19 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const handleBackToInventory = () => {
     setSelectedItem(null);
     setOwnerUser(null);
+  };
+
+  // Fonction pour formater les métadonnées pour l'affichage
+  const formatMetadata = (metadata?: { [key: string]: unknown }) => {
+    if (!metadata) return null;
+    
+    // Exclure _unique_id de l'affichage
+    const displayMetadata = Object.entries(metadata)
+      .filter(([key]) => key !== '_unique_id')
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
+    
+    return displayMetadata || null;
   };
 
   const columns = 8;
@@ -152,6 +215,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     const [mousePos, setMousePos] = React.useState<{ x: number, y: number } | null>(null);
     const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
     const fallbackUrl = "/assets/System_Shop.webp";
+    const formattedMetadata = formatMetadata(item.metadata);
 
     const handleMouseEnter = (e: React.MouseEvent) => {
       setShowTooltip(true);
@@ -211,27 +275,56 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           />
         </div>
         <div className="inventory-item-qty" style={{ position: "absolute", zIndex: 3 }}>x{item.amount}</div>
+        {/* Indicateur visuel pour les items avec métadonnées */}
+        {item.metadata && (
+          <div className="inventory-item-metadata-indicator" style={{ 
+            position: "absolute", 
+            top: "2px", 
+            right: "2px", 
+            width: "8px", 
+            height: "8px", 
+            borderRadius: "50%", 
+            backgroundColor: "#ffd700", 
+            zIndex: 3,
+            border: "1px solid #000"
+          }} />
+        )}
         {showTooltip && mousePos && (
           <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
             <div className="inventory-tooltip-name">{item.name}</div>
             <div className="inventory-tooltip-desc">{item.description}</div>
+            {formattedMetadata && (
+              <div className="inventory-tooltip-metadata" style={{ 
+                color: "#888", 
+                fontSize: "12px", 
+                marginTop: "4px",
+                fontStyle: "italic"
+              }}>
+                {formattedMetadata}
+              </div>
+            )}
+            {/* Affichage de l'unique ID pour debug (optionnel) */}
+            {item.metadata?._unique_id && (
+              <div style={{ 
+                color: "#666", 
+                fontSize: "10px", 
+                marginTop: "2px",
+                fontFamily: "monospace"
+              }}>
+                ID: {item.metadata._unique_id}
+              </div>
+            )}
           </div>
         )}
         {showContext && isMe && mousePos && (
           <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={e => e.stopPropagation()}>
-            <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>
+            {!item.metadata && <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>}
             <div className="inventory-context-drop" onClick={() => onDrop(item)}>Drop</div>
           </div>
         )}
       </div>
     );
   });
-
-  // On mémorise les callbacks pour éviter de recréer les fonctions à chaque rendu
-  const memoHandleItemClick = useCallback((item: Item) => handleItemClick(item), [handleItemClick]);
-
-  // Render detailsView if selectedItem, else render inventory grid
-  // if (selectedItem) return detailsView;
 
   return (
     <div className="inventory-root">
@@ -245,6 +338,28 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             <div>
               <div className="inventory-details-name">{selectedItem.amount}x {selectedItem.name}</div>
               <div className="inventory-details-desc">{selectedItem.description}</div>
+              {/* Affichage des métadonnées dans la vue détaillée */}
+              {formatMetadata(selectedItem.metadata) && (
+                <div className="inventory-details-metadata" style={{ 
+                  color: "#888", 
+                  fontSize: "14px", 
+                  marginTop: "8px",
+                  fontStyle: "italic"
+                }}>
+                  Metadata: {formatMetadata(selectedItem.metadata)}
+                </div>
+              )}
+              {/* Affichage de l'unique ID dans la vue détaillée */}
+              {selectedItem.metadata._unique_id && (
+                <div className="inventory-details-unique-id" style={{ 
+                  color: "#666", 
+                  fontSize: "12px", 
+                  marginTop: "4px",
+                  fontFamily: "monospace"
+                }}>
+                  Unique ID: {selectedItem.metadata._unique_id}
+                </div>
+              )}
               <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
                 {selectedItem.price !== undefined && (
                   <div className="inventory-details-price">
@@ -281,9 +396,9 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           <>
             {!loading && !error && (
               <>
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <InventoryItem
-                    key={item.itemId}
+                    key={item?.metadata?._unique_id ? `${item.itemId}-${item.metadata._unique_id}` : `${item.itemId}-${index}`}
                     item={item}
                     onSelect={handleItemClick}
                     isMe={!!isMe}
