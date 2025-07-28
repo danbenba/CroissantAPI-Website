@@ -348,7 +348,7 @@ export default function Login() {
           type="button"
           style={{ ...googleBtnStyle, background: "#222", color: "#fff", marginBottom: 8 }}
           onClick={handlePasskeyLogin}
-          disabled={passkeyLoading || !email}
+          disabled={passkeyLoading}
         >
           {passkeyLoading ? "Authenticating..." : "Login with Passkey"}
         </button>
