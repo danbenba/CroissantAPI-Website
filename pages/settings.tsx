@@ -193,6 +193,7 @@ function GoogleAuthenticatorSetupModal({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+
   useEffect(() => {
     if (open) {
       setStep("generate");
@@ -542,6 +543,8 @@ export default function Settings() {
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+
+  const [showApiKey, setShowApiKey] = useState(false);
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
     setUsernameError(null);
@@ -881,6 +884,7 @@ export default function Settings() {
               {usernameLoading ? "Saving..." : "Save"}
             </button>
           </form>
+
           {usernameSuccess && (
             <div style={{ color: "#4caf50", marginTop: 2 }}>
               {usernameSuccess}
@@ -893,6 +897,67 @@ export default function Settings() {
           )}
         </div>{" "}
       </div>
+      {user && (
+        <div style={{ marginTop: 32, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <label style={{ ...labelStyle, alignSelf: "" }}>API Key</label>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexDirection: "column" }}>
+            <code
+              style={{
+                background: "#444",
+                borderRadius: 4,
+                padding: "6px 12px",
+                fontWeight: 500,
+                fontSize: 15,
+                userSelect: showApiKey ? "all" : "none",
+                cursor: showApiKey ? "pointer" : "default",
+                minWidth: 180,
+              }}
+              onClick={() => {
+                if (showApiKey) navigator.clipboard.writeText(token || "");
+              }}
+              title={showApiKey ? "Click to copy" : "Click Show"}
+            >
+              {showApiKey ? token : "*".repeat(Math.max(8, String(token || "").length))}
+            </code>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  textDecoration: "underline",
+                  opacity: 0.7,
+                }}
+                onClick={() => setShowApiKey((v) => !v)}
+              >
+                {showApiKey ? "Hide" : "Show"}
+              </button>
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  textDecoration: "underline",
+                  opacity: 0.7,
+                }}
+                onClick={() => navigator.clipboard.writeText(token || "")}
+                disabled={!showApiKey}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+          <div style={{ fontSize: 13, color: "#aaa", marginTop: 4 }}>
+            This key allows you to use the API on your behalf.
+          </div>
+        </div>
+      )}
       {user && !user?.isStudio ? (
         <>
           <ChangePasswordModal

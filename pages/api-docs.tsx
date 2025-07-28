@@ -197,7 +197,7 @@ export default function ApiDocs() {
                       <li
                         key={index}
                         style={{
-                          marginBottom: "4px",
+                          marginBottom: "6px",
                           cursor: "pointer",
                           color: selectedCategory === cat ? "#fff" : "#fff",
                         }}
