@@ -2054,6 +2054,12 @@ input[type=text].required:focus {
     padding: 0
 }
 
+@media (max-width: 800px) {
+    .search-users-grid {
+        grid-template-columns: repeat(1, 1fr)
+    }
+}
+
 .search-user-card,
 .shop-item-card {
     border-radius: 8px;
