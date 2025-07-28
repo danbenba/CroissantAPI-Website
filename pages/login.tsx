@@ -141,6 +141,19 @@ export default function Login() {
       });
       if (!res.ok) throw new Error("Failed to get authentication options");
       const options = await res.json();
+      
+      // Convert base64 challenge to ArrayBuffer
+      const challengeBuffer = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+      options.challenge = challengeBuffer;
+
+      // Convert allowCredentials if present
+      if (options.allowCredentials) {
+        options.allowCredentials = options.allowCredentials.map((cred: any) => ({
+          ...cred,
+          id: Uint8Array.from(atob(cred.id), c => c.charCodeAt(0))
+        }));
+      }
+
       // 2. Get assertion
       const assertion = await navigator.credentials.get({ publicKey: options });
       if (!assertion) throw new Error("Passkey authentication failed");
@@ -149,6 +162,7 @@ export default function Login() {
         id: assertion.id,
       };
       console.log("Parsed credential:", assertion);
+      
       // 3. Send assertion to backend for verification
       const verifyRes = await fetch("/api/webauthn/authenticate/verify", {
         method: "POST",
