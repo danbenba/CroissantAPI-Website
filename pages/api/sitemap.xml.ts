@@ -1,0 +1,81 @@
+const actuaSitemap = `
+    <url>
+        <loc>https://croissant-api.fr/</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/auth</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/about</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/tos</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/privacy</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/contact</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://croissant-api.fr/api-docs</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+`;
+
+const genGameItem = (games: { gameId: string; }[]) => {
+    return games.map(game => `
+        <url>
+            <loc>https://croissant-api.fr/games/${game.gameId}</loc>
+            <lastmod>2025-01-01</lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>0.6</priority>
+        </url>
+    `).join('');
+}
+
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "GET") return res.status(405).end("Method Not Allowed");
+
+  const games = fetch('https://croissant-api.fr/api/games')
+    .then(response => response.json())
+    .then(data => data.map((game: { gameId: string; }) => ({ gameId: game.gameId })))
+    .catch(() => []);
+
+    const gameItems = await games;
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${actuaSitemap}
+    ${genGameItem(gameItems)}
+</urlset>
+`;
+
+    res.setHeader("Content-Type", "application/xml");
+    res.write(sitemap);
+    res.end();
+}
