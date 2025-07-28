@@ -161,6 +161,7 @@ export default function Login() {
       location.href = "/";
     } catch (e: any) {
       setPasskeyError(e.message);
+      console.error("Passkey login error:", e);
     } finally {
       setPasskeyLoading(false);
     }
