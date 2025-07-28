@@ -16,6 +16,7 @@ export interface Item {
   owner?: string;
   showInStore?: boolean;
   deleted?: boolean;
+  sellable?: boolean; // Nouvelle propriété
   metadata?: { [key: string]: unknown; _unique_id?: string };
 }
 
@@ -55,31 +56,32 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const selectedUser = profile.id === "me" ? user?.id || "me" : profile.id;
 
   useEffect(() => {
-    // Traiter les items de l'inventaire pour extraire l'uniqueId
+    // Traiter les items de l'inventaire pour extraire l'uniqueId et sellable
     const processedItems = (profile.inventory || []).map(item => ({
       ...item,
-      uniqueId: item.metadata?._unique_id as string | undefined
+      uniqueId: item.metadata?._unique_id as string | undefined,
+      sellable: item.sellable ?? false // S'assurer que sellable est défini
     }));
     setItems(processedItems);
     setLoading(false);
   }, [profile.inventory]);
-  
+
   useEffect(() => { if (reloadFlag) refreshInventory(); }, [reloadFlag]);
 
   function refreshInventory() {
     fetch(`${endpoint}/inventory/${selectedUser}`, { headers: { "Content-Type": "application/json" } })
       .then(res => res.ok ? res.json() : Promise.reject(new Error("Failed to fetch inventory")))
-      .then(data => { 
-        // Traiter les items pour extraire l'uniqueId
+      .then(data => {
+        // Traiter les items pour extraire l'uniqueId et sellable
         const processedItems = (data.inventory || []).map((item: any) => ({
           ...item,
-          uniqueId: item.metadata?._unique_id as string | undefined
+          uniqueId: item.metadata?._unique_id as string | undefined,
+          sellable: item.sellable ?? false
         }));
-        setItems(processedItems); 
-        setLoading(false); 
+        setItems(processedItems);
+        setLoading(false);
       })
       .catch(err => { setError(err.message); setLoading(false); });
-    setLoading(false);
   }
 
   const customPrompt = (message: string, maxAmount?: number) => {
@@ -104,13 +106,19 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
   async function handleAction(item: Item, action: "sell" | "drop", actionText: string) {
     if (!isMe) return;
-    
-    // Pour les items avec métadonnées, ils ne peuvent pas être vendus/droppés normalement
+
+    // Pour les items avec métadonnées, ils ne peuvent pas être vendus normalement
     if (item.metadata && action === "sell") {
       setError("Items with metadata cannot be sold");
       return;
     }
-    
+
+    // Vérifier si l'item peut être vendu (seulement les items sellable)
+    if (action === "sell" && !item.sellable) {
+      setError("This item cannot be sold. Only purchased items or items obtained from trades can be sold.");
+      return;
+    }
+
     // Pour les items avec métadonnées, utiliser l'endpoint consume avec uniqueId
     if (item.metadata && item.metadata._unique_id && action === "drop") {
       const confirmed = await customPrompt(`Drop "${item.name}" with unique properties?`);
@@ -119,9 +127,9 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         fetch(`${endpoint}/items/drop/${item.itemId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             uniqueId: item.metadata._unique_id,
-            userId: user?.id 
+            userId: user?.id
           }),
         })
           .then(async res => {
@@ -134,7 +142,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       }
       return;
     }
-    
+
     const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
     if (result.confirmed && result.amount && result.amount > 0) {
       fetch(`${endpoint}/items/${action}/${item.itemId}`, {
@@ -164,9 +172,9 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         const userRes = await fetch(`${endpoint}/users/${details.owner}`);
         if (userRes.ok) ownerUser = await userRes.json();
       }
-      setSelectedItem({ 
-        ...item, 
-        ...details, 
+      setSelectedItem({
+        ...item,
+        ...details,
         amount: item.amount,
         uniqueId: item.metadata._unique_id // Conserver l'uniqueId
       });
@@ -185,13 +193,13 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   // Fonction pour formater les métadonnées pour l'affichage
   const formatMetadata = (metadata?: { [key: string]: unknown }) => {
     if (!metadata) return null;
-    
+
     // Exclure _unique_id de l'affichage
     const displayMetadata = Object.entries(metadata)
       .filter(([key]) => key !== '_unique_id')
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
-    
+
     return displayMetadata || null;
   };
 
@@ -277,48 +285,102 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         <div className="inventory-item-qty" style={{ position: "absolute", zIndex: 3 }}>x{item.amount}</div>
         {/* Indicateur visuel pour les items avec métadonnées */}
         {item.metadata && (
-          <div className="inventory-item-metadata-indicator" style={{ 
-            position: "absolute", 
-            top: "2px", 
-            right: "2px", 
-            width: "8px", 
-            height: "8px", 
-            borderRadius: "50%", 
-            backgroundColor: "#ffd700", 
+          <div className="inventory-item-metadata-indicator" style={{
+            position: "absolute",
+            top: "2px",
+            right: "2px",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            backgroundColor: "#ffd700",
             zIndex: 3,
             border: "1px solid #000"
           }} />
         )}
-        {showTooltip && mousePos && (
+        {/* Indicateur visuel pour les items sellable */}
+        {/* {item.sellable && !item.metadata && (
+          <div className="inventory-item-sellable-indicator" style={{ 
+            position: "absolute", 
+            bottom: "2px", 
+            right: "2px", 
+            width: "8px", 
+            height: "8px", 
+            borderRadius: "50%", 
+            backgroundColor: "#00ff00", 
+            zIndex: 3,
+            border: "1px solid #000"
+          }} />
+        )} */}
+        {/* Indicateur visuel pour les items non sellable */}
+        {/* {!item.sellable && !item.metadata && (
+          <div className="inventory-item-non-sellable-indicator" style={{ 
+            position: "absolute", 
+            bottom: "2px", 
+            right: "2px", 
+            width: "8px", 
+            height: "8px", 
+            borderRadius: "50%", 
+            backgroundColor: "#ff0000", 
+            zIndex: 3,
+            border: "1px solid #000"
+          }} />
+        )} */}
+        {showTooltip && !showContext && mousePos && (
           <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
             <div className="inventory-tooltip-name">{item.name}</div>
             <div className="inventory-tooltip-desc">{item.description}</div>
             {formattedMetadata && (
-              <div className="inventory-tooltip-metadata" style={{ 
-                color: "#888", 
-                fontSize: "12px", 
+              <div className="inventory-tooltip-metadata" style={{
+                color: "#888",
+                fontSize: "12px",
                 marginTop: "4px",
                 fontStyle: "italic"
               }}>
                 {formattedMetadata}
               </div>
             )}
+            {/* Affichage du statut sellable */}
+            {!item.metadata && (
+              <div className="inventory-tooltip-sellable" style={{
+                color: item.sellable ? "#66ff66" : "#ff6666",
+                fontSize: "11px",
+                marginTop: "4px",
+                fontWeight: "bold"
+              }}>
+                {item.sellable ? "✓ Can be sold" : "✗ Cannot be sold"}
+              </div>
+            )}
             {/* Affichage de l'unique ID pour debug (optionnel) */}
             {item.metadata?._unique_id && (
-              <div style={{ 
-                color: "#666", 
-                fontSize: "10px", 
-                marginTop: "2px",
-                fontFamily: "monospace"
-              }}>
-                ID: {item.metadata._unique_id}
-              </div>
+              <>
+                <div style={{
+                  color: "#666",
+                  fontSize: "10px",
+                  marginTop: "2px",
+                  fontFamily: "monospace"
+                }}>
+                  ID: {item.metadata._unique_id}
+                </div>
+
+                <div className="inventory-tooltip-sellable" style={{
+                  color: "#ff6666",
+                  fontSize: "11px",
+                  marginTop: "4px",
+                  fontWeight: "bold"
+                }}>
+                  ✗ Cannot be sold
+                </div>
+              </>
+
             )}
           </div>
         )}
         {showContext && isMe && mousePos && (
           <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={e => e.stopPropagation()}>
-            {!item.metadata && <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>}
+            {/* Afficher "Sell" seulement si l'item n'a pas de métadonnées ET est sellable */}
+            {!item.metadata && item.sellable && (
+              <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>
+            )}
             <div className="inventory-context-drop" onClick={() => onDrop(item)}>Drop</div>
           </div>
         )}
@@ -340,20 +402,31 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               <div className="inventory-details-desc">{selectedItem.description}</div>
               {/* Affichage des métadonnées dans la vue détaillée */}
               {formatMetadata(selectedItem.metadata) && (
-                <div className="inventory-details-metadata" style={{ 
-                  color: "#888", 
-                  fontSize: "14px", 
+                <div className="inventory-details-metadata" style={{
+                  color: "#888",
+                  fontSize: "14px",
                   marginTop: "8px",
                   fontStyle: "italic"
                 }}>
                   Metadata: {formatMetadata(selectedItem.metadata)}
                 </div>
               )}
+              {/* Affichage du statut sellable dans la vue détaillée */}
+              {!selectedItem.metadata && (
+                <div className="inventory-details-sellable" style={{
+                  color: selectedItem.sellable ? "#00ff00" : "#ff6666",
+                  fontSize: "13px",
+                  marginTop: "6px",
+                  fontWeight: "bold"
+                }}>
+                  {selectedItem.sellable ? "✓ This item can be sold" : "✗ This item cannot be sold"}
+                </div>
+              )}
               {/* Affichage de l'unique ID dans la vue détaillée */}
-              {selectedItem.metadata._unique_id && (
-                <div className="inventory-details-unique-id" style={{ 
-                  color: "#666", 
-                  fontSize: "12px", 
+              {selectedItem.metadata?._unique_id && (
+                <div className="inventory-details-unique-id" style={{
+                  color: "#666",
+                  fontSize: "12px",
                   marginTop: "4px",
                   fontFamily: "monospace"
                 }}>
