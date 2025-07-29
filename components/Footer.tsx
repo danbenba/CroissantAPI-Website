@@ -4,7 +4,7 @@ import Link from "next/link";
 const footerLinks = [
   { href: "/tos", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
-];
+]; 
 
 export default function Footer() {
   const [show, setShow] = useState("");
