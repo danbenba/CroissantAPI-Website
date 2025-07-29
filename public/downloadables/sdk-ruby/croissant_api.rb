@@ -310,8 +310,10 @@ class CroissantAPI
   end
 
   # Give item occurrences to a user (owner only).
-  def give_item(item_id, amount)
-    post("/items/give/#{item_id}", { amount: amount }, auth: true)
+  def give_item(item_id, amount, user_id = nil)
+    body = { amount: amount }
+    body[:userId] = user_id if user_id
+    post("/items/give/#{item_id}", body, auth: true)
   end
 
   # Consume item occurrences from a user (owner only).
