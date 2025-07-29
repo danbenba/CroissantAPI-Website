@@ -84,25 +84,25 @@ const Navbar: React.FC = () => {
                   }
                 }}
               />
-              {user?.roles?.length > 1 && (
-                <span
-                  style={{
-                    fontSize: 14,
-                    color: "#bdbdbd",
-                    cursor: "pointer",
-                    userSelect: "none",
-                    transition: "transform 0.2s",
-                    transform: showRoles ? "rotate(180deg)" : "none",
-                  }}
-                  onClick={e => {
-                    e.preventDefault();
-                    setShowRoles(v => !v);
-                  }}
-                >
-                  ▼
-                </span>
-              )}
             </Link>
+            {user?.roles?.length > 1 && (
+              <span
+                style={{
+                  fontSize: 14,
+                  color: "#bdbdbd",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  transition: "transform 0.2s",
+                  transform: showRoles ? "rotate(180deg)" : "none",
+                }}
+                onClick={e => {
+                  e.preventDefault();
+                  setShowRoles(v => !v);
+                }}
+              >
+                ▼
+              </span>
+            )}
             {/* Dropdown pour changer de rôle */}
             {showRoles && user?.roles?.length > 1 && (
               <div
