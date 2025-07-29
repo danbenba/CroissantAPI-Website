@@ -1,129 +1,128 @@
 /**
- * Exemple d'utilisation de CroissantAPI pour Java
+ * CroissantAPI usage example for Java
  * 
- * Ce fichier de test montre comment utiliser les principales fonctionnalités
- * de la bibliothèque CroissantAPI en Java.
+ * This test file shows how to use the main features
+ * of the CroissantAPI library in Java.
  */
 public class CroissantAPIExample {
     
     public static void main(String[] args) {
-        // Exemple avec authentification
+        // Example with authentication
         testWithAuthentication();
         
-        // Exemple sans authentification (endpoints publics)
+        // Example without authentication (public endpoints)
         testWithoutAuthentication();
     }
     
     /**
-     * Test des fonctionnalités nécessitant une authentification
+     * Test features requiring authentication
      */
     public static void testWithAuthentication() {
         try {
-            // Initialiser l'API avec un token
-            CroissantAPI api = new CroissantAPI("votre_token_ici");
+            // Initialize API with a token
+            CroissantAPI api = new CroissantAPI("your_token_here");
             
-            System.out.println("=== Test avec authentification ===");
+            System.out.println("=== Test with authentication ===");
             
-            // Obtenir l'utilisateur actuel
+            // Get current user
             CroissantAPI.User me = api.users.getMe();
-            System.out.println("Utilisateur actuel: " + me.username);
-            System.out.println("Solde: " + me.balance + " crédits");
+            System.out.println("Current user: " + me.username);
+            System.out.println("Balance: " + me.balance + " credits");
             
-            // Obtenir l'inventaire
+            // Get inventory
             CroissantAPI.Inventory.InventoryResponse inventory = api.inventory.getMyInventory();
-            System.out.println("Objets dans l'inventaire: " + inventory.inventory.size());
+            System.out.println("Items in inventory: " + inventory.inventory.size());
             
-            // Lister les jeux possédés
+            // List owned games
             java.util.List<CroissantAPI.Game> myGames = api.games.getMyOwnedGames();
-            System.out.println("Jeux possédés: " + myGames.size());
+            System.out.println("Owned games: " + myGames.size());
             
-            // Lister les objets créés
+            // List created items
             java.util.List<CroissantAPI.Item> myItems = api.items.getMyItems();
-            System.out.println("Objets créés: " + myItems.size());
+            System.out.println("Created items: " + myItems.size());
             
-            // Créer un lobby
+            // Create a lobby
             java.util.Map<String, Object> newLobby = api.lobbies.create();
-            System.out.println("Lobby créé: " + newLobby);
+            System.out.println("Lobby created: " + newLobby);
             
         } catch (Exception e) {
-            System.err.println("Erreur lors du test avec authentification: " + e.getMessage());
-        }
+            System.err.println("Error during authentication test: " + e.getMessage());
     }
     
     /**
-     * Test des fonctionnalités publiques (sans authentification)
+     * Test public features (without authentication)
      */
     public static void testWithoutAuthentication() {
         try {
-            // Initialiser l'API sans token
+            // Initialize API without token
             CroissantAPI api = new CroissantAPI();
             
-            System.out.println("\\n=== Test sans authentification ===");
+            System.out.println("\\n=== Test without authentication ===");
             
-            // Lister tous les jeux
+            // List all games
             java.util.List<CroissantAPI.Game> games = api.games.list();
-            System.out.println("Nombre de jeux disponibles: " + games.size());
+            System.out.println("Number of available games: " + games.size());
             
             if (!games.isEmpty()) {
                 CroissantAPI.Game firstGame = games.get(0);
-                System.out.println("Premier jeu: " + firstGame.name + " - " + firstGame.price + " crédits");
+                System.out.println("First game: " + firstGame.name + " - " + firstGame.price + " credits");
             }
             
-            // Lister tous les objets
+            // List all items
             java.util.List<CroissantAPI.Item> items = api.items.list();
-            System.out.println("Nombre d'objets disponibles: " + items.size());
+            System.out.println("Number of available items: " + items.size());
             
             if (!items.isEmpty()) {
                 CroissantAPI.Item firstItem = items.get(0);
-                System.out.println("Premier objet: " + firstItem.name + " - " + firstItem.price + " crédits");
+                System.out.println("First item: " + firstItem.name + " - " + firstItem.price + " credits");
             }
             
-            // Rechercher des utilisateurs
+            // Search users
             java.util.List<CroissantAPI.User> users = api.users.search("test");
-            System.out.println("Utilisateurs trouvés avec 'test': " + users.size());
+            System.out.println("Users found with 'test': " + users.size());
             
-            // Rechercher des jeux
+            // Search games
             java.util.List<CroissantAPI.Game> adventureGames = api.games.search("adventure");
-            System.out.println("Jeux d'aventure trouvés: " + adventureGames.size());
+            System.out.println("Adventure games found: " + adventureGames.size());
             
         } catch (Exception e) {
-            System.err.println("Erreur lors du test sans authentification: " + e.getMessage());
+            System.err.println("Error during test without authentication: " + e.getMessage());
         }
     }
     
     /**
-     * Exemple d'utilisation avancée avec gestion d'erreurs
+     * Advanced usage example with error handling
      */
     public static void advancedExample() {
         try {
-            CroissantAPI api = new CroissantAPI("votre_token_ici");
+            CroissantAPI api = new CroissantAPI("your_token_here");
             
-            // Exemple de transaction d'objet avec métadonnées
+            // Example of item transaction with metadata
             java.util.Map<String, Object> metadata = new java.util.HashMap<>();
             metadata.put("custom_property", "special_value");
             metadata.put("rarity", "legendary");
             
-            // Donner un objet avec métadonnées
+            // Give an item with metadata
             java.util.Map<String, Object> result = api.items.give("item_id", 1, "target_user_id", metadata);
-            System.out.println("Résultat du don: " + result);
+            System.out.println("Gift result: " + result);
             
-            // Démarrer un échange
-            CroissantAPI.Trade trade = api.trades.startOrGetPending("autre_utilisateur_id");
+            // Start a trade
+            CroissantAPI.Trade trade = api.trades.startOrGetPending("other_user_id");
             
-            // Ajouter un objet à l'échange
+            // Add an item to the trade
             CroissantAPI.TradeItem tradeItem = new CroissantAPI.TradeItem("item_id", 2);
             api.trades.addItem(trade.id, tradeItem);
             
-            // Approuver l'échange
+            // Approve the trade
             api.trades.approve(trade.id);
             
-            // Créer une application OAuth2
+            // Create an OAuth2 application
             java.util.List<String> redirectUrls = java.util.Arrays.asList("https://example.com/callback");
-            java.util.Map<String, String> app = api.oauth2.createApp("Mon Application", redirectUrls);
-            System.out.println("Application créée avec client_id: " + app.get("client_id"));
+            java.util.Map<String, String> app = api.oauth2.createApp("My Application", redirectUrls);
+            System.out.println("Application created with client_id: " + app.get("client_id"));
             
         } catch (Exception e) {
-            System.err.println("Erreur dans l'exemple avancé: " + e.getMessage());
+            System.err.println("Error in advanced example: " + e.getMessage());
         }
     }
 }

@@ -5,140 +5,140 @@
 using namespace CroissantAPI;
 
 int main() {
-    // Créer un client avec votre token d'authentification
-    // Remplacez "your_token_here" par votre vrai token
+    // Create a client with your authentication token
+    // Replace "your_token_here" with your real token
     Client api("your_token_here");
     
-    std::cout << "=== Exemple d'utilisation de la Croissant API C++ ===" << std::endl;
+    std::cout << "=== Croissant API C++ Usage Example ===" << std::endl;
     
     try {
-        // 1. Obtenir les informations de l'utilisateur authentifié
-        std::cout << "\n--- Informations utilisateur ---" << std::endl;
+        // 1. Get authenticated user information
+        std::cout << "\n--- User Information ---" << std::endl;
         auto user = api.users.getMe();
         if (user) {
-            std::cout << "Nom d'utilisateur: " << user->username << std::endl;
+            std::cout << "Username: " << user->username << std::endl;
             std::cout << "User ID: " << user->userId << std::endl;
-            std::cout << "Vérifié: " << (user->verified ? "Oui" : "Non") << std::endl;
+            std::cout << "Verified: " << (user->verified ? "Yes" : "No") << std::endl;
             if (user->balance) {
-                std::cout << "Solde: " << std::fixed << std::setprecision(2) 
-                         << *user->balance << " crédits" << std::endl;
+                std::cout << "Balance: " << std::fixed << std::setprecision(2) 
+                         << *user->balance << " credits" << std::endl;
             }
             if (user->email) {
                 std::cout << "Email: " << *user->email << std::endl;
             }
         } else {
-            std::cout << "Impossible d'obtenir les informations utilisateur" << std::endl;
+            std::cout << "Unable to get user information" << std::endl;
         }
         
-        // 2. Lister et rechercher des jeux
-        std::cout << "\n--- Jeux disponibles ---" << std::endl;
+        // 2. List and search games
+        std::cout << "\n--- Available Games ---" << std::endl;
         auto games = api.games.list();
-        std::cout << "Nombre total de jeux: " << games.size() << std::endl;
+        std::cout << "Total games: " << games.size() << std::endl;
         
-        // Afficher les 5 premiers jeux
+        // Display first 5 games
         for (size_t i = 0; i < std::min(games.size(), size_t(5)); ++i) {
             const auto& game = games[i];
             std::cout << "- " << game.name << " (ID: " << game.gameId 
-                     << ", Prix: " << game.price << "€)" << std::endl;
+                     << ", Price: " << game.price << "€)" << std::endl;
         }
         
-        // Rechercher des jeux
-        std::cout << "\n--- Recherche de jeux (mot-clé: 'action') ---" << std::endl;
+        // Search games
+        std::cout << "\n--- Game Search (keyword: 'action') ---" << std::endl;
         auto searchResults = api.games.search("action");
-        std::cout << "Jeux trouvés: " << searchResults.size() << std::endl;
+        std::cout << "Games found: " << searchResults.size() << std::endl;
         for (const auto& game : searchResults) {
             std::cout << "- " << game.name << std::endl;
         }
         
-        // 3. Obtenir l'inventaire
-        std::cout << "\n--- Inventaire ---" << std::endl;
+        // 3. Get inventory
+        std::cout << "\n--- Inventory ---" << std::endl;
         auto [userId, inventory] = api.inventory.getMyInventory();
-        std::cout << "Items dans l'inventaire: " << inventory.size() << std::endl;
+        std::cout << "Items in inventory: " << inventory.size() << std::endl;
         
         for (const auto& item : inventory) {
             std::cout << "- " << item.name << " x" << item.amount 
-                     << " (Prix: " << item.price << "€)" << std::endl;
+                     << " (Price: " << item.price << "€)" << std::endl;
         }
         
-        // 4. Lister les items disponibles
-        std::cout << "\n--- Items du store ---" << std::endl;
+        // 4. List available items
+        std::cout << "\n--- Store Items ---" << std::endl;
         auto items = api.items.list();
-        std::cout << "Items disponibles: " << items.size() << std::endl;
+        std::cout << "Available items: " << items.size() << std::endl;
         
-        // Afficher les 5 premiers items
+        // Display first 5 items
         for (size_t i = 0; i < std::min(items.size(), size_t(5)); ++i) {
             const auto& item = items[i];
             std::cout << "- " << item.name << " (ID: " << item.itemId 
-                     << ", Prix: " << item.price << "€)" << std::endl;
+                     << ", Price: " << item.price << "€)" << std::endl;
         }
         
-        // 5. Rechercher des utilisateurs
-        std::cout << "\n--- Recherche d'utilisateurs (mot-clé: 'user') ---" << std::endl;
+        // 5. Search users
+        std::cout << "\n--- User Search (keyword: 'user') ---" << std::endl;
         auto users = api.users.search("user");
-        std::cout << "Utilisateurs trouvés: " << users.size() << std::endl;
+        std::cout << "Users found: " << users.size() << std::endl;
         for (size_t i = 0; i < std::min(users.size(), size_t(3)); ++i) {
             const auto& foundUser = users[i];
             std::cout << "- " << foundUser.username << " (ID: " << foundUser.userId 
-                     << ", Vérifié: " << (foundUser.verified ? "Oui" : "Non") << ")" << std::endl;
+                     << ", Verified: " << (foundUser.verified ? "Yes" : "No") << ")" << std::endl;
         }
         
-        // 6. Obtenir les jeux créés par l'utilisateur
-        std::cout << "\n--- Mes jeux créés ---" << std::endl;
+        // 6. Get games created by user
+        std::cout << "\n--- My Created Games ---" << std::endl;
         auto myGames = api.games.getMyCreatedGames();
-        std::cout << "Jeux créés: " << myGames.size() << std::endl;
+        std::cout << "Created games: " << myGames.size() << std::endl;
         for (const auto& game : myGames) {
             std::cout << "- " << game.name << " (ID: " << game.gameId << ")" << std::endl;
         }
         
-        // 7. Obtenir les jeux possédés
-        std::cout << "\n--- Mes jeux possédés ---" << std::endl;
+        // 7. Get owned games
+        std::cout << "\n--- My Owned Games ---" << std::endl;
         auto ownedGames = api.games.getMyOwnedGames();
-        std::cout << "Jeux possédés: " << ownedGames.size() << std::endl;
+        std::cout << "Owned games: " << ownedGames.size() << std::endl;
         for (const auto& game : ownedGames) {
             std::cout << "- " << game.name << std::endl;
         }
         
-        // 8. Obtenir les items créés par l'utilisateur
-        std::cout << "\n--- Mes items créés ---" << std::endl;
+        // 8. Get items created by user
+        std::cout << "\n--- My Created Items ---" << std::endl;
         auto myItems = api.items.getMyItems();
-        std::cout << "Items créés: " << myItems.size() << std::endl;
+        std::cout << "Created items: " << myItems.size() << std::endl;
         for (const auto& item : myItems) {
-            std::cout << "- " << item.name << " (Prix: " << item.price << "€)" << std::endl;
+            std::cout << "- " << item.name << " (Price: " << item.price << "€)" << std::endl;
         }
         
-        // 9. Obtenir les studios
-        std::cout << "\n--- Mes studios ---" << std::endl;
+        // 9. Get studios
+        std::cout << "\n--- My Studios ---" << std::endl;
         auto studios = api.studios.getMyStudios();
         std::cout << "Studios: " << studios.size() << std::endl;
         for (const auto& studio : studios) {
             std::cout << "- " << studio.username << " (ID: " << studio.user_id << ")" << std::endl;
         }
         
-        // 10. Recherche globale
-        std::cout << "\n--- Recherche globale ---" << std::endl;
+        // 10. Global search
+        std::cout << "\n--- Global Search ---" << std::endl;
         auto globalResults = api.globalSearch("game");
-        std::cout << "Résultats de recherche globale obtenus" << std::endl;
+        std::cout << "Global search results obtained" << std::endl;
         
-        // 11. Exemple de création d'item (commenté pour éviter la création accidentelle)
+        // 11. Example of item creation (commented to avoid accidental creation)
         /*
-        std::cout << "\n--- Création d'un item de test ---" << std::endl;
-        auto createResponse = api.items.create("Item Test C++", "Description de test", 5.0, "", true);
+        std::cout << "\n--- Creating Test Item ---" << std::endl;
+        auto createResponse = api.items.create("C++ Test Item", "Test description", 5.0, "", true);
         if (createResponse.success) {
-            std::cout << "Item créé avec succès: " << createResponse.message << std::endl;
+            std::cout << "Item created successfully: " << createResponse.message << std::endl;
         } else {
-            std::cout << "Erreur lors de la création: " << createResponse.message << std::endl;
+            std::cout << "Creation error: " << createResponse.message << std::endl;
         }
         */
         
-        // 12. Exemple d'obtention d'un jeu spécifique
+        // 12. Example of getting specific game details
         if (!games.empty()) {
-            std::cout << "\n--- Détails d'un jeu spécifique ---" << std::endl;
+            std::cout << "\n--- Specific Game Details ---" << std::endl;
             auto gameDetails = api.games.get(games[0].gameId);
             if (gameDetails) {
-                std::cout << "Jeu: " << gameDetails->name << std::endl;
+                std::cout << "Game: " << gameDetails->name << std::endl;
                 std::cout << "Description: " << gameDetails->description << std::endl;
-                std::cout << "Prix: " << gameDetails->price << "€" << std::endl;
-                std::cout << "Multijoueur: " << (gameDetails->multiplayer ? "Oui" : "Non") << std::endl;
+                std::cout << "Price: " << gameDetails->price << "€" << std::endl;
+                std::cout << "Multiplayer: " << (gameDetails->multiplayer ? "Yes" : "No") << std::endl;
                 if (gameDetails->genre) {
                     std::cout << "Genre: " << *gameDetails->genre << std::endl;
                 }
@@ -146,23 +146,23 @@ int main() {
         }
         
     } catch (const std::runtime_error& e) {
-        std::cerr << "Erreur d'authentification: " << e.what() << std::endl;
-        std::cerr << "Vérifiez que vous avez fourni un token valide." << std::endl;
+        std::cerr << "Authentication error: " << e.what() << std::endl;
+        std::cerr << "Please check that you provided a valid token." << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "Erreur: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
     }
     
-    std::cout << "\n=== Fin de l'exemple ===" << std::endl;
+    std::cout << "\n=== End of Example ===" << std::endl;
     return 0;
 }
 
-// Fonction d'exemple pour montrer l'utilisation avec gestion d'erreurs avancée
+// Example function to show usage with advanced error handling
 void advancedExample() {
     Client api("your_token_here");
     
-    std::cout << "\n=== Exemple avancé avec gestion d'erreurs ===" << std::endl;
+    std::cout << "\n=== Advanced Example with Error Handling ===" << std::endl;
     
-    // Exemple de transfert de crédits avec gestion d'erreurs
+    // Example of credit transfer with error handling
     try {
         auto users = api.users.search("test");
         if (!users.empty()) {
@@ -170,16 +170,16 @@ void advancedExample() {
             auto response = api.users.transferCredits(targetUserId, 10.0);
             
             if (response.success) {
-                std::cout << "Transfert réussi: " << response.message << std::endl;
+                std::cout << "Transfer successful: " << response.message << std::endl;
             } else {
-                std::cout << "Échec du transfert: " << response.message << std::endl;
+                std::cout << "Transfer failed: " << response.message << std::endl;
             }
         }
     } catch (const std::runtime_error& e) {
-        std::cout << "Token requis pour le transfert: " << e.what() << std::endl;
+        std::cout << "Token required for transfer: " << e.what() << std::endl;
     }
     
-    // Exemple d'achat d'item avec gestion d'erreurs
+    // Example of item purchase with error handling
     try {
         auto items = api.items.list();
         if (!items.empty()) {
@@ -187,12 +187,12 @@ void advancedExample() {
             auto response = api.items.buy(itemId, 1);
             
             if (response.success) {
-                std::cout << "Achat réussi: " << response.message << std::endl;
+                std::cout << "Purchase successful: " << response.message << std::endl;
             } else {
-                std::cout << "Échec de l'achat: " << response.message << std::endl;
+                std::cout << "Purchase failed: " << response.message << std::endl;
             }
         }
     } catch (const std::runtime_error& e) {
-        std::cout << "Authentification requise pour l'achat: " << e.what() << std::endl;
+        std::cout << "Authentication required for purchase: " << e.what() << std::endl;
     }
 }

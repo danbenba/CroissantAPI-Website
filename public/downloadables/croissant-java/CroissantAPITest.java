@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests unitaires pour CroissantAPI
+ * Unit tests for CroissantAPI
  * 
- * Ces tests vérifient les fonctionnalités de base de l'API.
- * Note: Ces tests nécessitent une connexion internet et un token valide.
+ * These tests verify the basic functionality of the API.
+ * Note: These tests require an internet connection and a valid token.
  */
 public class CroissantAPITest {
     
@@ -17,149 +17,149 @@ public class CroissantAPITest {
     
     @Before
     public void setUp() {
-        // Initialiser l'API avec et sans authentification
-        // Remplacez "test_token" par un vrai token pour les tests
+        // Initialize API with and without authentication
+        // Replace "test_token" with a real token for testing
         apiWithAuth = new CroissantAPI("test_token");
         apiWithoutAuth = new CroissantAPI();
     }
     
     @Test
     public void testConstructors() {
-        // Test des constructeurs
-        assertNotNull("L'API avec token ne doit pas être null", apiWithAuth);
-        assertNotNull("L'API sans token ne doit pas être null", apiWithoutAuth);
+        // Test constructors
+        assertNotNull("API with token should not be null", apiWithAuth);
+        assertNotNull("API without token should not be null", apiWithoutAuth);
         
-        // Test du token
-        assertEquals("Le token doit être conservé", "test_token", apiWithAuth.getToken());
-        assertNull("Le token doit être null sans authentification", apiWithoutAuth.getToken());
+        // Test token
+        assertEquals("Token should be preserved", "test_token", apiWithAuth.getToken());
+        assertNull("Token should be null without authentication", apiWithoutAuth.getToken());
     }
     
     @Test
     public void testPublicEndpoints() {
         try {
-            // Test des endpoints publics (ne nécessitent pas d'authentification)
+            // Test public endpoints (do not require authentication)
             
-            // Lister les jeux
+            // List games
             List<CroissantAPI.Game> games = apiWithoutAuth.games.list();
-            assertNotNull("La liste des jeux ne doit pas être null", games);
+            assertNotNull("Game list should not be null", games);
             
-            // Lister les objets
+            // List items
             List<CroissantAPI.Item> items = apiWithoutAuth.items.list();
-            assertNotNull("La liste des objets ne doit pas être null", items);
+            assertNotNull("Item list should not be null", items);
             
-            // Rechercher des utilisateurs
+            // Search users
             List<CroissantAPI.User> users = apiWithoutAuth.users.search("test");
-            assertNotNull("Les résultats de recherche ne doivent pas être null", users);
+            assertNotNull("Search results should not be null", users);
             
-            System.out.println("Tests des endpoints publics: OK");
+            System.out.println("Public endpoints tests: OK");
         } catch (Exception e) {
-            // En cas d'erreur réseau, on ne fait pas échouer le test
-            System.out.println("Avertissement: Impossible de tester les endpoints publics - " + e.getMessage());
+            // In case of network error, don't fail the test
+            System.out.println("Warning: Unable to test public endpoints - " + e.getMessage());
         }
     }
     
     @Test
     public void testAuthenticationRequired() {
-        // Test que les méthodes nécessitant une authentification lèvent une exception
-        // quand aucun token n'est fourni
+        // Test that methods requiring authentication throw an exception
+        // when no token is provided
         
         try {
             apiWithoutAuth.users.getMe();
-            fail("getMe() devrait lever une exception sans token");
+            fail("getMe() should throw an exception without token");
         } catch (Exception e) {
-            assertTrue("L'exception doit mentionner l'authentification", 
+            assertTrue("Exception should mention authentication", 
                       e.getMessage().contains("token") || e.getMessage().contains("Token"));
         }
         
         try {
             apiWithoutAuth.inventory.getMyInventory();
-            fail("getMyInventory() devrait lever une exception sans token");
+            fail("getMyInventory() should throw an exception without token");
         } catch (Exception e) {
-            assertTrue("L'exception doit mentionner l'authentification", 
+            assertTrue("Exception should mention authentication", 
                       e.getMessage().contains("token") || e.getMessage().contains("Token"));
         }
         
-        System.out.println("Tests d'authentification requise: OK");
+        System.out.println("Authentication required tests: OK");
     }
     
     @Test
     public void testDataModels() {
-        // Test de la création des modèles de données
+        // Test data model creation
         
         // Test TradeItem
         CroissantAPI.TradeItem tradeItem1 = new CroissantAPI.TradeItem("item123", 5);
-        assertEquals("L'ID de l'objet doit être correct", "item123", tradeItem1.itemId);
-        assertEquals("La quantité doit être correcte", 5, tradeItem1.amount);
-        assertNull("Les métadonnées doivent être null par défaut", tradeItem1.metadata);
+        assertEquals("Item ID should be correct", "item123", tradeItem1.itemId);
+        assertEquals("Amount should be correct", 5, tradeItem1.amount);
+        assertNull("Metadata should be null by default", tradeItem1.metadata);
         
-        // Test TradeItem avec métadonnées
+        // Test TradeItem with metadata
         java.util.Map<String, Object> metadata = new java.util.HashMap<>();
         metadata.put("special", true);
         CroissantAPI.TradeItem tradeItem2 = new CroissantAPI.TradeItem("item456", 2, metadata);
-        assertEquals("L'ID de l'objet doit être correct", "item456", tradeItem2.itemId);
-        assertEquals("La quantité doit être correcte", 2, tradeItem2.amount);
-        assertNotNull("Les métadonnées ne doivent pas être null", tradeItem2.metadata);
-        assertTrue("Les métadonnées doivent contenir la valeur", (Boolean) tradeItem2.metadata.get("special"));
+        assertEquals("Item ID should be correct", "item456", tradeItem2.itemId);
+        assertEquals("Amount should be correct", 2, tradeItem2.amount);
+        assertNotNull("Metadata should not be null", tradeItem2.metadata);
+        assertTrue("Metadata should contain the value", (Boolean) tradeItem2.metadata.get("special"));
         
-        System.out.println("Tests des modèles de données: OK");
+        System.out.println("Data model tests: OK");
     }
     
     @Test
     public void testUrlConstruction() {
-        // Test que l'URL de base est correcte
-        assertEquals("L'URL de base doit être correcte", 
+        // Test that base URL is correct
+        assertEquals("Base URL should be correct", 
                     "https://croissant-api.fr/api", 
                     apiWithAuth.getBaseUrl());
     }
     
     @Test
     public void testErrorHandling() {
-        // Test de la gestion d'erreur pour des IDs invalides
+        // Test error handling for invalid IDs
         try {
             apiWithoutAuth.games.get("invalid_game_id");
-            // Si aucune exception n'est levée, c'est soit qu'un jeu existe avec cet ID,
-            // soit qu'il y a un problème de réseau - on ne fait pas échouer le test
+            // If no exception is thrown, either a game exists with this ID,
+            // or there's a network issue - we don't fail the test
         } catch (Exception e) {
-            // C'est le comportement attendu pour un ID invalide
-            assertNotNull("Le message d'erreur ne doit pas être null", e.getMessage());
+            // This is the expected behavior for an invalid ID
+            assertNotNull("Error message should not be null", e.getMessage());
         }
         
-        System.out.println("Tests de gestion d'erreur: OK");
+        System.out.println("Error handling tests: OK");
     }
     
     /**
-     * Test d'intégration complet (nécessite un token valide)
-     * Ce test est désactivé par défaut car il nécessite une vraie authentification
+     * Complete integration test (requires a valid token)
+     * This test is disabled by default as it requires real authentication
      */
     // @Test
     public void testIntegrationWithRealToken() {
-        // Pour exécuter ce test, décommentez cette méthode et fournissez un vrai token
+        // To run this test, uncomment this method and provide a real token
         String realToken = System.getProperty("croissant.token");
         if (realToken == null || realToken.isEmpty()) {
-            System.out.println("Token non fourni, saut du test d'intégration");
+            System.out.println("Token not provided, skipping integration test");
             return;
         }
         
         try {
             CroissantAPI api = new CroissantAPI(realToken);
             
-            // Test authentification
+            // Test authentication
             CroissantAPI.User me = api.users.getMe();
-            assertNotNull("L'utilisateur ne doit pas être null", me);
-            assertNotNull("Le nom d'utilisateur ne doit pas être null", me.username);
+            assertNotNull("User should not be null", me);
+            assertNotNull("Username should not be null", me.username);
             
-            // Test inventaire
+            // Test inventory
             CroissantAPI.Inventory.InventoryResponse inventory = api.inventory.getMyInventory();
-            assertNotNull("L'inventaire ne doit pas être null", inventory);
-            assertNotNull("L'ID utilisateur ne doit pas être null", inventory.user_id);
-            assertNotNull("La liste d'objets ne doit pas être null", inventory.inventory);
+            assertNotNull("Inventory should not be null", inventory);
+            assertNotNull("User ID should not be null", inventory.user_id);
+            assertNotNull("Item list should not be null", inventory.inventory);
             
-            System.out.println("Test d'intégration avec token réel: OK");
-            System.out.println("Utilisateur: " + me.username);
-            System.out.println("Objets dans l'inventaire: " + inventory.inventory.size());
+            System.out.println("Integration test with real token: OK");
+            System.out.println("User: " + me.username);
+            System.out.println("Items in inventory: " + inventory.inventory.size());
             
         } catch (Exception e) {
-            fail("Le test d'intégration a échoué: " + e.getMessage());
+            fail("Integration test failed: " + e.getMessage());
         }
     }
 }

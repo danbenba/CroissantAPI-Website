@@ -1,46 +1,46 @@
-# Fichiers CroissantAPI Java Client
+# CroissantAPI Java Client Files
 
-Ce package contient tous les fichiers nécessaires pour utiliser l'API Croissant en Java.
+This package contains all the necessary files to use the Croissant API in Java.
 
-## Fichiers principaux
+## Main files
 
-### 📁 Code source
-- **CroissantAPI.java** - Classe principale du client API (7KB)
-- **CroissantAPIExample.java** - Exemples d'utilisation complets (4KB)
-- **CroissantAPITest.java** - Tests unitaires (6KB)
+### 📁 Source code
+- **CroissantAPI.java** - Main API client class (7KB)
+- **CroissantAPIExample.java** - Complete usage examples (4KB)
+- **CroissantAPITest.java** - Unit tests (6KB)
 
 ### 📁 Documentation
-- **README_CroissantAPI_Java.md** - Documentation complète (8KB)
-- **croissant-api-java.json** - Métadonnées du projet (1KB)
+- **README_CroissantAPI_Java.md** - Complete documentation (8KB)
+- **croissant-api-java.json** - Project metadata (1KB)
 
-### 📁 Configuration des builds
-- **pom.xml** - Configuration Maven (2KB)
-- **build.gradle** - Configuration Gradle (1KB)
+### 📁 Build configuration
+- **pom.xml** - Maven configuration (2KB)
+- **build.gradle** - Gradle configuration (1KB)
 
-### 📁 Scripts de build
-- **build.sh** - Script de build Unix/Linux/macOS (2KB)
-- **build.bat** - Script de build Windows (2KB)
+### 📁 Build scripts
+- **build.sh** - Unix/Linux/macOS build script (2KB)
+- **build.bat** - Windows build script (2KB)
 
-### 📁 Outils de développement
-- **.gitignore** - Fichier d'exclusion Git (1KB)
+### 📁 Development tools
+- **.gitignore** - Git exclusion file (1KB)
 
-## Installation rapide
+## Quick installation
 
 ### Option 1: Maven
 ```bash
-# Copier pom.xml dans votre projet
+# Copy pom.xml to your project
 mvn clean compile
 mvn exec:java -Dexec.mainClass="CroissantAPIExample"
 ```
 
 ### Option 2: Gradle
 ```bash
-# Copier build.gradle dans votre projet
+# Copy build.gradle to your project
 ./gradlew build
 ./gradlew runExample
 ```
 
-### Option 3: Compilation manuelle
+### Option 3: Manual compilation
 ```bash
 # Unix/Linux/macOS
 chmod +x build.sh
@@ -50,45 +50,45 @@ chmod +x build.sh
 build.bat run
 ```
 
-## Utilisation basique
+## Basic usage
 
 ```java
-// Initialisation
-CroissantAPI api = new CroissantAPI("votre_token");
+// Initialization
+CroissantAPI api = new CroissantAPI("your_token");
 
-// Obtenir l'utilisateur actuel
+// Get current user
 User me = api.users.getMe();
 
-// Lister les jeux
+// List games
 List<Game> games = api.games.list();
 
-// Acheter un objet
+// Buy an item
 Map<String, Object> result = api.items.buy("item_id", 1);
 ```
 
-## Fonctionnalités supportées
+## Supported features
 
-✅ Gestion des utilisateurs (authentification, recherche, transferts)
-✅ Gestion des jeux (liste, recherche, achat)
-✅ Gestion des objets (création, achat, vente, don)
-✅ Système d'inventaire
-✅ Système d'échanges entre utilisateurs
-✅ Gestion des lobbies multijoueur
-✅ Gestion des studios de développement
-✅ OAuth2 pour l'authentification externe
-✅ Recherche globale
+✅ User management (authentication, search, transfers)
+✅ Game management (list, search, purchase)
+✅ Item management (creation, purchase, sale, gift)
+✅ Inventory system
+✅ Trading system between users
+✅ Multiplayer lobby management
+✅ Development studio management
+✅ OAuth2 for external authentication
+✅ Global search
 
-## Dépendances
+## Dependencies
 
-- **Java 8+** (requis)
-- **Gson 2.10.1** (inclus dans les configurations Maven/Gradle)
-- **JUnit 4.13.2** (pour les tests uniquement)
+- **Java 8+** (required)
+- **Gson 2.10.1** (included in Maven/Gradle configurations)
+- **JUnit 4.13.2** (for tests only)
 
 ## Support
 
-- 🌐 API officielle: https://croissant-api.fr/api
-- 📖 Documentation TypeScript: croissant-api.ts
-- 🔧 Exemples: CroissantAPIExample.java
+- 🌐 Official API: https://croissant-api.fr/api
+- 📖 TypeScript documentation: croissant-api.ts
+- 🔧 Examples: CroissantAPIExample.java
 - 🧪 Tests: CroissantAPITest.java
 
-Tous les fichiers sont compatibles avec Java 8+ et suivent les conventions de codage Java standard.
+All files are compatible with Java 8+ and follow Java standard coding conventions.

@@ -1,8 +1,8 @@
 {
   "name": "CroissantAPI Java Client",
   "version": "1.0.0",
-  "description": "Client Java officiel pour l'API Croissant",
-  "author": "Équipe Croissant",
+  "description": "Official Java client for the Croissant API",
+  "author": "Croissant Team",
   "license": "MIT",
   "main": "CroissantAPI.java",
   "files": [
@@ -19,14 +19,14 @@
     ]
   },
   "features": [
-    "Gestion des utilisateurs",
-    "Gestion des jeux",
-    "Gestion des objets et inventaire",
-    "Système d'échanges",
-    "Gestion des lobbies",
-    "Gestion des studios",
+    "User management",
+    "Game management",
+    "Item and inventory management",
+    "Trading system",
+    "Lobby management",
+    "Studio management",
     "OAuth2",
-    "Recherche globale"
+    "Global search"
   ],
   "endpoints": {
     "base_url": "https://croissant-api.fr/api",
