@@ -163,7 +163,7 @@ const Navbar: React.FC = () => {
                 localStorage.removeItem("verificationKey");
                 document.cookie =
                   "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                // location.reload();
+                location.reload();
               }}
             >
               <i className="fa fa-sign-out"></i>
