@@ -1,0 +1,1040 @@
+[
+    {
+        "category": "Games",
+        "endpoint": "/games",
+        "method": "GET",
+        "description": "List all games visible in the store.",
+        "responseType": [
+            {
+                "gameId": "string",
+                "name": "string",
+                "description": "string",
+                "price": "number",
+                "owner_id": "string",
+                "showInStore": "boolean",
+                "iconHash": "string",
+                "splashHash": "string",
+                "bannerHash": "string",
+                "genre": "string",
+                "release_date": "string",
+                "developer": "string",
+                "publisher": "string",
+                "platforms": [
+                    "string"
+                ],
+                "rating": "number",
+                "website": "string",
+                "trailer_link": "string",
+                "multiplayer": "boolean"
+            }
+        ],
+        "example": "GET /api/games"
+    },
+    {
+        "category": "Games",
+        "endpoint": "/games/search",
+        "method": "GET",
+        "description": "Search for games by name, genre, or description.",
+        "query": {
+            "q": "The search query"
+        },
+        "responseType": [
+            {
+                "gameId": "string",
+                "name": "string",
+                "description": "string",
+                "price": "number",
+                "owner_id": "string",
+                "showInStore": "boolean",
+                "iconHash": "string",
+                "splashHash": "string",
+                "bannerHash": "string",
+                "genre": "string",
+                "release_date": "string",
+                "developer": "string",
+                "publisher": "string",
+                "platforms": [
+                    "string"
+                ],
+                "rating": "number",
+                "website": "string",
+                "trailer_link": "string",
+                "multiplayer": "boolean"
+            }
+        ],
+        "example": "GET /api/games/search?q=Minecraft"
+    },
+    {
+        "category": "Games",
+        "endpoint": "/games/@mine",
+        "method": "GET",
+        "description": "Get all games created by the authenticated user.",
+        "responseType": [
+            {
+                "gameId": "string",
+                "name": "string",
+                "description": "string",
+                "price": "number",
+                "owner_id": "string",
+                "showInStore": "boolean",
+                "iconHash": "string",
+                "splashHash": "string",
+                "bannerHash": "string",
+                "genre": "string",
+                "release_date": "string",
+                "developer": "string",
+                "publisher": "string",
+                "platforms": [
+                    "string"
+                ],
+                "rating": "number",
+                "website": "string",
+                "trailer_link": "string",
+                "multiplayer": "boolean",
+                "download_link": "string"
+            }
+        ],
+        "example": "GET /api/games/@mine",
+        "requiresAuth": true
+    },
+    {
+        "category": "Games",
+        "endpoint": "/games/list/@me",
+        "method": "GET",
+        "description": "Get all games owned by the authenticated user. Requires authentication via header \"Authorization: Bearer <token>\".",
+        "responseType": [
+            {
+                "gameId": "string",
+                "name": "string",
+                "description": "string",
+                "price": "number",
+                "owner_id": "string",
+                "showInStore": "boolean",
+                "iconHash": "string",
+                "splashHash": "string",
+                "bannerHash": "string",
+                "genre": "string",
+                "release_date": "string",
+                "developer": "string",
+                "publisher": "string",
+                "platforms": [
+                    "string"
+                ],
+                "rating": "number",
+                "website": "string",
+                "trailer_link": "string",
+                "multiplayer": "boolean",
+                "download_link": "string"
+            }
+        ],
+        "example": "GET /api/games/list/@me",
+        "requiresAuth": true
+    },
+    {
+        "category": "Games",
+        "endpoint": "/games/:gameId",
+        "method": "GET",
+        "description": "Get a game by gameId.",
+        "params": {
+            "gameId": "The id of the game"
+        },
+        "responseType": {
+            "gameId": "string",
+            "name": "string",
+            "description": "string",
+            "price": "number",
+            "owner_id": "string",
+            "showInStore": "boolean",
+            "iconHash": "string",
+            "splashHash": "string",
+            "bannerHash": "string",
+            "genre": "string",
+            "release_date": "string",
+            "developer": "string",
+            "publisher": "string",
+            "platforms": [
+                "string"
+            ],
+            "rating": "number",
+            "website": "string",
+            "trailer_link": "string",
+            "multiplayer": "boolean"
+        },
+        "example": "GET /api/games/123"
+    },
+    {
+        "category": "Inventories",
+        "endpoint": "/inventory/@me",
+        "method": "GET",
+        "description": "Get the inventory of the authenticated user with all item instances and item details",
+        "responseType": {
+            "user_id": "string",
+            "inventory": [
+                {
+                    "user_id": "string",
+                    "item_id": "string",
+                    "amount": "number",
+                    "metadata": "object (optional, includes _unique_id for unique items)",
+                    "itemId": "string",
+                    "name": "string",
+                    "description": "string",
+                    "iconHash": "string",
+                    "price": "number",
+                    "owner": "string",
+                    "showInStore": "boolean"
+                }
+            ]
+        },
+        "example": "GET /api/inventory/@me",
+        "requiresAuth": true
+    },
+    {
+        "category": "Inventories",
+        "endpoint": "/inventory/:userId",
+        "method": "GET",
+        "description": "Get the inventory of a user with all item instances and item details",
+        "params": {
+            "userId": "The id of the user"
+        },
+        "responseType": {
+            "user_id": "string",
+            "inventory": [
+                {
+                    "user_id": "string",
+                    "item_id": "string",
+                    "amount": "number",
+                    "metadata": "object (optional, includes _unique_id for unique items)",
+                    "itemId": "string",
+                    "name": "string",
+                    "description": "string",
+                    "iconHash": "string",
+                    "price": "number",
+                    "owner": "string",
+                    "showInStore": "boolean"
+                }
+            ]
+        },
+        "example": "GET /api/inventory/123"
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items",
+        "method": "GET",
+        "description": "Get all non-deleted items visible in store",
+        "responseType": [
+            {
+                "itemId": "string",
+                "name": "string",
+                "description": "string",
+                "owner": "string",
+                "price": "number",
+                "iconHash": "string"
+            }
+        ],
+        "example": "GET /api/items"
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/@mine",
+        "method": "GET",
+        "description": "Get all items owned by the authenticated user.",
+        "responseType": [
+            {
+                "itemId": "string",
+                "name": "string",
+                "description": "string",
+                "owner": "string",
+                "price": "number",
+                "iconHash": "string",
+                "showInStore": "boolean"
+            }
+        ],
+        "example": "GET /api/items/@mine",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/search",
+        "method": "GET",
+        "description": "Search for items by name (only those visible in store)",
+        "query": {
+            "q": "The search query"
+        },
+        "responseType": [
+            {
+                "itemId": "string",
+                "name": "string",
+                "description": "string",
+                "owner": "string",
+                "price": "number",
+                "iconHash": "string",
+                "showInStore": "boolean"
+            }
+        ],
+        "example": "GET /api/items/search?q=Apple"
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/:itemId",
+        "method": "GET",
+        "description": "Get a single item by itemId",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "responseType": {
+            "itemId": "string",
+            "name": "string",
+            "description": "string",
+            "owner": "string",
+            "price": "number",
+            "showInStore": "boolean",
+            "iconHash": "string"
+        },
+        "example": "GET /api/items/123"
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/create",
+        "method": "POST",
+        "description": "Create a new item.",
+        "body": {
+            "name": "Name of the item",
+            "description": "Description of the item",
+            "price": "Price of the item",
+            "iconHash": "Hash of the icon (optional)",
+            "showInStore": "Show in store (optional, boolean)"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/create {\"name\": \"Apple\", \"description\": \"A fruit\", \"price\": 100, \"iconHash\": \"abc123\", \"showInStore\": true}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/update/:itemId",
+        "method": "PUT",
+        "description": "Update an existing item.",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "name": "Name of the item",
+            "description": "Description of the item",
+            "price": "Price of the item",
+            "iconHash": "Hash of the icon (optional)",
+            "showInStore": "Show in store (optional, boolean)"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "PUT /api/items/update/123 {\"name\": \"Apple\", \"description\": \"A fruit\", \"price\": 100, \"iconHash\": \"abc123\", \"showInStore\": true}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/delete/:itemId",
+        "method": "DELETE",
+        "description": "Delete an item.",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "DELETE /api/items/delete/123",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/buy/:itemId",
+        "method": "POST",
+        "description": "Buy an item (without metadata only).",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "amount": "The amount of the item to buy"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/buy/item_1 {\"amount\": 2}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/sell/:itemId",
+        "method": "POST",
+        "description": "Sell an item (without metadata only).",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "amount": "The amount of the item to sell"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/sell/item_1 {\"amount\": 1}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/give/:itemId",
+        "method": "POST",
+        "description": "Give item occurrences to a user (owner only).",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "amount": "The amount of the item to give",
+            "metadata": "Optional metadata for the item (object)",
+            "userId": "The id of the user to give the item to"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/give/item_1 {\"amount\": 1, \"metadata\": {\"rarity\": \"legendary\"}, \"userId\": \"user_2\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/consume/:itemId",
+        "method": "POST",
+        "description": "Consume item occurrences from a user (owner only).",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "amount": "The amount of the item to consume (for items without metadata)",
+            "uniqueId": "The unique ID of the item instance (for items with metadata)",
+            "userId": "The id of the user to consume the item from"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/consume/item_1 {\"amount\": 1, \"userId\": \"user_2\"} OR {\"uniqueId\": \"abc-123\", \"userId\": \"user_2\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/update-metadata/:itemId",
+        "method": "PUT",
+        "description": "Update metadata for a specific item instance in inventory.",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "uniqueId": "The unique ID of the item instance",
+            "metadata": "Metadata object to update"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "PUT /api/items/update-metadata/item_1 {\"uniqueId\": \"abc-123\", \"metadata\": {\"level\": 5, \"enchantment\": \"fire\"}}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Items",
+        "endpoint": "/items/drop/:itemId",
+        "method": "POST",
+        "description": "Drop item occurrences from your inventory.",
+        "params": {
+            "itemId": "The id of the item"
+        },
+        "body": {
+            "amount": "The amount of the item to drop (for items without metadata)",
+            "uniqueId": "The unique ID of the item instance to drop (for items with metadata)"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/items/drop/item_1 {\"amount\": 1} OR {\"uniqueId\": \"abc-123\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies",
+        "method": "POST",
+        "description": "Create a new lobby.",
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/lobbies",
+        "requiresAuth": true
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies/:lobbyId",
+        "method": "GET",
+        "description": "Get a lobby by lobbyId",
+        "params": {
+            "lobbyId": "The id of the lobby"
+        },
+        "responseType": {
+            "lobbyId": "string",
+            "users": [
+                {
+                    "username": "string",
+                    "user_id": "string",
+                    "verified": "boolean",
+                    "steam_username": "string",
+                    "steam_avatar_url": "string",
+                    "steam_id": "string"
+                }
+            ]
+        },
+        "example": "GET /api/lobbies/123"
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies/user/@me",
+        "method": "GET",
+        "description": "Get the lobby the authenticated user is in.",
+        "responseType": {
+            "success": "boolean",
+            "lobbyId": "string",
+            "users": [
+                "string"
+            ]
+        },
+        "example": "GET /api/lobbies/user/@me",
+        "requiresAuth": true
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies/user/:userId",
+        "method": "GET",
+        "description": "Get the lobby a user is in",
+        "params": {
+            "userId": "The id of the user"
+        },
+        "responseType": {
+            "lobbyId": "string",
+            "users": [
+                "string"
+            ]
+        },
+        "example": "GET /api/lobbies/user/123"
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies/:lobbyId/join",
+        "method": "POST",
+        "description": "Join a lobby. This will make the user leave all other lobbies first.",
+        "params": {
+            "lobbyId": "The id of the lobby"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/lobbies/123/join",
+        "requiresAuth": true
+    },
+    {
+        "category": "Lobbies",
+        "endpoint": "/lobbies/:lobbyId/leave",
+        "method": "POST",
+        "description": "Leave a lobby.",
+        "params": {
+            "lobbyId": "The id of the lobby"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/lobbies/123/leave",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/start-or-latest/:userId",
+        "method": "POST",
+        "description": "Start a new trade or get the latest pending trade with a user",
+        "params": {
+            "userId": "The ID of the user to trade with"
+        },
+        "responseType": {
+            "id": "string",
+            "fromUserId": "string",
+            "toUserId": "string",
+            "fromUserItems": [
+                "object"
+            ],
+            "toUserItems": [
+                "object"
+            ],
+            "approvedFromUser": "boolean",
+            "approvedToUser": "boolean",
+            "status": "string",
+            "createdAt": "string",
+            "updatedAt": "string"
+        },
+        "example": "POST /api/trades/start-or-latest/user123",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/:id",
+        "method": "GET",
+        "description": "Get a trade by ID with enriched item information",
+        "params": {
+            "id": "The ID of the trade"
+        },
+        "responseType": {
+            "id": "string",
+            "fromUserId": "string",
+            "toUserId": "string",
+            "fromUserItems": [
+                {
+                    "itemId": "string",
+                    "name": "string",
+                    "description": "string",
+                    "iconHash": "string",
+                    "amount": "number"
+                }
+            ],
+            "toUserItems": [
+                {
+                    "itemId": "string",
+                    "name": "string",
+                    "description": "string",
+                    "iconHash": "string",
+                    "amount": "number"
+                }
+            ],
+            "approvedFromUser": "boolean",
+            "approvedToUser": "boolean",
+            "status": "string",
+            "createdAt": "string",
+            "updatedAt": "string"
+        },
+        "example": "GET /api/trades/trade123",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/user/:userId",
+        "method": "GET",
+        "description": "Get all trades for a user with enriched item information",
+        "params": {
+            "userId": "The ID of the user"
+        },
+        "responseType": [
+            {
+                "id": "string",
+                "fromUserId": "string",
+                "toUserId": "string",
+                "fromUserItems": [
+                    {
+                        "itemId": "string",
+                        "name": "string",
+                        "description": "string",
+                        "iconHash": "string",
+                        "amount": "number"
+                    }
+                ],
+                "toUserItems": [
+                    {
+                        "itemId": "string",
+                        "name": "string",
+                        "description": "string",
+                        "iconHash": "string",
+                        "amount": "number"
+                    }
+                ],
+                "approvedFromUser": "boolean",
+                "approvedToUser": "boolean",
+                "status": "string",
+                "createdAt": "string",
+                "updatedAt": "string"
+            }
+        ],
+        "example": "GET /api/trades/user/user123",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/:id/add-item",
+        "method": "POST",
+        "description": "Add an item to a trade",
+        "params": {
+            "id": "The ID of the trade"
+        },
+        "body": {
+            "tradeItem": {
+                "itemId": "The ID of the item to add",
+                "amount": "The amount of the item to add",
+                "metadata": "Metadata object including _unique_id for unique items (optional)"
+            }
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/trades/trade123/add-item {\"tradeItem\": {\"itemId\": \"item456\", \"amount\": 5}} or {\"tradeItem\": {\"itemId\": \"item456\", \"amount\": 1, \"metadata\": {\"level\": 5, \"_unique_id\": \"abc-123\"}}}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/:id/remove-item",
+        "method": "POST",
+        "description": "Remove an item from a trade",
+        "params": {
+            "id": "The ID of the trade"
+        },
+        "body": {
+            "tradeItem": {
+                "itemId": "The ID of the item to remove",
+                "amount": "The amount of the item to remove",
+                "metadata": "Metadata object including _unique_id for unique items (optional)"
+            }
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/trades/trade123/remove-item {\"tradeItem\": {\"itemId\": \"item456\", \"amount\": 2}} or {\"tradeItem\": {\"itemId\": \"item456\", \"metadata\": {\"_unique_id\": \"abc-123\"}}}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/:id/approve",
+        "method": "PUT",
+        "description": "Approve a trade",
+        "params": {
+            "id": "The ID of the trade"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "PUT /api/trades/trade123/approve",
+        "requiresAuth": true
+    },
+    {
+        "category": "Trades",
+        "endpoint": "/trades/:id/cancel",
+        "method": "PUT",
+        "description": "Cancel a trade",
+        "params": {
+            "id": "The ID of the trade"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "PUT /api/trades/trade123/cancel",
+        "requiresAuth": true
+    },
+    {
+        "category": "Users",
+        "endpoint": "/users/@me",
+        "method": "GET",
+        "description": "Get the current authenticated user's profile, including studios, roles, inventory, owned items, and created games.",
+        "responseType": {
+            "userId": "string",
+            "username": "string",
+            "email": "string",
+            "verified": "boolean",
+            "studios": "array",
+            "roles": "array",
+            "inventory": "array",
+            "ownedItems": "array",
+            "createdGames": "array",
+            "verificationKey": "string"
+        },
+        "example": "GET /api/users/@me"
+    },
+    {
+        "category": "Users",
+        "endpoint": "/users/search",
+        "method": "GET",
+        "description": "Search for users by username",
+        "query": {
+            "q": "The search query"
+        },
+        "responseType": [
+            {
+                "userId": "string",
+                "username": "string",
+                "verified": "boolean",
+                "steam_id": "string",
+                "steam_username": "string",
+                "steam_avatar_url": "string",
+                "isStudio": "boolean",
+                "admin": "boolean",
+                "inventory": "array",
+                "ownedItems": "array",
+                "createdGames": "array"
+            }
+        ],
+        "example": "GET /api/users/search?q=John"
+    },
+    {
+        "category": "Users",
+        "endpoint": "/users/:userId",
+        "method": "GET",
+        "description": "Get a user by userId, userId can be a Croissant ID, Discord ID, Google ID or Steam ID",
+        "params": {
+            "userId": "The id of the user"
+        },
+        "responseType": {
+            "userId": "string",
+            "username": "string",
+            "verified": "boolean",
+            "steam_id": "string",
+            "steam_username": "string",
+            "steam_avatar_url": "string",
+            "isStudio": "boolean",
+            "admin": "boolean",
+            "inventory": "array",
+            "ownedItems": "array",
+            "createdGames": "array"
+        },
+        "example": "GET /api/users/123"
+    },
+    {
+        "category": "Users",
+        "endpoint": "/users/transfer-credits",
+        "method": "POST",
+        "description": "Transfer credits from one user to another",
+        "body": {
+            "targetUserId": "The id of the recipient",
+            "amount": "The amount to transfer"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/users/transfer-credits { targetUserId: '456', amount: 50 }",
+        "requiresAuth": true
+    },
+    {
+        "category": "Users",
+        "endpoint": "/users/auth-verification",
+        "method": "POST",
+        "description": "Check the verification key for the user",
+        "responseType": {
+            "success": "boolean"
+        },
+        "query": {
+            "userId": "The id of the user",
+            "verificationKey": "The verification key"
+        },
+        "example": "POST /api/users/auth-verification?userId=123&verificationKey=abc123"
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/app/:client_id",
+        "method": "GET",
+        "description": "Get an OAuth2 app by client_id",
+        "params": {
+            "client_id": "The client_id of the app"
+        },
+        "responseType": {
+            "client_id": "string",
+            "client_secret": "string",
+            "name": "string",
+            "redirect_urls": [
+                "string"
+            ]
+        },
+        "example": "GET /api/oauth2/app/123"
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/app",
+        "method": "POST",
+        "description": "Create a new OAuth2 app",
+        "body": {
+            "name": "Name of the app",
+            "redirect_urls": "Array of redirect URLs"
+        },
+        "responseType": {
+            "client_id": "string",
+            "client_secret": "string"
+        },
+        "example": "POST /api/oauth2/app {\"name\": \"My App\", \"redirect_urls\": [\"https://example.com/callback\"]}",
+        "requiresAuth": true
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/apps",
+        "method": "GET",
+        "description": "Get all OAuth2 apps owned by the authenticated user",
+        "responseType": [
+            {
+                "client_id": "string",
+                "client_secret": "string",
+                "name": "string",
+                "redirect_urls": [
+                    "string"
+                ]
+            }
+        ],
+        "example": "GET /api/oauth2/apps",
+        "requiresAuth": true
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/app/:client_id",
+        "method": "PATCH",
+        "description": "Update an OAuth2 app",
+        "params": {
+            "client_id": "The client_id of the app"
+        },
+        "body": {
+            "name": "Name of the app (optional)",
+            "redirect_urls": "Array of redirect URLs (optional)"
+        },
+        "responseType": {
+            "success": "boolean"
+        },
+        "example": "PATCH /api/oauth2/app/123 {\"name\": \"Updated App\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/app/:client_id",
+        "method": "DELETE",
+        "description": "Delete an OAuth2 app",
+        "params": {
+            "client_id": "The client_id of the app"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "DELETE /api/oauth2/app/123",
+        "requiresAuth": true
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/authorize",
+        "method": "GET",
+        "description": "Authorize a user for an OAuth2 app",
+        "query": {
+            "client_id": "The client_id of the app",
+            "redirect_uri": "The redirect URI"
+        },
+        "responseType": {
+            "code": "string"
+        },
+        "example": "GET /api/oauth2/authorize?client_id=123&redirect_uri=https://example.com/callback",
+        "requiresAuth": true
+    },
+    {
+        "category": "OAuth2",
+        "endpoint": "/oauth2/user",
+        "method": "GET",
+        "description": "Get user information by authorization code",
+        "query": {
+            "code": "The authorization code",
+            "client_id": "The client_id of the app"
+        },
+        "responseType": {
+            "username": "string",
+            "user_id": "string",
+            "email": "string",
+            "balance": "number",
+            "verified": "boolean",
+            "steam_username": "string",
+            "steam_avatar_url": "string",
+            "steam_id": "string"
+        },
+        "example": "GET /api/oauth2/user?code=abc123&client_id=456"
+    },
+    {
+        "category": "Studios",
+        "endpoint": "/studios",
+        "method": "POST",
+        "description": "Create a new studio.",
+        "body": {
+            "studioName": "Name of the studio"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/studios {\"studioName\": \"My Studio\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Studios",
+        "endpoint": "/studios/:studioId",
+        "method": "GET",
+        "description": "Get a studio by studioId",
+        "params": {
+            "studioId": "The ID of the studio to retrieve"
+        },
+        "responseType": {
+            "user_id": "string",
+            "username": "string",
+            "verified": "boolean",
+            "admin_id": "string",
+            "users": [
+                {
+                    "user_id": "string",
+                    "username": "string",
+                    "verified": "boolean",
+                    "admin": "boolean"
+                }
+            ]
+        },
+        "example": "GET /api/studios/studio123"
+    },
+    {
+        "category": "Studios",
+        "endpoint": "/studios/user/@me",
+        "method": "GET",
+        "description": "Get all studios the authenticated user is part of.",
+        "responseType": [
+            {
+                "user_id": "string",
+                "username": "string",
+                "verified": "boolean",
+                "admin_id": "string",
+                "isAdmin": "boolean",
+                "apiKey": "string",
+                "users": [
+                    {
+                        "user_id": "string",
+                        "username": "string",
+                        "verified": "boolean",
+                        "admin": "boolean"
+                    }
+                ]
+            }
+        ],
+        "example": "GET /api/studios/user/@me",
+        "requiresAuth": true
+    },
+    {
+        "category": "Studios",
+        "endpoint": "/studios/:studioId/add-user",
+        "method": "POST",
+        "description": "Add a user to a studio.",
+        "params": {
+            "studioId": "The ID of the studio"
+        },
+        "body": {
+            "userId": "The ID of the user to add"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/studios/studio123/add-user {\"userId\": \"user456\"}",
+        "requiresAuth": true
+    },
+    {
+        "category": "Studios",
+        "endpoint": "/studios/:studioId/remove-user",
+        "method": "POST",
+        "description": "Remove a user from a studio.",
+        "params": {
+            "studioId": "The ID of the studio"
+        },
+        "body": {
+            "userId": "The ID of the user to remove"
+        },
+        "responseType": {
+            "message": "string"
+        },
+        "example": "POST /api/studios/studio123/remove-user {\"userId\": \"user456\"}",
+        "requiresAuth": true
+    }
+]

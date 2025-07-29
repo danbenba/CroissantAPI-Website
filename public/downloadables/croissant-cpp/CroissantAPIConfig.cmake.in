@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(nlohmann_json CONFIG REQUIRED)
+find_dependency(cpr CONFIG REQUIRED)
+
+# Include targets
+include("${CMAKE_CURRENT_LIST_DIR}/CroissantAPITargets.cmake")
+
+check_required_components(CroissantAPI)

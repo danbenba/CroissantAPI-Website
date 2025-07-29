@@ -1,1161 +1,879 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-exports.__esModule = true;
-exports["default"] = exports.CroissantAPI = void 0;
-var croissantBaseUrl = 'https://croissant-api.fr/api';
+const croissantBaseUrl = 'https://croissant-api.fr/api';
 /**
- * CroissantAPI provides methods to interact with the Croissant API.
+ * Main CroissantAPI client. All methods are typed and documented for VS Code autocompletion.
  */
-var CroissantAPI = /** @class */ (function () {
-    function CroissantAPI(params) {
-        var _this = this;
+export class CroissantAPI {
+    /**
+     * Create a new CroissantAPI client.
+     * @param params Optional object with a token for authentication.
+     */
+    constructor(params = {}) {
         // --- USERS ---
         this.users = {
             /**
-             * Get the current authenticated user's profile, including studios, roles, inventory, owned items, and created games.
+             * Get the authenticated user's profile.
+             * @returns The current user object.
+             * @throws If no token is set or the request fails.
+             * @example
+             *   const me = await api.users.getMe();
              */
-            getMe: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to fetch user');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMe: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/users/@me`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to fetch user');
+                return await res.json();
+            },
             /**
-             * Get a user by userId. userId can be a Croissant ID, Discord ID, Google ID or Steam ID.
+             * Search users by username or other criteria.
+             * @param query The search string.
+             * @returns Array of matching users.
+             * @example
+             *   const users = await api.users.search('John');
              */
-            getUser: function (userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/").concat(userId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('User not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            search: async (query) => {
+                const res = await fetch(`${croissantBaseUrl}/users/search?q=${encodeURIComponent(query)}`);
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
             /**
-             * Search for users by username.
+             * Get a user by their userId.
+             * @param userId The user's ID.
+             * @returns The user object.
+             * @throws If the user is not found.
              */
-            search: function (query) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/search?q=").concat(encodeURIComponent(query)))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            getUser: async (userId) => {
+                const res = await fetch(`${croissantBaseUrl}/users/${userId}`);
+                if (!res.ok)
+                    throw new Error('User not found');
+                return await res.json();
+            },
             /**
-             * Check the verification key for the user.
+             * Transfer credits to another user.
+             * @param targetUserId The recipient's user ID.
+             * @param amount The amount to transfer.
+             * @returns A message about the transfer.
+             * @throws If not authenticated or the request fails.
              */
-            verify: function (userId, verificationKey) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/auth-verification"), {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: userId, verificationKey: verificationKey })
-                            })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, { success: false }];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            transferCredits: async (targetUserId, amount) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/users/transfer-credits`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ targetUserId, amount })
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to transfer credits');
+                return await res.json();
+            },
             /**
-             * Transfer credits from one user to another.
+             * Verify a user with a verification key.
+             * @param userId The user ID to verify.
+             * @param verificationKey The verification key.
+             * @returns Success status.
              */
-            transferCredits: function (targetUserId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/transfer-credits"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ targetUserId: targetUserId, amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to transfer credits');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            verify: async (userId, verificationKey) => {
+                const res = await fetch(`${croissantBaseUrl}/users/auth-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, verificationKey })
                 });
-            }); },
-            /**
-             * Change username (authenticated user only).
-             */
-            changeUsername: function (username) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/change-username"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ username: username })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to change username');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Change password (authenticated user only).
-             */
-            changePassword: function (oldPassword, newPassword, confirmPassword) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/users/change-password"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to change password');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); }
+                if (!res.ok)
+                    return { success: false };
+                return await res.json();
+            }
         };
         // --- GAMES ---
         this.games = {
             /**
              * List all games visible in the store.
+             * @returns Array of games.
              */
-            list: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            list: async () => {
+                const res = await fetch(`${croissantBaseUrl}/games`);
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
             /**
              * Search for games by name, genre, or description.
+             * @param query The search string.
+             * @returns Array of matching games.
              */
-            search: function (query) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/search?q=").concat(encodeURIComponent(query)))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            search: async (query) => {
+                const res = await fetch(`${croissantBaseUrl}/games/search?q=${encodeURIComponent(query)}`);
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
             /**
              * Get all games created by the authenticated user.
+             * @returns Array of games created by the user.
+             * @throws If not authenticated.
              */
-            getMyCreatedGames: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/@mine"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMyCreatedGames: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/games/@mine`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
             /**
              * Get all games owned by the authenticated user.
+             * @returns Array of games owned by the user.
+             * @throws If not authenticated.
              */
-            getMyOwnedGames: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/list/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMyOwnedGames: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/games/list/@me`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
             /**
-             * Get a game by gameId.
+             * Get a game by its ID.
+             * @param gameId The game ID.
+             * @returns The game object.
+             * @throws If the game is not found.
              */
-            get: function (gameId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Game not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Create a new game.
-             */
-            create: function (gameData) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify(gameData)
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to create game');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Update an existing game.
-             */
-            update: function (gameId, gameData) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId), {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify(gameData)
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to update game');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Buy a game.
-             */
-            buy: function (gameId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/games/").concat(gameId, "/buy"), {
-                                    method: 'POST',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to buy game');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); }
-        };
-        // --- ITEMS ---
-        this.items = {
-            /**
-             * Get all non-deleted items visible in store.
-             */
-            list: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items"))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Get all items owned by the authenticated user.
-             */
-            getMyItems: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/@mine"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Search for items by name (only those visible in store).
-             */
-            search: function (query) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/search?q=").concat(encodeURIComponent(query)))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                return [2 /*return*/, []];
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Get a single item by itemId.
-             */
-            get: function (itemId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/").concat(itemId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Item not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Create a new item.
-             */
-            create: function (itemData) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/create"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify(itemData)
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to create item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Update an existing item.
-             */
-            update: function (itemId, itemData) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/update/").concat(itemId), {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify(itemData)
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to update item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Delete an item.
-             */
-            "delete": function (itemId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/delete/").concat(itemId), {
-                                    method: 'DELETE',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to delete item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Buy an item.
-             */
-            buy: function (itemId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/buy/").concat(itemId), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to buy item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Sell an item.
-             */
-            sell: function (itemId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/sell/").concat(itemId), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to sell item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Give item occurrences to a user (owner only).
-             */
-            give: function (itemId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/give/").concat(itemId), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to give item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Consume item occurrences from a user (owner only).
-             */
-            consume: function (itemId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/consume/").concat(itemId), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to consume item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            /**
-             * Drop item occurrences from your inventory.
-             */
-            drop: function (itemId, amount) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/items/drop/").concat(itemId), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ amount: amount })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to drop item');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); }
+            get: async (gameId) => {
+                const res = await fetch(`${croissantBaseUrl}/games/${gameId}`);
+                if (!res.ok)
+                    throw new Error('Game not found');
+                return await res.json();
+            }
         };
         // --- INVENTORY ---
         this.inventory = {
             /**
              * Get the inventory of the authenticated user.
+             * @returns The user's inventory.
+             * @throws If not authenticated.
              */
-            getMyInventory: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/inventory/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to fetch inventory');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMyInventory: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/inventory/@me`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to fetch inventory');
+                return await res.json();
+            },
             /**
-             * Get the inventory of a user.
+             * Get the inventory of a user by userId.
+             * @param userId The user ID.
+             * @returns The user's inventory.
              */
-            get: function (userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/inventory/").concat(userId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to fetch inventory');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            get: async (userId) => {
+                const res = await fetch(`${croissantBaseUrl}/inventory/${userId}`);
+                if (!res.ok)
+                    throw new Error('Failed to fetch inventory');
+                return await res.json();
+            }
+        };
+        // --- ITEMS ---
+        this.items = {
+            /**
+             * List all non-deleted items visible in the store.
+             * @returns Array of items.
+             */
+            list: async () => {
+                const res = await fetch(`${croissantBaseUrl}/items`);
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
+            /**
+             * Get all items owned by the authenticated user.
+             * @returns Array of items owned by the user.
+             * @throws If not authenticated.
+             */
+            getMyItems: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/@mine`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); }
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
+            /**
+             * Search for items by name (only those visible in store).
+             * @param query The search string.
+             * @returns Array of matching items.
+             */
+            search: async (query) => {
+                const res = await fetch(`${croissantBaseUrl}/items/search?q=${encodeURIComponent(query)}`);
+                if (!res.ok)
+                    return [];
+                return await res.json();
+            },
+            /**
+             * Get a single item by itemId.
+             * @param itemId The item ID.
+             * @returns The item object.
+             * @throws If the item is not found.
+             */
+            get: async (itemId) => {
+                const res = await fetch(`${croissantBaseUrl}/items/${itemId}`);
+                if (!res.ok)
+                    throw new Error('Item not found');
+                return await res.json();
+            },
+            /**
+             * Create a new item.
+             * @param itemData The item data to create.
+             * @returns A message about the creation.
+             * @throws If not authenticated or the request fails.
+             */
+            create: async (itemData) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to create item');
+                return await res.json();
+            },
+            /**
+             * Update an existing item.
+             * @param itemId The item ID.
+             * @param itemData The fields to update.
+             * @returns A message about the update.
+             * @throws If not authenticated or the request fails.
+             */
+            update: async (itemId, itemData) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/update/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to update item');
+                return await res.json();
+            },
+            /**
+             * Delete an item by its ID.
+             * @param itemId The item ID.
+             * @returns A message about the deletion.
+             * @throws If not authenticated or the request fails.
+             */
+            delete: async (itemId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/delete/${itemId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (!res.ok)
+                    throw new Error('Failed to delete item');
+                return await res.json();
+            },
+            /**
+             * Buy an item by its ID.
+             * @param itemId The item ID.
+             * @param amount The amount to buy.
+             * @returns A message about the purchase.
+             * @throws If not authenticated or the request fails.
+             */
+            buy: async (itemId, amount) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/buy/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+                if (!res.ok)
+                    throw new Error('Failed to buy item');
+                return await res.json();
+            },
+            /**
+             * Sell an item by its ID.
+             * @param itemId The item ID.
+             * @param amount The amount to sell.
+             * @returns A message about the sale.
+             * @throws If not authenticated or the request fails.
+             */
+            sell: async (itemId, amount) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/sell/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+                if (!res.ok)
+                    throw new Error('Failed to sell item');
+                return await res.json();
+            },
+            /**
+             * Give an item to a user.
+             * @param itemId The item ID.
+             * @param amount The amount to give.
+             * @param userId The recipient's user ID.
+             * @param metadata Optional metadata for the item instance.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
+             */
+            give: async (itemId, amount, userId, metadata) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const body = { amount, userId };
+                if (metadata)
+                    body.metadata = metadata;
+                const res = await fetch(`${croissantBaseUrl}/items/give/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to give item');
+                return await res.json();
+            },
+            /**
+             * Consume an item instance.
+             * @param itemId The item ID.
+             * @param params Consumption parameters (amount, uniqueId, userId).
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
+             */
+            consume: async (itemId, params) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/consume/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(params)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to consume item');
+                return await res.json();
+            },
+            /**
+             * Update metadata for an item instance.
+             * @param itemId The item ID.
+             * @param uniqueId The unique instance ID.
+             * @param metadata The new metadata.
+             * @returns A message about the update.
+             * @throws If not authenticated or the request fails.
+             */
+            updateMetadata: async (itemId, uniqueId, metadata) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/update-metadata/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ uniqueId, metadata })
+                });
+                if (!res.ok)
+                    throw new Error('Failed to update metadata');
+                return await res.json();
+            },
+            /**
+             * Drop an item instance from the user's inventory.
+             * @param itemId The item ID.
+             * @param params Drop parameters (amount, uniqueId).
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
+             */
+            drop: async (itemId, params) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/items/drop/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(params)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to drop item');
+                return await res.json();
+            }
         };
         // --- LOBBIES ---
         this.lobbies = {
             /**
-             * Create a new lobby.
+             * Create a new lobby for the authenticated user.
+             * @returns A message about the creation.
+             * @throws If not authenticated or the request fails.
              */
-            create: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies"), {
-                                    method: 'POST',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to create lobby');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            create: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/lobbies`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to create lobby');
+                return await res.json();
+            },
             /**
-             * Get a lobby by lobbyId.
+             * Get a lobby by its ID.
+             * @param lobbyId The lobby ID.
+             * @returns The lobby object.
+             * @throws If the lobby is not found.
              */
-            get: function (lobbyId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Lobby not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            get: async (lobbyId) => {
+                const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}`);
+                if (!res.ok)
+                    throw new Error('Lobby not found');
+                return await res.json();
+            },
             /**
              * Get the lobby the authenticated user is in.
+             * @returns The lobby object.
+             * @throws If not authenticated or not in a lobby.
              */
-            getMyLobby: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/user/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('User not in any lobby');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMyLobby: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/lobbies/user/@me`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('User not in any lobby');
+                return await res.json();
+            },
             /**
-             * Get the lobby a user is in.
+             * Get the lobby a user is in by userId.
+             * @param userId The user ID.
+             * @returns The lobby object.
+             * @throws If the user is not in a lobby.
              */
-            getUserLobby: function (userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/user/").concat(userId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('User not in any lobby');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            getUserLobby: async (userId) => {
+                const res = await fetch(`${croissantBaseUrl}/lobbies/user/${userId}`);
+                if (!res.ok)
+                    throw new Error('User not in any lobby');
+                return await res.json();
+            },
             /**
-             * Join a lobby.
+             * Join a lobby by its ID.
+             * @param lobbyId The lobby ID.
+             * @returns A message about the join operation.
+             * @throws If not authenticated or the request fails.
              */
-            join: function (lobbyId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/join"), {
-                                    method: 'POST',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to join lobby');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            join: async (lobbyId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/join`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to join lobby');
+                return await res.json();
+            },
             /**
-             * Leave a lobby.
+             * Leave a lobby by its ID.
+             * @param lobbyId The lobby ID.
+             * @returns A message about the leave operation.
+             * @throws If not authenticated or the request fails.
              */
-            leave: function (lobbyId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/lobbies/").concat(lobbyId, "/leave"), {
-                                    method: 'POST',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to leave lobby');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            leave: async (lobbyId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/lobbies/${lobbyId}/leave`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); }
+                if (!res.ok)
+                    throw new Error('Failed to leave lobby');
+                return await res.json();
+            }
         };
         // --- STUDIOS ---
         this.studios = {
             /**
              * Create a new studio.
+             * @param studioName The name of the studio.
+             * @returns A message about the creation.
+             * @throws If not authenticated or the request fails.
              */
-            create: function (studioName) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/studios"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ studioName: studioName })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to create studio');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            create: async (studioName) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/studios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ studioName })
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to create studio');
+                return await res.json();
+            },
             /**
-             * Get a studio by studioId.
+             * Get a studio by its ID.
+             * @param studioId The studio ID.
+             * @returns The studio object.
+             * @throws If the studio is not found.
              */
-            get: function (studioId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/studios/").concat(studioId))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Studio not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
+            get: async (studioId) => {
+                const res = await fetch(`${croissantBaseUrl}/studios/${studioId}`);
+                if (!res.ok)
+                    throw new Error('Studio not found');
+                return await res.json();
+            },
             /**
-             * Get all studios the authenticated user is part of.
+             * Get all studios the authenticated user is a member of.
+             * @returns Array of studios.
+             * @throws If not authenticated or the request fails.
              */
-            getMyStudios: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/studios/user/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to fetch studios');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getMyStudios: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/studios/user/@me`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to fetch studios');
+                return await res.json();
+            },
             /**
              * Add a user to a studio.
+             * @param studioId The studio ID.
+             * @param userId The user ID to add.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            addUser: function (studioId, userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/studios/").concat(studioId, "/add-user"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ userId: userId })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to add user to studio');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            addUser: async (studioId, userId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/studios/${studioId}/add-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ userId })
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to add user to studio');
+                return await res.json();
+            },
             /**
              * Remove a user from a studio.
+             * @param studioId The studio ID.
+             * @param userId The user ID to remove.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            removeUser: function (studioId, userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/studios/").concat(studioId, "/remove-user"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ userId: userId })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to remove user from studio');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            removeUser: async (studioId, userId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/studios/${studioId}/remove-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ userId })
                 });
-            }); }
+                if (!res.ok)
+                    throw new Error('Failed to remove user from studio');
+                return await res.json();
+            }
         };
         // --- TRADES ---
         this.trades = {
             /**
              * Start a new trade or get the latest pending trade with a user.
+             * @param userId The user ID to trade with.
+             * @returns The trade object.
+             * @throws If not authenticated or the request fails.
              */
-            startOrGetPending: function (userId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/start-or-latest/").concat(userId), {
-                                    method: 'POST',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to start or get trade');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            startOrGetPending: async (userId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/start-or-latest/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to start or get trade');
+                return await res.json();
+            },
             /**
-             * Get a trade by ID with enriched item information.
+             * Get a trade by its ID.
+             * @param tradeId The trade ID.
+             * @returns The trade object.
+             * @throws If not authenticated or the trade is not found.
              */
-            get: function (tradeId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/").concat(tradeId), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Trade not found');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            get: async (tradeId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/${tradeId}`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Trade not found');
+                return await res.json();
+            },
             /**
-             * Get all trades for a user with enriched item information.
+             * Get all trades for a user.
+             * @param userId The user ID.
+             * @returns Array of trades.
+             * @throws If not authenticated or the request fails.
              */
-            getMyTrades: function () { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/user/@me"), {
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to fetch trades');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getUserTrades: async (userId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/user/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to fetch trades');
+                return await res.json();
+            },
             /**
              * Add an item to a trade.
+             * @param tradeId The trade ID.
+             * @param tradeItem The item to add.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            addItem: function (tradeId, tradeItem) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/").concat(tradeId, "/add-item"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ tradeItem: tradeItem })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to add item to trade');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            addItem: async (tradeId, tradeItem) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/${tradeId}/add-item`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ tradeItem })
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to add item to trade');
+                return await res.json();
+            },
             /**
              * Remove an item from a trade.
+             * @param tradeId The trade ID.
+             * @param tradeItem The item to remove.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            removeItem: function (tradeId, tradeItem) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/").concat(tradeId, "/remove-item"), {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': "Bearer ".concat(this.token)
-                                    },
-                                    body: JSON.stringify({ tradeItem: tradeItem })
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to remove item from trade');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            removeItem: async (tradeId, tradeItem) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/${tradeId}/remove-item`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ tradeItem })
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to remove item from trade');
+                return await res.json();
+            },
             /**
              * Approve a trade.
+             * @param tradeId The trade ID.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            approve: function (tradeId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/").concat(tradeId, "/approve"), {
-                                    method: 'PUT',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to approve trade');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            approve: async (tradeId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/${tradeId}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); },
+                if (!res.ok)
+                    throw new Error('Failed to approve trade');
+                return await res.json();
+            },
             /**
              * Cancel a trade.
+             * @param tradeId The trade ID.
+             * @returns A message about the operation.
+             * @throws If not authenticated or the request fails.
              */
-            cancel: function (tradeId) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!this.token)
-                                throw new Error('Token is required');
-                            return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/trades/").concat(tradeId, "/cancel"), {
-                                    method: 'PUT',
-                                    headers: { 'Authorization': "Bearer ".concat(this.token) }
-                                })];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Failed to cancel trade');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            cancel: async (tradeId) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/trades/${tradeId}/cancel`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-            }); }
+                if (!res.ok)
+                    throw new Error('Failed to cancel trade');
+                return await res.json();
+            }
         };
-        // --- SEARCH ---
-        this.search = {
+        // --- OAUTH2 ---
+        this.oauth2 = {
             /**
-             * Global search across users, items, and games.
+             * Get an OAuth2 app by its client ID.
+             * @param client_id The client ID.
+             * @returns The OAuth2 app object.
+             * @throws If the app is not found.
              */
-            global: function (query) { return __awaiter(_this, void 0, void 0, function () {
-                var res;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, fetch("".concat(croissantBaseUrl, "/search?q=").concat(encodeURIComponent(query)))];
-                        case 1:
-                            res = _a.sent();
-                            if (!res.ok)
-                                throw new Error('Search failed');
-                            return [4 /*yield*/, res.json()];
-                        case 2: return [2 /*return*/, _a.sent()];
-                    }
+            getApp: async (client_id) => {
+                const res = await fetch(`${croissantBaseUrl}/oauth2/app/${client_id}`);
+                if (!res.ok)
+                    throw new Error('OAuth2 app not found');
+                return await res.json();
+            },
+            /**
+             * Create a new OAuth2 app.
+             * @param name The app name.
+             * @param redirect_urls The allowed redirect URLs.
+             * @returns The new app's client ID and secret.
+             * @throws If not authenticated or the request fails.
+             */
+            createApp: async (name, redirect_urls) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/oauth2/app`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ name, redirect_urls })
                 });
-            }); }
+                if (!res.ok)
+                    throw new Error('Failed to create OAuth2 app');
+                return await res.json();
+            },
+            /**
+             * Get all OAuth2 apps owned by the authenticated user.
+             * @returns Array of OAuth2 apps.
+             * @throws If not authenticated or the request fails.
+             */
+            getMyApps: async () => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/oauth2/apps`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (!res.ok)
+                    throw new Error('Failed to fetch OAuth2 apps');
+                return await res.json();
+            },
+            /**
+             * Update an OAuth2 app.
+             * @param client_id The client ID.
+             * @param data The fields to update (name, redirect_urls).
+             * @returns Success status.
+             * @throws If not authenticated or the request fails.
+             */
+            updateApp: async (client_id, data) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/oauth2/app/${client_id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (!res.ok)
+                    throw new Error('Failed to update OAuth2 app');
+                return await res.json();
+            },
+            /**
+             * Delete an OAuth2 app by its client ID.
+             * @param client_id The client ID.
+             * @returns A message about the deletion.
+             * @throws If not authenticated or the request fails.
+             */
+            deleteApp: async (client_id) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/oauth2/app/${client_id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (!res.ok)
+                    throw new Error('Failed to delete OAuth2 app');
+                return await res.json();
+            },
+            /**
+             * Authorize a user for an OAuth2 app.
+             * @param client_id The client ID.
+             * @param redirect_uri The redirect URI.
+             * @returns The authorization code.
+             * @throws If not authenticated or the request fails.
+             */
+            authorize: async (client_id, redirect_uri) => {
+                if (!this.token)
+                    throw new Error('Token is required');
+                const res = await fetch(`${croissantBaseUrl}/oauth2/authorize?client_id=${encodeURIComponent(client_id)}&redirect_uri=${encodeURIComponent(redirect_uri)}`, {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (!res.ok)
+                    throw new Error('Failed to authorize');
+                return await res.json();
+            },
+            /**
+             * Get a user by OAuth2 code and client ID.
+             * @param code The authorization code.
+             * @param client_id The client ID.
+             * @returns The user object.
+             * @throws If the request fails.
+             */
+            getUserByCode: async (code, client_id) => {
+                const res = await fetch(`${croissantBaseUrl}/oauth2/user?code=${encodeURIComponent(code)}&client_id=${encodeURIComponent(client_id)}`);
+                if (!res.ok)
+                    throw new Error('Failed to fetch user by code');
+                return await res.json();
+            }
         };
-        if (!params.token)
-            throw new Error('Token is required');
         this.token = params.token;
     }
-    return CroissantAPI;
-}());
-exports.CroissantAPI = CroissantAPI;
-exports["default"] = CroissantAPI;
+}
+export default CroissantAPI;

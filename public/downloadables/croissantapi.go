@@ -1,662 +1,524 @@
 package croissantapi
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+    "bytes"
+    "encoding/json"
+    "errors"
+    "fmt"
+    "io"
+    "net/http"
+    "net/url"
 )
 
-const croissantBaseURL = "https://croissant-api.fr/api"
+const croissantBaseUrl = "https://croissant-api.fr/api"
 
-// --- DATA STRUCTURES ---
+// --- Structures ---
 
-// Game represents a game in the Croissant API.
 type Game struct {
-	GameId       string  `json:"gameId"`
-	Name         string  `json:"name"`
-	Description  string  `json:"description"`
-	OwnerId      string  `json:"owner_id"`
-	DownloadLink *string `json:"download_link"`
-	Price        float64 `json:"price"`
-	ShowInStore  bool    `json:"showInStore"`
-	IconHash     *string `json:"iconHash"`
-	SplashHash   *string `json:"splashHash"`
-	BannerHash   *string `json:"bannerHash"`
-	Genre        *string `json:"genre"`
-	ReleaseDate  *string `json:"release_date"`
-	Developer    *string `json:"developer"`
-	Publisher    *string `json:"publisher"`
-	Platforms    *string `json:"platforms"`
-	Rating       float64 `json:"rating"`
-	Website      *string `json:"website"`
-	TrailerLink  *string `json:"trailer_link"`
-	Multiplayer  bool    `json:"multiplayer"`
+    GameId      string   `json:"gameId"`
+    Name        string   `json:"name"`
+    Description string   `json:"description"`
+    Price       float64  `json:"price"`
+    OwnerId     string   `json:"owner_id"`
+    ShowInStore bool     `json:"showInStore"`
+    IconHash    *string  `json:"iconHash,omitempty"`
+    SplashHash  *string  `json:"splashHash,omitempty"`
+    BannerHash  *string  `json:"bannerHash,omitempty"`
+    Genre       *string  `json:"genre,omitempty"`
+    ReleaseDate *string  `json:"release_date,omitempty"`
+    Developer   *string  `json:"developer,omitempty"`
+    Publisher   *string  `json:"publisher,omitempty"`
+    Platforms   []string `json:"platforms,omitempty"`
+    Rating      float64  `json:"rating"`
+    Website     *string  `json:"website,omitempty"`
+    TrailerLink *string  `json:"trailer_link,omitempty"`
+    Multiplayer bool     `json:"multiplayer"`
+    DownloadLink *string `json:"download_link,omitempty"`
 }
 
-// User represents a user in the Croissant API.
 type User struct {
-	UserId            string           `json:"userId"`
-	Username          string           `json:"username"`
-	Email             string           `json:"email"`
-	Balance           *float64         `json:"balance"`
-	Verified          bool             `json:"verified"`
-	SteamId           *string          `json:"steam_id"`
-	SteamUsername     *string          `json:"steam_username"`
-	SteamAvatarUrl    *string          `json:"steam_avatar_url"`
-	IsStudio          bool             `json:"isStudio"`
-	Admin             bool             `json:"admin"`
-	Disabled          *bool            `json:"disabled"`
-	GoogleId          *string          `json:"google_id"`
-	DiscordId         *string          `json:"discord_id"`
-	Studios           []Studio         `json:"studios"`
-	Roles             []string         `json:"roles"`
-	Inventory         []InventoryItem  `json:"inventory"`
-	OwnedItems        []Item           `json:"ownedItems"`
-	CreatedGames      []Game           `json:"createdGames"`
-	HaveAuthenticator *bool            `json:"haveAuthenticator"`
-	VerificationKey   *string          `json:"verificationKey"`
+    UserId           string         `json:"userId"`
+    Username         string         `json:"username"`
+    Email            *string        `json:"email,omitempty"`
+    Verified         bool           `json:"verified"`
+    Studios          []Studio       `json:"studios,omitempty"`
+    Roles            []string       `json:"roles,omitempty"`
+    Inventory        []InventoryItem `json:"inventory,omitempty"`
+    OwnedItems       []Item         `json:"ownedItems,omitempty"`
+    CreatedGames     []Game         `json:"createdGames,omitempty"`
+    VerificationKey  *string        `json:"verificationKey,omitempty"`
+    SteamId          *string        `json:"steam_id,omitempty"`
+    SteamUsername    *string        `json:"steam_username,omitempty"`
+    SteamAvatarUrl   *string        `json:"steam_avatar_url,omitempty"`
+    IsStudio         *bool          `json:"isStudio,omitempty"`
+    Admin            *bool          `json:"admin,omitempty"`
+    Disabled         *bool          `json:"disabled,omitempty"`
+    GoogleId         *string        `json:"google_id,omitempty"`
+    DiscordId        *string        `json:"discord_id,omitempty"`
+    Balance          *float64       `json:"balance,omitempty"`
+    HaveAuthenticator *bool         `json:"haveAuthenticator,omitempty"`
 }
 
-// Item represents an item in the Croissant API.
 type Item struct {
-	ItemId      string  `json:"itemId"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Owner       string  `json:"owner"`
-	ShowInStore bool    `json:"showInStore"`
-	IconHash    string  `json:"iconHash"`
-	Deleted     bool    `json:"deleted"`
+    ItemId      string  `json:"itemId"`
+    Name        string  `json:"name"`
+    Description string  `json:"description"`
+    Owner       string  `json:"owner"`
+    Price       float64 `json:"price"`
+    IconHash    string  `json:"iconHash"`
+    ShowInStore *bool   `json:"showInStore,omitempty"`
+    Deleted     *bool   `json:"deleted,omitempty"`
 }
 
-// InventoryItem represents an item in a user's inventory.
 type InventoryItem struct {
-	ItemId      string  `json:"itemId"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Amount      int     `json:"amount"`
-	IconHash    *string `json:"iconHash"`
+    UserId     *string                `json:"user_id,omitempty"`
+    ItemId     string                 `json:"itemId"`
+    ItemIdAlt  *string                `json:"item_id,omitempty"`
+    Amount     int                    `json:"amount"`
+    Metadata   map[string]interface{} `json:"metadata,omitempty"`
+    Name       string                 `json:"name"`
+    Description string                `json:"description"`
+    IconHash   string                 `json:"iconHash"`
+    Price      float64                `json:"price"`
+    Owner      string                 `json:"owner"`
+    ShowInStore bool                  `json:"showInStore"`
 }
 
-// LobbyUser represents a user in a lobby.
-type LobbyUser struct {
-	Username        string  `json:"username"`
-	UserId          string  `json:"user_id"`
-	Verified        bool    `json:"verified"`
-	SteamUsername   *string `json:"steam_username"`
-	SteamAvatarUrl  *string `json:"steam_avatar_url"`
-	SteamId         *string `json:"steam_id"`
-}
-
-// Lobby represents a lobby.
-type Lobby struct {
-	LobbyId string      `json:"lobbyId"`
-	Users   []LobbyUser `json:"users"`
-}
-
-// StudioUser represents a user in a studio.
-type StudioUser struct {
-	UserId   string `json:"user_id"`
-	Username string `json:"username"`
-	Verified bool   `json:"verified"`
-	Admin    bool   `json:"admin"`
-}
-
-// Studio represents a studio.
 type Studio struct {
-	UserId   string       `json:"user_id"`
-	Username string       `json:"username"`
-	Verified bool         `json:"verified"`
-	AdminId  string       `json:"admin_id"`
-	IsAdmin  *bool        `json:"isAdmin"`
-	ApiKey   *string      `json:"apiKey"`
-	Users    []StudioUser `json:"users"`
+    UserId   string `json:"user_id"`
+    Username string `json:"username"`
+    Verified bool   `json:"verified"`
+    AdminId  string `json:"admin_id"`
+    IsAdmin  *bool  `json:"isAdmin,omitempty"`
+    ApiKey   *string `json:"apiKey,omitempty"`
+    Users    []struct {
+        UserId   string `json:"user_id"`
+        Username string `json:"username"`
+        Verified bool   `json:"verified"`
+        Admin    bool   `json:"admin"`
+    } `json:"users,omitempty"`
 }
 
-// TradeItem represents a trade item.
+type Lobby struct {
+    LobbyId string `json:"lobbyId"`
+    Users   []struct {
+        Username       string  `json:"username"`
+        UserId         string  `json:"user_id"`
+        Verified       bool    `json:"verified"`
+        SteamUsername  *string `json:"steam_username,omitempty"`
+        SteamAvatarUrl *string `json:"steam_avatar_url,omitempty"`
+        SteamId        *string `json:"steam_id,omitempty"`
+    } `json:"users"`
+}
+
 type TradeItem struct {
-	ItemId string `json:"itemId"`
-	Amount int    `json:"amount"`
+    ItemId   string                 `json:"itemId"`
+    Amount   int                    `json:"amount"`
+    Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TradeItemInfo represents enriched trade item information.
-type TradeItemInfo struct {
-	ItemId      string `json:"itemId"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	IconHash    string `json:"iconHash"`
-	Amount      int    `json:"amount"`
-}
-
-// Trade represents a trade with enriched item information.
 type Trade struct {
-	Id                string          `json:"id"`
-	FromUserId        string          `json:"fromUserId"`
-	ToUserId          string          `json:"toUserId"`
-	FromUserItems     []TradeItemInfo `json:"fromUserItems"`
-	ToUserItems       []TradeItemInfo `json:"toUserItems"`
-	ApprovedFromUser  bool            `json:"approvedFromUser"`
-	ApprovedToUser    bool            `json:"approvedToUser"`
-	Status            string          `json:"status"`
-	CreatedAt         string          `json:"createdAt"`
-	UpdatedAt         string          `json:"updatedAt"`
+    Id             string `json:"id"`
+    FromUserId     string `json:"fromUserId"`
+    ToUserId       string `json:"toUserId"`
+    FromUserItems  []struct {
+        ItemId      string `json:"itemId"`
+        Name        string `json:"name"`
+        Description string `json:"description"`
+        IconHash    string `json:"iconHash"`
+        Amount      int    `json:"amount"`
+    } `json:"fromUserItems"`
+    ToUserItems []struct {
+        ItemId      string `json:"itemId"`
+        Name        string `json:"name"`
+        Description string `json:"description"`
+        IconHash    string `json:"iconHash"`
+        Amount      int    `json:"amount"`
+    } `json:"toUserItems"`
+    ApprovedFromUser bool   `json:"approvedFromUser"`
+    ApprovedToUser   bool   `json:"approvedToUser"`
+    Status           string `json:"status"`
+    CreatedAt        string `json:"createdAt"`
+    UpdatedAt        string `json:"updatedAt"`
 }
 
-// SearchResult represents global search results.
-type SearchResult struct {
-	Users []User `json:"users"`
-	Items []Item `json:"items"`
-	Games []Game `json:"games"`
+type OAuth2App struct {
+    ClientId     string   `json:"client_id"`
+    ClientSecret string   `json:"client_secret"`
+    Name         string   `json:"name"`
+    RedirectUrls []string `json:"redirect_urls"`
 }
 
-// --- MAIN API STRUCT ---
+// --- Client ---
+
 type CroissantAPI struct {
-	Token    string
-	client   *http.Client
-	Users    *UsersService
-	Games    *GamesService
-	Items    *ItemsService
-	Inventory *InventoryService
-	Lobbies  *LobbiesService
-	Studios  *StudiosService
-	Trades   *TradesService
-	Search   *SearchService
+    Token string
 }
 
 func NewCroissantAPI(token string) *CroissantAPI {
-	if token == "" {
-		panic("Token is required")
-	}
-	api := &CroissantAPI{
-		Token:  token,
-		client: &http.Client{},
-	}
-	api.Users = &UsersService{api: api}
-	api.Games = &GamesService{api: api}
-	api.Items = &ItemsService{api: api}
-	api.Inventory = &InventoryService{api: api}
-	api.Lobbies = &LobbiesService{api: api}
-	api.Studios = &StudiosService{api: api}
-	api.Trades = &TradesService{api: api}
-	api.Search = &SearchService{api: api}
-	return api
+    return &CroissantAPI{Token: token}
 }
 
-// --- HTTP HELPERS ---
-func (api *CroissantAPI) get(path string, auth bool, result interface{}) error {
-	url := fmt.Sprintf("%s%s", croissantBaseURL, path)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return err
-	}
-	if auth {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", api.Token))
-	}
-	resp, err := api.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
-	}
-	return json.Unmarshal(body, result)
+// --- Helper ---
+
+func (api *CroissantAPI) doRequest(method, url string, body interface{}, result interface{}) error {
+    var reqBody io.Reader
+    if body != nil {
+        b, err := json.Marshal(body)
+        if err != nil {
+            return err
+        }
+        reqBody = bytes.NewBuffer(b)
+    }
+    req, err := http.NewRequest(method, url, reqBody)
+    if err != nil {
+        return err
+    }
+    if api.Token != "" {
+        req.Header.Set("Authorization", "Bearer "+api.Token)
+    }
+    if body != nil {
+        req.Header.Set("Content-Type", "application/json")
+    }
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+    if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+        return errors.New("API request failed: " + resp.Status)
+    }
+    return json.NewDecoder(resp.Body).Decode(result)
 }
 
-func (api *CroissantAPI) post(path string, auth bool, payload interface{}, result interface{}) error {
-	url := fmt.Sprintf("%s%s", croissantBaseURL, path)
-	b, _ := json.Marshal(payload)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	if auth {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", api.Token))
-	}
-	resp, err := api.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
-	}
-	if result != nil {
-		return json.Unmarshal(body, result)
-	}
-	return nil
+// --- USERS ---
+
+func (api *CroissantAPI) GetMe() (*User, error) {
+    var user User
+    err := api.doRequest("GET", croissantBaseUrl+"/users/@me", nil, &user)
+    return &user, err
 }
 
-func (api *CroissantAPI) put(path string, auth bool, payload interface{}, result interface{}) error {
-	url := fmt.Sprintf("%s%s", croissantBaseURL, path)
-	b, _ := json.Marshal(payload)
-	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(b))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	if auth {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", api.Token))
-	}
-	resp, err := api.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
-	}
-	if result != nil {
-		return json.Unmarshal(body, result)
-	}
-	return nil
+func (api *CroissantAPI) SearchUsers(query string) ([]User, error) {
+    var users []User
+    err := api.doRequest("GET", croissantBaseUrl+"/users/search?q="+url.QueryEscape(query), nil, &users)
+    return users, err
 }
 
-func (api *CroissantAPI) delete(path string, auth bool, result interface{}) error {
-	url := fmt.Sprintf("%s%s", croissantBaseURL, path)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return err
-	}
-	if auth {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", api.Token))
-	}
-	resp, err := api.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
-	}
-	if result != nil {
-		return json.Unmarshal(body, result)
-	}
-	return nil
+func (api *CroissantAPI) GetUser(userId string) (*User, error) {
+    var user User
+    err := api.doRequest("GET", croissantBaseUrl+"/users/"+userId, nil, &user)
+    return &user, err
 }
 
-// --- USERS SERVICE ---
-type UsersService struct { api *CroissantAPI }
-
-// GetMe gets the current authenticated user's profile.
-func (u *UsersService) GetMe() (*User, error) {
-	var user User
-	err := u.api.get("/users/@me", true, &user)
-	return &user, err
+func (api *CroissantAPI) TransferCredits(targetUserId string, amount float64) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"targetUserId": targetUserId, "amount": amount}
+    err := api.doRequest("POST", croissantBaseUrl+"/users/transfer-credits", body, &res)
+    return res, err
 }
 
-// GetUser gets a user by userId.
-func (u *UsersService) GetUser(userId string) (*User, error) {
-	var user User
-	err := u.api.get(fmt.Sprintf("/users/%s", userId), false, &user)
-	return &user, err
+func (api *CroissantAPI) VerifyUser(userId, verificationKey string) (map[string]bool, error) {
+    var res map[string]bool
+    body := map[string]interface{}{"userId": userId, "verificationKey": verificationKey}
+    err := api.doRequest("POST", croissantBaseUrl+"/users/auth-verification", body, &res)
+    return res, err
 }
 
-// Search searches for users by username.
-func (u *UsersService) Search(query string) ([]User, error) {
-	var users []User
-	err := u.api.get(fmt.Sprintf("/users/search?q=%s", url.QueryEscape(query)), false, &users)
-	return users, err
+// --- GAMES ---
+
+func (api *CroissantAPI) ListGames() ([]Game, error) {
+    var games []Game
+    err := api.doRequest("GET", croissantBaseUrl+"/games", nil, &games)
+    return games, err
 }
 
-// Verify checks the verification key for the user.
-func (u *UsersService) Verify(userId, verificationKey string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{"userId": userId, "verificationKey": verificationKey}
-	err := u.api.post("/users/auth-verification", false, payload, &result)
-	return result, err
+func (api *CroissantAPI) SearchGames(query string) ([]Game, error) {
+    var games []Game
+    err := api.doRequest("GET", croissantBaseUrl+"/games/search?q="+url.QueryEscape(query), nil, &games)
+    return games, err
 }
 
-// TransferCredits transfers credits from one user to another.
-func (u *UsersService) TransferCredits(targetUserId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]interface{}{"targetUserId": targetUserId, "amount": amount}
-	err := u.api.post("/users/transfer-credits", true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetMyCreatedGames() ([]Game, error) {
+    var games []Game
+    err := api.doRequest("GET", croissantBaseUrl+"/games/@mine", nil, &games)
+    return games, err
 }
 
-// ChangeUsername changes the username of the authenticated user.
-func (u *UsersService) ChangeUsername(username string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{"username": username}
-	err := u.api.post("/users/change-username", true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetMyOwnedGames() ([]Game, error) {
+    var games []Game
+    err := api.doRequest("GET", croissantBaseUrl+"/games/list/@me", nil, &games)
+    return games, err
 }
 
-// ChangePassword changes the password of the authenticated user.
-func (u *UsersService) ChangePassword(oldPassword, newPassword, confirmPassword string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{
-		"oldPassword":     oldPassword,
-		"newPassword":     newPassword,
-		"confirmPassword": confirmPassword,
-	}
-	err := u.api.post("/users/change-password", true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetGame(gameId string) (*Game, error) {
+    var game Game
+    err := api.doRequest("GET", croissantBaseUrl+"/games/"+gameId, nil, &game)
+    return &game, err
 }
 
-// --- GAMES SERVICE ---
-type GamesService struct { api *CroissantAPI }
+// --- INVENTORY ---
 
-// List gets all games visible in the store.
-func (g *GamesService) List() ([]Game, error) {
-	var games []Game
-	err := g.api.get("/games", false, &games)
-	return games, err
+func (api *CroissantAPI) GetMyInventory() (map[string]interface{}, error) {
+    var inv map[string]interface{}
+    err := api.doRequest("GET", croissantBaseUrl+"/inventory/@me", nil, &inv)
+    return inv, err
 }
 
-// Search searches for games by name, genre, or description.
-func (g *GamesService) Search(query string) ([]Game, error) {
-	var games []Game
-	err := g.api.get(fmt.Sprintf("/games/search?q=%s", url.QueryEscape(query)), false, &games)
-	return games, err
+func (api *CroissantAPI) GetInventory(userId string) (map[string]interface{}, error) {
+    var inv map[string]interface{}
+    err := api.doRequest("GET", croissantBaseUrl+"/inventory/"+userId, nil, &inv)
+    return inv, err
 }
 
-// Get gets a game by gameId.
-func (g *GamesService) Get(gameId string) (*Game, error) {
-	var game Game
-	err := g.api.get(fmt.Sprintf("/games/%s", gameId), false, &game)
-	return &game, err
+// --- ITEMS ---
+
+func (api *CroissantAPI) ListItems() ([]Item, error) {
+    var items []Item
+    err := api.doRequest("GET", croissantBaseUrl+"/items", nil, &items)
+    return items, err
 }
 
-// GetMyCreatedGames gets all games created by the authenticated user.
-func (g *GamesService) GetMyCreatedGames() ([]Game, error) {
-	var games []Game
-	err := g.api.get("/games/@mine", true, &games)
-	return games, err
+func (api *CroissantAPI) GetMyItems() ([]Item, error) {
+    var items []Item
+    err := api.doRequest("GET", croissantBaseUrl+"/items/@mine", nil, &items)
+    return items, err
 }
 
-// GetMyOwnedGames gets all games owned by the authenticated user.
-func (g *GamesService) GetMyOwnedGames() ([]Game, error) {
-	var games []Game
-	err := g.api.get("/games/list/@me", true, &games)
-	return games, err
+func (api *CroissantAPI) SearchItems(query string) ([]Item, error) {
+    var items []Item
+    err := api.doRequest("GET", croissantBaseUrl+"/items/search?q="+url.QueryEscape(query), nil, &items)
+    return items, err
 }
 
-// Create creates a new game.
-func (g *GamesService) Create(gameData map[string]interface{}) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := g.api.post("/games", true, gameData, &result)
-	return result, err
+func (api *CroissantAPI) GetItem(itemId string) (*Item, error) {
+    var item Item
+    err := api.doRequest("GET", croissantBaseUrl+"/items/"+itemId, nil, &item)
+    return &item, err
 }
 
-// Update updates an existing game.
-func (g *GamesService) Update(gameId string, gameData map[string]interface{}) (*Game, error) {
-	var game Game
-	err := g.api.put(fmt.Sprintf("/games/%s", gameId), true, gameData, &game)
-	return &game, err
+func (api *CroissantAPI) CreateItem(itemData map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/items/create", itemData, &res)
+    return res, err
 }
 
-// Buy buys a game.
-func (g *GamesService) Buy(gameId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := g.api.post(fmt.Sprintf("/games/%s/buy", gameId), true, nil, &result)
-	return result, err
+func (api *CroissantAPI) UpdateItem(itemId string, itemData map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("PUT", croissantBaseUrl+"/items/update/"+itemId, itemData, &res)
+    return res, err
 }
 
-// --- ITEMS SERVICE ---
-type ItemsService struct { api *CroissantAPI }
-
-// List gets all non-deleted items visible in store.
-func (i *ItemsService) List() ([]Item, error) {
-	var items []Item
-	err := i.api.get("/items", false, &items)
-	return items, err
+func (api *CroissantAPI) DeleteItem(itemId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("DELETE", croissantBaseUrl+"/items/delete/"+itemId, nil, &res)
+    return res, err
 }
 
-// GetMyItems gets all items owned by the authenticated user.
-func (i *ItemsService) GetMyItems() ([]Item, error) {
-	var items []Item
-	err := i.api.get("/items/@mine", true, &items)
-	return items, err
+func (api *CroissantAPI) BuyItem(itemId string, amount int) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"amount": amount}
+    err := api.doRequest("POST", croissantBaseUrl+"/items/buy/"+itemId, body, &res)
+    return res, err
 }
 
-// Search searches for items by name.
-func (i *ItemsService) Search(query string) ([]Item, error) {
-	var items []Item
-	err := i.api.get(fmt.Sprintf("/items/search?q=%s", url.QueryEscape(query)), false, &items)
-	return items, err
+func (api *CroissantAPI) SellItem(itemId string, amount int) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"amount": amount}
+    err := api.doRequest("POST", croissantBaseUrl+"/items/sell/"+itemId, body, &res)
+    return res, err
 }
 
-// Get gets a single item by itemId.
-func (i *ItemsService) Get(itemId string) (*Item, error) {
-	var item Item
-	err := i.api.get(fmt.Sprintf("/items/%s", itemId), false, &item)
-	return &item, err
+func (api *CroissantAPI) GiveItem(itemId string, amount int, userId string, metadata map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"amount": amount, "userId": userId, "metadata": metadata}
+    err := api.doRequest("POST", croissantBaseUrl+"/items/give/"+itemId, body, &res)
+    return res, err
 }
 
-// Create creates a new item.
-func (i *ItemsService) Create(itemData map[string]interface{}) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := i.api.post("/items/create", true, itemData, &result)
-	return result, err
+func (api *CroissantAPI) ConsumeItem(itemId string, params map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/items/consume/"+itemId, params, &res)
+    return res, err
 }
 
-// Update updates an existing item.
-func (i *ItemsService) Update(itemId string, itemData map[string]interface{}) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := i.api.put(fmt.Sprintf("/items/update/%s", itemId), true, itemData, &result)
-	return result, err
+func (api *CroissantAPI) UpdateItemMetadata(itemId, uniqueId string, metadata map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"uniqueId": uniqueId, "metadata": metadata}
+    err := api.doRequest("PUT", croissantBaseUrl+"/items/update-metadata/"+itemId, body, &res)
+    return res, err
 }
 
-// Delete deletes an item.
-func (i *ItemsService) Delete(itemId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := i.api.delete(fmt.Sprintf("/items/delete/%s", itemId), true, &result)
-	return result, err
+func (api *CroissantAPI) DropItem(itemId string, params map[string]interface{}) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/items/drop/"+itemId, params, &res)
+    return res, err
 }
 
-// Buy buys an item.
-func (i *ItemsService) Buy(itemId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]int{"amount": amount}
-	err := i.api.post(fmt.Sprintf("/items/buy/%s", itemId), true, payload, &result)
-	return result, err
+// --- LOBBIES ---
+
+func (api *CroissantAPI) CreateLobby() (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/lobbies", nil, &res)
+    return res, err
 }
 
-// Sell sells an item.
-func (i *ItemsService) Sell(itemId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]int{"amount": amount}
-	err := i.api.post(fmt.Sprintf("/items/sell/%s", itemId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetLobby(lobbyId string) (*Lobby, error) {
+    var lobby Lobby
+    err := api.doRequest("GET", croissantBaseUrl+"/lobbies/"+lobbyId, nil, &lobby)
+    return &lobby, err
 }
 
-// Give gives item occurrences to a user.
-func (i *ItemsService) Give(itemId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]int{"amount": amount}
-	err := i.api.post(fmt.Sprintf("/items/give/%s", itemId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetMyLobby() (*Lobby, error) {
+    var lobby Lobby
+    err := api.doRequest("GET", croissantBaseUrl+"/lobbies/user/@me", nil, &lobby)
+    return &lobby, err
 }
 
-// Consume consumes item occurrences from a user.
-func (i *ItemsService) Consume(itemId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]int{"amount": amount}
-	err := i.api.post(fmt.Sprintf("/items/consume/%s", itemId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetUserLobby(userId string) (*Lobby, error) {
+    var lobby Lobby
+    err := api.doRequest("GET", croissantBaseUrl+"/lobbies/user/"+userId, nil, &lobby)
+    return &lobby, err
 }
 
-// Drop drops item occurrences from your inventory.
-func (i *ItemsService) Drop(itemId string, amount int) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]int{"amount": amount}
-	err := i.api.post(fmt.Sprintf("/items/drop/%s", itemId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) JoinLobby(lobbyId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/lobbies/"+lobbyId+"/join", nil, &res)
+    return res, err
 }
 
-// --- INVENTORY SERVICE ---
-type InventoryService struct { api *CroissantAPI }
-
-// GetMyInventory gets the inventory of the authenticated user.
-func (inv *InventoryService) GetMyInventory() ([]InventoryItem, error) {
-	var inventory []InventoryItem
-	err := inv.api.get("/inventory/@me", true, &inventory)
-	return inventory, err
+func (api *CroissantAPI) LeaveLobby(lobbyId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("POST", croissantBaseUrl+"/lobbies/"+lobbyId+"/leave", nil, &res)
+    return res, err
 }
 
-// Get gets the inventory of a user.
-func (inv *InventoryService) Get(userId string) ([]InventoryItem, error) {
-	var inventory []InventoryItem
-	err := inv.api.get(fmt.Sprintf("/inventory/%s", userId), false, &inventory)
-	return inventory, err
+// --- STUDIOS ---
+
+func (api *CroissantAPI) CreateStudio(studioName string) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"studioName": studioName}
+    err := api.doRequest("POST", croissantBaseUrl+"/studios", body, &res)
+    return res, err
 }
 
-// --- LOBBIES SERVICE ---
-type LobbiesService struct { api *CroissantAPI }
-
-// Create creates a new lobby.
-func (l *LobbiesService) Create() (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := l.api.post("/lobbies", true, nil, &result)
-	return result, err
+func (api *CroissantAPI) GetStudio(studioId string) (*Studio, error) {
+    var studio Studio
+    err := api.doRequest("GET", croissantBaseUrl+"/studios/"+studioId, nil, &studio)
+    return &studio, err
 }
 
-// Get gets a lobby by lobbyId.
-func (l *LobbiesService) Get(lobbyId string) (*Lobby, error) {
-	var lobby Lobby
-	err := l.api.get(fmt.Sprintf("/lobbies/%s", lobbyId), false, &lobby)
-	return &lobby, err
+func (api *CroissantAPI) GetMyStudios() ([]Studio, error) {
+    var studios []Studio
+    err := api.doRequest("GET", croissantBaseUrl+"/studios/user/@me", nil, &studios)
+    return studios, err
 }
 
-// GetMyLobby gets the lobby the authenticated user is in.
-func (l *LobbiesService) GetMyLobby() (*Lobby, error) {
-	var lobby Lobby
-	err := l.api.get("/lobbies/user/@me", true, &lobby)
-	return &lobby, err
+func (api *CroissantAPI) AddUserToStudio(studioId, userId string) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"userId": userId}
+    err := api.doRequest("POST", croissantBaseUrl+"/studios/"+studioId+"/add-user", body, &res)
+    return res, err
 }
 
-// GetUserLobby gets the lobby a user is in.
-func (l *LobbiesService) GetUserLobby(userId string) (*Lobby, error) {
-	var lobby Lobby
-	err := l.api.get(fmt.Sprintf("/lobbies/user/%s", userId), false, &lobby)
-	return &lobby, err
+func (api *CroissantAPI) RemoveUserFromStudio(studioId, userId string) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"userId": userId}
+    err := api.doRequest("POST", croissantBaseUrl+"/studios/"+studioId+"/remove-user", body, &res)
+    return res, err
 }
 
-// Join joins a lobby.
-func (l *LobbiesService) Join(lobbyId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := l.api.post(fmt.Sprintf("/lobbies/%s/join", lobbyId), true, nil, &result)
-	return result, err
+// --- TRADES ---
+
+func (api *CroissantAPI) StartOrGetPendingTrade(userId string) (*Trade, error) {
+    var trade Trade
+    err := api.doRequest("POST", croissantBaseUrl+"/trades/start-or-latest/"+userId, nil, &trade)
+    return &trade, err
 }
 
-// Leave leaves a lobby.
-func (l *LobbiesService) Leave(lobbyId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := l.api.post(fmt.Sprintf("/lobbies/%s/leave", lobbyId), true, nil, &result)
-	return result, err
+func (api *CroissantAPI) GetTrade(tradeId string) (*Trade, error) {
+    var trade Trade
+    err := api.doRequest("GET", croissantBaseUrl+"/trades/"+tradeId, nil, &trade)
+    return &trade, err
 }
 
-// --- STUDIOS SERVICE ---
-type StudiosService struct { api *CroissantAPI }
-
-// Create creates a new studio.
-func (s *StudiosService) Create(studioName string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{"studioName": studioName}
-	err := s.api.post("/studios", true, payload, &result)
-	return result, err
+func (api *CroissantAPI) GetUserTrades(userId string) ([]Trade, error) {
+    var trades []Trade
+    err := api.doRequest("GET", croissantBaseUrl+"/trades/user/"+userId, nil, &trades)
+    return trades, err
 }
 
-// Get gets a studio by studioId.
-func (s *StudiosService) Get(studioId string) (*Studio, error) {
-	var studio Studio
-	err := s.api.get(fmt.Sprintf("/studios/%s", studioId), false, &studio)
-	return &studio, err
+func (api *CroissantAPI) AddItemToTrade(tradeId string, tradeItem TradeItem) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"tradeItem": tradeItem}
+    err := api.doRequest("POST", croissantBaseUrl+"/trades/"+tradeId+"/add-item", body, &res)
+    return res, err
 }
 
-// GetMyStudios gets all studios the authenticated user is part of.
-func (s *StudiosService) GetMyStudios() ([]Studio, error) {
-	var studios []Studio
-	err := s.api.get("/studios/user/@me", true, &studios)
-	return studios, err
+func (api *CroissantAPI) RemoveItemFromTrade(tradeId string, tradeItem TradeItem) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"tradeItem": tradeItem}
+    err := api.doRequest("POST", croissantBaseUrl+"/trades/"+tradeId+"/remove-item", body, &res)
+    return res, err
 }
 
-// AddUser adds a user to a studio.
-func (s *StudiosService) AddUser(studioId, userId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{"userId": userId}
-	err := s.api.post(fmt.Sprintf("/studios/%s/add-user", studioId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) ApproveTrade(tradeId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("PUT", croissantBaseUrl+"/trades/"+tradeId+"/approve", nil, &res)
+    return res, err
 }
 
-// RemoveUser removes a user from a studio.
-func (s *StudiosService) RemoveUser(studioId, userId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]string{"userId": userId}
-	err := s.api.post(fmt.Sprintf("/studios/%s/remove-user", studioId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) CancelTrade(tradeId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("PUT", croissantBaseUrl+"/trades/"+tradeId+"/cancel", nil, &res)
+    return res, err
 }
 
-// --- TRADES SERVICE ---
-type TradesService struct { api *CroissantAPI }
+// --- OAUTH2 ---
 
-// StartOrGetPending starts a new trade or gets the latest pending trade with a user.
-func (t *TradesService) StartOrGetPending(userId string) (*Trade, error) {
-	var trade Trade
-	err := t.api.post(fmt.Sprintf("/trades/start-or-latest/%s", userId), true, nil, &trade)
-	return &trade, err
+func (api *CroissantAPI) GetOAuth2App(clientId string) (*OAuth2App, error) {
+    var app OAuth2App
+    err := api.doRequest("GET", croissantBaseUrl+"/oauth2/app/"+clientId, nil, &app)
+    return &app, err
 }
 
-// Get gets a trade by ID with enriched item information.
-func (t *TradesService) Get(tradeId string) (*Trade, error) {
-	var trade Trade
-	err := t.api.get(fmt.Sprintf("/trades/%s", tradeId), true, &trade)
-	return &trade, err
+func (api *CroissantAPI) CreateOAuth2App(name string, redirectUrls []string) (map[string]string, error) {
+    var res map[string]string
+    body := map[string]interface{}{"name": name, "redirect_urls": redirectUrls}
+    err := api.doRequest("POST", croissantBaseUrl+"/oauth2/app", body, &res)
+    return res, err
 }
 
-// GetMyTrades gets all trades for a user with enriched item information.
-func (t *TradesService) GetMyTrades() ([]Trade, error) {
-	var trades []Trade
-	err := t.api.get("/trades/user/@me", true, &trades)
-	return trades, err
+func (api *CroissantAPI) GetMyOAuth2Apps() ([]OAuth2App, error) {
+    var apps []OAuth2App
+    err := api.doRequest("GET", croissantBaseUrl+"/oauth2/apps", nil, &apps)
+    return apps, err
 }
 
-// AddItem adds an item to a trade.
-func (t *TradesService) AddItem(tradeId string, tradeItem TradeItem) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]TradeItem{"tradeItem": tradeItem}
-	err := t.api.post(fmt.Sprintf("/trades/%s/add-item", tradeId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) UpdateOAuth2App(clientId string, data map[string]interface{}) (map[string]bool, error) {
+    var res map[string]bool
+    err := api.doRequest("PATCH", croissantBaseUrl+"/oauth2/app/"+clientId, data, &res)
+    return res, err
 }
 
-// RemoveItem removes an item from a trade.
-func (t *TradesService) RemoveItem(tradeId string, tradeItem TradeItem) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	payload := map[string]TradeItem{"tradeItem": tradeItem}
-	err := t.api.post(fmt.Sprintf("/trades/%s/remove-item", tradeId), true, payload, &result)
-	return result, err
+func (api *CroissantAPI) DeleteOAuth2App(clientId string) (map[string]string, error) {
+    var res map[string]string
+    err := api.doRequest("DELETE", croissantBaseUrl+"/oauth2/app/"+clientId, nil, &res)
+    return res, err
 }
 
-// Approve approves a trade.
-func (t *TradesService) Approve(tradeId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := t.api.put(fmt.Sprintf("/trades/%s/approve", tradeId), true, nil, &result)
-	return result, err
+func (api *CroissantAPI) AuthorizeOAuth2(clientId, redirectUri string) (map[string]string, error) {
+    var res map[string]string
+    url := fmt.Sprintf("%s/oauth2/authorize?client_id=%s&redirect_uri=%s", 
+        croissantBaseUrl, url.QueryEscape(clientId), url.QueryEscape(redirectUri))
+    err := api.doRequest("GET", url, nil, &res)
+    return res, err
 }
 
-// Cancel cancels a trade.
-func (t *TradesService) Cancel(tradeId string) (map[string]interface{}, error) {
-	var result map[string]interface{}
-	err := t.api.put(fmt.Sprintf("/trades/%s/cancel", tradeId), true, nil, &result)
-	return result, err
-}
-
-// --- SEARCH SERVICE ---
-type SearchService struct { api *CroissantAPI }
-
-// Global performs a global search across users, items, and games.
-func (s *SearchService) Global(query string) (*SearchResult, error) {
-	var result SearchResult
-	err := s.api.get(fmt.Sprintf("/search?q=%s", url.QueryEscape(query)), false, &result)
-	return &result, err
+func (api *CroissantAPI) GetUserByOAuth2Code(code, clientId string) (*User, error) {
+    var user User
+    url := fmt.Sprintf("%s/oauth2/user?code=%s&client_id=%s", 
+        croissantBaseUrl, url.QueryEscape(code), url.QueryEscape(clientId))
+    err := api.doRequest("GET", url, nil, &user)
+    return &user, err
 }

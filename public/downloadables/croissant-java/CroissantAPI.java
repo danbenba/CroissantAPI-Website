@@ -17,17 +17,48 @@ import com.google.gson.reflect.TypeToken;
  * This client library provides access to the Croissant API endpoints.
  * It supports user management, game operations, item transactions, inventory management,
  * lobby operations, studio management, and OAuth2 authentication.
+ * 
+ * Usage example:
+ * 
+ * // Initialize client with authentication token
+ * CroissantAPI api = new CroissantAPI("your_auth_token");
+ * 
+ * // Or initialize without token for public endpoints
+ * CroissantAPI api = new CroissantAPI();
+ * 
+ * // Get current user
+ * User me = api.users.getMe();
+ * 
+ * // Search for games
+ * List<Game> games = api.games.search("adventure");
+ * 
+ * // Get user's inventory
+ * CroissantAPI.Inventory.InventoryResponse inventory = api.inventory.getMyInventory();
+ * 
+ * // Buy an item
+ * Map<String, Object> result = api.items.buy("item_id", 1);
+ * 
+ * // Create a trade
+ * Trade trade = api.trades.startOrGetPending("user_id");
  */
 public class CroissantAPI {
     private static final String CROISSANT_BASE_URL = "https://croissant-api.fr/api";
     private final String token;
     private final Gson gson = new Gson();
 
+    /**
+     * Create a new CroissantAPI client.
+     * @param token Optional authentication token
+     */
     public CroissantAPI(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token is required");
-        }
         this.token = token;
+    }
+
+    /**
+     * Create a new CroissantAPI client without authentication.
+     */
+    public CroissantAPI() {
+        this.token = null;
     }
 
     /**
@@ -39,7 +70,10 @@ public class CroissantAPI {
         conn.setRequestMethod(method);
         conn.setRequestProperty("Content-Type", "application/json");
         
-        if (auth && token != null) {
+        if (auth) {
+            if (token == null || token.isEmpty()) {
+                throw new IllegalStateException("No authentication token provided");
+            }
             conn.setRequestProperty("Authorization", "Bearer " + token);
         }
         
@@ -53,7 +87,16 @@ public class CroissantAPI {
         
         int responseCode = conn.getResponseCode();
         if (responseCode < 200 || responseCode >= 300) {
-            throw new RuntimeException("HTTP error code: " + responseCode);
+            // Read error response
+            StringBuilder errorResponse = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    responseCode >= 400 ? conn.getErrorStream() : conn.getInputStream(), "UTF-8"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    errorResponse.append(line.trim());
+                }
+            }
+            throw new RuntimeException("HTTP " + responseCode + ": " + errorResponse.toString());
         }
         
         StringBuilder response = new StringBuilder();
@@ -127,11 +170,17 @@ public class CroissantAPI {
     }
 
     public static class InventoryItem {
+        public String user_id;
+        public String item_id;
         public String itemId;
         public String name;
         public String description;
         public int amount;
         public String iconHash;
+        public double price;
+        public String owner;
+        public boolean showInStore;
+        public Map<String, Object> metadata;
     }
 
     public static class Lobby {
@@ -189,6 +238,18 @@ public class CroissantAPI {
     public static class TradeItem {
         public String itemId;
         public int amount;
+        public Map<String, Object> metadata;
+        
+        public TradeItem(String itemId, int amount) {
+            this.itemId = itemId;
+            this.amount = amount;
+        }
+        
+        public TradeItem(String itemId, int amount, Map<String, Object> metadata) {
+            this.itemId = itemId;
+            this.amount = amount;
+            this.metadata = metadata;
+        }
     }
 
     public static class OAuth2App {
@@ -423,11 +484,26 @@ public class CroissantAPI {
         }
 
         /**
-         * Give item
+         * Give item to a user
          */
-        public Map<String, Object> give(String itemId, int amount) throws Exception {
+        public Map<String, Object> give(String itemId, int amount, String userId) throws Exception {
             Map<String, Object> body = new HashMap<>();
             body.put("amount", amount);
+            body.put("userId", userId);
+            String response = sendRequest("/items/give/" + itemId, "POST", gson.toJson(body), true);
+            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        }
+
+        /**
+         * Give item to a user with metadata
+         */
+        public Map<String, Object> give(String itemId, int amount, String userId, Map<String, Object> metadata) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount);
+            body.put("userId", userId);
+            if (metadata != null) {
+                body.put("metadata", metadata);
+            }
             String response = sendRequest("/items/give/" + itemId, "POST", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
@@ -435,20 +511,53 @@ public class CroissantAPI {
         /**
          * Consume item
          */
-        public Map<String, Object> consume(String itemId, int amount) throws Exception {
+        public Map<String, Object> consume(String itemId, int amount, String userId) throws Exception {
             Map<String, Object> body = new HashMap<>();
             body.put("amount", amount);
+            body.put("userId", userId);
             String response = sendRequest("/items/consume/" + itemId, "POST", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
 
         /**
-         * Drop item
+         * Consume item with unique ID
+         */
+        public Map<String, Object> consume(String itemId, String uniqueId, String userId) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("uniqueId", uniqueId);
+            body.put("userId", userId);
+            String response = sendRequest("/items/consume/" + itemId, "POST", gson.toJson(body), true);
+            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        }
+
+        /**
+         * Drop item by amount
          */
         public Map<String, Object> drop(String itemId, int amount) throws Exception {
             Map<String, Object> body = new HashMap<>();
             body.put("amount", amount);
             String response = sendRequest("/items/drop/" + itemId, "POST", gson.toJson(body), true);
+            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        }
+
+        /**
+         * Drop item by unique ID
+         */
+        public Map<String, Object> drop(String itemId, String uniqueId) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("uniqueId", uniqueId);
+            String response = sendRequest("/items/drop/" + itemId, "POST", gson.toJson(body), true);
+            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        }
+
+        /**
+         * Update metadata for an item instance
+         */
+        public Map<String, Object> updateMetadata(String itemId, String uniqueId, Map<String, Object> metadata) throws Exception {
+            Map<String, Object> body = new HashMap<>();
+            body.put("uniqueId", uniqueId);
+            body.put("metadata", metadata);
+            String response = sendRequest("/items/update-metadata/" + itemId, "PUT", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
     }
@@ -457,20 +566,25 @@ public class CroissantAPI {
     // === INVENTORY ENDPOINTS ===
 
     public class Inventory {
+        public static class InventoryResponse {
+            public String user_id;
+            public List<InventoryItem> inventory;
+        }
+
         /**
          * Get user's inventory
          */
-        public List<InventoryItem> get(String userId) throws Exception {
+        public InventoryResponse get(String userId) throws Exception {
             String response = sendRequest("/inventory/" + userId, "GET", null, false);
-            return gson.fromJson(response, new TypeToken<List<InventoryItem>>(){}.getType());
+            return gson.fromJson(response, InventoryResponse.class);
         }
 
         /**
          * Get current user's inventory
          */
-        public List<InventoryItem> getMyInventory() throws Exception {
+        public InventoryResponse getMyInventory() throws Exception {
             String response = sendRequest("/inventory/@me", "GET", null, true);
-            return gson.fromJson(response, new TypeToken<List<InventoryItem>>(){}.getType());
+            return gson.fromJson(response, InventoryResponse.class);
         }
     }
     public final Inventory inventory = new Inventory();
@@ -498,7 +612,7 @@ public class CroissantAPI {
          * Get current user's lobby
          */
         public Lobby getMyLobby() throws Exception {
-            String response = sendRequest("/lobbies/@me", "GET", null, true);
+            String response = sendRequest("/lobbies/user/@me", "GET", null, true);
             return gson.fromJson(response, Lobby.class);
         }
 
@@ -514,9 +628,7 @@ public class CroissantAPI {
          * Join a lobby
          */
         public Map<String, Object> join(String lobbyId) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("lobbyId", lobbyId);
-            String response = sendRequest("/lobbies/join", "POST", gson.toJson(body), true);
+            String response = sendRequest("/lobbies/" + lobbyId + "/join", "POST", null, true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
 
@@ -524,9 +636,7 @@ public class CroissantAPI {
          * Leave a lobby
          */
         public Map<String, Object> leave(String lobbyId) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("lobbyId", lobbyId);
-            String response = sendRequest("/lobbies/leave", "POST", gson.toJson(body), true);
+            String response = sendRequest("/lobbies/" + lobbyId + "/leave", "POST", null, true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
     }
@@ -540,7 +650,7 @@ public class CroissantAPI {
          */
         public Map<String, Object> create(String studioName) throws Exception {
             Map<String, Object> body = new HashMap<>();
-            body.put("name", studioName);
+            body.put("studioName", studioName);
             String response = sendRequest("/studios", "POST", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
@@ -557,7 +667,7 @@ public class CroissantAPI {
          * Get current user's studios
          */
         public List<Studio> getMyStudios() throws Exception {
-            String response = sendRequest("/studios/@me", "GET", null, true);
+            String response = sendRequest("/studios/user/@me", "GET", null, true);
             return gson.fromJson(response, new TypeToken<List<Studio>>(){}.getType());
         }
 
@@ -567,7 +677,7 @@ public class CroissantAPI {
         public Map<String, Object> addUser(String studioId, String userId) throws Exception {
             Map<String, Object> body = new HashMap<>();
             body.put("userId", userId);
-            String response = sendRequest("/studios/" + studioId + "/users", "POST", gson.toJson(body), true);
+            String response = sendRequest("/studios/" + studioId + "/add-user", "POST", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
 
@@ -575,7 +685,9 @@ public class CroissantAPI {
          * Remove user from studio
          */
         public Map<String, Object> removeUser(String studioId, String userId) throws Exception {
-            String response = sendRequest("/studios/" + studioId + "/users/" + userId, "DELETE", null, true);
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", userId);
+            String response = sendRequest("/studios/" + studioId + "/remove-user", "POST", gson.toJson(body), true);
             return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
         }
     }
@@ -588,9 +700,7 @@ public class CroissantAPI {
          * Start or get pending trade
          */
         public Trade startOrGetPending(String userId) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("userId", userId);
-            String response = sendRequest("/trades", "POST", gson.toJson(body), true);
+            String response = sendRequest("/trades/start-or-latest/" + userId, "POST", null, true);
             return gson.fromJson(response, Trade.class);
         }
 
@@ -607,6 +717,14 @@ public class CroissantAPI {
          */
         public List<Trade> getMyTrades() throws Exception {
             String response = sendRequest("/trades/@me", "GET", null, true);
+            return gson.fromJson(response, new TypeToken<List<Trade>>(){}.getType());
+        }
+
+        /**
+         * Get all trades for a user
+         */
+        public List<Trade> getUserTrades(String userId) throws Exception {
+            String response = sendRequest("/trades/user/" + userId, "GET", null, true);
             return gson.fromJson(response, new TypeToken<List<Trade>>(){}.getType());
         }
 
@@ -648,42 +766,66 @@ public class CroissantAPI {
 
     public class OAuth2 {
         /**
-         * Exchange authorization code for access token
+         * Get OAuth2 app by client ID
          */
-        public Map<String, Object> getUserByCode(String code, String clientId, String clientSecret, String redirectUri) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("code", code);
-            body.put("client_id", clientId);
-            body.put("client_secret", clientSecret);
-            body.put("redirect_uri", redirectUri);
-            body.put("grant_type", "authorization_code");
-            String response = sendRequest("/oauth2/token", "POST", gson.toJson(body), false);
-            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        public OAuth2App getApp(String clientId) throws Exception {
+            String response = sendRequest("/oauth2/app/" + clientId, "GET", null, false);
+            return gson.fromJson(response, OAuth2App.class);
         }
 
         /**
-         * Refresh access token
+         * Create OAuth2 app
          */
-        public Map<String, Object> refreshToken(String refreshToken, String clientId, String clientSecret) throws Exception {
+        public Map<String, String> createApp(String name, List<String> redirectUrls) throws Exception {
             Map<String, Object> body = new HashMap<>();
-            body.put("refresh_token", refreshToken);
-            body.put("client_id", clientId);
-            body.put("client_secret", clientSecret);
-            body.put("grant_type", "refresh_token");
-            String response = sendRequest("/oauth2/token", "POST", gson.toJson(body), false);
-            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+            body.put("name", name);
+            body.put("redirect_urls", redirectUrls);
+            String response = sendRequest("/oauth2/app", "POST", gson.toJson(body), true);
+            return gson.fromJson(response, new TypeToken<Map<String, String>>(){}.getType());
         }
 
         /**
-         * Revoke access token
+         * Get current user's OAuth2 apps
          */
-        public Map<String, Object> revokeToken(String accessToken, String clientId, String clientSecret) throws Exception {
-            Map<String, Object> body = new HashMap<>();
-            body.put("token", accessToken);
-            body.put("client_id", clientId);
-            body.put("client_secret", clientSecret);
-            String response = sendRequest("/oauth2/revoke", "POST", gson.toJson(body), false);
-            return gson.fromJson(response, new TypeToken<Map<String, Object>>(){}.getType());
+        public List<OAuth2App> getMyApps() throws Exception {
+            String response = sendRequest("/oauth2/apps", "GET", null, true);
+            return gson.fromJson(response, new TypeToken<List<OAuth2App>>(){}.getType());
+        }
+
+        /**
+         * Update OAuth2 app
+         */
+        public Map<String, Boolean> updateApp(String clientId, Map<String, Object> data) throws Exception {
+            String response = sendRequest("/oauth2/app/" + clientId, "PATCH", gson.toJson(data), true);
+            return gson.fromJson(response, new TypeToken<Map<String, Boolean>>(){}.getType());
+        }
+
+        /**
+         * Delete OAuth2 app
+         */
+        public Map<String, String> deleteApp(String clientId) throws Exception {
+            String response = sendRequest("/oauth2/app/" + clientId, "DELETE", null, true);
+            return gson.fromJson(response, new TypeToken<Map<String, String>>(){}.getType());
+        }
+
+        /**
+         * Authorize OAuth2 app
+         */
+        public Map<String, String> authorize(String clientId, String redirectUri) throws Exception {
+            String encodedClientId = URLEncoder.encode(clientId, "UTF-8");
+            String encodedRedirectUri = URLEncoder.encode(redirectUri, "UTF-8");
+            String response = sendRequest("/oauth2/authorize?client_id=" + encodedClientId + "&redirect_uri=" + encodedRedirectUri, "GET", null, true);
+            return gson.fromJson(response, new TypeToken<Map<String, String>>(){}.getType());
+        }
+
+        /**
+         * Get user by authorization code
+         */
+        public User getUserByCode(String code, String clientId) throws Exception {
+            String encodedCode = URLEncoder.encode(code, "UTF-8");
+            String encodedClientId = URLEncoder.encode(clientId, "UTF-8");
+            String response = sendRequest("/oauth2/user?code=" + encodedCode + "&client_id=" + encodedClientId, "GET", null, false);
+            return gson.fromJson(response, User.class);
         }
     }
     public final OAuth2 oauth2 = new OAuth2();

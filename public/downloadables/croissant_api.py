@@ -1,19 +1,17 @@
 import requests
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
+from typing import List, Optional, Dict, Any
 
 CROISSANT_BASE_URL = 'https://croissant-api.fr/api'
 
-
 @dataclass
 class Game:
-    gameId: str = ""
-    name: str = ""
-    description: str = ""
-    owner_id: str = ""
-    download_link: Optional[str] = None
-    price: float = 0.0
-    showInStore: bool = False
+    gameId: str
+    name: str
+    description: str
+    price: float
+    owner_id: str
+    showInStore: bool
     iconHash: Optional[str] = None
     splashHash: Optional[str] = None
     bannerHash: Optional[str] = None
@@ -21,408 +19,454 @@ class Game:
     release_date: Optional[str] = None
     developer: Optional[str] = None
     publisher: Optional[str] = None
-    platforms: Optional[str] = None
+    platforms: Optional[List[str]] = None
     rating: float = 0.0
     website: Optional[str] = None
     trailer_link: Optional[str] = None
     multiplayer: bool = False
-
+    download_link: Optional[str] = None
 
 @dataclass
 class User:
-    userId: str = ""
-    username: str = ""
-    email: str = ""
-    balance: Optional[float] = None
+    userId: str
+    username: str
+    email: Optional[str] = None
     verified: bool = False
+    studios: Optional[List[dict]] = None
+    roles: Optional[List[str]] = None
+    inventory: Optional[List[dict]] = None
+    ownedItems: Optional[List[dict]] = None
+    createdGames: Optional[List[Game]] = None
+    verificationKey: Optional[str] = None
     steam_id: Optional[str] = None
     steam_username: Optional[str] = None
     steam_avatar_url: Optional[str] = None
-    isStudio: bool = False
-    admin: bool = False
+    isStudio: Optional[bool] = None
+    admin: Optional[bool] = None
     disabled: Optional[bool] = None
     google_id: Optional[str] = None
     discord_id: Optional[str] = None
+    balance: Optional[float] = None
     haveAuthenticator: Optional[bool] = None
-    verificationKey: Optional[str] = None
-
 
 @dataclass
 class Item:
-    itemId: str = ""
-    name: str = ""
-    description: str = ""
-    price: float = 0.0
-    owner: str = ""
-    showInStore: bool = False
-    iconHash: str = ""
-    deleted: bool = False
-
+    itemId: str
+    name: str
+    description: str
+    owner: str
+    price: float
+    iconHash: str
+    showInStore: Optional[bool] = None
+    deleted: Optional[bool] = None
 
 @dataclass
 class InventoryItem:
-    itemId: str = ""
-    name: str = ""
-    description: str = ""
+    user_id: Optional[str] = None
+    item_id: Optional[str] = None
     amount: int = 0
-    iconHash: Optional[str] = None
-
-
-@dataclass
-class LobbyUser:
-    username: str = ""
-    user_id: str = ""
-    verified: bool = False
-    steam_username: Optional[str] = None
-    steam_avatar_url: Optional[str] = None
-    steam_id: Optional[str] = None
-
-
-@dataclass
-class Lobby:
-    lobbyId: str = ""
-    users: List[LobbyUser] = field(default_factory=list)
-
-
-@dataclass
-class StudioUser:
-    user_id: str = ""
-    username: str = ""
-    verified: bool = False
-    admin: bool = False
-
+    metadata: Optional[Dict[str, Any]] = None
+    itemId: str = ''
+    name: str = ''
+    description: str = ''
+    iconHash: str = ''
+    price: float = 0.0
+    owner: str = ''
+    showInStore: bool = False
 
 @dataclass
 class Studio:
-    user_id: str = ""
-    username: str = ""
-    verified: bool = False
-    admin_id: str = ""
+    user_id: str
+    username: str
+    verified: bool
+    admin_id: str
     isAdmin: Optional[bool] = None
     apiKey: Optional[str] = None
-    users: Optional[List[StudioUser]] = None
+    users: Optional[List[dict]] = None
 
+@dataclass
+class Lobby:
+    lobbyId: str
+    users: List[dict]
 
 @dataclass
 class TradeItem:
-    itemId: str = ""
-    amount: int = 0
-
-
-@dataclass
-class TradeItemDetail:
-    itemId: str = ""
-    name: str = ""
-    description: str = ""
-    iconHash: str = ""
-    amount: int = 0
-
+    itemId: str
+    amount: int
+    metadata: Optional[Dict[str, Any]] = None
 
 @dataclass
 class Trade:
-    id: str = ""
-    fromUserId: str = ""
-    toUserId: str = ""
-    fromUserItems: List[TradeItemDetail] = field(default_factory=list)
-    toUserItems: List[TradeItemDetail] = field(default_factory=list)
-    approvedFromUser: bool = False
-    approvedToUser: bool = False
-    status: str = ""
-    createdAt: str = ""
-    updatedAt: str = ""
-
+    id: str
+    fromUserId: str
+    toUserId: str
+    fromUserItems: List[dict]
+    toUserItems: List[dict]
+    approvedFromUser: bool
+    approvedToUser: bool
+    status: str
+    createdAt: str
+    updatedAt: str
 
 @dataclass
 class OAuth2App:
-    client_id: str = ""
-    client_secret: str = ""
-    name: str = ""
-    redirect_urls: List[str] = field(default_factory=list)
+    client_id: str
+    client_secret: str
+    name: str
+    redirect_urls: List[str]
 
-
-@dataclass
 class CroissantAPI:
-    token: str
+    def __init__(self, token: Optional[str] = None):
+        self.token = token
 
-    users: object = field(init=False)
-    games: object = field(init=False)
-    items: object = field(init=False)
-    inventory: object = field(init=False)
-    lobbies: object = field(init=False)
-    studios: object = field(init=False)
-    trades: object = field(init=False)
-    search: object = field(init=False)
-
-    @dataclass
-    class Users:
-        api: 'CroissantAPI'
-
-        def get_me(self) -> Dict[str, Any]:
-            """Get the current authenticated user."""
-            if not self.api.token:
-                raise ValueError("Token is required")
-            return self.api._request("GET", "users/@me", auth=True)
-
-        def get_user(self, user_id: str) -> Dict[str, Any]:
-            """Get a user by their ID."""
-            return self.api._request("GET", f"users/{user_id}")
-
-        def search(self, query: str) -> List[Dict[str, Any]]:
-            """Search for users by query."""
-            return self.api._request("GET", "users/search", params={'q': query})
-
-        def verify(self, user_id: str, verification_key: str) -> Dict[str, Any]:
-            """Verify a user with a verification key."""
-            return self.api._request("POST", "users/auth-verification", json={
-                'userId': user_id, 'verificationKey': verification_key
-            })
-
-        def transfer_credits(self, target_user_id: str, amount: float) -> Dict[str, Any]:
-            """Transfer credits to another user."""
-            return self.api._request("POST", "users/transfer-credits", json={
-                'targetUserId': target_user_id, 'amount': amount
-            }, auth=True)
-
-        def change_username(self, username: str) -> Dict[str, Any]:
-            """Change username (authenticated user only)."""
-            return self.api._request("POST", "users/change-username", json={
-                'username': username
-            }, auth=True)
-
-        def change_password(self, old_password: str, new_password: str, confirm_password: str) -> Dict[str, Any]:
-            """Change password (authenticated user only)."""
-            return self.api._request("POST", "users/change-password", json={
-                'oldPassword': old_password,
-                'newPassword': new_password,
-                'confirmPassword': confirm_password
-            }, auth=True)
-
-    @dataclass
-    class Games:
-        api: 'CroissantAPI'
-
-        def list(self) -> List[Dict[str, Any]]:
-            """List all games visible in the store."""
-            return self.api._request("GET", "games")
-
-        def search(self, query: str) -> List[Dict[str, Any]]:
-            """Search for games by name, genre, or description."""
-            return self.api._request("GET", "games/search", params={'q': query})
-
-        def get_my_created_games(self) -> List[Dict[str, Any]]:
-            """Get all games created by the authenticated user."""
-            return self.api._request("GET", "games/@mine", auth=True)
-
-        def get_my_owned_games(self) -> List[Dict[str, Any]]:
-            """Get all games owned by the authenticated user."""
-            return self.api._request("GET", "games/list/@me", auth=True)
-
-        def get(self, game_id: str) -> Dict[str, Any]:
-            """Get a game by gameId."""
-            return self.api._request("GET", f"games/{game_id}")
-
-        def create(self, game_data: Dict[str, Any]) -> Dict[str, Any]:
-            """Create a new game."""
-            return self.api._request("POST", "games", json=game_data, auth=True)
-
-        def update(self, game_id: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
-            """Update an existing game."""
-            return self.api._request("PUT", f"games/{game_id}", json=game_data, auth=True)
-
-        def buy(self, game_id: str) -> Dict[str, Any]:
-            """Buy a game."""
-            return self.api._request("POST", f"games/{game_id}/buy", auth=True)
-
-    @dataclass
-    class Items:
-        api: 'CroissantAPI'
-
-        def list(self) -> List[Dict[str, Any]]:
-            """Get all non-deleted items visible in store."""
-            return self.api._request("GET", "items")
-
-        def get_my_items(self) -> List[Dict[str, Any]]:
-            """Get all items owned by the authenticated user."""
-            return self.api._request("GET", "items/@mine", auth=True)
-
-        def search(self, query: str) -> List[Dict[str, Any]]:
-            """Search for items by name (only those visible in store)."""
-            return self.api._request("GET", "items/search", params={'q': query})
-
-        def get(self, item_id: str) -> Dict[str, Any]:
-            """Get a single item by itemId."""
-            return self.api._request("GET", f"items/{item_id}")
-
-        def create(self, item_data: Dict[str, Any]) -> Dict[str, Any]:
-            """Create a new item."""
-            return self.api._request("POST", "items/create", json=item_data, auth=True)
-
-        def update(self, item_id: str, item_data: Dict[str, Any]) -> Dict[str, Any]:
-            """Update an existing item."""
-            return self.api._request("PUT", f"items/update/{item_id}", json=item_data, auth=True)
-
-        def delete(self, item_id: str) -> Dict[str, Any]:
-            """Delete an item."""
-            return self.api._request("DELETE", f"items/delete/{item_id}", auth=True)
-
-        def buy(self, item_id: str, amount: int) -> Dict[str, Any]:
-            """Buy an item."""
-            return self.api._request("POST", f"items/buy/{item_id}", json={'amount': amount}, auth=True)
-
-        def sell(self, item_id: str, amount: int) -> Dict[str, Any]:
-            """Sell an item."""
-            return self.api._request("POST", f"items/sell/{item_id}", json={'amount': amount}, auth=True)
-
-        def give(self, item_id: str, amount: int) -> Dict[str, Any]:
-            """Give item occurrences to a user (owner only)."""
-            return self.api._request("POST", f"items/give/{item_id}", json={'amount': amount}, auth=True)
-
-        def consume(self, item_id: str, amount: int) -> Dict[str, Any]:
-            """Consume item occurrences from a user (owner only)."""
-            return self.api._request("POST", f"items/consume/{item_id}", json={'amount': amount}, auth=True)
-
-        def drop(self, item_id: str, amount: int) -> Dict[str, Any]:
-            """Drop item occurrences from your inventory."""
-            return self.api._request("POST", f"items/drop/{item_id}", json={'amount': amount}, auth=True)
-
-    @dataclass
-    class Inventory:
-        api: 'CroissantAPI'
-
-        def get_my_inventory(self) -> List[Dict[str, Any]]:
-            """Get the inventory of the authenticated user."""
-            return self.api._request("GET", "inventory/@me", auth=True)
-
-        def get(self, user_id: str) -> List[Dict[str, Any]]:
-            """Get the inventory of a user."""
-            return self.api._request("GET", f"inventory/{user_id}")
-
-    @dataclass
-    class Lobbies:
-        api: 'CroissantAPI'
-
-        def create(self) -> Dict[str, Any]:
-            """Create a new lobby."""
-            return self.api._request("POST", "lobbies", auth=True)
-
-        def get(self, lobby_id: str) -> Dict[str, Any]:
-            """Get a lobby by lobbyId."""
-            return self.api._request("GET", f"lobbies/{lobby_id}")
-
-        def get_my_lobby(self) -> Dict[str, Any]:
-            """Get the lobby the authenticated user is in."""
-            return self.api._request("GET", "lobbies/user/@me", auth=True)
-
-        def get_user_lobby(self, user_id: str) -> Dict[str, Any]:
-            """Get the lobby a user is in."""
-            return self.api._request("GET", f"lobbies/user/{user_id}")
-
-        def join(self, lobby_id: str) -> Dict[str, Any]:
-            """Join a lobby."""
-            return self.api._request("POST", f"lobbies/{lobby_id}/join", auth=True)
-
-        def leave(self, lobby_id: str) -> Dict[str, Any]:
-            """Leave a lobby."""
-            return self.api._request("POST", f"lobbies/{lobby_id}/leave", auth=True)
-
-    @dataclass
-    class Studios:
-        api: 'CroissantAPI'
-
-        def create(self, studio_name: str) -> Dict[str, Any]:
-            """Create a new studio."""
-            return self.api._request("POST", "studios", json={'studioName': studio_name}, auth=True)
-
-        def get(self, studio_id: str) -> Dict[str, Any]:
-            """Get a studio by studioId."""
-            return self.api._request("GET", f"studios/{studio_id}")
-
-        def get_my_studios(self) -> List[Dict[str, Any]]:
-            """Get all studios the authenticated user is part of."""
-            return self.api._request("GET", "studios/user/@me", auth=True)
-
-        def add_user(self, studio_id: str, user_id: str) -> Dict[str, Any]:
-            """Add a user to a studio."""
-            return self.api._request("POST", f"studios/{studio_id}/add-user", json={'userId': user_id}, auth=True)
-
-        def remove_user(self, studio_id: str, user_id: str) -> Dict[str, Any]:
-            """Remove a user from a studio."""
-            return self.api._request("POST", f"studios/{studio_id}/remove-user", json={'userId': user_id}, auth=True)
-
-    @dataclass
-    class Trades:
-        api: 'CroissantAPI'
-
-        def start_or_get_pending(self, user_id: str) -> Dict[str, Any]:
-            """Start a new trade or get the latest pending trade with a user."""
-            return self.api._request("POST", f"trades/start-or-latest/{user_id}", auth=True)
-
-        def get(self, trade_id: str) -> Dict[str, Any]:
-            """Get a trade by ID with enriched item information."""
-            return self.api._request("GET", f"trades/{trade_id}", auth=True)
-
-        def get_my_trades(self) -> List[Dict[str, Any]]:
-            """Get all trades for a user with enriched item information."""
-            return self.api._request("GET", "trades/user/@me", auth=True)
-
-        def add_item(self, trade_id: str, trade_item: TradeItem) -> Dict[str, Any]:
-            """Add an item to a trade."""
-            return self.api._request("POST", f"trades/{trade_id}/add-item", json={
-                'tradeItem': {'itemId': trade_item.itemId, 'amount': trade_item.amount}
-            }, auth=True)
-
-        def remove_item(self, trade_id: str, trade_item: TradeItem) -> Dict[str, Any]:
-            """Remove an item from a trade."""
-            return self.api._request("POST", f"trades/{trade_id}/remove-item", json={
-                'tradeItem': {'itemId': trade_item.itemId, 'amount': trade_item.amount}
-            }, auth=True)
-
-        def approve(self, trade_id: str) -> Dict[str, Any]:
-            """Approve a trade."""
-            return self.api._request("PUT", f"trades/{trade_id}/approve", auth=True)
-
-        def cancel(self, trade_id: str) -> Dict[str, Any]:
-            """Cancel a trade."""
-            return self.api._request("PUT", f"trades/{trade_id}/cancel", auth=True)
-
-    @dataclass
-    class Search:
-        api: 'CroissantAPI'
-
-        def global_search(self, query: str) -> Dict[str, Any]:
-            """Global search across users, items, and games."""
-            return self.api._request("GET", "search", params={'q': query})
-
-    def __post_init__(self):
-        if not self.token:
-            raise ValueError("Token is required")
-        self.users = CroissantAPI.Users(self)
-        self.games = CroissantAPI.Games(self)
-        self.items = CroissantAPI.Items(self)
-        self.inventory = CroissantAPI.Inventory(self)
-        self.lobbies = CroissantAPI.Lobbies(self)
-        self.studios = CroissantAPI.Studios(self)
-        self.trades = CroissantAPI.Trades(self)
-        self.search = CroissantAPI.Search(self)
-
-    def _request(self, method: str, path: str, *, auth: bool = False, json: Dict[str, Any] = None, params: Dict[str, Any] = None) -> Any:
-        headers = {'Content-Type': 'application/json'} if json else {}
-        if auth:
+    def _headers(self, content_type: bool = False):
+        headers = {}
+        if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
-        
-        url = f"{CROISSANT_BASE_URL}/{path.lstrip('/')}"
-        res = requests.request(method, url, headers=headers, json=json, params=params)
-        res.raise_for_status()
-        return res.json()
+        if content_type:
+            headers['Content-Type'] = 'application/json'
+        return headers
 
-    def __getattr__(self, name):
-        if name in ['users', 'games', 'items', 'inventory', 'lobbies', 'studios', 'trades', 'search']:
-            self.__post_init__()
-            return getattr(self, name)
-        raise AttributeError(f"'CroissantAPI' object has no attribute '{name}'")
+    # --- USERS ---
+    def get_me(self) -> User:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/users/@me', headers=self._headers())
+        r.raise_for_status()
+        return User(**r.json())
 
+    def search_users(self, query: str) -> List[User]:
+        r = requests.get(f'{CROISSANT_BASE_URL}/users/search', params={'q': query})
+        if not r.ok:
+            return []
+        return [User(**u) for u in r.json()]
 
-# Example usage:
-# croissant = CroissantAPI(token='your_token_here')
-# me = croissant.users.get_me()
-# games = croissant.games.list()
+    def get_user(self, user_id: str) -> User:
+        r = requests.get(f'{CROISSANT_BASE_URL}/users/{user_id}')
+        r.raise_for_status()
+        return User(**r.json())
+
+    def transfer_credits(self, target_user_id: str, amount: float) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/users/transfer-credits',
+                         headers=self._headers(True),
+                         json={'targetUserId': target_user_id, 'amount': amount})
+        r.raise_for_status()
+        return r.json()
+
+    def verify_user(self, user_id: str, verification_key: str) -> dict:
+        r = requests.post(f'{CROISSANT_BASE_URL}/users/auth-verification',
+                         headers=self._headers(True),
+                         json={'userId': user_id, 'verificationKey': verification_key})
+        if not r.ok:
+            return {'success': False}
+        return r.json()
+
+    # --- GAMES ---
+    def list_games(self) -> List[Game]:
+        r = requests.get(f'{CROISSANT_BASE_URL}/games')
+        if not r.ok:
+            return []
+        return [Game(**g) for g in r.json()]
+
+    def search_games(self, query: str) -> List[Game]:
+        r = requests.get(f'{CROISSANT_BASE_URL}/games/search', params={'q': query})
+        if not r.ok:
+            return []
+        return [Game(**g) for g in r.json()]
+
+    def get_my_created_games(self) -> List[Game]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/games/@mine', headers=self._headers())
+        if not r.ok:
+            return []
+        return [Game(**g) for g in r.json()]
+
+    def get_my_owned_games(self) -> List[Game]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/games/list/@me', headers=self._headers())
+        if not r.ok:
+            return []
+        return [Game(**g) for g in r.json()]
+
+    def get_game(self, game_id: str) -> Game:
+        r = requests.get(f'{CROISSANT_BASE_URL}/games/{game_id}')
+        r.raise_for_status()
+        return Game(**r.json())
+
+    # --- INVENTORY ---
+    def get_my_inventory(self) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/inventory/@me', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def get_inventory(self, user_id: str) -> dict:
+        r = requests.get(f'{CROISSANT_BASE_URL}/inventory/{user_id}')
+        r.raise_for_status()
+        return r.json()
+
+    # --- ITEMS ---
+    def list_items(self) -> List[Item]:
+        r = requests.get(f'{CROISSANT_BASE_URL}/items')
+        if not r.ok:
+            return []
+        return [Item(**i) for i in r.json()]
+
+    def get_my_items(self) -> List[Item]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/items/@mine', headers=self._headers())
+        if not r.ok:
+            return []
+        return [Item(**i) for i in r.json()]
+
+    def search_items(self, query: str) -> List[Item]:
+        r = requests.get(f'{CROISSANT_BASE_URL}/items/search', params={'q': query})
+        if not r.ok:
+            return []
+        return [Item(**i) for i in r.json()]
+
+    def get_item(self, item_id: str) -> Item:
+        r = requests.get(f'{CROISSANT_BASE_URL}/items/{item_id}')
+        r.raise_for_status()
+        return Item(**r.json())
+
+    def create_item(self, item_data: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/create', headers=self._headers(True), json=item_data)
+        r.raise_for_status()
+        return r.json()
+
+    def update_item(self, item_id: str, item_data: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.put(f'{CROISSANT_BASE_URL}/items/update/{item_id}', headers=self._headers(True), json=item_data)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_item(self, item_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.delete(f'{CROISSANT_BASE_URL}/items/delete/{item_id}', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def buy_item(self, item_id: str, amount: int) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/buy/{item_id}', headers=self._headers(True), json={'amount': amount})
+        r.raise_for_status()
+        return r.json()
+
+    def sell_item(self, item_id: str, amount: int) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/sell/{item_id}', headers=self._headers(True), json={'amount': amount})
+        r.raise_for_status()
+        return r.json()
+
+    def give_item(self, item_id: str, amount: int, user_id: str, metadata: Optional[dict] = None) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        body = {'amount': amount, 'userId': user_id}
+        if metadata:
+            body['metadata'] = metadata
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/give/{item_id}', headers=self._headers(True), json=body)
+        r.raise_for_status()
+        return r.json()
+
+    def consume_item(self, item_id: str, params: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/consume/{item_id}', headers=self._headers(True), json=params)
+        r.raise_for_status()
+        return r.json()
+
+    def update_item_metadata(self, item_id: str, unique_id: str, metadata: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.put(f'{CROISSANT_BASE_URL}/items/update-metadata/{item_id}', headers=self._headers(True), json={'uniqueId': unique_id, 'metadata': metadata})
+        r.raise_for_status()
+        return r.json()
+
+    def drop_item(self, item_id: str, params: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/items/drop/{item_id}', headers=self._headers(True), json=params)
+        r.raise_for_status()
+        return r.json()
+
+    # --- LOBBIES ---
+    def create_lobby(self) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/lobbies', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def get_lobby(self, lobby_id: str) -> Lobby:
+        r = requests.get(f'{CROISSANT_BASE_URL}/lobbies/{lobby_id}')
+        r.raise_for_status()
+        return Lobby(**r.json())
+
+    def get_my_lobby(self) -> Lobby:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/lobbies/user/@me', headers=self._headers())
+        r.raise_for_status()
+        return Lobby(**r.json())
+
+    def get_user_lobby(self, user_id: str) -> Lobby:
+        r = requests.get(f'{CROISSANT_BASE_URL}/lobbies/user/{user_id}')
+        r.raise_for_status()
+        return Lobby(**r.json())
+
+    def join_lobby(self, lobby_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/lobbies/{lobby_id}/join', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def leave_lobby(self, lobby_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/lobbies/{lobby_id}/leave', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    # --- STUDIOS ---
+    def create_studio(self, studio_name: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/studios', headers=self._headers(True), json={'studioName': studio_name})
+        r.raise_for_status()
+        return r.json()
+
+    def get_studio(self, studio_id: str) -> Studio:
+        r = requests.get(f'{CROISSANT_BASE_URL}/studios/{studio_id}')
+        r.raise_for_status()
+        return Studio(**r.json())
+
+    def get_my_studios(self) -> List[Studio]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/studios/user/@me', headers=self._headers())
+        r.raise_for_status()
+        return [Studio(**s) for s in r.json()]
+
+    def add_user_to_studio(self, studio_id: str, user_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/studios/{studio_id}/add-user', headers=self._headers(True), json={'userId': user_id})
+        r.raise_for_status()
+        return r.json()
+
+    def remove_user_from_studio(self, studio_id: str, user_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/studios/{studio_id}/remove-user', headers=self._headers(True), json={'userId': user_id})
+        r.raise_for_status()
+        return r.json()
+
+    # --- TRADES ---
+    def start_or_get_pending_trade(self, user_id: str) -> Trade:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/trades/start-or-latest/{user_id}', headers=self._headers())
+        r.raise_for_status()
+        return Trade(**r.json())
+
+    def get_trade(self, trade_id: str) -> Trade:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/trades/{trade_id}', headers=self._headers())
+        r.raise_for_status()
+        return Trade(**r.json())
+
+    def get_user_trades(self, user_id: str) -> List[Trade]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/trades/user/{user_id}', headers=self._headers())
+        r.raise_for_status()
+        return [Trade(**t) for t in r.json()]
+
+    def add_item_to_trade(self, trade_id: str, trade_item: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/trades/{trade_id}/add-item', headers=self._headers(True), json={'tradeItem': trade_item})
+        r.raise_for_status()
+        return r.json()
+
+    def remove_item_from_trade(self, trade_id: str, trade_item: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/trades/{trade_id}/remove-item', headers=self._headers(True), json={'tradeItem': trade_item})
+        r.raise_for_status()
+        return r.json()
+
+    def approve_trade(self, trade_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.put(f'{CROISSANT_BASE_URL}/trades/{trade_id}/approve', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def cancel_trade(self, trade_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.put(f'{CROISSANT_BASE_URL}/trades/{trade_id}/cancel', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    # --- OAUTH2 ---
+    def get_oauth2_app(self, client_id: str) -> OAuth2App:
+        r = requests.get(f'{CROISSANT_BASE_URL}/oauth2/app/{client_id}')
+        r.raise_for_status()
+        return OAuth2App(**r.json())
+
+    def create_oauth2_app(self, name: str, redirect_urls: List[str]) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.post(f'{CROISSANT_BASE_URL}/oauth2/app', headers=self._headers(True), json={'name': name, 'redirect_urls': redirect_urls})
+        r.raise_for_status()
+        return r.json()
+
+    def get_my_oauth2_apps(self) -> List[OAuth2App]:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/oauth2/apps', headers=self._headers())
+        r.raise_for_status()
+        return [OAuth2App(**a) for a in r.json()]
+
+    def update_oauth2_app(self, client_id: str, data: dict) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.patch(f'{CROISSANT_BASE_URL}/oauth2/app/{client_id}', headers=self._headers(True), json=data)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_oauth2_app(self, client_id: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.delete(f'{CROISSANT_BASE_URL}/oauth2/app/{client_id}', headers=self._headers())
+        r.raise_for_status()
+        return r.json()
+
+    def authorize(self, client_id: str, redirect_uri: str) -> dict:
+        if not self.token:
+            raise Exception('Token is required')
+        r = requests.get(f'{CROISSANT_BASE_URL}/oauth2/authorize', headers=self._headers(), params={'client_id': client_id, 'redirect_uri': redirect_uri})
+        r.raise_for_status()
+        return r.json()
+
+    def get_user_by_code(self, code: str, client_id: str) -> User:
+        r = requests.get(f'{CROISSANT_BASE_URL}/oauth2/user', params={'code': code, 'client_id': client_id})
+        r.raise_for_status()
+        return User(**r.json())

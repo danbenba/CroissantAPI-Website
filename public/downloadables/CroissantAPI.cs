@@ -471,9 +471,6 @@ public class CroissantAPI
         private readonly CroissantAPI api;
         public Lobbies(CroissantAPI api) { this.api = api; }
 
-        /// <summary>
-        /// Create a new lobby.
-        /// </summary>
         public async Task<dynamic> Create()
         {
             var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/lobbies");
@@ -484,9 +481,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Get a lobby by lobbyId.
-        /// </summary>
         public async Task<Lobby> Get(string lobbyId)
         {
             var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/lobbies/{lobbyId}");
@@ -495,12 +489,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Lobby>(json);
         }
 
-        /// <summary>
-        /// Get the lobby the authenticated user is in.
-        /// </summary>
         public async Task<Lobby> GetMyLobby()
         {
-            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/lobbies/user/@me");
+            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/lobbies/@me");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -508,9 +499,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Lobby>(json);
         }
 
-        /// <summary>
-        /// Get the lobby a user is in.
-        /// </summary>
         public async Task<Lobby> GetUserLobby(string userId)
         {
             var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/lobbies/user/{userId}");
@@ -519,9 +507,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Lobby>(json);
         }
 
-        /// <summary>
-        /// Join a lobby.
-        /// </summary>
         public async Task<dynamic> Join(string lobbyId)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/lobbies/{lobbyId}/join");
@@ -532,9 +517,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Leave a lobby.
-        /// </summary>
         public async Task<dynamic> Leave(string lobbyId)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/lobbies/{lobbyId}/leave");
@@ -553,14 +535,11 @@ public class CroissantAPI
         private readonly CroissantAPI api;
         public Studios(CroissantAPI api) { this.api = api; }
 
-        /// <summary>
-        /// Create a new studio.
-        /// </summary>
         public async Task<dynamic> Create(string studioName)
         {
             var data = new { studioName };
             var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/studios")
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/studios/create")
             {
                 Content = content
             };
@@ -571,9 +550,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Get a studio by studioId.
-        /// </summary>
         public async Task<Studio> Get(string studioId)
         {
             var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/studios/{studioId}");
@@ -582,12 +558,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Studio>(json);
         }
 
-        /// <summary>
-        /// Get all studios the authenticated user is part of.
-        /// </summary>
         public async Task<List<Studio>> GetMyStudios()
         {
-            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/studios/user/@me");
+            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/studios/@me");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -595,9 +568,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<List<Studio>>(json);
         }
 
-        /// <summary>
-        /// Add a user to a studio.
-        /// </summary>
         public async Task<dynamic> AddUser(string studioId, string userId)
         {
             var data = new { userId };
@@ -613,9 +583,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Remove a user from a studio.
-        /// </summary>
         public async Task<dynamic> RemoveUser(string studioId, string userId)
         {
             var data = new { userId };
@@ -639,12 +606,9 @@ public class CroissantAPI
         private readonly CroissantAPI api;
         public Trades(CroissantAPI api) { this.api = api; }
 
-        /// <summary>
-        /// Start a new trade or get the latest pending trade with a user.
-        /// </summary>
         public async Task<Trade> StartOrGetPending(string userId)
         {
-            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/start-or-latest/{userId}");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/start-or-get/{userId}");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -652,9 +616,6 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Trade>(json);
         }
 
-        /// <summary>
-        /// Get a trade by ID with enriched item information.
-        /// </summary>
         public async Task<Trade> Get(string tradeId)
         {
             var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/trades/{tradeId}");
@@ -665,12 +626,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<Trade>(json);
         }
 
-        /// <summary>
-        /// Get all trades for a user with enriched item information.
-        /// </summary>
         public async Task<List<Trade>> GetMyTrades()
         {
-            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/trades/user/@me");
+            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/trades/@me");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -678,13 +636,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject<List<Trade>>(json);
         }
 
-        /// <summary>
-        /// Add an item to a trade.
-        /// </summary>
         public async Task<dynamic> AddItem(string tradeId, TradeItem tradeItem)
         {
-            var data = new { tradeItem };
-            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(tradeItem), Encoding.UTF8, "application/json");
             var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/{tradeId}/add-item")
             {
                 Content = content
@@ -696,13 +650,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Remove an item from a trade.
-        /// </summary>
         public async Task<dynamic> RemoveItem(string tradeId, TradeItem tradeItem)
         {
-            var data = new { tradeItem };
-            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(tradeItem), Encoding.UTF8, "application/json");
             var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/{tradeId}/remove-item")
             {
                 Content = content
@@ -714,12 +664,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Approve a trade.
-        /// </summary>
         public async Task<dynamic> Approve(string tradeId)
         {
-            var req = new HttpRequestMessage(HttpMethod.Put, $"{CROISSANT_BASE_URL}/trades/{tradeId}/approve");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/{tradeId}/approve");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -727,12 +674,9 @@ public class CroissantAPI
             return JsonConvert.DeserializeObject(json);
         }
 
-        /// <summary>
-        /// Cancel a trade.
-        /// </summary>
         public async Task<dynamic> Cancel(string tradeId)
         {
-            var req = new HttpRequestMessage(HttpMethod.Put, $"{CROISSANT_BASE_URL}/trades/{tradeId}/cancel");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/trades/{tradeId}/cancel");
             req.Headers.Add("Authorization", $"Bearer {api.token}");
             var res = await api.http.SendAsync(req);
             res.EnsureSuccessStatusCode();
@@ -748,9 +692,6 @@ public class CroissantAPI
         private readonly CroissantAPI api;
         public Search(CroissantAPI api) { this.api = api; }
 
-        /// <summary>
-        /// Global search across users, items, and games.
-        /// </summary>
         public async Task<SearchResult> Global(string query)
         {
             var res = await api.http.GetAsync($"{CROISSANT_BASE_URL}/search?q={Uri.EscapeDataString(query)}");
@@ -760,6 +701,123 @@ public class CroissantAPI
         }
     }
     public Search search => new Search(this);
+
+    // --- OAUTH2 ---
+    public class OAuth2
+    {
+        private readonly CroissantAPI api;
+        public OAuth2(CroissantAPI api) { this.api = api; }
+
+        /// <summary>
+        /// Get an OAuth2 application by client_id.
+        /// </summary>
+        public async Task<OAuth2App> GetApp(string clientId)
+        {
+            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/oauth2/apps/{clientId}");
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<OAuth2App>(json);
+        }
+
+        /// <summary>
+        /// Create a new OAuth2 application.
+        /// </summary>
+        public async Task<dynamic> CreateApp(string name, List<string> redirectUrls)
+        {
+            var data = new { name, redirect_urls = redirectUrls };
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/oauth2/apps")
+            {
+                Content = content
+            };
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+
+        /// <summary>
+        /// Get all OAuth2 applications owned by the authenticated user.
+        /// </summary>
+        public async Task<List<OAuth2App>> GetMyApps()
+        {
+            var req = new HttpRequestMessage(HttpMethod.Get, $"{CROISSANT_BASE_URL}/oauth2/apps/@me");
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<OAuth2App>>(json);
+        }
+
+        /// <summary>
+        /// Update an OAuth2 application.
+        /// </summary>
+        public async Task<dynamic> UpdateApp(string clientId, object data)
+        {
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var req = new HttpRequestMessage(HttpMethod.Put, $"{CROISSANT_BASE_URL}/oauth2/apps/{clientId}")
+            {
+                Content = content
+            };
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+
+        /// <summary>
+        /// Delete an OAuth2 application.
+        /// </summary>
+        public async Task<dynamic> DeleteApp(string clientId)
+        {
+            var req = new HttpRequestMessage(HttpMethod.Delete, $"{CROISSANT_BASE_URL}/oauth2/apps/{clientId}");
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+
+        /// <summary>
+        /// Authorize a user for an OAuth2 app (returns a code).
+        /// </summary>
+        public async Task<dynamic> Authorize(string clientId, string redirectUri)
+        {
+            var data = new { client_id = clientId, redirect_uri = redirectUri };
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/oauth2/authorize")
+            {
+                Content = content
+            };
+            req.Headers.Add("Authorization", $"Bearer {api.token}");
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject(json);
+        }
+
+        /// <summary>
+        /// Get a user by OAuth2 code and client_id.
+        /// </summary>
+        public async Task<User> GetUserByCode(string code, string clientId)
+        {
+            var data = new { code, client_id = clientId };
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var req = new HttpRequestMessage(HttpMethod.Post, $"{CROISSANT_BASE_URL}/oauth2/token")
+            {
+                Content = content
+            };
+            var res = await api.http.SendAsync(req);
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<User>(json);
+        }
+    }
+    public OAuth2 oauth2 => new OAuth2(this);
 }
 
 // --- Models ---
@@ -900,4 +958,14 @@ public class SearchResult
     public List<User> users { get; set; }
     public List<Item> items { get; set; }
     public List<Game> games { get; set; }
+}
+
+public class OAuth2App
+{
+    public string clientId { get; set; }
+    public string name { get; set; }
+    public List<string> redirectUrls { get; set; }
+    public string ownerId { get; set; }
+    public string createdAt { get; set; }
+    public string updatedAt { get; set; }
 }

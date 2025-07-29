@@ -438,4 +438,73 @@ class CroissantAPI
   def global_search(query)
     SearchResult.new(get("/search?q=#{URI.encode_www_form_component(query)}"))
   end
+
+  # --- OAUTH2 ---
+
+  # Get an OAuth2 app by its client ID.
+  def get_oauth2_app(client_id)
+    get("/oauth2/app/#{client_id}", auth: false)
+  end
+
+  # Create a new OAuth2 app.
+  def create_oauth2_app(name, redirect_urls)
+    post('/oauth2/app', { name: name, redirect_urls: redirect_urls }, auth: true)
+  end
+
+  # Get all OAuth2 apps owned by the authenticated user.
+  def get_my_oauth2_apps
+    get('/oauth2/apps', auth: true)
+  end
+
+  # Update an OAuth2 app.
+  def update_oauth2_app(client_id, data)
+    uri = "/oauth2/app/#{client_id}"
+    Net::HTTP.start(URI(CROISSANT_BASE_URL + uri).hostname, URI(CROISSANT_BASE_URL + uri).port, use_ssl: true) do |http|
+      req = Net::HTTP::Patch.new(URI(CROISSANT_BASE_URL + uri))
+      req['Content-Type'] = 'application/json'
+      req['Authorization'] = "Bearer #{@token}"
+      req.body = data.to_json
+      res = http.request(req)
+      JSON.parse(res.body)
+    end
+  end
+
+  # Delete an OAuth2 app by its client ID.
+  def delete_oauth2_app(client_id)
+    delete("/oauth2/app/#{client_id}", auth: true)
+  end
+
+  # Authorize a user for an OAuth2 app.
+  def authorize_oauth2(client_id, redirect_uri)
+    get("/oauth2/authorize?client_id=#{URI.encode_www_form_component(client_id)}&redirect_uri=#{URI.encode_www_form_component(redirect_uri)}", auth: true)
+  end
+
+  # Get a user by OAuth2 code and client ID.
+  def get_user_by_code(code, client_id)
+    get("/oauth2/user?code=#{URI.encode_www_form_component(code)}&client_id=#{URI.encode_www_form_component(client_id)}")
+  end
+
+  # --- ITEMS METADATA ---
+
+  # Give an item to a user with metadata.
+  def give_item_with_metadata(item_id, amount, user_id, metadata = nil)
+    body = { amount: amount, userId: user_id }
+    body[:metadata] = metadata if metadata
+    post("/items/give/#{item_id}", body, auth: true)
+  end
+
+  # Update metadata for an item instance.
+  def update_item_metadata(item_id, unique_id, metadata)
+    put("/items/update-metadata/#{item_id}", { uniqueId: unique_id, metadata: metadata }, auth: true)
+  end
+
+  # Consume an item instance (with params hash).
+  def consume_item_instance(item_id, params)
+    post("/items/consume/#{item_id}", params, auth: true)
+  end
+
+  # Drop an item instance (with params hash).
+  def drop_item_instance(item_id, params)
+    post("/items/drop/#{item_id}", params, auth: true)
+  end
 end

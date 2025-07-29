@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'fr.croissant'
+version = '1.0.0'
+sourceCompatibility = '8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Gson pour la sérialisation JSON
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // JUnit pour les tests (optionnel)
+    testImplementation 'junit:junit:4.13.2'
+}
+
+application {
+    mainClass = 'CroissantAPIExample'
+}
+
+// Configuration pour créer un JAR avec toutes les dépendances
+shadowJar {
+    archiveBaseName = 'croissant-api-java'
+    archiveClassifier = ''
+    archiveVersion = '1.0.0'
+}
+
+// Tâche pour compiler et exécuter l'exemple
+task runExample(type: JavaExec) {
+    group = 'application'
+    description = 'Exécute l\'exemple CroissantAPI'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'CroissantAPIExample'
+}
+
+// Configuration de l'encodage
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    systemProperty 'file.encoding', 'UTF-8'
+    useJUnit()
+}
