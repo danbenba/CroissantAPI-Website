@@ -383,8 +383,7 @@ This library is provided under Croissant proprietary license. See terms of use o
 
 - [Official Croissant Website](https://croissant-api.fr)
 - [Complete API Documentation](https://croissant-api.fr/api-docs)
-- [Community Discord](https://discord.gg/croissant)
-- [API Status](https://status.croissant-api.fr)
+- [Community Discord](https://discord.gg/PjhRBDYZ3p)
 
 ---
 
