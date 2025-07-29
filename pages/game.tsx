@@ -125,11 +125,6 @@ const GamePage: React.FC = () => {
               <b>Platforms:</b> {game.platforms}
             </div>
           )}
-          {game.rating !== undefined && (
-            <div>
-              <b>Rating:</b> {game.rating}
-            </div>
-          )}
           {game.price !== undefined && (
             <div
               style={{

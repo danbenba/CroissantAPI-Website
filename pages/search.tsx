@@ -383,14 +383,6 @@ const SearchPage: React.FC = () => {
                           style={{ width: 18, verticalAlign: "middle" }}
                         />
                       </span>
-                      <span
-                        style={{
-                          color: "var(--text-color-secondary)",
-                          fontSize: 14,
-                        }}
-                      >
-                        Rating: {game.rating ?? "N/A"}
-                      </span>
                     </div>
                   </div>
                 </div>

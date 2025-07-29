@@ -361,14 +361,6 @@ const Shop: React.FC = () => {
                           alt="credits"
                         />
                       </div>
-                      <div
-                        style={{
-                          color: "var(--text-color-secondary)",
-                          fontSize: 15,
-                        }}
-                      >
-                        Rating: {game.rating ?? "N/A"}
-                      </div>
                     </div>
                     <div
                       style={{

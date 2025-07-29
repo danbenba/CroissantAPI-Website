@@ -525,11 +525,6 @@ const Library: React.FC = () => {
                       <b>Platforms:</b> {selected.platforms}
                     </div>
                   )}
-                  {selected.rating !== undefined && (
-                    <div>
-                      <b>Rating:</b> {selected.rating}
-                    </div>
-                  )}
                 </div>
                 <div className="library-btn-col">
                   {selected.state === "not_installed" && (
