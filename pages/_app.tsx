@@ -23,6 +23,7 @@ const launcherTitlebarStyle: React.CSSProperties = {
   justifyContent: "start",
   position: "fixed",
   width: "100%",
+  backgroundColor: "#222",
 };
 const launcherIconStyle: React.CSSProperties = {
   width: "24px",
@@ -169,7 +170,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   // --- Layouts ---
   const LauncherLayout = () => (
     <>
-      {/* <BackgroundImage /> */}
+      <BackgroundImage />
       <MetaLinks />
       <nav className="titlebar" style={launcherTitlebarStyle}>
         <img

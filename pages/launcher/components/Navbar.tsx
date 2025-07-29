@@ -37,11 +37,11 @@ const Navbar: React.FC = () => {
           <div className="links-group">
             <Link href="/launcher/home">Library</Link>
             <Link href="/game-shop?from=launcher">Shop</Link>
-            <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
-
             <div className="create-dropdown">
               Manage
               <div className="create-dropdown-content">
+                <Link href="/studios?from=launcher">Studios</Link>
+                <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
                 <Link href="/dev-zone/my-items?from=launcher">My Items</Link>
                 <Link href="/dev-zone/my-games?from=launcher">My Games</Link>
               </div>
@@ -62,16 +62,46 @@ const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/profile?from=launcher"
-              style={{ textDecoration: "none" }}
+              style={{
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginRight: 24,
+              }}
             >
               <img
                 className="navbar-avatar"
                 src={`/avatar/${user?.id}`}
-                style={{ objectFit: "cover", cursor: "pointer" }}
-                onClick={() => {
-                  if (user?.roles?.length > 1) setShowRoles((v) => !v);
+                style={{
+                  objectFit: "cover",
+                  cursor: user?.roles?.length > 1 ? "pointer" : "default",
+                }}
+                onClick={e => {
+                  if (user?.roles?.length > 1) {
+                    e.preventDefault();
+                    setShowRoles(v => !v);
+                  }
                 }}
               />
+              {user?.roles?.length > 1 && (
+                <span
+                  style={{
+                    fontSize: 14,
+                    color: "#bdbdbd",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    transition: "transform 0.2s",
+                    transform: showRoles ? "rotate(180deg)" : "none",
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    setShowRoles(v => !v);
+                  }}
+                >
+                  ▼
+                </span>
+              )}
             </Link>
             {/* Dropdown pour changer de rôle */}
             {showRoles && user?.roles?.length > 1 && (
