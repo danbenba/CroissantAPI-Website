@@ -291,7 +291,7 @@ export default function NavBar() {
               <img src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
               <span style={{ whiteSpace: "nowrap" }}>
                 {studio?.username || "Me"}
-                {studio?.verified && (
+                {studio?.verified ? (
                   <span style={{ color: "#8fa1c7" }}>
                     <img
                       src="/assets/brand-verified-mark.png"
@@ -306,7 +306,7 @@ export default function NavBar() {
                       }}
                     />
                   </span>
-                )}
+                ) : null}
               </span>
             </button>
           );
