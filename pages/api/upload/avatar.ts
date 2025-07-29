@@ -15,17 +15,20 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") return res.status(405).end("Method Not Allowed");
-  
-  const authHeader =
-    req.headers["authorization"] ||
-    "Bearer " +
-    req.headers["cookie"]?.toString().split("token=")[1]?.split(";")[0];
+
+  const cookies = req.headers.cookie || "";
+  const authHeader = cookies
+
   if (!authHeader)
     return res.status(401).json({ error: "Authorization header missing" });
 
   // Ici, tu dois vérifier l'utilisateur via ton API si besoin
   const user = await fetch("http://localhost:3456/users/@me", {
     method: "GET",
+    headers: {
+      "cookie": cookies,
+      "Content-Type": "application/json",
+    },
   });
   if (!user.ok) return res.status(401).json({ error: "Unauthorized" });
   const userData = await user.json();
