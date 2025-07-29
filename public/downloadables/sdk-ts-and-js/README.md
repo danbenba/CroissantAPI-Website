@@ -1,4 +1,4 @@
-# Croissant API Client Library
+# Croissant API Client Library - Typescript/Javascript
 
 A comprehensive JavaScript/TypeScript client library for the Croissant gaming platform API. This library provides a fully typed interface for all platform features including user management, game operations, inventory, trading, and more.
 

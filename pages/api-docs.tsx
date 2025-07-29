@@ -3,7 +3,7 @@ import Highlight from "react-highlight";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
-const API_URL = "https://croissant-api.fr/api";
+const API_URL = "/api";
 
 // Memoized docs and grouped state (module-level, survives remounts)
 let apiDocsCache: any[] | null = null;
@@ -231,29 +231,17 @@ export default function ApiDocs() {
           >
             <li>
               <a
-                href="/downloadables/croissant-api.js"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-ts-and-js/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
-                [NodeJs Library]
+                [TypeScript/JavaScript Library]
               </a>
             </li>
             <li>
               <a
-                href="/downloadables/croissant-api.ts"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-python/README.md"
                 target="_blank"
-                download
-                style={{ color: "#1e90ff", textDecoration: "none" }}
-              >
-                [Typescript Library]
-              </a>
-            </li>
-            <li>
-              <a
-                href="/downloadables/croissant_api.py"
-                target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [Python Library]
@@ -261,9 +249,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/CroissantAPI.java"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-java/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [Java Library]
@@ -271,9 +258,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/CroissantAPI.cs"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-cs/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [C# Library]
@@ -281,9 +267,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/croissant_api.php"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-php/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [PHP Library]
@@ -291,9 +276,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/croissant_api.rb"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-ruby/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [Ruby Library]
@@ -301,9 +285,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/croissant_api.rs"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-rust/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [Rust Library]
@@ -311,9 +294,8 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/croissantapi.go"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-go/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [Go Library]
@@ -321,22 +303,11 @@ export default function ApiDocs() {
             </li>
             <li>
               <a
-                href="/downloadables/croissant_api.cpp"
+                href="https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-cpp/README.md"
                 target="_blank"
-                download
                 style={{ color: "#1e90ff", textDecoration: "none" }}
               >
                 [C++ Library]
-              </a>
-            </li>
-            <li>
-              <a
-                href="/downloadables/croissant_api.hpp"
-                target="_blank"
-                download
-                style={{ color: "#1e90ff", textDecoration: "none" }}
-              >
-                [C++ Header]
               </a>
             </li>
           </ul>
