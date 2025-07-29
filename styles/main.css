@@ -544,7 +544,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh
+    /*height: 100vh*/
 }
 
 .api-doc,
@@ -692,7 +692,6 @@ a {
 }
 
 img {
-    max-width: 95%;
     height: auto
 }
 
@@ -1297,7 +1296,7 @@ input[type=text].required:focus {
     left: 0;
     top: 0;
     width: 100vw;
-    height: 100vh;
+    /*height: 100vh*/;
     background: rgba(0, 0, 0, .5);
     z-index: 3000;
     display: flex;
@@ -1540,9 +1539,10 @@ input[type=text].required:focus {
     background: var(--background-medium);
     box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
     margin: 0;
-    width: 95vw;
-    max-width: 1600px;
-    height: 100vh
+
+    padding-bottom: 15px;
+    /* width: 95vw; */
+    min-height: 100vh
 }
 
 .main-banner-steam,
@@ -1585,7 +1585,7 @@ input[type=text].required:focus {
 .main-details-content {
     margin-top: 48px;
     margin-left: 48px;
-    width: 50vw;
+    /* width: 50vw; */
 }
 
 .library-btn-col {
@@ -2334,7 +2334,7 @@ input[type=text].required:focus {
     left: 0;
     top: 0;
     width: 100vw;
-    height: 100vh;
+    /*height: 100vh*/;
     background: rgba(0, 0, 0, .5);
     z-index: 4000;
     display: flex;
@@ -2443,7 +2443,7 @@ main {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    /*height: 100vh*/;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2641,7 +2641,7 @@ button.oauth2-button {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    /*height: 100vh*/;
     background: rgba(0, 0, 0, .55);
     z-index: 1000;
     display: flex;
@@ -2656,7 +2656,6 @@ button.oauth2-button {
     padding: 32px 24px;
     color: #fff;
     min-width: 340px;
-    max-width: 95vw
 }
 
 .close-modal-btn {

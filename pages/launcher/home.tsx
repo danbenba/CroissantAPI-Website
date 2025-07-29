@@ -54,7 +54,7 @@ const Library: React.FC = () => {
   const { getUser: getUserFromCache } = useUserCache();
 
   useEffect(() => {
-    if(user && user.id) {
+    if (user && user.id) {
       ws.send(JSON.stringify({
         action: "updateState",
         state: user.username,
@@ -497,34 +497,8 @@ const Library: React.FC = () => {
                 </div>
               )}
               {/* --- Fin ajout propriétaire --- */}
-              <p style={{ color: "#bcbcbc" }}>{selected.description}</p>
               <div className="library-details-row">
-                <div className="game-properties">
-                  {selected.genre && (
-                    <div>
-                      <b>Genre:</b> {selected.genre}
-                    </div>
-                  )}
-                  {selected.developer && (
-                    <div>
-                      <b>Developer:</b> {selected.developer}
-                    </div>
-                  )}
-                  {selected.publisher && (
-                    <div>
-                      <b>Publisher:</b> {selected.publisher}
-                    </div>
-                  )}
-                  {selected.release_date && (
-                    <div>
-                      <b>Release Date:</b> {selected.release_date}
-                    </div>
-                  )}
-                  {selected.platforms && (
-                    <div>
-                      <b>Platforms:</b> {selected.platforms}
-                    </div>
-                  )}
+                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                 </div>
                 <div className="library-btn-col">
                   {selected.state === "not_installed" && (
@@ -588,6 +562,11 @@ const Library: React.FC = () => {
                       In Game
                     </button>
                   )}
+                  <Link href={`/game?gameId=${selected.gameId}&from=launcher`}>
+                    <button className="library-play-btn">
+                      View
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

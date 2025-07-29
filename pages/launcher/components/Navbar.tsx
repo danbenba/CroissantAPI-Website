@@ -67,7 +67,6 @@ const Navbar: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
-                marginRight: 24,
               }}
             >
               <img
@@ -76,12 +75,6 @@ const Navbar: React.FC = () => {
                 style={{
                   objectFit: "cover",
                   cursor: user?.roles?.length > 1 ? "pointer" : "default",
-                }}
-                onClick={e => {
-                  if (user?.roles?.length > 1) {
-                    e.preventDefault();
-                    setShowRoles(v => !v);
-                  }
                 }}
               />
             </Link>
@@ -94,6 +87,7 @@ const Navbar: React.FC = () => {
                   userSelect: "none",
                   transition: "transform 0.2s",
                   transform: showRoles ? "rotate(180deg)" : "none",
+                  marginRight: 24,
                 }}
                 onClick={e => {
                   e.preventDefault();

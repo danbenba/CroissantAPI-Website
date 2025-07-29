@@ -2,6 +2,7 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
+import useUserCache from "../hooks/useUserCache"; // Ajouté
 
 const endpoint = "/api";
 
@@ -16,6 +17,15 @@ const GamePage: React.FC = () => {
   const [alert, setAlert] = React.useState<string | null>(null);
   const [buying, setBuying] = React.useState(false);
 
+  const { getUser: getUserFromCache } = useUserCache(); // Ajouté
+  const [ownerInfo, setOwnerInfo] = React.useState<{
+    id: string;
+    username: string;
+    verified?: boolean;
+    admin?: boolean;
+    isStudio?: boolean;
+  } | null>(null); // Ajouté
+
   React.useEffect(() => {
     fetch(endpoint + "/games/" + gameId)
       .then((res) => res.json())
@@ -23,13 +33,25 @@ const GamePage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [gameId]);
 
+  // Ajouté : récupération des infos propriétaire
+  React.useEffect(() => {
+    if (game?.owner_id || game?.ownerId) {
+      const ownerId = game.owner_id || game.ownerId;
+      getUserFromCache(ownerId)
+        .then(setOwnerInfo)
+        .catch(() => setOwnerInfo(null));
+    } else {
+      setOwnerInfo(null);
+    }
+  }, [game, getUserFromCache]);
+
   // Skeleton content for loading state
   const skeleton = (
     <div className="main-details-steam gamepage-root gamepage-blur">
       <button className="gamepage-back-btn" style={{ opacity: 0 }}>
         ← Back
       </button>
-      <div className="banner-container" style={{ width: "105%" }}>
+      <div className="banner-container">
         <div className="main-banner-steam skeleton-banner" />
         <div className="main-icon-steam skeleton-icon" />
       </div>
@@ -84,7 +106,7 @@ const GamePage: React.FC = () => {
       <button onClick={() => router.back()} className="gamepage-back-btn">
         ← Back
       </button>
-      <div className="banner-container" style={{ width: "105%" }}>
+      <div className="banner-container">
         <img
           src={`/banners-icons/${game.bannerHash}`}
           alt={game.name}
@@ -98,7 +120,82 @@ const GamePage: React.FC = () => {
       </div>
       <div className="main-details-content">
         <h2>{game.name}</h2>
-        <p className="gamepage-desc">{game.description}</p>
+        {/* --- Ajout du propriétaire sous le nom du jeu --- */}
+        {ownerInfo && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <a
+              href={`/profile?user=${ownerInfo.id}`}
+              style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+            >
+              <img
+                src={`/avatar/${ownerInfo.id}`}
+                alt={ownerInfo.username}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  marginRight: 8,
+                  objectFit: "cover",
+                  border: "2px solid #444"
+                }}
+              />
+              <span style={{ fontWeight: 500 }}>
+                {ownerInfo.username}
+                {ownerInfo.admin ? (
+                  <img src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                ) : ownerInfo.verified ? (
+                  <img src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                ) : null}
+              </span>
+            </a>
+          </div>
+        )}
+        {/* --- Fin ajout propriétaire --- */}
+        {game.price !== undefined && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              margin: "16px 0",
+            }}
+          >
+            <div>
+              <b>Price:</b> {game.price}{" "}
+              <img
+                src="/assets/credit.png"
+                className="gamepage-credit-icon"
+              />
+            </div>
+            <button
+              className="shop-game-buy-btn"
+              style={{
+                padding: "10px 32px",
+                fontSize: 16,
+                borderRadius: 8,
+                fontWeight: 700,
+                background: "#4caf50",
+                color: "var(--text-color-primary)",
+                border: "none",
+                cursor: buying ? "not-allowed" : "pointer",
+                opacity: buying ? 0.7 : 1,
+              }}
+              onClick={handleBuyGame}
+              disabled={buying}
+            >
+              Buy
+            </button>
+          </div>
+        )}
+        <p className="gamepage-desc" style={{ overflowY: "auto" }}>
+          {game.description
+            .split('\n')
+            .map((line, idx) => (
+              <React.Fragment key={idx}>
+                {line}
+                <br />
+              </React.Fragment>
+            ))}</p>
         <div className="game-properties">
           {game.genre && (
             <div>
@@ -125,42 +222,7 @@ const GamePage: React.FC = () => {
               <b>Platforms:</b> {game.platforms}
             </div>
           )}
-          {game.price !== undefined && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 16,
-                margin: "16px 0",
-              }}
-            >
-              <div>
-                <b>Price:</b> {game.price}{" "}
-                <img
-                  src="/assets/credit.png"
-                  className="gamepage-credit-icon"
-                />
-              </div>
-              <button
-                className="shop-game-buy-btn"
-                style={{
-                  padding: "10px 32px",
-                  fontSize: 16,
-                  borderRadius: 8,
-                  fontWeight: 700,
-                  background: "#4caf50",
-                  color: "var(--text-color-primary)",
-                  border: "none",
-                  cursor: buying ? "not-allowed" : "pointer",
-                  opacity: buying ? 0.7 : 1,
-                }}
-                onClick={handleBuyGame}
-                disabled={buying}
-              >
-                Buy
-              </button>
-            </div>
-          )}
+
         </div>
         {/* Add more details or actions as needed */}
       </div>
