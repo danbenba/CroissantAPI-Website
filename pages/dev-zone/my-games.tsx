@@ -250,7 +250,7 @@ const MyGames = () => {
       const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
       if (!res.ok) return;
       const users = await res.json();
-      setOwnershipUserResults(users.filter((u: any) => !u.isStudio));
+      setOwnershipUserResults(users);
     } catch (e) {
       setOwnershipUserResults([]);
     }
