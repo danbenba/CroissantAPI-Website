@@ -15,8 +15,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") return res.status(405).end("Method Not Allowed");
-
-  const authHeader = req.headers.authorization;
+  
+  const authHeader =
+    req.headers["authorization"] ||
+    "Bearer " +
+    req.headers["cookie"]?.toString().split("token=")[1]?.split(";")[0];
   if (!authHeader)
     return res.status(401).json({ error: "Authorization header missing" });
 
