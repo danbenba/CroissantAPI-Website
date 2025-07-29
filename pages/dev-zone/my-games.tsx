@@ -20,6 +20,7 @@ type Game = {
   website?: string;
   trailer_link?: string;
   multiplayer?: boolean;
+  download_link?: string; // <-- Ajouté ici
 };
 
 const MyGames = () => {
@@ -72,6 +73,7 @@ const MyGames = () => {
       website: game.website || "",
       trailer_link: game.trailer_link || "",
       multiplayer: !!game.multiplayer,
+      download_link: game.download_link || "", // <-- Ajouté ici
     });
     setIconFile(null);
     setBannerFile(null);
@@ -196,6 +198,7 @@ const MyGames = () => {
       website: formData.website,
       trailer_link: formData.trailer_link,
       multiplayer: formData.multiplayer,
+      download_link: formData.download_link, // <-- Ajouté ici
     };
 
     try {
@@ -603,6 +606,20 @@ const MyGames = () => {
                       value={formData.trailer_link}
                       onChange={handleChange}
                       placeholder="Trailer Link"
+                      className="mygames-input"
+                    />
+                  </div>
+                  <div className="mygames-modal-col">
+                    <label className="mygames-label" htmlFor="download_link">
+                      Download Link
+                    </label>
+                    <input
+                      id="download_link"
+                      type="url"
+                      name="download_link"
+                      value={formData.download_link}
+                      onChange={handleChange}
+                      placeholder="https://example.com/download"
                       className="mygames-input"
                     />
                   </div>
