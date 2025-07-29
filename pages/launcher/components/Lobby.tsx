@@ -71,28 +71,29 @@ export default function LobbyPage() {
         const res = await fetch(`${ENDPOINT}/lobbies/user/@me`, {
           headers: AUTH_HEADER,
         });
-        if (!res.ok) {
-          throw new Error("Failed to fetch lobby");
-        }
         const data = await res.json();
-        const users = data.users;
-        const usersString = users
-          .map((u) => u.id)
-          .sort()
-          .join(",");
-        if (lastLobbyUsers.current !== usersString) {
-          pollingInterval.current = 2000; // 2s si changement
+        if (data.success) {
+          const users = data.users;
+          const usersString = users
+            .map((u) => u.id)
+            .sort()
+            .join(",");
+          if (lastLobbyUsers.current !== usersString) {
+            pollingInterval.current = 2000; // 2s si changement
+          } else {
+            pollingInterval.current = Math.min(
+              pollingInterval.current + 1000,
+              10000
+            ); // max 10s
+          }
+          lastLobbyUsers.current = usersString;
+          setLobby({ lobbyId: data.lobbyId, users });
+          ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: data.lobbyId, users }));
         } else {
-          pollingInterval.current = Math.min(
-            pollingInterval.current + 1000,
-            10000
-          ); // max 10s
+          console.warn("User not in any lobby");
+          setLobby(null);
+          ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: null, users: [] }));
         }
-        lastLobbyUsers.current = usersString;
-        setLobby({ lobbyId: data.lobbyId, users });
-        ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: data.lobbyId, users }));
-      } catch {
-        setLobby(null);
       } finally {
         if (showLoading) setLoading(false);
       }
@@ -262,7 +263,7 @@ export default function LobbyPage() {
                               onClick={() =>
                                 router.push(
                                   `/profile?user=${lobbyUser.id}` +
-                                    isFromLauncher()
+                                  isFromLauncher()
                                 )
                               }
                             >
