@@ -90,7 +90,6 @@ export default function LobbyPage() {
           setLobby({ lobbyId: data.lobbyId, users });
           ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: data.lobbyId, users }));
         } else {
-          console.warn("User not in any lobby");
           setLobby(null);
           ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: null, users: [] }));
         }
