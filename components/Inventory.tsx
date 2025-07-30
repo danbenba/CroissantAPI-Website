@@ -248,29 +248,10 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         onClick={() => onSelect(item)}>
         <div style={{ position: "relative", width: "48px", height: "48px" }}>
           <CachedImage
-            src={fallbackUrl}
-            alt="default"
-            className="inventory-item-img inventory-item-img-blur"
-            style={{
-              filter: loaded ? "blur(0px)" : "blur(8px)",
-              transition: "filter 0.3s",
-              position: "absolute",
-              inset: 0,
-              width: "48px",
-              height: "48px",
-              objectFit: "contain",
-              zIndex: 1,
-              display: loaded ? "none" : undefined
-            }}
-            draggable={false}
-          />
-          <CachedImage
             src={iconUrl}
             alt={item.name}
             className="inventory-item-img"
             style={{
-              opacity: loaded ? 1 : 0,
-              transition: "opacity 0.3s",
               position: "absolute",
               inset: 0,
               width: "48px",

@@ -1304,6 +1304,10 @@ input[type=text].required:focus {
     justify-content: center
 }
 
+.shop-prompt-overlay{
+    height: 100vh;  
+}
+
 .inventory-prompt,
 .shop-alert,
 .shop-prompt {
