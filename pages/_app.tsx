@@ -6,7 +6,7 @@ import MetaLinks from "../components/MetaLinks";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
 import CachedImage from "../components/CachedImage";
-
+import ImagePreloader from "../components/ImagePreloader";
 
 import { useEffect, useState } from "react";
 import LauncherNavbar from "./launcher/components/Navbar";
@@ -173,6 +173,17 @@ function AppContent({ Component, pageProps }: AppProps) {
     <>
       <BackgroundImage />
       <MetaLinks />
+      
+      {/* Précharger des images importantes */}
+      <ImagePreloader 
+        images={[
+          "/assets/backgrounds/raiden-crow.webp",
+          "/assets/icons/favicon-32x32.png",
+          "/assets/other-important-image.webp"
+        ]} 
+        priority={true} 
+      />
+      
       <nav className="titlebar" style={launcherTitlebarStyle}>
         <CachedImage
           src="/assets/icons/favicon-32x32.png"

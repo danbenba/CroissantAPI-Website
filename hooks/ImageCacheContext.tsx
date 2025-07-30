@@ -3,7 +3,10 @@ import React, { createContext, useContext, useCallback, ReactNode } from 'react'
 interface ImageCacheContextType {
   getCachedImage: (src: string) => string | null;
   loadImage: (src: string) => Promise<string>;
+  preloadImage: (src: string) => Promise<void>; // Nouvelle fonction
+  preloadImages: (srcs: string[]) => Promise<void>; // Précharger plusieurs images
   clearCache: () => void;
+  getCacheStats: () => { cached: number; loading: number }; // Stats du cache
 }
 
 const ImageCacheContext = createContext<ImageCacheContextType | undefined>(undefined);
@@ -58,6 +61,30 @@ export const ImageCacheProvider: React.FC<{ children: ReactNode }> = ({ children
     return loadingPromise;
   }, []);
 
+  // Précharger une image sans l'afficher
+  const preloadImage = useCallback(async (src: string): Promise<void> => {
+    try {
+      await loadImage(src);
+      console.log(`✅ Image préchargée: ${src}`);
+    } catch (error) {
+      console.warn(`❌ Échec du préchargement: ${src}`, error);
+    }
+  }, [loadImage]);
+
+  // Précharger plusieurs images en parallèle
+  const preloadImages = useCallback(async (srcs: string[]): Promise<void> => {
+    const promises = srcs.map(src => preloadImage(src));
+    await Promise.allSettled(promises); // Utilise allSettled pour ne pas échouer si une image échoue
+    console.log(`📦 Préchargement terminé pour ${srcs.length} images`);
+  }, [preloadImage]);
+
+  const getCacheStats = useCallback(() => {
+    return {
+      cached: imageCache.size,
+      loading: loadingPromises.size
+    };
+  }, []);
+
   const clearCache = useCallback(() => {
     // Nettoyer les blob URLs avant de vider le cache
     imageCache.forEach((blobUrl) => {
@@ -67,10 +94,18 @@ export const ImageCacheProvider: React.FC<{ children: ReactNode }> = ({ children
     });
     imageCache.clear();
     loadingPromises.clear();
+    console.log('🗑️ Cache d\'images vidé');
   }, []);
 
   return (
-    <ImageCacheContext.Provider value={{ getCachedImage, loadImage, clearCache }}>
+    <ImageCacheContext.Provider value={{ 
+      getCachedImage, 
+      loadImage, 
+      preloadImage, 
+      preloadImages, 
+      clearCache,
+      getCacheStats 
+    }}>
       {children}
     </ImageCacheContext.Provider>
   );
