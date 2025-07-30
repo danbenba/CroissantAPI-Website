@@ -20,6 +20,55 @@ function filterHeaders(headers: Record<string, any>) {
   return result;
 }
 
+function getRealIP(req: NextApiRequest): string {
+  // Ordre de priorité pour récupérer l'IP réelle
+  const headers = req.headers;
+
+  // Headers couramment utilisés par les proxies/CDN
+  const ipHeaders = [
+    "cf-connecting-ip", // Cloudflare
+    "x-real-ip", // Nginx
+    "x-forwarded-for", // Standard
+    "x-client-ip", // Apache
+    "x-cluster-client-ip", // Cluster
+    "x-forwarded",
+    "forwarded-for",
+    "forwarded",
+  ];
+
+  for (const header of ipHeaders) {
+    const value = headers[header];
+    if (value) {
+      const ip = Array.isArray(value) ? value[0] : value;
+      // x-forwarded-for peut contenir plusieurs IPs séparées par des virgules
+      const firstIP = ip.split(",")[0].trim();
+      // Vérifie que ce n'est pas une IP locale
+      if (firstIP && !isLocalIP(firstIP)) {
+        return firstIP;
+      }
+    }
+  }
+
+  // Fallback sur l'IP de la socket
+  const socketIP = req.socket.remoteAddress;
+  return socketIP && !isLocalIP(socketIP) ? socketIP : "unknown";
+}
+
+function isLocalIP(ip: string): boolean {
+  const localPatterns = [
+    /^127\./, // 127.x.x.x
+    /^10\./, // 10.x.x.x
+    /^172\.(1[6-9]|2\d|3[01])\./, // 172.16.x.x - 172.31.x.x
+    /^192\.168\./, // 192.168.x.x
+    /^::1$/, // IPv6 loopback
+    /^::ffff:127\./, // IPv6-mapped IPv4 loopback
+    /^fc00:/, // IPv6 unique local
+    /^fe80:/, // IPv6 link-local
+  ];
+
+  return localPatterns.some((pattern) => pattern.test(ip));
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -54,18 +103,8 @@ export default async function handler(
     method: req.method,
     headers: {
       ...filterHeaders(req.headers as Record<string, any>),
-      'x-forwarded-for':
-        req.socket.remoteAddress ||
-        (Array.isArray(req.headers['x-forwarded-for'])
-          ? req.headers['x-forwarded-for'].join(', ')
-          : req.headers['x-forwarded-for']) ||
-        'unknown',
-      'x-real-ip':
-        req.socket.remoteAddress ||
-        (Array.isArray(req.headers['x-real-ip'])
-          ? req.headers['x-real-ip'].join(', ')
-          : req.headers['x-real-ip']) ||
-        'unknown',
+      "x-forwarded-for": getRealIP(req),
+      "x-real-ip": getRealIP(req),
     },
     body: body && body.length > 0 ? body : undefined,
     // Pas de redirect automatique

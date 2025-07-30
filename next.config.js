@@ -58,8 +58,21 @@ const nextConfig = {
             }
         ];
     },
+    experimental: {
+        // Faire confiance aux headers de proxy
+        trustHostHeader: true,
+    },
     async headers() {
         return [
+            {
+                source: '/api/:path*',
+                headers: [
+                    {
+                        key: 'X-Real-IP',
+                        value: 'true',
+                    },
+                ],
+            },
             {
                 source: "/oauth2/auth",
                 headers: [
