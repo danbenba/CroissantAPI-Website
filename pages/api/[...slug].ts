@@ -21,37 +21,45 @@ function filterHeaders(headers: Record<string, any>) {
 }
 
 function getRealIP(req: NextApiRequest): string {
-  // Ordre de priorité pour récupérer l'IP réelle
   const headers = req.headers;
 
-  // Headers couramment utilisés par les proxies/CDN
-  const ipHeaders = [
-    "cf-connecting-ip", // Cloudflare
-    "x-real-ip", // Nginx
-    "x-forwarded-for", // Standard
-    "x-client-ip", // Apache
-    "x-cluster-client-ip", // Cluster
-    "x-forwarded",
-    "forwarded-for",
-    "forwarded",
-  ];
+  // Apache avec mod_remoteip peut modifier REMOTE_ADDR
+  // Essayons d'abord les headers standards
+  const forwardedFor = headers["x-forwarded-for"];
+  if (forwardedFor) {
+    const ips = (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor)
+      .split(",")
+      .map((ip) => ip.trim());
 
-  for (const header of ipHeaders) {
-    const value = headers[header];
-    if (value) {
-      const ip = Array.isArray(value) ? value[0] : value;
-      // x-forwarded-for peut contenir plusieurs IPs séparées par des virgules
-      const firstIP = ip.split(",")[0].trim();
-      // Vérifie que ce n'est pas une IP locale
-      if (firstIP && !isLocalIP(firstIP)) {
-        return firstIP;
+    // Prendre la première IP non-locale
+    for (const ip of ips) {
+      if (ip && !isLocalIP(ip)) {
+        console.log("Using x-forwarded-for IP:", ip);
+        return ip;
       }
     }
   }
 
-  // Fallback sur l'IP de la socket
-  const socketIP = req.socket.remoteAddress;
-  return socketIP && !isLocalIP(socketIP) ? socketIP : "unknown";
+  // Autres headers
+  const realIp = headers["x-real-ip"];
+  if (realIp && !isLocalIP(realIp as string)) {
+    console.log("Using x-real-ip:", realIp);
+    return realIp as string;
+  }
+
+  // Si tout le reste échoue, on peut essayer de récupérer l'IP depuis connection info
+  const connection = (req as any).connection;
+  if (
+    connection &&
+    connection.remoteAddress &&
+    !isLocalIP(connection.remoteAddress)
+  ) {
+    console.log("Using connection.remoteAddress:", connection.remoteAddress);
+    return connection.remoteAddress;
+  }
+
+  console.log("No real IP found, all were local or missing");
+  return "unknown";
 }
 
 function isLocalIP(ip: string): boolean {
