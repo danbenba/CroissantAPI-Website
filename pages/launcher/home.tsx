@@ -50,6 +50,13 @@ const Library: React.FC = () => {
   const [search, setSearch] = useState("");
   const [downloadPercent, setDownloadPercent] = useState<number>(0);
   const [ownerInfo, setOwnerInfo] = useState<{ id: string; username: string; verified?: boolean; admin?: boolean; isStudio?: boolean } | null>(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferTarget, setTransferTarget] = useState("");
+  const [transferTargetId, setTransferTargetId] = useState("");
+  const [transferUserResults, setTransferUserResults] = useState<any[]>([]);
+  const [transferUserDropdownOpen, setTransferUserDropdownOpen] = useState(false);
+  const [transferLoading, setTransferLoading] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
   const { getUser: getUserFromCache } = useUserCache();
@@ -296,6 +303,81 @@ const Library: React.FC = () => {
       setOwnerInfo(null);
     }
   }, [selected, getUserFromCache]);
+
+  // User search for transfer
+  const handleTransferUserSearch = async (query: string) => {
+    if (!query || query.length < 2) {
+      setTransferUserResults([]);
+      setTransferUserDropdownOpen(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+      if (!res.ok) return;
+      const users = await res.json();
+      setTransferUserResults(users);
+      setTransferUserDropdownOpen(true);
+    } catch (e) {
+      setTransferUserResults([]);
+      setTransferUserDropdownOpen(false);
+    }
+  };
+
+  const handleTransferGame = async () => {
+    if (!selected || !transferTargetId.trim()) {
+      setTransferError("Please select a user");
+      return;
+    }
+
+    setTransferLoading(true);
+    setTransferError(null);
+
+    try {
+      const response = await fetch(`/api/games/${selected.gameId}/transfer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ targetUserId: transferTargetId.trim() }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Transfer failed");
+      }
+
+      // Supprimer le jeu de la liste locale
+      setGames(prevGames => prevGames.filter(g => g.gameId !== selected.gameId));
+      setSelected(null);
+      setShowTransferModal(false);
+      setTransferTarget("");
+      setTransferTargetId("");
+      setTransferUserResults([]);
+      setTransferUserDropdownOpen(false);
+
+      // Optionnel: afficher un message de succès
+      alert("Game transferred successfully!");
+    } catch (error) {
+      setTransferError(error instanceof Error ? error.message : "Transfer failed");
+    } finally {
+      setTransferLoading(false);
+    }
+  };
+
+  const handleCloseTransferModal = () => {
+    setShowTransferModal(false);
+    setTransferTarget("");
+    setTransferTargetId("");
+    setTransferUserResults([]);
+    setTransferUserDropdownOpen(false);
+    setTransferError(null);
+  };
+
+  // Determines if the transfer option should be shown for the selected game
+  function canShowTransferOption(game: Game | null): boolean {
+    return true;
+  }
 
   if (loading || error) {
     return (
@@ -570,12 +652,152 @@ const Library: React.FC = () => {
                       View
                     </button>
                   </Link>
+                  <button
+                    className="library-play-btn transfer-btn"
+                    onClick={() => setShowTransferModal(true)}
+                    disabled={isPlaying}
+                  >
+                    Transfer
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      {/* Modal de transfert */}
+      {showTransferModal && (
+        <div className="modal-overlay" onClick={handleCloseTransferModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Transfer Game</h3>
+            <p>Transfer your copy of "{selected?.name}" to another user.</p>
+            <p style={{ fontSize: "14px", color: "#888", marginBottom: "16px" }}>
+              Warning: You will lose access to this game permanently.
+            </p>
+
+            <div style={{ position: "relative", marginBottom: "16px" }}>
+              <label style={{ color: "#fff", marginBottom: "8px", display: "block" }}>
+                Select user:
+              </label>
+              <input
+                type="text"
+                value={transferTarget}
+                onChange={(e) => {
+                  setTransferTarget(e.target.value);
+                  setTransferTargetId("");
+                  handleTransferUserSearch(e.target.value);
+                }}
+                onFocus={() => {
+                  if (transferTarget.length > 1) setTransferUserDropdownOpen(true);
+                }}
+                onBlur={() => setTimeout(() => setTransferUserDropdownOpen(false), 150)}
+                placeholder="Search user by name..."
+                className="transfer-input"
+                disabled={transferLoading}
+              />
+
+              {transferUserDropdownOpen && transferUserResults.length > 0 && (
+                <ul
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: "100%",
+                    background: "#2a2a2a",
+                    border: "1px solid #444",
+                    borderRadius: "4px",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    zIndex: 1001,
+                    listStyle: "none",
+                    margin: 0,
+                    padding: 0,
+                    marginTop: "4px",
+                  }}
+                >
+                  {transferUserResults.map((user) => (
+                    <li
+                      key={user.userId || user.user_id || user.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #333",
+                        color: "#fff",
+                      }}
+                      onMouseDown={() => {
+                        setTransferTargetId(user.userId || user.user_id || user.id);
+                        setTransferTarget(user.username);
+                        setTransferUserDropdownOpen(false);
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#333";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <img
+                        src={`/avatar/${user.userId || user.user_id || user.id}`}
+                        alt="avatar"
+                        style={{
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          objectFit: "cover"
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.src = "/avatar/default.png";
+                        }}
+                      />
+                      <span>{user.username}</span>
+                      {user.admin ? (
+                        <img
+                          src="/assets/admin-mark.png"
+                          alt="Admin"
+                          style={{ width: "16px", height: "16px" }}
+                        />
+                      ) : user.verified ? (
+                        <img
+                          src={user.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"}
+                          alt="Verified"
+                          style={{ width: "16px", height: "16px" }}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {transferError && (
+              <div className="error-message" style={{ color: "#ff4444", fontSize: "14px", marginBottom: "16px" }}>
+                {transferError}
+              </div>
+            )}
+
+            <div className="modal-buttons">
+              <button
+                onClick={handleCloseTransferModal}
+                disabled={transferLoading}
+                className="modal-btn cancel"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTransferGame}
+                disabled={transferLoading || !transferTargetId.trim()}
+                className="modal-btn confirm"
+              >
+                {transferLoading ? "Transferring..." : "Transfer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
