@@ -14,10 +14,11 @@ export interface Item {
   description: string;
   amount: number;
   price?: number;
+  purchasePrice?: number; // Ajouter le prix d'achat
   owner?: string;
   showInStore?: boolean;
   deleted?: boolean;
-  sellable?: boolean; // Nouvelle propriété
+  sellable?: boolean;
   metadata?: { [key: string]: unknown; _unique_id?: string };
 }
 
@@ -146,10 +147,17 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
     const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
     if (result.confirmed && result.amount && result.amount > 0) {
+      const requestBody: any = { amount: result.amount };
+      
+      // Pour la vente, inclure le prix d'achat pour identifier les items spécifiques
+      if (action === "sell" && item.purchasePrice !== undefined) {
+        requestBody.purchasePrice = item.purchasePrice;
+      }
+
       fetch(`${endpoint}/items/${action}/${item.itemId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: result.amount }),
+        body: JSON.stringify(requestBody),
       })
         .then(async res => {
           const data = await res.json();
@@ -160,6 +168,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         .catch(err => setError(err.message));
     }
   }
+
   const handleSell = (item: Item) => handleAction(item, "sell", "Sell");
   const handleDrop = (item: Item) => handleAction(item, "drop", "Drop");
 
@@ -321,6 +330,20 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 {formattedMetadata}
               </div>
             )}
+            {/* Affichage du prix d'achat */}
+            {item.purchasePrice !== undefined && (
+              <div className="inventory-tooltip-price" style={{
+                color: "#ffd700",
+                fontSize: "12px",
+                marginTop: "4px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}>
+                Price: {item.purchasePrice}
+                <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "12px", height: "12px", position: "relative", top:"0px", left: "-2px" }} />
+              </div>
+            )}
             {/* Affichage du statut sellable */}
             {!item.metadata && (
               <div className="inventory-tooltip-sellable" style={{
@@ -391,6 +414,20 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   fontStyle: "italic"
                 }}>
                   Metadata: {formatMetadata(selectedItem.metadata)}
+                </div>
+              )}
+              {/* Affichage du prix d'achat dans la vue détaillée */}
+              {selectedItem.purchasePrice !== undefined && (
+                <div className="inventory-details-purchase-price" style={{
+                  color: "#ffd700",
+                  fontSize: "14px",
+                  marginTop: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                  Price: {selectedItem.purchasePrice}
+                  <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "18px", height: "18px" }} />
                 </div>
               )}
               {/* Affichage du statut sellable dans la vue détaillée */}

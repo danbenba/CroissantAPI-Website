@@ -150,6 +150,11 @@ const CachedImage: React.FC<CachedImageProps> = ({
         );
     }
 
+    // Don't render if no valid image source
+    if (!imageSrc) {
+        return null;
+    }
+
     return (
         <img
             src={imageSrc}

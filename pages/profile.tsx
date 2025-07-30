@@ -32,9 +32,9 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
             }
             className="shop-prompt-amount-input"
           />
-          {maxAmount && (
+          {maxAmount ? (
             <span className="shop-prompt-amount-max">/ {maxAmount}</span>
-          )}
+          ) : null}
         </div>
         <button
           className="shop-prompt-buy-btn"
