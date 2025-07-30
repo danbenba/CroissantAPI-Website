@@ -9,6 +9,7 @@ interface TradeItem extends Item {
   itemId: string;
   amount: number;
   metadata?: { [key: string]: unknown; _unique_id?: string };
+  purchasePrice?: number; // Ajouter le prix d'achat
 }
 
 interface Trade {
@@ -287,6 +288,35 @@ export default function TradePanel({
     }
   };
 
+  async function addItem(item: {
+    itemId: string;
+    amount: number;
+    metadata?: { [key: string]: unknown; _unique_id?: string };
+    purchasePrice?: number; // Ajouter le prix d'achat
+  }) {
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/trades/${tradeId}/add-item`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tradeItem: {
+            itemId: item.itemId,
+            amount: item.amount,
+            metadata: item.metadata,
+            purchasePrice: item.purchasePrice, // Inclure le prix d'achat
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to add item");
+      reloadInventory();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const removeItem = async (item: TradeItem) => {
     setLoading(true);
     try {
@@ -299,7 +329,8 @@ export default function TradePanel({
           tradeItem: {
             itemId: item.itemId,
             amount: item.amount,
-            metadata: item.metadata, // Inclure les métadonnées pour identifier l'item unique
+            metadata: item.metadata,
+            purchasePrice: item.purchasePrice, // Inclure le prix d'achat
           },
         }),
       });
@@ -331,33 +362,6 @@ export default function TradePanel({
   if (loading && !trade) return <div>Loading trade...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!trade) return <div>Trade not found.</div>;
-
-  async function addItem(item: {
-    itemId: string;
-    amount: number;
-    metadata?: { [key: string]: unknown; _unique_id?: string };
-  }) {
-    setLoading(true);
-    try {
-      const res = await fetch(`${apiBase}/trades/${tradeId}/add-item`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tradeItem: {
-            itemId: item.itemId,
-            amount: item.amount,
-            metadata: item.metadata, // Inclure les métadonnées si l'item en a
-          },
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to add item");
-      reloadInventory();
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <div className="trade-panel">
@@ -410,9 +414,13 @@ export default function TradePanel({
                 );
                 return { ...item, available: isInTrade ? 0 : 1 };
               } else {
-                // Pour les items sans métadonnées, calculer comme avant
+                // Pour les items sans métadonnées, calculer par prix d'achat spécifique
                 const inTrade = userItems
-                  .filter((ti) => ti.itemId === item.itemId && !ti.metadata?._unique_id)
+                  .filter((ti) => 
+                    ti.itemId === item.itemId && 
+                    !ti.metadata?._unique_id &&
+                    ti.purchasePrice === item.purchasePrice
+                  )
                   .reduce((sum, ti) => sum + ti.amount, 0);
                 const available = item.amount - inTrade;
                 return { ...item, available };
@@ -424,18 +432,19 @@ export default function TradePanel({
                 key={
                   item.metadata?._unique_id
                     ? `${item.itemId}-${item.metadata._unique_id}`
-                    : item.itemId
+                    : `${item.itemId}-${item.purchasePrice || 'no-price'}`
                 }
                 item={{
                   ...item,
                   amount: item.available,
-                  metadata: item.metadata, // Conserver les métadonnées
+                  metadata: item.metadata,
                 }}
                 onClick={() =>
                   addItem({
                     itemId: item.itemId,
                     amount: 1,
-                    metadata: item.metadata, // Passer les métadonnées lors de l'ajout
+                    metadata: item.metadata,
+                    purchasePrice: item.purchasePrice, // Passer le prix d'achat
                   })
                 }
               />
