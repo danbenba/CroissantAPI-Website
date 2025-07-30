@@ -21,7 +21,7 @@ export default class extends Component {
           <ol>
             <li>
               Go to the{" "}
-              <a href="https://github.com/croissant-API/croissant-launcher/releases/">
+              <a href="https://github.com/croissant-API/Launcher/releases/">
                 releases page
               </a>{" "}
               on the Croissant API GitHub repository.
