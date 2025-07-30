@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache"; // Ajouté
+import CachedImage from "../components/CachedImage";
 
 const endpoint = "/api";
 
@@ -107,12 +108,12 @@ const GamePage: React.FC = () => {
         ← Back
       </button>
       <div className="banner-container">
-        <img
+        <CachedImage
           src={`/banners-icons/${game.bannerHash}`}
           alt={game.name}
           className="main-banner-steam"
         />
-        <img
+        <CachedImage
           src={`/games-icons/${game.iconHash}`}
           alt={game.name}
           className="main-icon-steam"
@@ -127,7 +128,7 @@ const GamePage: React.FC = () => {
               href={`/profile?user=${ownerInfo.id}`}
               style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
             >
-              <img
+              <CachedImage
                 src={`/avatar/${ownerInfo.id}`}
                 alt={ownerInfo.username}
                 style={{
@@ -142,9 +143,9 @@ const GamePage: React.FC = () => {
               <span style={{ fontWeight: 500 }}>
                 {ownerInfo.username}
                 {ownerInfo.admin ? (
-                  <img src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
                 ) : ownerInfo.verified ? (
-                  <img src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
                 ) : null}
               </span>
             </a>
@@ -162,7 +163,7 @@ const GamePage: React.FC = () => {
           >
             <div>
               <b>Price:</b> {game.price}{" "}
-              <img
+              <CachedImage
                 src="/assets/credit.png"
                 className="gamepage-credit-icon"
               />

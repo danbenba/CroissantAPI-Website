@@ -1,6 +1,7 @@
 // TradePanel.tsx
 import React, { useEffect, useState, useRef } from "react";
 import type { Item } from "./Inventory";
+import CachedImage from "./CachedImage";
 
 type TradeStatus = "pending" | "approved" | "completed" | "canceled";
 
@@ -84,7 +85,7 @@ function TradeInventoryItem({
       title={onClick ? `Add ${item.name} to the trade` : undefined}
       style={{ position: "relative" }}
     >
-      <img
+      <CachedImage
         src={"/items-icons/" + (item.iconHash || item.itemId)}
         alt={item.name}
       />

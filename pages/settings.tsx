@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
+import CachedImage from "../components/CachedImage";
 
 const containerStyle: React.CSSProperties = {
   maxWidth: 500,
@@ -263,7 +264,7 @@ function GoogleAuthenticatorSetupModal({
           <>
             {qrCode && (
               <div style={{ textAlign: "center", marginBottom: 12 }}>
-                <img
+                <CachedImage
                   src={qrCode}
                   alt="QR Code"
                   style={{ width: 180, height: 180 }}
@@ -369,7 +370,7 @@ function SecurityModal({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <img src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
+                <CachedImage src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
                 <span>Linked as <b>{user?.steam_username}</b></span>
               </div>
             </button>
@@ -823,7 +824,7 @@ export default function Settings() {
       )}
       <div style={{ display: "flex", flexDirection: "row", gap: 24 }}>
         <div>
-          <img
+          <CachedImage
             src={avatar}
             alt="Profile"
             style={avatarStyle}

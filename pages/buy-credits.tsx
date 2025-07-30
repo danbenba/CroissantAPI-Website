@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import CachedImage from "../components/CachedImage";
 
 export default class extends Component {
   render(): React.ReactNode {
@@ -50,10 +51,10 @@ export default class extends Component {
                   console.error("Error:", error);
                 });
             }}>
-              <img src={tier.img} alt={tier.alt} className="credit-tier-img" />
+              <CachedImage src={tier.img} alt={tier.alt} className="credit-tier-img" />
               <div className="credit-tier-credits">
                 {tier.credits}{" "}
-                <img
+                <CachedImage
                   src="/assets/credit.png"
                   className="credit-icon navbar-credit-img"
                   style={{ position: "relative", top: "4px" }}

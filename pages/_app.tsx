@@ -1,19 +1,20 @@
-// import '../styles/launcher.css';
 import "../styles/main.css";
 import "../styles/atom-one-dark.min.css";
-// import '../styles/oauth2.css';
 
 import type { AppProps } from "next/app";
 import MetaLinks from "../components/MetaLinks";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import CachedImage from "../components/CachedImage";
 
+
+import { useEffect, useState } from "react";
 import LauncherNavbar from "./launcher/components/Navbar";
 import LauncherLobby from "./launcher/components/Lobby";
 import useAuth from "../hooks/useAuth";
 import { AuthProvider } from "../hooks/AuthContext";
 import { UserCacheProvider } from "../hooks/UserCacheContext";
+import { ImageCacheProvider } from "../hooks/ImageCacheContext";
 
 // --- Style constants ---
 const launcherTitlebarStyle: React.CSSProperties = {
@@ -148,7 +149,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       }}
       aria-hidden="true"
     >
-      <img
+      <CachedImage
         src="/assets/backgrounds/raiden-crow.webp"
         alt="background"
         style={{
@@ -173,7 +174,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       <BackgroundImage />
       <MetaLinks />
       <nav className="titlebar" style={launcherTitlebarStyle}>
-        <img
+        <CachedImage
           src="/assets/icons/favicon-32x32.png"
           alt="Icon"
           style={launcherIconStyle}
@@ -231,10 +232,12 @@ function AppContent({ Component, pageProps }: AppProps) {
 
 export default function App(props: AppProps) {
   return (
-    <UserCacheProvider>
-      <AuthProvider>
-        <AppContent {...props} />
-      </AuthProvider>
-    </UserCacheProvider>
+    <ImageCacheProvider>
+      <UserCacheProvider>
+        <AuthProvider>
+          <AppContent {...props} />
+        </AuthProvider>
+      </UserCacheProvider>
+    </ImageCacheProvider>
   );
 }

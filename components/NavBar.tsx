@@ -138,6 +138,7 @@ function useNavBarResponsive() {
 }
 import useAuth from "../hooks/useAuth";
 import Searchbar from "./Searchbar";
+import CachedImage from "./CachedImage";
 
 export default function NavBar() {
   const { user, token, loading, setUser } = useAuth();
@@ -203,7 +204,7 @@ export default function NavBar() {
     <div style={userBlockStyle}>
       <Link href="/buy-credits" style={{ textDecoration: "none" }}>
         <div className="navbar-credits">
-          <img src="/assets/credit.png" className="navbar-credit-img" />
+          <CachedImage src="/assets/credit.png" className="navbar-credit-img" />
           <div className="navbar-balance">
             <span id="my-balance">{loading ? "..." : user?.balance}</span>
           </div>
@@ -211,7 +212,7 @@ export default function NavBar() {
       </Link>
       <Link href="/profile" legacyBehavior>
         <a>
-          <img
+          <CachedImage
             src={loading ? "/avatar/default.png" : "/avatar/" + (user.role || user.id)}
             alt="avatar"
             style={avatarStyle}
@@ -288,12 +289,12 @@ export default function NavBar() {
                   .catch((err) => console.error(err));
               }}
             >
-              <img src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
+              <CachedImage src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
               <span style={{ whiteSpace: "nowrap" }}>
                 {studio?.username || "Me"}
                 {studio?.verified ? (
                   <span style={{ color: "#8fa1c7" }}>
-                    <img
+                    <CachedImage
                       src="/assets/brand-verified-mark.png"
                       alt="Verified"
                       style={{
@@ -325,7 +326,7 @@ export default function NavBar() {
                   cursor: "pointer",
                 }}
               >
-                <img
+                <CachedImage
                   src="/assets/icons/favicon-32x32.png"
                   alt="Croissant Logo"
                   style={logoImgStyle}

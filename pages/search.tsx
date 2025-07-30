@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
+import CachedImage from "../components/CachedImage";
 
 // API endpoint for user search
 const API_ENDPOINT = "/api";
@@ -173,7 +174,7 @@ const SearchPage: React.FC = () => {
       <div className="shop-prompt-overlay">
         <div className="shop-prompt">
           <div className="shop-prompt-item-details">
-            <img
+            <CachedImage
               src={"/items-icons/" + (item.iconHash || item.itemId)}
               alt={item.name}
               className="shop-prompt-item-img"
@@ -183,7 +184,7 @@ const SearchPage: React.FC = () => {
               <div className="shop-prompt-item-desc">{item.description}</div>
               <div className="shop-prompt-item-price">
                 Price: {item.price}
-                <img src="/assets/credit.png" className="shop-credit-icon" />
+                <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
               </div>
             </div>
           </div>
@@ -198,7 +199,7 @@ const SearchPage: React.FC = () => {
             />
             <span className="shop-prompt-amount-total">
               Total: {amount * (item.price || 0)}
-              <img src="/assets/credit.png" className="shop-credit-icon" />
+              <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
             </span>
           </div>
           <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>
@@ -240,7 +241,7 @@ const SearchPage: React.FC = () => {
                       "0 2px 8px rgba(0,0,0,0.18)")
                   }
                 >
-                  <img
+                  <CachedImage
                     src={`/avatar/${user.id}`}
                     alt="User Avatar"
                     className="search-user-avatar"
@@ -248,7 +249,7 @@ const SearchPage: React.FC = () => {
                   <div className="search-user-name">
                     {user.username || user.username}{" "}
                     {user?.verified ? (
-                      <img
+                      <CachedImage
                         src={
                           !user.admin
                             ? user.isStudio
@@ -313,7 +314,7 @@ const SearchPage: React.FC = () => {
                     border: "2px solid var(--border-color)",
                   }}
                 >
-                  <img
+                  <CachedImage
                     src={
                       game.iconHash
                         ? `/games-icons/${game.iconHash}`
@@ -377,7 +378,7 @@ const SearchPage: React.FC = () => {
                         }}
                       >
                         {game.price}{" "}
-                        <img
+                        <CachedImage
                           src="/assets/credit.png"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}
@@ -430,7 +431,7 @@ const SearchPage: React.FC = () => {
                     border: "2px solid var(--border-color)",
                   }}
                 >
-                  <img
+                  <CachedImage
                     src={`/items-icons/${
                       item?.iconHash || item.itemId
                         ? item.iconHash || item.itemId
@@ -481,7 +482,7 @@ const SearchPage: React.FC = () => {
                         }}
                       >
                         {item.price}{" "}
-                        <img
+                        <CachedImage
                           src="/assets/credit.png"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache"; // Ajouté
 import { useRouter } from "next/router"; // Ajouté
+import CachedImage from "../components/CachedImage";
 
 const ENDPOINT = "/api";
 
@@ -289,7 +290,7 @@ const Shop: React.FC = () => {
                       }}
                     >
                       {
-                        <img
+                        <CachedImage
                           src={"/banners-icons/" + game?.bannerHash}
                           alt="banner"
                           style={{
@@ -305,7 +306,7 @@ const Shop: React.FC = () => {
                           }}
                         />
                       }
-                      <img
+                      <CachedImage
                         src={"/games-icons/" + game.iconHash}
                         alt={game.name}
                         style={{
@@ -369,7 +370,7 @@ const Shop: React.FC = () => {
                             href={`/profile?user=${ownerInfo.id}`}
                             style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
                           >
-                            <img
+                            <CachedImage
                               src={`/avatar/${ownerInfo.id}`}
                               alt={ownerInfo.username}
                               style={{
@@ -384,9 +385,9 @@ const Shop: React.FC = () => {
                             <span style={{ fontWeight: 500 }}>
                               {ownerInfo.username}
                               {ownerInfo.admin ? (
-                                <img src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                                <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
                               ) : ownerInfo.verified ? (
-                                <img src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                                <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
                               ) : null}
                             </span>
                           </a>
@@ -426,7 +427,7 @@ const Shop: React.FC = () => {
                           }}
                         >
                           {game.price}
-                          <img
+                          <CachedImage
                             src="/assets/credit.png"
                             className="shop-credit-icon"
                             alt="credits"

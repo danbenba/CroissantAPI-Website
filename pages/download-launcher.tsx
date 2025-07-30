@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import CachedImage from "../components/CachedImage";
 
 export default class extends Component {
   render() {
@@ -38,7 +39,7 @@ export default class extends Component {
             launch games, and automatically stay updated with the latest
             platform features.
           </p>
-          <img
+          <CachedImage
             src="/assets/launcher.png"
             alt="Croissant Launcher Screenshot"
             style={{ maxWidth: "100%", height: "auto", borderRadius: "8px" }}

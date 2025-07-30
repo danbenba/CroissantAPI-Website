@@ -58,6 +58,7 @@ const endpoint = "/api"; // Replace with your actual API endpoint
 
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
+import CachedImage from "../components/CachedImage";
 
 export interface ShopItem {
   itemId: string;
@@ -296,7 +297,7 @@ function ProfileShop({
           <div className="shop-tooltip-desc">{tooltip.item.description}</div>
           <div className="shop-tooltip-price">
             Price: {tooltip.item.price}
-            <img src="/assets/credit.png" className="shop-credit-icon" />
+            <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
             {tooltip.item.stock !== undefined && (
               <span className="shop-tooltip-stock">
                 Stock: {tooltip.item.stock}
@@ -311,7 +312,7 @@ function ProfileShop({
           <div className="shop-prompt">
             {prompt.item && (
               <div className="shop-prompt-item-details">
-                <img
+                <CachedImage
                   src={
                     "/items-icons/" +
                     (prompt.item?.iconHash || prompt.item.itemId)
@@ -328,7 +329,7 @@ function ProfileShop({
                   </div>
                   <div className="shop-prompt-item-price">
                     Price: {prompt.item.price}
-                    <img
+                    <CachedImage
                       src="/assets/credit.png"
                       className="shop-credit-icon"
                     />
@@ -348,13 +349,13 @@ function ProfileShop({
                         }
                         className="shop-prompt-owner-link"
                       >
-                        <img
+                        <CachedImage
                           className="shop-prompt-owner-avatar"
                           src={"/avatar/" + (prompt.item as any).owner}
                         />
                         {promptOwnerUser.username}{" "}
                         {promptOwnerUser?.verified ? (
-                          <img
+                          <CachedImage
                             src={
                               "/assets/" +
                               (!promptOwnerUser.admin
@@ -398,7 +399,7 @@ function ProfileShop({
                 {prompt.item && (
                   <span className="shop-prompt-amount-total">
                     Total: {(prompt.amount || 1) * (prompt.item.price || 0)}
-                    <img
+                    <CachedImage
                       src="/assets/credit.png"
                       className="shop-credit-icon"
                     />
@@ -446,7 +447,7 @@ const ShopItemImage = React.memo(function ShopItemImage({ item }: { item: ShopIt
   const fallbackUrl = "/assets/System_Shop.webp";
   return (
     <div style={{ position: "relative", width: "48px", height: "48px" }}>
-      <img
+      <CachedImage
         src={fallbackUrl}
         alt="default"
         className="inventory-item-img inventory-item-img-blur"
@@ -463,7 +464,7 @@ const ShopItemImage = React.memo(function ShopItemImage({ item }: { item: ShopIt
         }}
         draggable={false}
       />
-      <img
+      <CachedImage
         src={iconUrl}
         alt={item.name}
         className="inventory-item-img"
@@ -681,7 +682,7 @@ export default function Profile({ userId }: ProfileProps) {
               cursor: isMe ? "pointer" : "default",
             }}
           >
-            <img
+            <CachedImage
               src={"/avatar/" + (search || user?.id)}
               alt={profile.username}
               className="profile-avatar"
@@ -692,7 +693,7 @@ export default function Profile({ userId }: ProfileProps) {
                 <div className="profile-name">
                   {profile.username}{" "}
                   {profile.admin ? (
-                    <img
+                    <CachedImage
                       src={"/assets/admin-mark.png"}
                       alt="Admin"
                       style={{
@@ -704,7 +705,7 @@ export default function Profile({ userId }: ProfileProps) {
                       }}
                     />
                   ) : profile.verified ? (
-                    <img
+                    <CachedImage
                       src={
                         profile.isStudio
                           ? "/assets/brand-verified-mark.png"

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
+import CachedImage from "../components/CachedImage";
 
 export default function StudiosPage() {
   const { user, token, setUser } = useAuth();
@@ -308,7 +309,7 @@ export default function StudiosPage() {
                     gap: 10,
                   }}
                 >
-                  <img
+                  <CachedImage
                     src={"/avatar/" + studio.user_id}
                     style={{
                       width: 64,
@@ -317,10 +318,7 @@ export default function StudiosPage() {
                       marginBottom: 12,
                     }}
                     alt="Studio Avatar"
-                    onError={(e) =>
-                      (e.currentTarget.src = "/avatar/default.png")
-                    }
-                  ></img>
+                  />
                   <div
                     className="studio-card-title"
                     style={{
@@ -331,7 +329,7 @@ export default function StudiosPage() {
                   >
                     {studio.username}{" "}
                     {studio.verified ? (
-                      <img
+                      <CachedImage
                         src="/assets/brand-verified-mark.png"
                         alt="Verified"
                         style={{
@@ -359,7 +357,7 @@ export default function StudiosPage() {
                               gap: 4,
                             }}
                           >
-                            <img
+                            <CachedImage
                               src={"/avatar/" + user.userId}
                               style={{
                                 width: 24,
@@ -370,13 +368,10 @@ export default function StudiosPage() {
                                 top: "-4px",
                               }}
                               alt="User Avatar"
-                              onError={(e) =>
-                                (e.currentTarget.src = "/avatar/default.png")
-                              }
-                            ></img>
+                            />
                             {user.username}
                             {user.admin ? (
-                              <img
+                              <CachedImage
                                 src="/assets/admin-mark.png"
                                 alt="Admin"
                                 style={{
@@ -389,7 +384,7 @@ export default function StudiosPage() {
                               <>
                                 {" "}
                                 {user.verified ? (
-                                  <img
+                                  <CachedImage
                                     src="/assets/verified-mark.png"
                                     alt="Verified"
                                     style={{
@@ -661,17 +656,14 @@ export default function StudiosPage() {
                           setAddUserDropdownOpen(false);
                         }}
                       >
-                        <img
+                        <CachedImage
                           src={`/avatar/${u.userId}`}
                           alt="avatar"
                           style={{ width: 28, height: 28, borderRadius: "50%" }}
-                          onError={(e) =>
-                            (e.currentTarget.src = "/avatar/default.png")
-                          }
                         />
                         <span style={{ color: "#fff" }}>{u.username}</span>
                         {u.admin ? (
-                          <img
+                          <CachedImage
                             src="/assets/admin-mark.png"
                             alt="Admin"
                             style={{
@@ -683,7 +675,7 @@ export default function StudiosPage() {
                         ) : (
                           <>
                             {u.verified ? (
-                              <img
+                              <CachedImage
                                 src="/assets/verified-mark.png"
                                 alt="Verified"
                                 style={{

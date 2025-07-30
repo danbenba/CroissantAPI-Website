@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import { ShopItem } from "../pages/profile";
+import CachedImage from "./CachedImage";
 
 const endpoint = "/api";
 
@@ -246,7 +247,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         onContextMenu={handleContextMenu}
         onClick={() => onSelect(item)}>
         <div style={{ position: "relative", width: "48px", height: "48px" }}>
-          <img
+          <CachedImage
             src={fallbackUrl}
             alt="default"
             className="inventory-item-img inventory-item-img-blur"
@@ -263,7 +264,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             }}
             draggable={false}
           />
-          <img
+          <CachedImage
             src={iconUrl}
             alt={item.name}
             className="inventory-item-img"
@@ -396,7 +397,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         {selectedItem ? (<>
           <button onClick={handleBackToInventory} className="inventory-back-btn">← Back to Inventory</button>
           <div className="inventory-details-main">
-            <img src={"/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)} alt={selectedItem.name} className="inventory-details-img" />
+            <CachedImage src={"/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)} alt={selectedItem.name} className="inventory-details-img" />
             <div>
               <div className="inventory-details-name">{selectedItem.amount}x {selectedItem.name}</div>
               <div className="inventory-details-desc">{selectedItem.description}</div>
@@ -436,17 +437,17 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
                 {selectedItem.price !== undefined && (
                   <div className="inventory-details-price">
-                    Price: {selectedItem.price} <img src="/assets/credit.png" className="inventory-credit-icon" />
+                    Price: {selectedItem.price} <CachedImage src="/assets/credit.png" className="inventory-credit-icon" />
                   </div>
                 )}
                 {selectedItem.owner && ownerUser && (
                   <div className="inventory-details-creator" style={{ position: "relative", top: "-6px" }}>
                     Creator:{" "}
                     <Link href={`/profile?user=${selectedItem.owner}`} className="inventory-details-creator-link">
-                      <img className="inventory-details-creator-avatar" src={"/avatar/" + selectedItem.owner} />
+                      <CachedImage className="inventory-details-creator-avatar" src={"/avatar/" + selectedItem.owner} />
                       {ownerUser.username}{" "}
                       {ownerUser.verified && (
-                        <img
+                        <CachedImage
                           src={
                             "/assets/" +
                             (!ownerUser.admin
