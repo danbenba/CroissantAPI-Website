@@ -52,7 +52,21 @@ export default async function handler(
 
   const fetchOptions: RequestInit = {
     method: req.method,
-    headers: filterHeaders(req.headers as Record<string, any>),
+    headers: {
+      ...filterHeaders(req.headers as Record<string, any>),
+      'x-forwarded-for':
+        req.socket.remoteAddress ||
+        (Array.isArray(req.headers['x-forwarded-for'])
+          ? req.headers['x-forwarded-for'].join(', ')
+          : req.headers['x-forwarded-for']) ||
+        'unknown',
+      'x-real-ip':
+        req.socket.remoteAddress ||
+        (Array.isArray(req.headers['x-real-ip'])
+          ? req.headers['x-real-ip'].join(', ')
+          : req.headers['x-real-ip']) ||
+        'unknown',
+    },
     body: body && body.length > 0 ? body : undefined,
     // Pas de redirect automatique
   };
