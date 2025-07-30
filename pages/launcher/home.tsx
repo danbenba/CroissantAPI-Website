@@ -2,6 +2,7 @@ import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
+import CachedImage from "../../components/CachedImage";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 
@@ -436,7 +437,7 @@ const Library: React.FC = () => {
                   }
                 }}
               >
-                <img
+                <CachedImage
                   src={`/games-icons/${game.iconHash}`}
                   alt={game.name}
                   className="sidebar-thumb"
@@ -453,12 +454,12 @@ const Library: React.FC = () => {
         ) : (
           <div className="main-details-steam">
             <div className="banner-container">
-              <img
+              <CachedImage
                 src={`/banners-icons/${selected.bannerHash}`}
                 alt={selected.name}
                 className="main-banner-steam"
               />
-              <img
+              <CachedImage
                 src={`/games-icons/${selected.iconHash}`}
                 alt={selected.name}
                 className="main-icon-steam"
@@ -473,7 +474,7 @@ const Library: React.FC = () => {
                     href={`/profile?user=${ownerInfo.id}&from=launcher`}
                     style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
                   >
-                    <img
+                    <CachedImage
                       src={`/avatar/${ownerInfo.id}`}
                       alt={ownerInfo.username}
                       style={{
@@ -488,9 +489,9 @@ const Library: React.FC = () => {
                     <span style={{ fontWeight: 500 }}>
                       {ownerInfo.username}
                       {ownerInfo.admin ? (
-                        <img src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                        <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
                       ) : ownerInfo.verified ? (
-                        <img src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
+                        <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
                       ) : null}
                     </span>
                   </Link>

@@ -8,6 +8,7 @@ import React, {
 import { useRouter } from "next/navigation";
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
+import CachedImage from "../../../components/CachedImage";
 
 const ENDPOINT = "/api";
 type Lobby = {
@@ -266,30 +267,40 @@ export default function LobbyPage() {
                                 )
                               }
                             >
-                              <img
+                              <CachedImage
                                 className="lobby-user-avatar"
                                 src={`/avatar/${lobbyUser.user_id}`}
                                 style={{ objectFit: "cover" }}
                               />
                               <span className="lobby-user-name">
                                 {lobbyUser?.username}{" "}
-                                {lobbyUser?.verified ? (
-                                  <img
-                                    src={
-                                      !lobbyUser.admin
-                                        ? lobbyUser.isStudio
-                                          ? "/assets/brand-verified-mark.png"
-                                          : "/assets/verified-mark.png"
-                                        : "/assets/admin-mark.png"
-                                    }
-                                    alt="Verified"
-                                    style={{
-                                      marginLeft: "4px",
-                                      width: "16px",
-                                      height: "16px",
-                                      position: "relative",
-                                      top: "2px",
-                                    }}
+                                {lobbyUser?.admin ? (
+                                  <CachedImage
+                                  src="/assets/admin-mark.png"
+                                  alt="Admin"
+                                  style={{
+                                    marginLeft: "4px",
+                                    width: "16px",
+                                    height: "16px",
+                                    position: "relative",
+                                    top: "2px",
+                                  }}
+                                  />
+                                ) : lobbyUser?.verified ? (
+                                  <CachedImage
+                                  src={
+                                    lobbyUser.isStudio
+                                    ? "/assets/brand-verified-mark.png"
+                                    : "/assets/verified-mark.png"
+                                  }
+                                  alt="Verified"
+                                  style={{
+                                    marginLeft: "4px",
+                                    width: "16px",
+                                    height: "16px",
+                                    position: "relative",
+                                    top: "2px",
+                                  }}
                                   />
                                 ) : null}{" "}
                                 {lobbyUser.user_id === user.id ? "(You)" : ""}

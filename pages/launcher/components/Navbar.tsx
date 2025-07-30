@@ -2,6 +2,7 @@ import React, { Component, useEffect, useState } from "react";
 import Link from "next/link";
 import SearchBar from "../../../components/Searchbar";
 import useAuth from "../../../hooks/useAuth";
+import CachedImage from "../../../components/CachedImage";
 
 const Navbar: React.FC = () => {
   const { user, token, setUser } = useAuth();
@@ -54,7 +55,7 @@ const Navbar: React.FC = () => {
               style={{ textDecoration: "none" }}
             >
               <div className="navbar-credits">
-                <img src="/assets/credit.png" className="navbar-credit-img" />
+                <CachedImage src="/assets/credit.png" className="navbar-credit-img" />
                 <div className="navbar-balance">
                   <span id="my-balance">{user?.balance}</span>
                 </div>
@@ -69,7 +70,7 @@ const Navbar: React.FC = () => {
                 gap: 4,
               }}
             >
-              <img
+              <CachedImage
                 className="navbar-avatar"
                 src={`/avatar/${user?.id}`}
                 style={{
@@ -131,7 +132,7 @@ const Navbar: React.FC = () => {
                     }}
                     onClick={() => handleRoleChange(role)}
                   >
-                    <img
+                    <CachedImage
                       src={`/avatar/${role}`}
                       alt="avatar"
                       style={{
