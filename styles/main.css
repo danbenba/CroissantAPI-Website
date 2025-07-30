@@ -1291,7 +1291,8 @@ input[type=text].required:focus {
 .inventory-prompt-overlay,
 .mygames-modal-overlay,
 .myitems-modal-overlay,
-.shop-prompt-overlay {
+.shop-prompt-overlay,
+.shop-alert-overlay {
     position: fixed;
     left: 0;
     top: 0;

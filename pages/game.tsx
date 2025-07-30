@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
@@ -15,8 +15,13 @@ const GamePage: React.FC = () => {
   const router = useRouter();
   const { token } = useAuth();
   const [prompt, setPrompt] = React.useState<string | null>(null);
-  const [alert, setAlert] = React.useState<string | null>(null);
+  const [alert, setAlert] = React.useState<string | JSX.Element | null>(null);
   const [buying, setBuying] = React.useState(false);
+  const [isGifting, setIsGifting] = React.useState(false);
+  const [giftMessage, setGiftMessage] = React.useState("");
+  const [showGiftModal, setShowGiftModal] = React.useState(false);
+  const [giftCode, setGiftCode] = React.useState<string | null>(null);
+  const [userOwnsGame, setUserOwnsGame] = React.useState(false);
 
   const { getUser: getUserFromCache } = useUserCache(); // Ajouté
   const [ownerInfo, setOwnerInfo] = React.useState<{
@@ -45,6 +50,22 @@ const GamePage: React.FC = () => {
       setOwnerInfo(null);
     }
   }, [game, getUserFromCache]);
+
+  // Vérifier si l'utilisateur possède le jeu
+  React.useEffect(() => {
+    if (token && game) {
+      fetch(`${endpoint}/games/list/@me`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(userGames => {
+          setUserOwnsGame(userGames.some(g => g.gameId === game.gameId));
+        })
+        .catch(() => setUserOwnsGame(false));
+    }
+  }, [token, game]);
 
   // Skeleton content for loading state
   const skeleton = (
@@ -99,6 +120,52 @@ const GamePage: React.FC = () => {
       setAlert(err.message);
     } finally {
       setBuying(false);
+    }
+  };
+
+  const handleGiftGame = async () => {
+    if (!game || !token) return;
+    // Ouvrir directement le modal de gift au lieu d'utiliser le prompt
+    setShowGiftModal(true);
+  };
+
+  const confirmGift = async () => {
+    setShowGiftModal(false); // Fermer le modal
+    setIsGifting(true);
+    try {
+      const res = await fetch(`${endpoint}/gifts/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          gameId: game.gameId,
+          message: giftMessage.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create gift");
+
+      setGiftCode(data.gift.giftCode);
+      setGiftMessage("");
+      setAlert(
+        <>
+          Gift created! Share this link:{" "}
+          <a
+            href={`/gift?code=${data.gift.giftCode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#4caf50", textDecoration: "underline" }}
+          >
+            {window.location.origin}/gift?code={data.gift.giftCode}
+          </a>
+        </>
+      );
+    } catch (err: any) {
+      setAlert(err.message);
+    } finally {
+      setIsGifting(false);
     }
   };
 
@@ -168,24 +235,48 @@ const GamePage: React.FC = () => {
                 className="gamepage-credit-icon"
               />
             </div>
-            <button
-              className="shop-game-buy-btn"
-              style={{
-                padding: "10px 32px",
-                fontSize: 16,
-                borderRadius: 8,
-                fontWeight: 700,
-                background: "#4caf50",
-                color: "var(--text-color-primary)",
-                border: "none",
-                cursor: buying ? "not-allowed" : "pointer",
-                opacity: buying ? 0.7 : 1,
-              }}
-              onClick={handleBuyGame}
-              disabled={buying}
-            >
-              Buy
-            </button>
+            {!userOwnsGame ? (
+              <button
+                className="shop-game-buy-btn"
+                style={{
+                  padding: "10px 32px",
+                  fontSize: 16,
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  background: "#4caf50",
+                  color: "var(--text-color-primary)",
+                  border: "none",
+                  cursor: buying ? "not-allowed" : "pointer",
+                  opacity: buying ? 0.7 : 1,
+                }}
+                onClick={handleBuyGame}
+                disabled={buying}
+              >
+                Buy
+              </button>
+            ) : null}
+
+            {/* Afficher le bouton Gift pour tous les utilisateurs connectés */}
+            {token && (
+              <button
+                className="shop-game-gift-btn"
+                style={{
+                  padding: "10px 32px",
+                  fontSize: 16,
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  background: "#ff9800",
+                  color: "var(--text-color-primary)",
+                  border: "none",
+                  cursor: isGifting ? "not-allowed" : "pointer",
+                  opacity: isGifting ? 0.7 : 1,
+                }}
+                onClick={handleGiftGame}
+                disabled={isGifting}
+              >
+                Gift ({game.price} credits)
+              </button>
+            )}
           </div>
         )}
         <p className="gamepage-desc" style={{ overflowY: "auto" }}>
@@ -227,7 +318,48 @@ const GamePage: React.FC = () => {
         </div>
         {/* Add more details or actions as needed */}
       </div>
-      {/* Prompt overlay */}
+      {/* Gift Modal */}
+      {showGiftModal && (
+        <div className="shop-prompt-overlay">
+          <div className="shop-prompt">
+            <div className="shop-prompt-message">
+              <h3>Gift "{game.name}"</h3>
+              <textarea
+                placeholder="Optional message for the recipient..."
+                value={giftMessage}
+                onChange={(e) => setGiftMessage(e.target.value)}
+                style={{
+                  width: "100%",
+                  height: "80px",
+                  margin: "10px 0",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ccc",
+                  resize: "vertical"
+                }}
+              />
+            </div>
+            <button
+              className="shop-prompt-buy-btn"
+              onClick={confirmGift}
+              disabled={isGifting}
+            >
+              Create Gift
+            </button>
+            <button
+              className="shop-prompt-cancel-btn"
+              onClick={() => {
+                setShowGiftModal(false);
+                setGiftMessage("");
+              }}
+              disabled={isGifting}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Prompt overlay - Seulement pour les achats */}
       {prompt && (
         <div className="shop-prompt-overlay">
           <div className="shop-prompt">
