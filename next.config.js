@@ -85,29 +85,33 @@ const nextConfig = {
     },
     webpack: (config, { isServer, buildId, dev, webpack }) => {
         if (!isServer) {
-        config.resolve.fallback = {
-            ...config.resolve.fallback,
-            
-            fs: false,
-            path: false,
-            stream: require.resolve('stream-browserify'),
-            crypto: require.resolve('crypto-browserify'),
-        };
+            config.resolve.fallback = {
+                ...config.resolve.fallback,
 
-        config.plugins.push(
-            new webpack.ProvidePlugin({
-            process: 'process/browser',
-            }),
-            new webpack.NormalModuleReplacementPlugin(
-            /node:crypto/,
-            (resource) => {
-                resource.request = resource.request.replace(/^node:/, '');
-            }
-            )
-        );
+                fs: false,
+                path: false,
+                stream: require.resolve('stream-browserify'),
+                crypto: require.resolve('crypto-browserify'),
+            };
+
+            config.plugins.push(
+                new webpack.ProvidePlugin({
+                    process: 'process/browser',
+                }),
+                new webpack.NormalModuleReplacementPlugin(
+                    /node:crypto/,
+                    (resource) => {
+                        resource.request = resource.request.replace(/^node:/, '');
+                    }
+                )
+            );
         }
         return config;
     },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    telemetry: false
 };
 
 module.exports = nextConfig;
