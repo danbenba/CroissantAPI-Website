@@ -3,30 +3,34 @@ import { useImageCache } from '../hooks/ImageCacheContext';
 
 interface ImagePreloaderProps {
   images: string[];
-  priority?: boolean; // Précharger immédiatement ou en idle
+  priority?: boolean;
+  fallbackImages?: string[]; // Précharger aussi les images de fallback
 }
 
-const ImagePreloader: React.FC<ImagePreloaderProps> = ({ images, priority = false }) => {
+const ImagePreloader: React.FC<ImagePreloaderProps> = ({ 
+  images, 
+  priority = false,
+  fallbackImages = ["/assets/System_Shop.webp"] 
+}) => {
   const { preloadImages } = useImageCache();
 
   useEffect(() => {
+    const allImages = [...images, ...fallbackImages];
+    
     if (priority) {
-      // Précharger immédiatement
-      preloadImages(images);
+      preloadImages(allImages);
     } else {
-      // Précharger quand le navigateur est en idle
       if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {
-          preloadImages(images);
+          preloadImages(allImages);
         });
       } else {
-        // Fallback pour les navigateurs qui ne supportent pas requestIdleCallback
         setTimeout(() => {
-          preloadImages(images);
+          preloadImages(allImages);
         }, 1000);
       }
     }
-  }, [images, priority, preloadImages]);
+  }, [images, fallbackImages, priority, preloadImages]);
 
   return null; // Ce composant ne rend rien
 };

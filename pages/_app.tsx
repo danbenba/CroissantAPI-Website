@@ -164,6 +164,7 @@ function AppContent({ Component, pageProps }: AppProps) {
           transition: "opacity 0.8s",
           maxWidth: "100%",
         }}
+        blurEffect={false}
       />
     </div>
   );
