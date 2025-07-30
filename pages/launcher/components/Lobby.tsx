@@ -276,31 +276,31 @@ export default function LobbyPage() {
                                 {lobbyUser?.username}{" "}
                                 {lobbyUser?.admin ? (
                                   <CachedImage
-                                  src="/assets/admin-mark.png"
-                                  alt="Admin"
-                                  style={{
-                                    marginLeft: "4px",
-                                    width: "16px",
-                                    height: "16px",
-                                    position: "relative",
-                                    top: "2px",
-                                  }}
+                                    src="/assets/admin-mark.png"
+                                    alt="Admin"
+                                    style={{
+                                      marginLeft: "4px",
+                                      width: "16px",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "2px",
+                                    }}
                                   />
                                 ) : lobbyUser?.verified ? (
                                   <CachedImage
-                                  src={
-                                    lobbyUser.isStudio
-                                    ? "/assets/brand-verified-mark.png"
-                                    : "/assets/verified-mark.png"
-                                  }
-                                  alt="Verified"
-                                  style={{
-                                    marginLeft: "4px",
-                                    width: "16px",
-                                    height: "16px",
-                                    position: "relative",
-                                    top: "2px",
-                                  }}
+                                    src={
+                                      lobbyUser.isStudio
+                                        ? "/assets/brand-verified-mark.png"
+                                        : "/assets/verified-mark.png"
+                                    }
+                                    alt="Verified"
+                                    style={{
+                                      marginLeft: "4px",
+                                      width: "16px",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "2px",
+                                    }}
                                   />
                                 ) : null}{" "}
                                 {lobbyUser.user_id === user.id ? "(You)" : ""}
