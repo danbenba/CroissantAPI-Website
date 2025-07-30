@@ -358,7 +358,7 @@ export default function StudiosPage() {
                             }}
                           >
                             <CachedImage
-                              src={"/avatar/" + user.userId}
+                              src={"/avatar/" + user.user_id}
                               style={{
                                 width: 24,
                                 height: 24,
@@ -657,7 +657,7 @@ export default function StudiosPage() {
                         }}
                       >
                         <CachedImage
-                          src={`/avatar/${u.userId}`}
+                          src={`/avatar/${u.user_id}`}
                           alt="avatar"
                           style={{ width: 28, height: 28, borderRadius: "50%" }}
                         />
