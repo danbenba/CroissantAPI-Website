@@ -458,11 +458,13 @@ const Library: React.FC = () => {
                 src={`/banners-icons/${selected.bannerHash}`}
                 alt={selected.name}
                 className="main-banner-steam"
+                directLoad={true}
               />
               <CachedImage
                 src={`/games-icons/${selected.iconHash}`}
                 alt={selected.name}
                 className="main-icon-steam"
+                directLoad={true}
               />
             </div>
             <div className="main-details-content">

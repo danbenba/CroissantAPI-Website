@@ -304,6 +304,7 @@ const Shop: React.FC = () => {
                             top: 0,
                             zIndex: 0,
                           }}
+                          directLoad={true}
                         />
                       }
                       <CachedImage
@@ -322,6 +323,7 @@ const Shop: React.FC = () => {
                           zIndex: 2,
                           boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                         }}
+                        directLoad={true}
                       />
                     </div>
                     <div

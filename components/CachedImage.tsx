@@ -8,6 +8,7 @@ interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     onLoad?: () => void;
     onError?: () => void;
     blurEffect?: boolean; // Option pour activer/désactiver l'effet de flou
+    directLoad?: boolean; // Option pour charger directement sans cache
 }
 
 const CachedImage: React.FC<CachedImageProps> = ({
@@ -17,6 +18,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
     onLoad,
     onError,
     blurEffect = true,
+    directLoad = false,
     ...props
 }) => {
     const { getCachedImage, loadImage } = useImageCache();
@@ -48,7 +50,15 @@ const CachedImage: React.FC<CachedImageProps> = ({
                 setIsLoading(true);
                 setHasError(false);
 
-                const cachedSrc = await loadImage(imageUrl);
+                let cachedSrc: string;
+
+                if (directLoad) {
+                    // Chargement direct sans cache ni blob
+                    cachedSrc = imageUrl;
+                } else {
+                    // Utiliser le cache avec blob
+                    cachedSrc = await loadImage(imageUrl);
+                }
 
                 if (mountedRef.current) {
                     setImageSrc(cachedSrc);
@@ -62,7 +72,14 @@ const CachedImage: React.FC<CachedImageProps> = ({
 
                     if (fallback) {
                         try {
-                            const fallbackSrc = await loadImage(fallback);
+                            let fallbackSrc: string;
+                            
+                            if (directLoad) {
+                                fallbackSrc = fallback;
+                            } else {
+                                fallbackSrc = await loadImage(fallback);
+                            }
+                            
                             if (mountedRef.current) {
                                 setImageSrc(fallbackSrc);
                                 setHasError(false);
@@ -76,10 +93,19 @@ const CachedImage: React.FC<CachedImageProps> = ({
                 }
             }
         }, 50); // Debounce de 50ms
-    }, [loadImage, fallback, onLoad, onError]);
+    }, [loadImage, fallback, onLoad, onError, directLoad]);
 
     useEffect(() => {
-        if (!src) return;
+        if (!src || src.includes('undefined')) return;
+
+        if (directLoad) {
+            // Chargement direct sans cache
+            setImageSrc(src);
+            setIsLoading(false);
+            setHasError(false);
+            onLoad?.();
+            return;
+        }
 
         // Vérifier immédiatement le cache
         const cached = getCachedImage(src);
@@ -93,9 +119,9 @@ const CachedImage: React.FC<CachedImageProps> = ({
 
         // Sinon, charger avec debounce
         debouncedLoadImage(src);
-    }, [src, getCachedImage, debouncedLoadImage, onLoad]);
+    }, [src, getCachedImage, debouncedLoadImage, onLoad, directLoad]);
 
-    if (isLoading && blurEffect) {
+    if (!directLoad && isLoading && blurEffect && !hasError) {
         return (
             <img
                 src={"/assets/System_Shop.webp"}
@@ -106,7 +132,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
         );
     }
 
-    if (hasError && !fallback) {
+    if (!directLoad && hasError && !fallback) {
         return (
             <div
                 style={{
