@@ -1735,7 +1735,7 @@ input[type=text].required:focus {
     background: var(--background-medium);
     border: 1px solid #888;
     border-radius: 8px;
-    min-width: 340px;
+    /* min-width: 340px; */
     color: var(--text-color-primary);
     display: flex;
     flex-direction: column;
