@@ -236,8 +236,49 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                             {listings.map(listing => (
                                 <tr key={listing.id}>
                                     <td>
-                                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <span style={{ display: "flex", alignItems: "center", gap: 8, position: "relative" }}>
                                             <CachedImage src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" width={32} height={32} />
+                                            {/* Indicateur metadata */}
+                                            {listing.metadata?._unique_id && (
+                                                <span
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: 2,
+                                                        left: 26,
+                                                        width: 10,
+                                                        height: 10,
+                                                        borderRadius: "50%",
+                                                        backgroundColor: "#ffd700",
+                                                        border: "1px solid #000",
+                                                        zIndex: 2,
+                                                        cursor: "pointer"
+                                                    }}
+                                                    // title="This item has metadata"
+                                                    onMouseEnter={e => {
+                                                        const tooltip = document.createElement("div");
+                                                        tooltip.innerText = Object.entries(listing.metadata)
+                                                            .filter(([key]) => key !== "_unique_id")
+                                                            .map(([key, value]) => `${key}: ${value}`)
+                                                            .join(", ") || "Metadata";
+                                                        tooltip.style.position = "fixed";
+                                                        tooltip.style.left = e.clientX + 12 + "px";
+                                                        tooltip.style.top = e.clientY + "px";
+                                                        tooltip.style.background = "#23272e";
+                                                        tooltip.style.color = "#ffd700";
+                                                        tooltip.style.padding = "6px 12px";
+                                                        tooltip.style.borderRadius = "8px";
+                                                        tooltip.style.fontSize = "13px";
+                                                        tooltip.style.zIndex = "9999";
+                                                        tooltip.className = "marketplace-metadata-tooltip";
+                                                        document.body.appendChild(tooltip);
+                                                        const removeTooltip = () => {
+                                                            document.body.querySelectorAll(".marketplace-metadata-tooltip").forEach(t => t.remove());
+                                                            e.target.removeEventListener("mouseleave", removeTooltip);
+                                                        };
+                                                        e.target.addEventListener("mouseleave", removeTooltip);
+                                                    }}
+                                                />
+                                            )}
                                             {listing.item_name}
                                         </span>
                                     </td>
@@ -563,9 +604,10 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                 display: "flex",
                                 flexDirection: "column",
                                 gap: 6,
+                                position: "relative"
                             }}
                         >
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
                                 <CachedImage
                                     src={`/items-icons/${listing.item_icon_hash || listing.item_id}`}
                                     alt=""
@@ -573,6 +615,46 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                     height={36}
                                     style={{ borderRadius: 8, background: "#181b20" }}
                                 />
+                                {/* Indicateur metadata */}
+                                {listing.metadata?._unique_id && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: 4,
+                                            left: 32,
+                                            width: 10,
+                                            height: 10,
+                                            borderRadius: "50%",
+                                            backgroundColor: "#ffd700",
+                                            border: "1px solid #000",
+                                            zIndex: 2
+                                        }}
+                                        // title="This item has metadata"
+                                        onMouseEnter={e => {
+                                            const tooltip = document.createElement("div");
+                                            tooltip.innerText = Object.entries(listing.metadata)
+                                                .filter(([key]) => key !== "_unique_id")
+                                                .map(([key, value]) => `${key}: ${value}`)
+                                                .join(", ") || "Metadata";
+                                            tooltip.style.position = "fixed";
+                                            tooltip.style.left = e.clientX + 12 + "px";
+                                            tooltip.style.top = e.clientY + "px";
+                                            tooltip.style.background = "#23272e";
+                                            tooltip.style.color = "#ffd700";
+                                            tooltip.style.padding = "6px 12px";
+                                            tooltip.style.borderRadius = "8px";
+                                            tooltip.style.fontSize = "13px";
+                                            tooltip.style.zIndex = "9999";
+                                            tooltip.className = "marketplace-metadata-tooltip";
+                                            document.body.appendChild(tooltip);
+                                            const removeTooltip = () => {
+                                                document.body.querySelectorAll(".marketplace-metadata-tooltip").forEach(t => t.remove());
+                                                e.target.removeEventListener("mouseleave", removeTooltip);
+                                            };
+                                            e.target.addEventListener("mouseleave", removeTooltip);
+                                        }}
+                                    />
+                                )}
                                 <div>
                                     <div style={{ fontWeight: 600, fontSize: "1.05em", color: "#fff" }}>
                                         {listing.item_name}
