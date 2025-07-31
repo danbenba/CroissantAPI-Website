@@ -1,3 +1,9 @@
+.links-group,
+.trade-actions {
+    justify-content: center;
+    display: flex
+}
+
 .delete,
 .endpoint-link,
 .get,
@@ -8,7 +14,8 @@
 .response-info h4,
 .trade-close-x:hover,
 body,
-button {
+button,
+strong {
     color: #fff
 }
 
@@ -30,8 +37,6 @@ header {
 }
 
 .links-group {
-    display: flex;
-    justify-content: center;
     color: #fff
 }
 
@@ -60,6 +65,7 @@ form.game-form {
 .post {
     background: #3cbf7f
 }
+
 .patch {
     background: #bf3cab
 }
@@ -73,36 +79,6 @@ a {
     color: #1e90ff
 }
 
-strong {
-    color: #fff
-}
-
-@media screen and (max-width:768px) {
-    .links-group {
-        flex-direction: column;
-        gap: 10px;
-        font-size: 1rem
-    }
-
-    main {
-        padding: 10px 10px 80px
-    }
-
-    .api-doc {
-        padding: 15px
-    }
-
-    .endpoint-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px
-    }
-
-    pre {
-        font-size: .9rem
-    }
-}
-
 .api-docs-container,
 .form-group {
     flex-direction: column
@@ -111,17 +87,6 @@ strong {
 .api-docs-sidebar {
     min-width: auto !important;
     width: 100%
-}
-
-@media (min-width:768px) {
-    .api-docs-container {
-        flex-direction: row
-    }
-
-    .api-docs-sidebar {
-        max-width: 300px;
-        width: 300px
-    }
 }
 
 .api-docs-main {
@@ -313,37 +278,6 @@ button:hover {
     filter: grayscale(.5)
 }
 
-@media (max-width:900px) {
-    .trade-panel {
-        min-width: 0;
-        max-width: 98vw;
-        flex-direction: column;
-        padding: 18px 2vw
-    }
-
-    .trade-panel .trade-inventory-grid {
-        max-height: 40vh
-    }
-}
-
-@media (max-width:600px) {
-    .trade-panel {
-        min-width: 0;
-        padding: 14px 3vw
-    }
-
-    .trade-panel .trade-inventory-item {
-        width: 62px;
-        min-height: 72px;
-        padding: 7px 2px 6px
-    }
-
-    .trade-panel .trade-inventory-item img {
-        width: 32px;
-        height: 32px
-    }
-}
-
 .trade-panel {
     flex-direction: column;
     min-width: 700px;
@@ -381,8 +315,6 @@ button:hover {
 }
 
 .trade-actions {
-    display: flex;
-    justify-content: center;
     gap: 16px
 }
 
@@ -416,51 +348,6 @@ button:hover {
     grid-template-columns: repeat(8, 1fr)
 }
 
-@media (max-width:600px) {
-    .inventory-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important
-    }
-
-    .inventory-item,
-    .inventory-item-empty {
-        min-width: 0;
-        min-height: 54px;
-        height: 54px;
-        max-width: 100%;
-        padding: 2px
-    }
-
-    .inventory-item-img {
-        width: 38px !important;
-        height: 38px !important
-    }
-
-    .inventory-item-qty {
-        font-size: .85em
-    }
-
-    .profile-shop-section .inventory-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important
-    }
-
-    .profile-shop-section .inventory-item,
-    .profile-shop-section .inventory-item-empty {
-        min-height: 60px;
-        height: 60px
-    }
-}
-
-@media (max-width:400px) {
-    .inventory-grid {
-        grid-template-columns: repeat(2, 1fr) !important
-    }
-
-    .profile-shop-section .inventory-grid {
-        grid-template-columns: repeat(1, 1fr) !important
-    }
-}
 
 .create-dropdown-content a:hover,
 button,
@@ -510,10 +397,6 @@ strong {
     --success-color: #3cbf7f;
     --error-color: red
 }
-/* 
-* {
-    user-select: none
-} */
 
 .links-group,
 nav {
@@ -543,8 +426,7 @@ body {
     background-color: #333;
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
-    /*height: 100vh*/
+    padding: 0
 }
 
 .api-doc,
@@ -721,66 +603,6 @@ strong {
     justify-content: center;
     align-items: center;
     app-region: drag
-}
-
-@media screen and (max-width:768px) {
-    main {
-        padding: 10px 10px 80px
-    }
-
-    .api-doc {
-        padding: 15px
-    }
-
-    .endpoint-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px
-    }
-
-    pre {
-        font-size: .9rem
-    }
-}
-
-@media screen and (max-width:480px) {
-
-    footer,
-    header {
-        padding: 15px
-    }
-
-    .description,
-    button,
-    footer,
-    input[type=email],
-    input[type=text],
-    textarea {
-        font-size: .9rem
-    }
-
-    .indent {
-        margin-left: 10px
-    }
-
-    .method {
-        font-size: 12px
-    }
-}
-
-@media screen and (min-width:1200px) {
-    .container {
-        max-width: 1140px;
-        margin: 0 auto
-    }
-
-    .api-doc {
-        padding: 30px
-    }
-
-    pre {
-        font-size: 1.1rem
-    }
 }
 
 .container,
@@ -1270,16 +1092,16 @@ input[type=text].required:focus {
     padding: 4px 0
 }
 
+.inventory-context-auction,
 .inventory-context-drop,
-.inventory-context-sell,
-.inventory-context-auction {
+.inventory-context-sell {
     padding: 8px 16px;
     cursor: pointer;
     user-select: none
 }
 
-.inventory-context-sell,
-.inventory-context-auction {
+.inventory-context-auction,
+.inventory-context-sell {
     color: var(--text-color-primary);
     font-weight: 500;
     border-bottom: 1px solid #444
@@ -1293,8 +1115,8 @@ input[type=text].required:focus {
 .inventory-prompt-overlay,
 .mygames-modal-overlay,
 .myitems-modal-overlay,
-.shop-prompt-overlay,
-.shop-alert-overlay {
+.shop-alert-overlay,
+.shop-prompt-overlay {
     position: fixed;
     left: 0;
     top: 0;
@@ -1542,9 +1364,7 @@ input[type=text].required:focus {
     background: var(--background-medium);
     box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
     margin: 0;
-
     padding-bottom: 15px;
-    /* width: 95vw; */
     min-height: 100vh
 }
 
@@ -1587,8 +1407,7 @@ input[type=text].required:focus {
 
 .main-details-content {
     margin-top: 48px;
-    margin-left: 48px;
-    /* width: 50vw; */
+    margin-left: 48px
 }
 
 .library-btn-col {
@@ -1606,26 +1425,6 @@ input[type=text].required:focus {
     margin-bottom: 24px
 }
 
-@media (max-width:700px) {
-    .main-details-steam {
-        max-width: 100vw
-    }
-
-    .main-details-content {
-        padding: 56px 12px 24px
-    }
-
-    .main-icon-steam {
-        left: 12px;
-        width: 72px;
-        height: 72px
-    }
-
-    .banner-container,
-    .main-banner-steam {
-        height: 120px
-    }
-}
 
 .lobby-tooltip {
     top: 24px;
@@ -2060,11 +1859,6 @@ input[type=text].required:focus {
     padding: 0
 }
 
-@media (max-width: 800px) {
-    .search-users-grid {
-        grid-template-columns: repeat(1, 1fr)
-    }
-}
 
 .search-user-card,
 .shop-item-card {
@@ -2337,7 +2131,6 @@ input[type=text].required:focus {
     left: 0;
     top: 0;
     width: 100vw;
-    /*height: 100vh*/;
     background: rgba(0, 0, 0, .5);
     z-index: 4000;
     display: flex;
@@ -2446,7 +2239,6 @@ main {
     top: 0;
     left: 0;
     width: 100vw;
-    /*height: 100vh*/;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2511,55 +2303,10 @@ main {
     gap: 24px
 }
 
-@media (max-width:1200px) {
-
-    .mygames-grid,
-    .myitems-grid {
-        grid-template-columns: repeat(4, 1fr)
-    }
-}
-
-@media (max-width:900px) {
-    .trade-main-columns>.trade-column {
-        margin: 0
-    }
-
-    .trade-panel {
-        min-width: 0;
-        padding: 10px 2vw
-    }
-
-    .trade-main-columns {
-        flex-direction: column;
-        gap: 12px
-    }
-
-    .trade-column {
-        width: 95%;
-        min-width: 0;
-        padding: 10px 6px
-    }
-
-    .mygames-grid,
-    .myitems-grid {
-        grid-template-columns: repeat(2, 1fr)
-    }
-}
-
-@media (max-width:600px) {
-
-    .mygames-grid,
-    .myitems-grid {
-        grid-template-columns: 1fr
-    }
-}
 
 .container-oauth2 {
     max-width: 900px;
     margin: 40px auto;
-    /* background: #23242a; */
-    /* border-radius: 14px; */
-    /* box-shadow: 0 2px 12px rgba(0, 0, 0, .25); */
     padding: 32px 24px;
     color: #fff
 }
@@ -2658,7 +2405,7 @@ button.oauth2-button {
     box-shadow: 0 2px 12px rgba(0, 0, 0, .25);
     padding: 32px 24px;
     color: #fff;
-    min-width: 340px;
+    min-width: 340px
 }
 
 .close-modal-btn {
@@ -2740,16 +2487,4 @@ code.oauth2-code {
     color: #fff;
     padding: 2px 6px;
     border-radius: 4px
-}
-
-@media screen and (max-width:900px) {
-    .apps-grid {
-        grid-template-columns: repeat(2, 1fr)
-    }
-}
-
-@media screen and (max-width:600px) {
-    .apps-grid {
-        grid-template-columns: 1fr
-    }
 }
