@@ -2,12 +2,13 @@ import React, { JSX } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
-import useUserCache from "../hooks/useUserCache"; // Ajouté
+import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
+import useIsMobile from "../hooks/useIsMobile";
 
 const endpoint = "/api";
 
-const GamePage: React.FC = () => {
+function useGamePageLogic() {
   const searchParams = useSearchParams();
   const gameId = searchParams.get("gameId");
   const [game, setGame] = React.useState<any>(null);
@@ -23,14 +24,14 @@ const GamePage: React.FC = () => {
   const [giftCode, setGiftCode] = React.useState<string | null>(null);
   const [userOwnsGame, setUserOwnsGame] = React.useState(false);
 
-  const { getUser: getUserFromCache } = useUserCache(); // Ajouté
+  const { getUser: getUserFromCache } = useUserCache();
   const [ownerInfo, setOwnerInfo] = React.useState<{
     id: string;
     username: string;
     verified?: boolean;
     admin?: boolean;
     isStudio?: boolean;
-  } | null>(null); // Ajouté
+  } | null>(null);
 
   React.useEffect(() => {
     fetch(endpoint + "/games/" + gameId)
@@ -39,7 +40,6 @@ const GamePage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [gameId]);
 
-  // Ajouté : récupération des infos propriétaire
   React.useEffect(() => {
     if (game?.owner_id || game?.ownerId) {
       const ownerId = game.owner_id || game.ownerId;
@@ -51,7 +51,6 @@ const GamePage: React.FC = () => {
     }
   }, [game, getUserFromCache]);
 
-  // Vérifier si l'utilisateur possède le jeu
   React.useEffect(() => {
     if (token && game) {
       fetch(`${endpoint}/games/list/@me`, {
@@ -67,7 +66,126 @@ const GamePage: React.FC = () => {
     }
   }, [token, game]);
 
-  // Skeleton content for loading state
+  const handleBuyGame = async () => {
+    if (!game) return;
+    setPrompt(`Buy "${game.name}"?\nPrice: ${game.price}`);
+  };
+
+  const confirmBuy = async () => {
+    setPrompt(null);
+    setBuying(true);
+    try {
+      const res = await fetch(`${endpoint}/games/${game.gameId}/buy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to buy game");
+      setAlert("Purchase successful!");
+    } catch (err: any) {
+      setAlert(err.message);
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  const handleGiftGame = async () => {
+    if (!game || !token) return;
+    setShowGiftModal(true);
+  };
+
+  const confirmGift = async () => {
+    setShowGiftModal(false);
+    setIsGifting(true);
+    try {
+      const res = await fetch(`${endpoint}/gifts/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          gameId: game.gameId,
+          message: giftMessage.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create gift");
+
+      setGiftCode(data.gift.giftCode);
+      setGiftMessage("");
+      setAlert(
+        <>
+          Gift created! Share this link:{" "}
+          <a
+            href={`/gift?code=${data.gift.giftCode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#4caf50", textDecoration: "underline" }}
+          >
+            {typeof window !== "undefined"
+              ? window.location.origin + `/gift?code=${data.gift.giftCode}`
+              : `/gift?code=${data.gift.giftCode}`}
+          </a>
+        </>
+      );
+    } catch (err: any) {
+      setAlert(err.message);
+    } finally {
+      setIsGifting(false);
+    }
+  };
+
+  return {
+    game,
+    loading,
+    router,
+    ownerInfo,
+    userOwnsGame,
+    prompt,
+    setPrompt,
+    alert,
+    setAlert,
+    buying,
+    handleBuyGame,
+    confirmBuy,
+    isGifting,
+    handleGiftGame,
+    confirmGift,
+    showGiftModal,
+    setShowGiftModal,
+    giftMessage,
+    setGiftMessage,
+    token,
+  };
+}
+
+function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
+  const {
+    game,
+    loading,
+    router,
+    ownerInfo,
+    userOwnsGame,
+    prompt,
+    setPrompt,
+    alert,
+    setAlert,
+    buying,
+    handleBuyGame,
+    confirmBuy,
+    isGifting,
+    handleGiftGame,
+    confirmGift,
+    showGiftModal,
+    setShowGiftModal,
+    giftMessage,
+    setGiftMessage,
+    token,
+  } = props;
+
   const skeleton = (
     <div className="main-details-steam gamepage-root gamepage-blur">
       <button className="gamepage-back-btn" style={{ opacity: 0 }}>
@@ -97,78 +215,6 @@ const GamePage: React.FC = () => {
   }
   if (!game) return <div>Game not found.</div>;
 
-  // Buy game logic
-  const handleBuyGame = async () => {
-    if (!game) return;
-    setPrompt(`Buy "${game.name}"?\nPrice: ${game.price}`);
-  };
-
-  const confirmBuy = async () => {
-    setPrompt(null);
-    setBuying(true);
-    try {
-      const res = await fetch(`${endpoint}/games/${game.gameId}/buy`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to buy game");
-      setAlert("Purchase successful!");
-    } catch (err: any) {
-      setAlert(err.message);
-    } finally {
-      setBuying(false);
-    }
-  };
-
-  const handleGiftGame = async () => {
-    if (!game || !token) return;
-    // Ouvrir directement le modal de gift au lieu d'utiliser le prompt
-    setShowGiftModal(true);
-  };
-
-  const confirmGift = async () => {
-    setShowGiftModal(false); // Fermer le modal
-    setIsGifting(true);
-    try {
-      const res = await fetch(`${endpoint}/gifts/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          gameId: game.gameId,
-          message: giftMessage.trim() || undefined
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create gift");
-
-      setGiftCode(data.gift.giftCode);
-      setGiftMessage("");
-      setAlert(
-        <>
-          Gift created! Share this link:{" "}
-          <a
-            href={`/gift?code=${data.gift.giftCode}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#4caf50", textDecoration: "underline" }}
-          >
-            {window.location.origin}/gift?code={data.gift.giftCode}
-          </a>
-        </>
-      );
-    } catch (err: any) {
-      setAlert(err.message);
-    } finally {
-      setIsGifting(false);
-    }
-  };
-
   return (
     <div className="main-details-steam gamepage-root">
       <button onClick={() => router.back()} className="gamepage-back-btn">
@@ -188,7 +234,6 @@ const GamePage: React.FC = () => {
       </div>
       <div className="main-details-content">
         <h2>{game.name}</h2>
-        {/* --- Ajout du propriétaire sous le nom du jeu --- */}
         {ownerInfo && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <a
@@ -218,7 +263,6 @@ const GamePage: React.FC = () => {
             </a>
           </div>
         )}
-        {/* --- Fin ajout propriétaire --- */}
         {game.price !== undefined && (
           <div
             style={{
@@ -255,8 +299,6 @@ const GamePage: React.FC = () => {
                 Buy
               </button>
             ) : null}
-
-            {/* Afficher le bouton Gift pour tous les utilisateurs connectés */}
             {token && (
               <button
                 className="shop-game-gift-btn"
@@ -314,9 +356,7 @@ const GamePage: React.FC = () => {
               <b>Platforms:</b> {game.platforms}
             </div>
           )}
-
         </div>
-        {/* Add more details or actions as needed */}
       </div>
       {/* Gift Modal */}
       {showGiftModal && (
@@ -397,6 +437,298 @@ const GamePage: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
-export default GamePage;
+function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
+  const {
+    game,
+    loading,
+    router,
+    ownerInfo,
+    userOwnsGame,
+    prompt,
+    setPrompt,
+    alert,
+    setAlert,
+    buying,
+    handleBuyGame,
+    confirmBuy,
+    isGifting,
+    handleGiftGame,
+    confirmGift,
+    showGiftModal,
+    setShowGiftModal,
+    giftMessage,
+    setGiftMessage,
+    token,
+  } = props;
+
+  const skeleton = (
+    <div className="main-details-steam gamepage-root gamepage-blur" style={{ fontSize: "0.98em" }}>
+      <button className="gamepage-back-btn" style={{ opacity: 0 }}>
+        ← Back
+      </button>
+      <div className="banner-container">
+        <div className="main-banner-steam skeleton-banner" />
+        <div className="main-icon-steam skeleton-icon" />
+      </div>
+      <div className="main-details-content">
+        <div className="skeleton-title" />
+        <div className="skeleton-desc" />
+        <div className="skeleton-properties" />
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div style={{ position: "relative" }}>
+        {skeleton}
+        <div className="gamepage-loading-overlay">
+          <div className="inventory-loading-spinner" />
+        </div>
+      </div>
+    );
+  }
+  if (!game) return <div>Game not found.</div>;
+
+  return (
+    <div className="main-details-steam gamepage-root" style={{ fontSize: "0.98em", padding: 0 }}>
+      <button onClick={() => router.back()} className="gamepage-back-btn" style={{ fontSize: "1em", padding: "6px 18px" }}>
+        ← Back
+      </button>
+      <div className="banner-container" style={{ height: 120 }}>
+        <CachedImage
+          src={`/banners-icons/${game.bannerHash}`}
+          alt={game.name}
+          className="main-banner-steam"
+          style={{ height: 120, objectFit: "cover" }}
+        />
+        <CachedImage
+          src={`/games-icons/${game.iconHash}`}
+          alt={game.name}
+          className="main-icon-steam"
+          style={{ width: 64, height: 64, left: 12, bottom: -32 }}
+        />
+      </div>
+      <div className="main-details-content" style={{ padding: "24px 10px 10px 10px" }}>
+        <h2 style={{ fontSize: "1.1em" }}>{game.name}</h2>
+        {ownerInfo && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <a
+              href={`/profile?user=${ownerInfo.id}`}
+              style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+            >
+              <CachedImage
+                src={`/avatar/${ownerInfo.id}`}
+                alt={ownerInfo.username}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  marginRight: 8,
+                  objectFit: "cover",
+                  border: "2px solid #444"
+                }}
+              />
+              <span style={{ fontWeight: 500, fontSize: "0.98em" }}>
+                {ownerInfo.username}
+                {ownerInfo.admin ? (
+                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                ) : ownerInfo.verified ? (
+                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                ) : null}
+              </span>
+            </a>
+          </div>
+        )}
+        {game.price !== undefined && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              margin: "12px 0",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <b>Price:</b> {game.price}{" "}
+              <CachedImage
+                src="/assets/credit.png"
+                className="gamepage-credit-icon"
+                style={{ width: 18, height: 18 }}
+              />
+            </div>
+            {!userOwnsGame ? (
+              <button
+                className="shop-game-buy-btn"
+                style={{
+                  padding: "8px 18px",
+                  fontSize: "1em",
+                  borderRadius: 7,
+                  fontWeight: 700,
+                  background: "#4caf50",
+                  color: "var(--text-color-primary)",
+                  border: "none",
+                  cursor: buying ? "not-allowed" : "pointer",
+                  opacity: buying ? 0.7 : 1,
+                }}
+                onClick={handleBuyGame}
+                disabled={buying}
+              >
+                Buy
+              </button>
+            ) : null}
+            {token && (
+              <button
+                className="shop-game-gift-btn"
+                style={{
+                  padding: "8px 18px",
+                  fontSize: "1em",
+                  borderRadius: 7,
+                  fontWeight: 700,
+                  background: "#ff9800",
+                  color: "var(--text-color-primary)",
+                  border: "none",
+                  cursor: isGifting ? "not-allowed" : "pointer",
+                  opacity: isGifting ? 0.7 : 1,
+                }}
+                onClick={handleGiftGame}
+                disabled={isGifting}
+              >
+                Gift ({game.price})
+              </button>
+            )}
+          </div>
+        )}
+        <p className="gamepage-desc" style={{ overflowY: "auto", fontSize: "0.98em" }}>
+          {game.description
+            .split('\n')
+            .map((line, idx) => (
+              <React.Fragment key={idx}>
+                {line}
+                <br />
+              </React.Fragment>
+            ))}
+        </p>
+        <div className="game-properties" style={{ fontSize: "0.97em" }}>
+          {game.genre && (
+            <div>
+              <b>Genre:</b> {game.genre}
+            </div>
+          )}
+          {game.developer && (
+            <div>
+              <b>Developer:</b> {game.developer}
+            </div>
+          )}
+          {game.publisher && (
+            <div>
+              <b>Publisher:</b> {game.publisher}
+            </div>
+          )}
+          {game.release_date && (
+            <div>
+              <b>Release Date:</b> {game.release_date}
+            </div>
+          )}
+          {game.platforms && (
+            <div>
+              <b>Platforms:</b> {game.platforms}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Gift Modal */}
+      {showGiftModal && (
+        <div className="shop-prompt-overlay">
+          <div className="shop-prompt">
+            <div className="shop-prompt-message">
+              <h3 style={{ fontSize: "1em" }}>Gift "{game.name}"</h3>
+              <textarea
+                placeholder="Optional message for the recipient..."
+                value={giftMessage}
+                onChange={(e) => setGiftMessage(e.target.value)}
+                style={{
+                  width: "100%",
+                  height: "60px",
+                  margin: "8px 0",
+                  padding: "6px",
+                  borderRadius: "4px",
+                  border: "1px solid #ccc",
+                  resize: "vertical",
+                  fontSize: "0.98em"
+                }}
+              />
+            </div>
+            <button
+              className="shop-prompt-buy-btn"
+              onClick={confirmGift}
+              disabled={isGifting}
+              style={{ fontSize: "1em", padding: "7px 18px" }}
+            >
+              Create Gift
+            </button>
+            <button
+              className="shop-prompt-cancel-btn"
+              onClick={() => {
+                setShowGiftModal(false);
+                setGiftMessage("");
+              }}
+              disabled={isGifting}
+              style={{ fontSize: "1em", padding: "7px 18px" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Prompt overlay */}
+      {prompt && (
+        <div className="shop-prompt-overlay">
+          <div className="shop-prompt">
+            <div className="shop-prompt-message">{prompt}</div>
+            <button
+              className="shop-prompt-buy-btn"
+              onClick={confirmBuy}
+              disabled={buying}
+              style={{ fontSize: "1em", padding: "7px 18px" }}
+            >
+              Buy
+            </button>
+            <button
+              className="shop-prompt-cancel-btn"
+              onClick={() => setPrompt(null)}
+              disabled={buying}
+              style={{ fontSize: "1em", padding: "7px 18px" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Alert overlay */}
+      {alert && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div className="shop-alert-message">{alert}</div>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setAlert(null)}
+              style={{ fontSize: "1em", padding: "7px 18px" }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function GamePage() {
+  const isMobile = useIsMobile();
+  const logic = useGamePageLogic();
+  return isMobile ? <GameMobile {...logic} /> : <GameDesktop {...logic} />;
+}

@@ -237,7 +237,7 @@ function AppContent({ Component, pageProps }: AppProps) {
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
           isMobile ? <NavBarMobile /> : <NavBarDesktop />
         )}
-        <main style={mainStyle}>
+        <main style={{...mainStyle, padding: isMobile ? "0px" : undefined}}>
           <Component {...pageProps} />
         </main>
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}

@@ -391,9 +391,6 @@ function HomeMobile() {
 
   return (
     <>
-      <span style={{ ...topSpanStyle, fontSize: 14, marginBottom: 10 }}>
-        Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology
-      </span>
       <div className="container" style={{ margin: "0 auto", padding: "0.5rem", maxWidth: 1000 }}>
         <h2 style={{ fontSize: "1.1rem", marginBottom: 8 }}>
           <span className="method post">Platform Overview</span>

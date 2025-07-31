@@ -857,7 +857,7 @@ input[type=text].required:focus {
     cursor: pointer;
     font-size: 15px;
     position: absolute;
-    z-index: 10
+    z-index: 2
 }
 
 .game-properties,

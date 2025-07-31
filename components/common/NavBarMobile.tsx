@@ -20,11 +20,11 @@ export default function NavBarMobile() {
 
     // Styles mobile uniquement
     const headerStyle: React.CSSProperties = {
-        width: "100%",
+        // width: "100%",
         background: "#191b20",
         color: "#e2e8f0",
         borderBottom: "1px solid #23242a",
-        padding: "0.1rem 0 0.1rem 0",
+        // padding: "0.1rem 0 0.1rem 0",
         boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         position: "relative",
         zIndex: 10,
@@ -34,7 +34,7 @@ export default function NavBarMobile() {
         flexDirection: "column",
         maxWidth: 1200,
         margin: "0 auto",
-        padding: "0.1rem 0.5rem",
+        // padding: "0.1rem 0.5rem",
         width: "100%",
     };
     const rowStyle: React.CSSProperties = {
