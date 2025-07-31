@@ -695,6 +695,7 @@ function useSettingsLogic() {
     setPasskeyError(null);
     setPasskeySuccess(null);
     try {
+      // 1. Get registration options from backend
       const res = await fetch("/api/webauthn/register/options", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -703,12 +704,14 @@ function useSettingsLogic() {
       if (!res.ok) throw new Error("Failed to get registration options");
       const options = await res.json();
 
+      // Ajoute les options pour credential discoverable si absent
       if (!options.authenticatorSelection) {
         options.authenticatorSelection = {
           residentKey: "required",
           userVerification: "required",
         };
       }
+      // Optionnel, pour compatibilité
       options.requireResidentKey = true;
 
       if (typeof options.challenge === "string") {
@@ -717,19 +720,32 @@ function useSettingsLogic() {
       if (typeof options.user.id === "string") {
         options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
       }
+      if (!options.user.name) {
+        options.user.name = user?.email || user?.username || "user";
+      }
+      if (!options.user.displayName) {
+        options.user.displayName = user?.username || user?.email || "User";
+      }
       try {
         const cred = await navigator.credentials.create({ publicKey: options });
         if (!cred) throw new Error("Passkey creation failed");
 
+        // Serialize credential for transport
+        function bufferToBase64(buf) {
+          return btoa(String.fromCharCode(...new Uint8Array(buf)));
+        }
+
         function bufferToBase64url(buf: ArrayBuffer): string {
+          // Convert ArrayBuffer to base64url string
           let str = btoa(String.fromCharCode(...new Uint8Array(buf)));
+          // base64url: remplace + par -, / par _, retire les =
           return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
         }
 
         const publicKeyCred = cred as PublicKeyCredential;
         const credential = {
-          id: publicKeyCred.id,
-          rawId: bufferToBase64url(publicKeyCred.rawId),
+          id: publicKeyCred.id, // <-- déjà base64url, ne pas encoder
+          rawId: bufferToBase64url(publicKeyCred.rawId), // <-- base64url
           type: publicKeyCred.type,
           response: {
             attestationObject: bufferToBase64url(
@@ -742,6 +758,7 @@ function useSettingsLogic() {
           clientExtensionResults: publicKeyCred.getClientExtensionResults(),
         };
 
+        // Send credential to backend for verification
         const verifyRes = await fetch("/api/webauthn/register/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -750,7 +767,7 @@ function useSettingsLogic() {
         if (!verifyRes.ok) throw new Error("Failed to register passkey");
         setPasskeySuccess("Passkey registered!");
       } catch (err) {
-        console.log(err);
+        console.error("Passkey registration error:", err);
         throw new Error("Passkey registration failed");
       }
     } catch (e: any) {
@@ -995,6 +1012,12 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       }
       if (typeof options.user.id === "string") {
         options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+      }
+      if (!options.user.name) {
+        options.user.name = user?.email || user?.username || "user";
+      }
+      if (!options.user.displayName) {
+        options.user.displayName = user?.username || user?.email || "User";
       }
       try {
         const cred = await navigator.credentials.create({ publicKey: options });
