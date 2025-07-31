@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import CachedImage from "../components/utils/CachedImage";
-import useUserCache from "../hooks/useUserCache";
 import Link from "next/link";
+import useIsMobile from "../hooks/useIsMobile";
 
 interface BuyOrder {
     id: string;
@@ -23,7 +23,7 @@ interface ItemDetails {
     iconHash: string;
 }
 
-export default function MyBuyOrdersPage() {
+function useMyBuyOrdersLogic() {
     const { user, loading: userLoading } = useAuth();
     const [orders, setOrders] = useState<BuyOrder[]>([]);
     const [loading, setLoading] = useState(true);
@@ -79,6 +79,20 @@ export default function MyBuyOrdersPage() {
         }
     };
 
+    return {
+        user,
+        userLoading,
+        orders,
+        loading,
+        error,
+        itemDetails,
+        handleCancel,
+    };
+}
+
+function MyBuyOrdersDesktop(props: ReturnType<typeof useMyBuyOrdersLogic>) {
+    const { user, userLoading, orders, loading, error, itemDetails, handleCancel } = props;
+
     if (userLoading) return <div>Loading...</div>;
     if (!user) return <div>You must be logged in to view your buy orders.</div>;
 
@@ -86,7 +100,7 @@ export default function MyBuyOrdersPage() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2>My Buy Orders</h2>
-                <Link href="/marketplace" style={{ color: "#ffd700", fontWeight: 600, fontSize: 16 }}>← Back to Marketplace</Link>
+                <Link href="/marketplace" style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>← Back to Marketplace</Link>
             </div>
             {loading && <div>Loading...</div>}
             {error && <div style={{ color: "red" }}>{error}</div>}
@@ -163,7 +177,7 @@ export default function MyBuyOrdersPage() {
         }
         .market-table th {
           background: #181b20;
-          color: #ffd700;
+          color: #fff;
           font-weight: 600;
           font-size: 15px;
           border-bottom: 2px solid #333;
@@ -223,7 +237,6 @@ export default function MyBuyOrdersPage() {
             padding: 4px 8px;
             font-size: 12px;
           }
-          /* Pour permettre le scroll horizontal sur mobile */
           .market-table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -232,4 +245,109 @@ export default function MyBuyOrdersPage() {
       `}</style>
         </div>
     );
+}
+
+function MyBuyOrdersMobile(props: ReturnType<typeof useMyBuyOrdersLogic>) {
+    const { user, userLoading, orders, loading, error, itemDetails, handleCancel } = props;
+
+    if (userLoading) return <div>Loading...</div>;
+    if (!user) return <div>You must be logged in to view your buy orders.</div>;
+
+    return (
+        <div style={{ maxWidth: 480, margin: "0 auto", padding: 8, fontSize: "0.98em" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
+                <h2 style={{ fontSize: "1.1em" }}>My Buy Orders</h2>
+                <Link href="/marketplace" style={{ color: "#fff", fontWeight: 600, fontSize: "1em" }}>
+                    ← Back to Marketplace
+                </Link>
+            </div>
+            {loading && <div>Loading...</div>}
+            {error && <div style={{ color: "red" }}>{error}</div>}
+            {!loading && orders.length === 0 ? (
+                <div>No buy orders placed.</div>
+            ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {orders.map(order => {
+                        const item = itemDetails[order.item_id];
+                        return (
+                            <div
+                                key={order.id}
+                                style={{
+                                    background: "#23272e",
+                                    borderRadius: 10,
+                                    boxShadow: "0 2px 8px #0003",
+                                    padding: 12,
+                                    marginBottom: 2,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 6,
+                                }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    {item ? (
+                                        <CachedImage
+                                            src={`/items-icons/${item.iconHash || item.itemId}`}
+                                            alt=""
+                                            width={36}
+                                            height={36}
+                                            style={{ borderRadius: 8, background: "#181b20" }}
+                                        />
+                                    ) : (
+                                        <span style={{ fontWeight: 600 }}>{order.item_id}</span>
+                                    )}
+                                    <div>
+                                        <div style={{ fontWeight: 600, fontSize: "1.05em", color: "#fff" }}>
+                                            {item ? item.name : order.item_id}
+                                        </div>
+                                        <div style={{ color: "#bbb", fontSize: "0.97em" }}>
+                                            {item ? item.description : ""}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                                    <span style={{ color: "#fff", fontWeight: 600 }}>
+                                        {order.price}{" "}
+                                        <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
+                                    </span>
+                                    <span style={{ color: "#aaa", fontSize: "0.93em", marginLeft: 8 }}>
+                                        {order.status}
+                                    </span>
+                                    <span style={{ color: "#aaa", fontSize: "0.93em", marginLeft: 8 }}>
+                                        {new Date(order.created_at).toLocaleString()}
+                                    </span>
+                                    <span style={{ marginLeft: "auto" }}>
+                                        {order.status === "active" ? (
+                                            <button
+                                                onClick={() => handleCancel(order)}
+                                                style={{
+                                                    background: "#ff6666",
+                                                    color: "#fff",
+                                                    border: "none",
+                                                    borderRadius: 6,
+                                                    padding: "5px 14px",
+                                                    fontWeight: 600,
+                                                    fontSize: "0.97em",
+                                                    cursor: "pointer"
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        ) : (
+                                            <span style={{ color: "#888" }}>—</span>
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function MyBuyOrdersPage() {
+    const isMobile = useIsMobile();
+    const logic = useMyBuyOrdersLogic();
+    return isMobile ? <MyBuyOrdersMobile {...logic} /> : <MyBuyOrdersDesktop {...logic} />;
 }

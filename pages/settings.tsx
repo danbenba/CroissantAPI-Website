@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
+import useIsMobile from "../hooks/useIsMobile";
 
 const containerStyle: React.CSSProperties = {
   maxWidth: 500,
@@ -536,7 +537,277 @@ function SecurityModal({
   );
 }
 
-export default function Settings() {
+function useSettingsLogic() {
+  const { user, token, setUser } = useAuth();
+  const router = useRouter();
+  const [email, setEmail] = useState(user?.email || "");
+  const [username, setUsername] = useState(user?.username || "");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [avatar, setAvatar] = useState(user?.id ? `/avatar/${user.id}` : "/avatar/default.png");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [linkText, setLinkText] = useState("Link Steam Account");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Passkey registration state
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [showGoogleAuthModal, setShowGoogleAuthModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !user) return;
+    setLinkText(
+      typeof window !== "undefined" &&
+        window.location.search.includes("from=launcher")
+        ? "Go on website to link"
+        : !user?.isStudio
+        ? "Link Steam Account"
+        : "Studio can't link Steam"
+    );
+  }, [user, linkText]);
+
+  useEffect(() => {
+    if (typeof document == "undefined") return;
+    setTimeout(() => {
+      if (
+        document
+          .querySelector("img[alt='Profile']")
+          ?.getAttribute("src")
+          ?.includes("default.png")
+      ) {
+        router.push("/login");
+      }
+    }, 2000);
+  }, []);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setAvatarFile(file);
+    setAvatar(URL.createObjectURL(file));
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+      const res = await fetch("/upload/avatar", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to upload avatar");
+      setSuccess("Profile picture updated!");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    setUsernameError(null);
+    setUsernameSuccess(null);
+  };
+
+  const handleUsernameSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUsernameLoading(true);
+    setUsernameError(null);
+    setUsernameSuccess(null);
+    try {
+      const res = await fetch("/api/users/change-username", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update username");
+      setUsernameSuccess("Username updated!");
+      setUser && setUser({ ...user, username });
+    } catch (e: any) {
+      setUsernameError(e.message);
+    } finally {
+      setUsernameLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async ({
+    oldPassword,
+    newPassword,
+    confirmPassword,
+  }: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    setPasswordLoading(true);
+    setPasswordError(null);
+    setPasswordSuccess(null);
+    try {
+      if (!newPassword || !confirmPassword) {
+        throw new Error("Please fill all password fields.");
+      }
+      if (newPassword !== confirmPassword) {
+        throw new Error("New password and confirmation do not match.");
+      }
+      const res = await fetch("/api/users/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(
+          data.message || "Error changing password"
+        );
+      setPasswordSuccess("Password updated!");
+      setShowPasswordModal(false);
+    } catch (e: any) {
+      setPasswordError(e.message);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleRegisterPasskey = async () => {
+    setPasskeyLoading(true);
+    setPasskeyError(null);
+    setPasskeySuccess(null);
+    try {
+      const res = await fetch("/api/webauthn/register/options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user?.id, username: user?.username, email: user?.email }),
+      });
+      if (!res.ok) throw new Error("Failed to get registration options");
+      const options = await res.json();
+
+      if (!options.authenticatorSelection) {
+        options.authenticatorSelection = {
+          residentKey: "required",
+          userVerification: "required",
+        };
+      }
+      options.requireResidentKey = true;
+
+      if (typeof options.challenge === "string") {
+        options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+      }
+      if (typeof options.user.id === "string") {
+        options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+      }
+      try {
+        const cred = await navigator.credentials.create({ publicKey: options });
+        if (!cred) throw new Error("Passkey creation failed");
+
+        function bufferToBase64url(buf: ArrayBuffer): string {
+          let str = btoa(String.fromCharCode(...new Uint8Array(buf)));
+          return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        }
+
+        const publicKeyCred = cred as PublicKeyCredential;
+        const credential = {
+          id: publicKeyCred.id,
+          rawId: bufferToBase64url(publicKeyCred.rawId),
+          type: publicKeyCred.type,
+          response: {
+            attestationObject: bufferToBase64url(
+              (publicKeyCred.response as AuthenticatorAttestationResponse).attestationObject
+            ),
+            clientDataJSON: bufferToBase64url(
+              (publicKeyCred.response as AuthenticatorAttestationResponse).clientDataJSON
+            ),
+          },
+          clientExtensionResults: publicKeyCred.getClientExtensionResults(),
+        };
+
+        const verifyRes = await fetch("/api/webauthn/register/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential, userId: user?.id }),
+        });
+        if (!verifyRes.ok) throw new Error("Failed to register passkey");
+        setPasskeySuccess("Passkey registered!");
+      } catch (err) {
+        throw new Error("Passkey registration failed");
+      }
+    } catch (e: any) {
+      setPasskeyError(e.message);
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
+  return {
+    user,
+    token,
+    setUser,
+    email,
+    setEmail,
+    username,
+    setUsername,
+    usernameLoading,
+    usernameSuccess,
+    usernameError,
+    showApiKey,
+    setShowApiKey,
+    avatar,
+    setAvatar,
+    avatarFile,
+    setAvatarFile,
+    loading,
+    setLoading,
+    success,
+    setSuccess,
+    error,
+    setError,
+    fileInputRef,
+    linkText,
+    setLinkText,
+    showPasswordModal,
+    setShowPasswordModal,
+    passwordLoading,
+    passwordSuccess,
+    passwordError,
+    handleAvatarChange,
+    handleAvatarUpload,
+    handleUsernameChange,
+    handleUsernameSave,
+    handlePasswordChange,
+    passkeyLoading,
+    passkeySuccess,
+    passkeyError,
+    handleRegisterPasskey,
+    showGoogleAuthModal,
+    setShowGoogleAuthModal,
+    showSecurityModal,
+    setShowSecurityModal,
+    router,
+  };
+}
+
+function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
   const { user, token, setUser } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(user?.email || "");
@@ -1013,4 +1284,279 @@ export default function Settings() {
       />
     </div>
   );
+}
+
+function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
+  // Version mobile : layout vertical, padding réduit, boutons plus gros, police plus petite
+  // Adaptez les styles pour mobile
+  const {
+    user, token, setUser, email, setEmail, username, setUsername, usernameLoading, usernameSuccess, usernameError,
+    showApiKey, setShowApiKey, avatar, avatarFile, loading, success, error, fileInputRef, linkText,
+    showPasswordModal, setShowPasswordModal, passwordLoading, passwordSuccess, passwordError,
+    handleAvatarChange, handleAvatarUpload, handleUsernameChange, handleUsernameSave, handlePasswordChange,
+    passkeyLoading, passkeySuccess, passkeyError, handleRegisterPasskey,
+    showGoogleAuthModal, setShowGoogleAuthModal, showSecurityModal, setShowSecurityModal, router
+  } = props;
+
+  return (
+    <div className="container" style={{
+      maxWidth: 420,
+      margin: "18px",
+      background: "#23232a",
+      borderRadius: 10,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+      padding: "18px 8px",
+      color: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      position: "relative",
+      fontSize: "0.98em"
+    }}>
+      <h2 style={{ marginBottom: 18, fontSize: "1.2em" }}>Settings</h2>
+      <button
+        style={{
+          position: "absolute",
+          top: 12,
+          right: 12,
+          background: "none",
+          border: "none",
+          color: user?.isStudio ? "#aaa" : "#fff",
+          cursor: "pointer",
+          fontSize: 20,
+          zIndex: 2,
+        }}
+        onClick={() => setShowPasswordModal(true)}
+        disabled={user?.isStudio}
+        type="button"
+        title="Change password"
+      >
+        <i className="fas fa-key" aria-hidden="true" />
+      </button>
+      {!user?.isStudio && (
+        <button
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 48,
+            background: "none",
+            border: "none",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: 20,
+            zIndex: 2,
+          }}
+          onClick={() => setShowSecurityModal(true)}
+          type="button"
+          title="Security & Social Links"
+        >
+          <i className="fas fa-link" aria-hidden="true" />
+        </button>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <CachedImage
+          src={avatar}
+          alt="Profile"
+          style={{
+            width: 90,
+            height: 90,
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginBottom: 8,
+            border: "2px solid #444",
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          title="Change profile picture"
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleAvatarChange}
+        />
+        {avatarFile && (
+          <button
+            type="button"
+            style={{
+              width: "100%",
+              padding: "8px",
+              background: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontSize: "1em",
+              fontWeight: 600,
+              marginTop: 4,
+            }}
+            onClick={handleAvatarUpload}
+            disabled={loading}
+          >
+            {loading ? "Uploading..." : "Upload new picture"}
+          </button>
+        )}
+        <form
+          onSubmit={handleUsernameSave}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            alignItems: "stretch",
+            marginTop: 0,
+            marginBottom: 8,
+            width: "100%",
+          }}
+        >
+          <label style={{ fontWeight: 600, marginBottom: 2 }}>Username</label>
+          <input
+            type="text"
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: 6,
+              border: "1px solid #444",
+              background: "#18181c",
+              color: "#fff",
+              fontSize: "1em",
+              marginBottom: 0,
+            }}
+            value={username}
+            onChange={handleUsernameChange}
+            autoComplete="username"
+            minLength={3}
+            maxLength={32}
+            required
+            disabled={usernameLoading}
+          />
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "8px",
+              background: "#5865F2",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontSize: "1em",
+              fontWeight: 600,
+              marginTop: 6,
+            }}
+            disabled={usernameLoading}
+          >
+            {usernameLoading ? "Saving..." : "Save"}
+          </button>
+        </form>
+        {usernameSuccess && (
+          <div style={{ color: "#4caf50", marginTop: 2 }}>{usernameSuccess}</div>
+        )}
+        {usernameError && (
+          <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>
+        )}
+      </div>
+      {user && (
+        <div style={{ marginTop: 18, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <label style={{ fontWeight: 600, marginBottom: 2 }}>API Key</label>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexDirection: "column" }}>
+            <code
+              style={{
+                background: "#444",
+                borderRadius: 4,
+                padding: "6px 12px",
+                fontWeight: 500,
+                fontSize: 14,
+                userSelect: showApiKey ? "all" : "none",
+                cursor: showApiKey ? "pointer" : "default",
+                minWidth: 120,
+              }}
+              onClick={() => {
+                if (showApiKey) navigator.clipboard.writeText(token || "");
+              }}
+              title={showApiKey ? "Click to copy" : "Click Show"}
+            >
+              {showApiKey ? token : "*".repeat(Math.max(8, String(token || "").length))}
+            </code>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  textDecoration: "underline",
+                  opacity: 0.7,
+                }}
+                onClick={() => setShowApiKey((v) => !v)}
+              >
+                {showApiKey ? "Hide" : "Show"}
+              </button>
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  textDecoration: "underline",
+                  opacity: 0.7,
+                }}
+                onClick={() => navigator.clipboard.writeText(token || "")}
+                disabled={!showApiKey}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+          <div style={{ fontSize: 12, color: "#aaa", marginTop: 4 }}>
+            This key allows you to use the API on your behalf.
+          </div>
+        </div>
+      )}
+      {user && !user?.isStudio ? (
+        <>
+          {/* Password Modal */}
+          <ChangePasswordModal
+            open={showPasswordModal}
+            onClose={() => setShowPasswordModal(false)}
+            onSubmit={handlePasswordChange}
+            loading={passwordLoading}
+            error={passwordError}
+            success={passwordSuccess}
+          />
+        </>
+      ) : null}
+      <div style={{ marginTop: 18 }} />
+      <GoogleAuthenticatorSetupModal
+        open={showGoogleAuthModal}
+        onClose={(success) => { setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); } }}
+        user={user}
+      />
+      <SecurityModal
+        open={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        user={user}
+        setUser={setUser}
+        passkeyLoading={passkeyLoading}
+        passkeySuccess={passkeySuccess}
+        passkeyError={passkeyError}
+        handleRegisterPasskey={handleRegisterPasskey}
+        showGoogleAuthModal={showGoogleAuthModal}
+        setShowGoogleAuthModal={setShowGoogleAuthModal}
+        success={success}
+        error={error}
+        setError={props.setError}
+        setSuccess={props.setSuccess}
+        router={router}
+        linkText={linkText}
+      />
+    </div>
+  );
+}
+
+export default function Settings() {
+  const isMobile = useIsMobile();
+  const logic = useSettingsLogic();
+  return isMobile ? <SettingsMobile {...logic} /> : <SettingsDesktop {...logic} />;
 }

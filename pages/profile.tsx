@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
+import useAuth from "../hooks/useAuth";
+import useUserCache from "../hooks/useUserCache";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import CachedImage from "../components/utils/CachedImage";
 import TradePanel from "../components/TradePanel";
+import useIsMobile from "../hooks/useIsMobile";
+import Inventory from "../components/Inventory";
+
+const endpoint = "/api";
+
 // --- Give Credits Modal ---
 function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
   const [amount, setAmount] = useState(1);
@@ -49,16 +59,6 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
     </div>
   );
 }
-import { useRouter, useSearchParams } from "next/navigation";
-
-import Link from "next/link";
-import Inventory, { Item } from "../components/Inventory";
-
-const endpoint = "/api"; // Replace with your actual API endpoint
-
-import useAuth from "../hooks/useAuth";
-import useUserCache from "../hooks/useUserCache";
-import CachedImage from "../components/utils/CachedImage";
 
 export interface ShopItem {
   itemId: string;
@@ -81,7 +81,7 @@ interface User {
   disabled?: boolean;
   admin?: boolean;
   isStudio?: boolean;
-  inventory?: (Item & { amount: number })[];
+  inventory?: ({ itemId: string; name: string; description: string; price: number; iconHash: string; } & { amount: number })[];
   ownedItems?: ShopItem[];
 }
 
@@ -251,7 +251,7 @@ function ProfileShop({
   };
 
   // Grid layout calculations
-  const columns = 3;
+  const columns = 4;
   const minRows = 3;
   const totalItems = items.length;
   const rows = Math.max(minRows, Math.ceil(totalItems / columns));
@@ -486,7 +486,7 @@ const ShopItemImage = React.memo(function ShopItemImage({ item }: { item: ShopIt
   );
 });
 
-export default function Profile({ userId }: ProfileProps) {
+function useProfileLogic(userId: string) {
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -639,6 +639,83 @@ export default function Profile({ userId }: ProfileProps) {
       setGiveCreditsLoading(false);
     }
   };
+
+  return {
+    showTradeModal,
+    setShowTradeModal,
+    search,
+    profile,
+    loading,
+    error,
+    giveCreditsOpen,
+    giveCreditsLoading,
+    giveCreditsError,
+    giveCreditsSuccess,
+    currentTradeId,
+    inventoryReloadFlag,
+    isProfileReloading,
+    setGiveCreditsOpen,
+    setCurrentTradeId,
+    reloadInventory,
+    handleDisableAccount,
+    handleReenableAccount,
+    handleProfilePictureChange,
+    handleStartTrade,
+    handleGiveCredits,
+    setLoading,
+    reloadProfile,
+    setProfile,
+    setError,
+    setGiveCreditsSuccess,
+    setGiveCreditsError,
+    setGiveCreditsLoading,
+    setIsProfileReloading,
+    setInventoryReloadFlag
+  };
+}
+
+// Version Desktop
+function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
+  const {
+    profile,
+    loading,
+    error,
+    giveCreditsOpen,
+    giveCreditsLoading,
+    giveCreditsError,
+    giveCreditsSuccess,
+    currentTradeId,
+    inventoryReloadFlag,
+    isProfileReloading,
+    setGiveCreditsOpen,
+    setCurrentTradeId,
+    reloadInventory,
+    handleDisableAccount,
+    handleReenableAccount,
+    handleProfilePictureChange,
+    handleStartTrade,
+    handleGiveCredits,
+    search,
+    setIsProfileReloading,
+    reloadProfile,
+    setGiveCreditsError,
+    setGiveCreditsSuccess,
+    setInventoryReloadFlag,
+    setLoading,
+    setShowTradeModal
+  } = props;
+
+  const { user, token } = useAuth();
+
+  // Debounce reloadProfile to avoid too many fetches
+  useEffect(() => {
+    if (isProfileReloading) return;
+    const handler = setTimeout(() => {
+      reloadProfile();
+      setIsProfileReloading(false);
+    }, 250); // 250ms debounce
+    return () => clearTimeout(handler);
+  }, [search, isProfileReloading, reloadProfile]);
 
   if (loading)
     return (
@@ -930,4 +1007,302 @@ export default function Profile({ userId }: ProfileProps) {
       }
     </div >
   );
+}
+
+// Version Mobile
+function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
+  const {
+    profile,
+    loading,
+    error,
+    giveCreditsOpen,
+    giveCreditsLoading,
+    giveCreditsError,
+    giveCreditsSuccess,
+    currentTradeId,
+    inventoryReloadFlag,
+    isProfileReloading,
+    setGiveCreditsOpen,
+    setCurrentTradeId,
+    reloadInventory,
+    handleDisableAccount,
+    handleReenableAccount,
+    handleProfilePictureChange,
+    handleStartTrade,
+    handleGiveCredits,
+    search,
+    setIsProfileReloading,
+    reloadProfile,
+    setGiveCreditsError,
+    setShowTradeModal,
+    setInventoryReloadFlag,
+    setGiveCreditsSuccess,
+  } = props;
+
+  const { user, token } = useAuth();
+
+  useEffect(() => {
+    if (isProfileReloading) return;
+    const handler = setTimeout(() => {
+      reloadProfile();
+      setIsProfileReloading(false);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [search, isProfileReloading, reloadProfile]);
+
+  if (loading)
+    return (
+      <div className="container">
+        <p>Loading profile...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="container">
+        <p style={{ color: "red" }}>{error}</p>
+      </div>
+    );
+  if (!profile)
+    return (
+      <div className="container">
+        <p>No profile found.</p>
+      </div>
+    );
+
+  const isMe = !search || search === user?.id;
+
+  return (
+    <div className="profile-root">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        <div className="profile-picture-container">
+          <label
+            htmlFor="profile-picture-input"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              cursor: isMe ? "pointer" : "default",
+            }}
+          >
+            <CachedImage
+              src={"/avatar/" + (search || user?.id)}
+              alt={profile.username}
+              className="profile-avatar"
+            />
+          </label>
+          {isMe && (
+            <input
+              id="profile-picture-input"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleProfilePictureChange}
+            />
+          )}
+        </div>
+        <div className="profile-header" style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div className="profile-name" style={{ fontSize: "1.2em", fontWeight: 600 }}>
+            {profile.username}{" "}
+            {profile.admin ? (
+              <CachedImage
+                src={"/assets/admin-mark.png"}
+                alt="Admin"
+                style={{
+                  marginLeft: 4,
+                  width: 24,
+                  height: 24,
+                  position: "relative",
+                  top: "4px",
+                }}
+              />
+            ) : profile.verified ? (
+              <CachedImage
+                src={
+                  profile.isStudio
+                    ? "/assets/brand-verified-mark.png"
+                    : "/assets/verified-mark.png"
+                }
+                alt="Verified"
+                style={{
+                  marginLeft: 4,
+                  width: 24,
+                  height: 24,
+                  position: "relative",
+                  top: "4px",
+                }}
+              />
+            ) : null}{" "}
+            {profile.disabled ? (
+              <span style={{ color: "red" }}>(Disabled)</span>
+            ) : null}
+          </div>
+          {/* Action buttons below username */}
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            justifyContent: "center",
+            marginTop: 8,
+            marginBottom: 8,
+          }}>
+            {user && !isMe && (
+              <>
+                {user.admin && profile.disabled ? (
+                  <button
+                    className="shop-prompt-buy-btn"
+                    style={{ background: "#4c7aafff", minWidth: 90 }}
+                    onClick={handleReenableAccount}
+                  >
+                    Reenable
+                  </button>
+                ) : null}
+                {user.admin && !profile.disabled ? (
+                  <button
+                    className="shop-prompt-buy-btn"
+                    style={{ background: "#f44336", minWidth: 90 }}
+                    onClick={handleDisableAccount}
+                  >
+                    Disable
+                  </button>
+                ) : null}
+                {!profile.disabled ? (
+                  <>
+                    <button
+                      className="shop-prompt-buy-btn"
+                      style={{ minWidth: 90 }}
+                      onClick={() => {
+                        setGiveCreditsOpen(true);
+                        setGiveCreditsError(null);
+                        setGiveCreditsSuccess(null);
+                      }}
+                    >
+                      Give Credits
+                    </button>
+                    <button
+                      className="shop-prompt-buy-btn"
+                      style={{ minWidth: 90 }}
+                      onClick={handleStartTrade}
+                    >
+                      Trade
+                    </button>
+                  </>
+                ) : null}
+              </>
+            )}
+            {user && isMe && (
+              <>
+                <Link href="/my-market-listings">
+                  <button className="shop-prompt-buy-btn" style={{ minWidth: 90 }}>
+                    My Listings
+                  </button>
+                </Link>
+                <Link href="/settings" title="Settings">
+                  <button className="shop-prompt-buy-btn" style={{ minWidth: 90 }}>
+                    <i className="fa fa-cog" aria-hidden="true"></i>
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            padding: "0 8px",
+          }}
+        >
+          <div className="profile-shop-section">
+            <h2 className="profile-inventory-title">Inventory</h2>
+            <Inventory
+              profile={profile}
+              isMe={isMe}
+              reloadFlag={inventoryReloadFlag}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", width: "100%", gap: 8 }}>
+            <ProfileShop
+              user={profile}
+              onBuySuccess={() => setInventoryReloadFlag((f) => f + 1)}
+            />
+          </div>
+        </div>
+      </div>
+      {/* Trade Panel - only show if not our own profile */}
+      {user && user.id !== profile.id && currentTradeId && (
+        <TradePanel
+          tradeId={currentTradeId}
+          userId={user.id}
+          token={token}
+          inventory={user.inventory}
+          reloadInventory={reloadInventory}
+          onClose={() => {
+            setCurrentTradeId(null);
+            setShowTradeModal(false);
+          }}
+          profile={profile}
+          apiBase="/api"
+        />
+      )}
+      {/* Give Credits Modal */}
+      <GiveCreditsModal
+        open={giveCreditsOpen}
+        onClose={() => setGiveCreditsOpen(false)}
+        onSubmit={(amount) => {
+          setGiveCreditsOpen(false);
+          handleGiveCredits(amount);
+        }}
+        maxAmount={user?.balance}
+        username={profile.username || profile.username}
+      />
+      {/* Feedback for give credits */}
+      {giveCreditsLoading && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div>Sending credits...</div>
+          </div>
+        </div>
+      )}
+      {giveCreditsError && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div style={{ color: "red" }}>{giveCreditsError}</div>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setGiveCreditsError(null)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+      {giveCreditsSuccess && (
+        <div className="shop-alert-overlay">
+          <div className="shop-alert">
+            <div>{giveCreditsSuccess}</div>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setGiveCreditsSuccess(null)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Profile({ userId }: ProfileProps) {
+  const isMobile = useIsMobile();
+  const logic = useProfileLogic(userId);
+  return isMobile ? <ProfileMobile {...logic} /> : <ProfileDesktop {...logic} />;
 }

@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
 import Link from "next/link";
+import useIsMobile from "../hooks/useIsMobile";
 
 export interface EnrichedMarketListing {
     id: string;
@@ -22,7 +23,7 @@ export interface EnrichedMarketListing {
     sellerName?: string;
 }
 
-export default function MarketplacePage() {
+function useMarketplaceLogic() {
     const { user, loading: userLoading } = useAuth();
     const [listings, setListings] = useState<EnrichedMarketListing[]>([]);
     const [loading, setLoading] = useState(true);
@@ -47,7 +48,6 @@ export default function MarketplacePage() {
             });
     }, []);
 
-    // Fetch seller usernames for all unique seller_ids
     useEffect(() => {
         const uniqueSellerIds = Array.from(new Set(listings.map(l => l.seller_id)));
         const missing = uniqueSellerIds.filter(id => !(id in sellerNames));
@@ -80,7 +80,7 @@ export default function MarketplacePage() {
         }
     };
 
-    // Simple modal for placing a buy order (WIP)
+    // Buy order modal logic
     const [buyOrderItemId, setBuyOrderItemId] = useState("");
     const [buyOrderPrice, setBuyOrderPrice] = useState(1);
     const [placingOrder, setPlacingOrder] = useState(false);
@@ -99,7 +99,6 @@ export default function MarketplacePage() {
                 body: JSON.stringify({
                     itemId: buyOrderItemId,
                     price: buyOrderPrice
-                    // amount is no longer sent
                 }),
             });
             const data = await res.json();
@@ -128,6 +127,55 @@ export default function MarketplacePage() {
         }
     };
 
+    return {
+        user,
+        listings,
+        loading,
+        error,
+        showBuyOrderModal,
+        setShowBuyOrderModal,
+        sellerNames,
+        handleBuy,
+        buyOrderItemId,
+        setBuyOrderItemId,
+        buyOrderPrice,
+        setBuyOrderPrice,
+        placingOrder,
+        buyOrderItemSearch,
+        setBuyOrderItemSearch,
+        buyOrderItemResults,
+        setBuyOrderItemResults,
+        buyOrderDropdownOpen,
+        setBuyOrderDropdownOpen,
+        handlePlaceBuyOrder,
+        handleItemSearch,
+    };
+}
+
+function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
+    const {
+        user,
+        listings,
+        loading,
+        error,
+        showBuyOrderModal,
+        setShowBuyOrderModal,
+        sellerNames,
+        handleBuy,
+        buyOrderItemId,
+        setBuyOrderItemId,
+        buyOrderPrice,
+        setBuyOrderPrice,
+        placingOrder,
+        buyOrderItemSearch,
+        setBuyOrderItemSearch,
+        buyOrderItemResults,
+        buyOrderDropdownOpen,
+        setBuyOrderDropdownOpen,
+        handlePlaceBuyOrder,
+        handleItemSearch,
+    } = props;
+
     return (
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -135,7 +183,7 @@ export default function MarketplacePage() {
                 <div style={{ display: "flex", gap: 12 }}>
                     <button
                         style={{
-                            background: "#ffd700",
+                            background: "#fff",
                             color: "#222",
                             border: "none",
                             borderRadius: 8,
@@ -150,12 +198,12 @@ export default function MarketplacePage() {
                         Place Buy Order
                     </button>
                     {user && (
-                        <Link href="/my-buy-orders" style={{ color: "#ffd700", fontWeight: 600, fontSize: 16 }}>
+                        <Link href="/my-buy-orders" style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>
                             <button
                                 style={{
                                     background: "#23272e",
-                                    color: "#ffd700",
-                                    border: "1px solid #ffd700",
+                                    color: "#fff",
+                                    border: "1px solid #fff",
                                     borderRadius: 8,
                                     padding: "8px 18px",
                                     fontWeight: 700,
@@ -240,7 +288,6 @@ export default function MarketplacePage() {
                         background: "#23272e", borderRadius: 12, padding: 32, minWidth: 340, boxShadow: "0 2px 16px #0008"
                     }}>
                         <h3>Place Buy Order</h3>
-
                         <div style={{ marginBottom: 12, position: "relative" }}>
                             <label>Item&nbsp;
                                 <input
@@ -315,7 +362,7 @@ export default function MarketplacePage() {
                             onClick={handlePlaceBuyOrder}
                             disabled={placingOrder}
                             style={{
-                                background: "#ffd700",
+                                background: "#fff",
                                 color: "#222",
                                 border: "none",
                                 borderRadius: 8,
@@ -363,7 +410,7 @@ export default function MarketplacePage() {
         }
         .market-table th {
           background: #181b20;
-          color: #ffd700;
+          color: #fff;
           font-weight: 600;
           font-size: 15px;
           border-bottom: 2px solid #333;
@@ -423,7 +470,6 @@ export default function MarketplacePage() {
             padding: 4px 8px;
             font-size: 12px;
           }
-          /* Pour permettre le scroll horizontal sur mobile */
           .market-table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -432,4 +478,344 @@ export default function MarketplacePage() {
       `}</style>
         </div>
     );
+}
+
+function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
+    const {
+        user,
+        listings,
+        loading,
+        error,
+        showBuyOrderModal,
+        setShowBuyOrderModal,
+        sellerNames,
+        handleBuy,
+        buyOrderItemId,
+        setBuyOrderItemId,
+        buyOrderPrice,
+        setBuyOrderPrice,
+        placingOrder,
+        buyOrderItemSearch,
+        setBuyOrderItemSearch,
+        buyOrderItemResults,
+        buyOrderDropdownOpen,
+        setBuyOrderDropdownOpen,
+        handlePlaceBuyOrder,
+        handleItemSearch,
+    } = props;
+
+    return (
+        <div style={{ maxWidth: 480, margin: "0 auto", padding: 8, fontSize: "0.98em" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
+                <h2 style={{ fontSize: "1.1em" }}>Marketplace</h2>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                        style={{
+                            background: "#fff",
+                            color: "#222",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 12px",
+                            fontWeight: 700,
+                            fontSize: "1em",
+                            cursor: "pointer",
+                            boxShadow: "0 2px 8px #0002"
+                        }}
+                        onClick={() => setShowBuyOrderModal(true)}
+                    >
+                        Place Buy Order
+                    </button>
+                    {user && (
+                        <Link href="/my-buy-orders" style={{ color: "#fff", fontWeight: 600, fontSize: "1em" }}>
+                            <button
+                                style={{
+                                    background: "#23272e",
+                                    color: "#fff",
+                                    border: "1px solid #fff",
+                                    borderRadius: 8,
+                                    padding: "7px 12px",
+                                    fontWeight: 700,
+                                    fontSize: "1em",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                My Buy Orders
+                            </button>
+                        </Link>
+                    )}
+                </div>
+            </div>
+            {loading && <div>Loading...</div>}
+            {error && <div style={{ color: "red" }}>{error}</div>}
+            {!loading && listings.length === 0 ? (
+                <div>No items available for sale.</div>
+            ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {listings.map(listing => (
+                        <div
+                            key={listing.id}
+                            style={{
+                                background: "#23272e",
+                                borderRadius: 10,
+                                boxShadow: "0 2px 8px #0003",
+                                padding: 12,
+                                marginBottom: 2,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 6,
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <CachedImage
+                                    src={`/items-icons/${listing.item_icon_hash || listing.item_id}`}
+                                    alt=""
+                                    width={36}
+                                    height={36}
+                                    style={{ borderRadius: 8, background: "#181b20" }}
+                                />
+                                <div>
+                                    <div style={{ fontWeight: 600, fontSize: "1.05em", color: "#fff" }}>
+                                        {listing.item_name}
+                                    </div>
+                                    <div style={{ color: "#bbb", fontSize: "0.97em" }}>
+                                        {listing.item_description}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                                <CachedImage
+                                    src={`/avatar/${listing.seller_id}`}
+                                    alt=""
+                                    style={{ borderRadius: "50%", width: 22, height: 22 }}
+                                />
+                                <span style={{ color: "#fff", fontSize: "0.97em" }}>
+                                    {sellerNames[listing.seller_id] || listing.seller_id}
+                                </span>
+                                <span style={{ marginLeft: "auto", color: "#fff", fontWeight: 600 }}>
+                                    {listing.price}{" "}
+                                    <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
+                                </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                                <span style={{ color: "#aaa", fontSize: "0.93em" }}>
+                                    Listed: {new Date(listing.created_at).toLocaleString()}
+                                </span>
+                                <span style={{ marginLeft: "auto" }}>
+                                    {user && listing.seller_id !== user.id ? (
+                                        <button
+                                            style={{
+                                                background: "#66ff66",
+                                                color: "#222",
+                                                border: "none",
+                                                borderRadius: 6,
+                                                padding: "5px 14px",
+                                                fontWeight: 600,
+                                                fontSize: "0.97em",
+                                                cursor: "pointer"
+                                            }}
+                                            onClick={() => handleBuy(listing)}
+                                        >
+                                            Buy
+                                        </button>
+                                    ) : (
+                                        <span style={{ color: "#888" }}>—</span>
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {/* Buy Order Modal */}
+            {showBuyOrderModal && (
+                <div
+                    style={{
+                        position: "fixed",
+                        left: 0,
+                        top: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        background: "#000a",
+                        zIndex: 1000,
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
+                        padding: 0,
+                    }}
+                >
+                    <div
+                        style={{
+                            background: "#23272e",
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            padding: 18,
+                            width: "100%",
+                            maxWidth: 480,
+                            boxShadow: "0 -2px 16px #0008",
+                            fontSize: "1em",
+                            position: "relative",
+                            animation: "slideUpModal 0.18s cubic-bezier(.4,1.4,.6,1) 1"
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 40,
+                                height: 4,
+                                background: "#444",
+                                borderRadius: 2,
+                                margin: "0 auto 12px auto",
+                            }}
+                        />
+                        <h3 style={{ fontSize: "1.08em", textAlign: "center", marginBottom: 14 }}>Place Buy Order</h3>
+                        <div style={{ marginBottom: 12, position: "relative" }}>
+                            <label style={{ fontWeight: 500, fontSize: "1em" }}>
+                                Item&nbsp;
+                                <input
+                                    type="text"
+                                    value={buyOrderItemSearch}
+                                    onChange={async (e) => {
+                                        setBuyOrderItemSearch(e.target.value);
+                                        setBuyOrderDropdownOpen(true);
+                                        await handleItemSearch(e.target.value);
+                                    }}
+                                    onFocus={() => {
+                                        if (buyOrderItemSearch.length > 1) setBuyOrderDropdownOpen(true);
+                                    }}
+                                    onBlur={() => setTimeout(() => setBuyOrderDropdownOpen(false), 150)}
+                                    placeholder="Search item by name..."
+                                    style={{
+                                        width: "95%",
+                                        fontSize: "1em",
+                                        padding: "8px",
+                                        borderRadius: 6,
+                                        border: "1px solid #444",
+                                        marginTop: 4,
+                                        background: "#181b20",
+                                        color: "#fff"
+                                    }}
+                                />
+                                {buyOrderDropdownOpen && buyOrderItemResults.length > 0 && (
+                                    <ul
+                                        style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            right: 0,
+                                            top: 46,
+                                            background: "#23272e",
+                                            border: "1px solid #444",
+                                            borderRadius: 6,
+                                            maxHeight: 140,
+                                            overflowY: "auto",
+                                            zIndex: 1001,
+                                            listStyle: "none",
+                                            margin: 0,
+                                            padding: 0,
+                                            fontSize: "1em"
+                                        }}
+                                    >
+                                        {buyOrderItemResults.map((item) => (
+                                            <li
+                                                key={item.itemId}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 8,
+                                                    padding: "8px 12px",
+                                                    cursor: "pointer",
+                                                    borderBottom: "1px solid #333",
+                                                }}
+                                                onMouseDown={() => {
+                                                    setBuyOrderItemId(item.itemId);
+                                                    setBuyOrderItemSearch(item.name);
+                                                    setBuyOrderPrice(item.price || 1);
+                                                    setBuyOrderDropdownOpen(false);
+                                                }}
+                                            >
+                                                <CachedImage
+                                                    src={`/items-icons/${item.iconHash || item.itemId}`}
+                                                    alt="icon"
+                                                    style={{ width: 22, height: 22, borderRadius: 5 }}
+                                                />
+                                                <span style={{ color: "#fff" }}>{item.name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </label>
+                        </div>
+                        <div style={{ marginBottom: 14 }}>
+                            <label style={{ fontWeight: 500, fontSize: "1em" }}>
+                                Price&nbsp;
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={buyOrderPrice}
+                                    onChange={e => setBuyOrderPrice(Number(e.target.value))}
+                                    style={{
+                                        width: "95%",
+                                        fontSize: "1em",
+                                        padding: "8px",
+                                        borderRadius: 6,
+                                        border: "1px solid #444",
+                                        marginTop: 4,
+                                        background: "#181b20",
+                                        color: "#fff"
+                                    }}
+                                />
+                            </label>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                            <button
+                                onClick={handlePlaceBuyOrder}
+                                disabled={placingOrder}
+                                style={{
+                                    background: "#fff",
+                                    color: "#222",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    padding: "10px 0",
+                                    fontWeight: 700,
+                                    fontSize: "1em",
+                                    cursor: "pointer",
+                                    flex: 1
+                                }}
+                            >
+                                {placingOrder ? "Placing..." : "Confirm"}
+                            </button>
+                            <button
+                                onClick={() => setShowBuyOrderModal(false)}
+                                style={{
+                                    background: "#23272e",
+                                    color: "#fff",
+                                    border: "1px solid #444",
+                                    borderRadius: 8,
+                                    padding: "10px 0",
+                                    fontWeight: 700,
+                                    fontSize: "1em",
+                                    cursor: "pointer",
+                                    flex: 1
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                        <style>
+                            {`
+                            @keyframes slideUpModal {
+                                from { transform: translateY(100%); opacity: 0.7; }
+                                to { transform: translateY(0); opacity: 1; }
+                            }
+                            `}
+                        </style>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function MarketplacePage() {
+    const isMobile = useIsMobile();
+    const logic = useMarketplaceLogic();
+    return isMobile ? <MarketplaceMobile {...logic} /> : <MarketplaceDesktop {...logic} />;
 }

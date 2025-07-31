@@ -54,8 +54,10 @@
     }
 
     .inventory-item-img {
-        width: 38px !important;
-        height: 38px !important
+        /* width: 38px !important;
+        height: 38px !important */
+        position: relative !important;
+        top: 7px !important;
     }
 
     .inventory-item-qty {
@@ -80,7 +82,7 @@
     }
 
     .profile-shop-section .inventory-grid {
-        grid-template-columns: repeat(1, 1fr) !important
+        grid-template-columns: repeat(4, 1fr) !important
     }
 }
 
