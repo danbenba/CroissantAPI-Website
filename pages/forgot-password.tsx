@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import useIsMobile from "../hooks/useIsMobile";
 
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
@@ -16,8 +17,23 @@ const containerStyle: React.CSSProperties = {
   alignItems: "center",
 };
 
+const containerMobileStyle: React.CSSProperties = {
+  ...containerStyle,
+  maxWidth: 340,
+  margin: "32px auto",
+  padding: "18px 8px",
+  borderRadius: 10,
+  fontSize: "0.98em",
+};
+
 const titleStyle: React.CSSProperties = {
   marginBottom: 32,
+};
+
+const titleMobileStyle: React.CSSProperties = {
+  ...titleStyle,
+  fontSize: "1.15em",
+  marginBottom: 18,
 };
 
 const infoTextStyle: React.CSSProperties = {
@@ -26,35 +42,14 @@ const infoTextStyle: React.CSSProperties = {
   fontSize: 14,
 };
 
-export default function ForgotPassword() {
-  const router = useRouter();
-  const [email, setEmail] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<string | null>(null);
+const infoTextMobileStyle: React.CSSProperties = {
+  ...infoTextStyle,
+  marginTop: 14,
+  fontSize: 13,
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-    try {
-      const res = await fetch("/api/users/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.message || "Failed to send reset email");
-      setSuccess("Password reset email sent.");
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function ForgotPasswordDesktop(props: any) {
+  const { email, setEmail, loading, error, success, handleSubmit } = props;
   return (
     <div className="container" style={containerStyle}>
       <h2 style={titleStyle}>Forgot Password</h2>
@@ -136,5 +131,130 @@ export default function ForgotPassword() {
         </span>
       </div>
     </div>
+  );
+}
+
+function ForgotPasswordMobile(props: any) {
+  const { email, setEmail, loading, error, success, handleSubmit } = props;
+  return (
+    <div className="container" style={containerMobileStyle}>
+      <h2 style={titleMobileStyle}>Forgot Password</h2>
+      <form style={{ width: "100%", maxWidth: 300 }} onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ fontWeight: 600, marginBottom: 4, display: "block" }}>
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: "280px",
+              padding: "9px 10px",
+              borderRadius: 6,
+              border: "1px solid #444",
+              background: "#18181c",
+              color: "#fff",
+              fontSize: 15,
+            }}
+            autoComplete="email"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "10px",
+            background: "#5865F2",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: "pointer",
+            marginTop: 6,
+          }}
+          disabled={loading}
+        >
+          {loading ? "Sending..." : "Send Reset Link"}
+        </button>
+        {error && (
+          <div style={{ color: "#ff5252", marginTop: 10 }}>{error}</div>
+        )}
+        {success && (
+          <div style={{ color: "#4caf50", marginTop: 10 }}>{success}</div>
+        )}
+      </form>
+      <div
+        style={{
+          ...infoTextMobileStyle,
+          width: "100%",
+          maxWidth: 300,
+          textAlign: "center",
+        }}
+      >
+        Enter your email address and we'll send you a link to reset your
+        password.
+      </div>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 300,
+          marginTop: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <span style={{ color: "#aaa", fontSize: 13 }}>
+          <Link
+            href="/login"
+            style={{ color: "#8ab4f8", textDecoration: "none" }}
+          >
+            I just remembered my password
+          </Link>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export default function ForgotPassword() {
+  const isMobile = useIsMobile();
+  const router = useRouter();
+  const [email, setEmail] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/users/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.message || "Failed to send reset email");
+      setSuccess("Password reset email sent.");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const props = { email, setEmail, loading, error, success, handleSubmit };
+
+  return isMobile ? (
+    <ForgotPasswordMobile {...props} />
+  ) : (
+    <ForgotPasswordDesktop {...props} />
   );
 }

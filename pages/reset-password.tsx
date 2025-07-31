@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import useIsMobile from "../hooks/useIsMobile";
 
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
@@ -15,17 +16,27 @@ const containerStyle: React.CSSProperties = {
   alignItems: "center",
 };
 
+const containerMobileStyle: React.CSSProperties = {
+  ...containerStyle,
+  maxWidth: 340,
+  margin: "32px auto",
+  padding: "18px 8px",
+  borderRadius: 10,
+  fontSize: "0.98em",
+};
+
 const titleStyle: React.CSSProperties = {
   marginBottom: 32,
 };
 
-const infoTextStyle: React.CSSProperties = {
-  marginTop: 24,
-  color: "#aaa",
-  fontSize: 14,
+const titleMobileStyle: React.CSSProperties = {
+  ...titleStyle,
+  fontSize: "1.15em",
+  marginBottom: 18,
 };
 
 export default function ResetPassword() {
+  const isMobile = useIsMobile();
   const router = useRouter();
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -109,6 +120,96 @@ export default function ResetPassword() {
       setLoading(false);
     }
   };
+
+  if (isMobile) {
+    return (
+      <div className="container" style={containerMobileStyle}>
+        <h2 style={titleMobileStyle}>Reset Password</h2>
+        {tokenChecked && error && (
+          <div style={{ color: "#ff5252", marginBottom: 12 }}>{error}</div>
+        )}
+        {tokenChecked && !error && user && (
+          <div style={{ color: "#4caf50", marginBottom: 12 }}>
+            Welcome {user.username}, please reset your password.
+            <form
+              style={{ width: "280px", maxWidth: 280 }}
+              onSubmit={handleSubmit}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <label
+                  style={{ fontWeight: 600, marginBottom: 4, display: "block" }}
+                >
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{
+                    width: "260px",
+                    padding: "9px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #444",
+                    background: "#18181c",
+                    color: "#fff",
+                    fontSize: 15,
+                  }}
+                  autoComplete="new-password"
+                  required
+                  disabled={!!error}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label
+                  style={{ fontWeight: 600, marginBottom: 4, display: "block" }}
+                >
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{
+                    width: "260px",
+                    padding: "9px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #444",
+                    background: "#18181c",
+                    color: "#fff",
+                    fontSize: 15,
+                  }}
+                  autoComplete="new-password"
+                  required
+                  disabled={!!error}
+                />
+              </div>
+              <button
+                type="submit"
+                style={{
+                  width: "280px",
+                  padding: "10px",
+                  background: "#5865F2",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  marginTop: 6,
+                }}
+                disabled={loading || !!error}
+              >
+                {loading ? "Resetting..." : "Reset Password"}
+              </button>
+              {success && (
+                <div style={{ color: "#4caf50", marginTop: 10 }}>{success}</div>
+              )}
+            </form>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="container" style={containerStyle}>
