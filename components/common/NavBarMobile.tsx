@@ -296,12 +296,6 @@ export default function NavBarMobile() {
                         <Link href="/oauth2/apps" legacyBehavior>
                             <span style={linkStyle}>OAuth2</span>
                         </Link>
-                        <Link href="/dev-zone/my-items" legacyBehavior>
-                            <span style={linkStyle}>Items</span>
-                        </Link>
-                        <Link href="/dev-zone/my-games" legacyBehavior>
-                            <span style={linkStyle}>Games</span>
-                        </Link>
                         <Link href="/settings" legacyBehavior>
                             <span style={linkStyle}>Settings</span>
                         </Link>

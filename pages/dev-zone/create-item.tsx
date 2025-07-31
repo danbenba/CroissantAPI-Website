@@ -1,9 +1,12 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
+import useIsMobile from "../../hooks/useIsMobile";
+
 const endpoint = "/api"; // Replace with your actual API endpoint
 
 const CreateItem = () => {
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -119,6 +122,30 @@ const CreateItem = () => {
       setLoading(false);
     }
   };
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          maxWidth: 340,
+          margin: "40px auto",
+          padding: "24px 12px",
+          background: "#23272e",
+          borderRadius: 12,
+          color: "#fff",
+          textAlign: "center",
+          fontSize: "1.08em",
+        }}
+      >
+        <h2 style={{ marginBottom: 10 }}>Not available on mobile</h2>
+        <p>
+          This page is only accessible from a computer.
+          <br />
+          Please use a PC to submit an item.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -2,8 +2,10 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 const endpoint = "/api"; // Replace with your actual API endpoint
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const GameForm = () => {
+  const isMobile = useIsMobile();
   const { token } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -190,6 +192,30 @@ const GameForm = () => {
       setLoading(false);
     }
   };
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          maxWidth: 340,
+          margin: "40px auto",
+          padding: "24px 12px",
+          background: "#23272e",
+          borderRadius: 12,
+          color: "#fff",
+          textAlign: "center",
+          fontSize: "1.08em",
+        }}
+      >
+        <h2 style={{ marginBottom: 10 }}>Not available on mobile</h2>
+        <p>
+          This page is only accessible from a computer.
+          <br />
+          Please use a PC to submit a game.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -24,6 +25,7 @@ type Game = {
 };
 
 const MyGames = () => {
+  const isMobile = useIsMobile();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -305,6 +307,29 @@ const MyGames = () => {
       setOwnershipLoading(false);
     }
   };
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          maxWidth: 340,
+          margin: "40px auto",
+          padding: "24px 12px",
+          background: "#23272e",
+          borderRadius: 12,
+          color: "#fff",
+          textAlign: "center",
+          fontSize: "1.08em",
+        }}
+      >
+        <h2 style={{ marginBottom: 10 }}>Not available on mobile</h2>
+        <p>
+          This page is only accessible from a computer.<br />
+          Please use a PC to manage your games.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

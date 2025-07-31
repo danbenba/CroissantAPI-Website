@@ -51,8 +51,8 @@ const overviewDetails = [
         </ul>
         <p>
           <b>Get started:</b> Generate your API key with{" "}
-          <Link href="/api-key" legacyBehavior>
-            <a>/api-key</a>
+          <Link href="/settings" legacyBehavior>
+            <a>settings</a>
           </Link>{" "}
           and see the{" "}
           <Link href="/api-docs" legacyBehavior>
