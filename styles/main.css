@@ -266,7 +266,7 @@ button:hover {
     text-shadow: 0 1px 2px #1a1a1a
 }
 
-.trade-panel .trade-inventory-item div:last-child {
+.trade-panel .trade-inventory-item div.trade-item-name {
     font-size: .88em;
     color: #ccc;
     font-weight: 400

@@ -91,7 +91,7 @@ function TradeInventoryItem({
         alt={item.name}
       />
       <div>x{item.amount}</div>
-      <div>{item.name}</div>
+      <div className="trade-item-name">{item.name}</div>
 
       {/* Indicateur visuel pour les items avec métadonnées */}
       {item.metadata && (
@@ -116,8 +116,8 @@ function TradeInventoryItem({
           className="trade-tooltip"
           style={{
             position: "fixed",
-            left: mousePos.x,
-            top: mousePos.y,
+            left: mousePos.x-65,
+            top: mousePos.y+180,
             backgroundColor: "#333",
             color: "white",
             padding: "8px",
