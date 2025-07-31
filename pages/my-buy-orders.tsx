@@ -5,148 +5,148 @@ import useUserCache from "../hooks/useUserCache";
 import Link from "next/link";
 
 interface BuyOrder {
-  id: string;
-  buyer_id: string;
-  item_id: string;
-  price: number;
-  amount: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  fulfilled_at?: string;
+    id: string;
+    buyer_id: string;
+    item_id: string;
+    price: number;
+    amount: number;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    fulfilled_at?: string;
 }
 
 interface ItemDetails {
-  itemId: string;
-  name: string;
-  description: string;
-  iconHash: string;
+    itemId: string;
+    name: string;
+    description: string;
+    iconHash: string;
 }
 
 export default function MyBuyOrdersPage() {
-  const { user, loading: userLoading } = useAuth();
-  const [orders, setOrders] = useState<BuyOrder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [itemDetails, setItemDetails] = useState<Record<string, ItemDetails>>({});
+    const { user, loading: userLoading } = useAuth();
+    const [orders, setOrders] = useState<BuyOrder[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [itemDetails, setItemDetails] = useState<Record<string, ItemDetails>>({});
 
-  useEffect(() => {
-    if (!user || userLoading) return;
-    setLoading(true);
-    fetch(`/api/buy-orders/user/${user.id}`)
-      .then(async res => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to fetch buy orders");
-        setOrders(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [user, userLoading]);
+    useEffect(() => {
+        if (!user || userLoading) return;
+        setLoading(true);
+        fetch(`/api/buy-orders/user/${user.id}`)
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to fetch buy orders");
+                setOrders(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message);
+                setLoading(false);
+            });
+    }, [user, userLoading]);
 
-  // Fetch item details for all unique item_ids
-  useEffect(() => {
-    const uniqueItemIds = Array.from(new Set(orders.map(o => o.item_id)));
-    const missing = uniqueItemIds.filter(id => !(id in itemDetails));
-    if (missing.length === 0) return;
-    Promise.all(missing.map(id =>
-      fetch(`/api/items/${id}`).then(res => res.ok ? res.json() : null).catch(() => null)
-    )).then(items => {
-      const newDetails: Record<string, ItemDetails> = {};
-      items.forEach((item, idx) => {
-        if (item && item.itemId) newDetails[missing[idx]] = {
-          itemId: item.itemId,
-          name: item.name,
-          description: item.description,
-          iconHash: item.iconHash
-        };
-      });
-      setItemDetails(prev => ({ ...prev, ...newDetails }));
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orders]);
+    // Fetch item details for all unique item_ids
+    useEffect(() => {
+        const uniqueItemIds = Array.from(new Set(orders.map(o => o.item_id)));
+        const missing = uniqueItemIds.filter(id => !(id in itemDetails));
+        if (missing.length === 0) return;
+        Promise.all(missing.map(id =>
+            fetch(`/api/items/${id}`).then(res => res.ok ? res.json() : null).catch(() => null)
+        )).then(items => {
+            const newDetails: Record<string, ItemDetails> = {};
+            items.forEach((item, idx) => {
+                if (item && item.itemId) newDetails[missing[idx]] = {
+                    itemId: item.itemId,
+                    name: item.name,
+                    description: item.description,
+                    iconHash: item.iconHash
+                };
+            });
+            setItemDetails(prev => ({ ...prev, ...newDetails }));
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [orders]);
 
-  const handleCancel = async (order: BuyOrder) => {
-    if (!window.confirm("Cancel this buy order?")) return;
-    try {
-      const res = await fetch(`/api/buy-orders/${order.id}/cancel`, { method: "PUT" });
-      if (!res.ok) throw new Error((await res.json()).message);
-      setOrders(orders => orders.filter(o => o.id !== order.id));
-    } catch (e: any) {
-      alert(e.message);
-    }
-  };
+    const handleCancel = async (order: BuyOrder) => {
+        if (!window.confirm("Cancel this buy order?")) return;
+        try {
+            const res = await fetch(`/api/buy-orders/${order.id}/cancel`, { method: "PUT" });
+            if (!res.ok) throw new Error((await res.json()).message);
+            setOrders(orders => orders.filter(o => o.id !== order.id));
+        } catch (e: any) {
+            alert(e.message);
+        }
+    };
 
-  if (userLoading) return <div>Loading...</div>;
-  if (!user) return <div>You must be logged in to view your buy orders.</div>;
+    if (userLoading) return <div>Loading...</div>;
+    if (!user) return <div>You must be logged in to view your buy orders.</div>;
 
-  return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>My Buy Orders</h2>
-        <Link href="/marketplace" style={{ color: "#ffd700", fontWeight: 600, fontSize: 16 }}>← Back to Marketplace</Link>
-      </div>
-      {loading && <div>Loading...</div>}
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {!loading && orders.length === 0 && <div>No buy orders placed.</div>}
-      <div className="market-table-wrapper">
-        <table className="market-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Placed</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => {
-              const item = itemDetails[order.item_id];
-              return (
-                <tr key={order.id}>
-                  <td>
-                    {item ? (
-                      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="" width={32} height={32} />
-                        {item.name}
-                      </span>
-                    ) : order.item_id}
-                  </td>
-                  <td style={{ maxWidth: 220, color: "#bbb" }}>{item ? item.description : ""}</td>
-                  <td>{order.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} /></td>
-                  <td>{order.status}</td>
-                  <td>{new Date(order.created_at).toLocaleString()}</td>
-                  <td>
-                    {order.status === "active" ? (
-                      <button
-                        onClick={() => handleCancel(order)}
-                        style={{
-                          background: "#ff6666",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 6,
-                          padding: "6px 14px",
-                          fontWeight: 600,
-                          cursor: "pointer"
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    ) : (
-                      <span style={{ color: "#888" }}>—</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <style jsx>{`
+    return (
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2>My Buy Orders</h2>
+                <Link href="/marketplace" style={{ color: "#ffd700", fontWeight: 600, fontSize: 16 }}>← Back to Marketplace</Link>
+            </div>
+            {loading && <div>Loading...</div>}
+            {error && <div style={{ color: "red" }}>{error}</div>}
+            {!loading && orders.length === 0 && <div>No buy orders placed.</div>}
+            <div className="market-table-wrapper">
+                <table className="market-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Placed</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map(order => {
+                            const item = itemDetails[order.item_id];
+                            return (
+                                <tr key={order.id}>
+                                    <td>
+                                        {item ? (
+                                            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="" width={32} height={32} />
+                                                {item.name}
+                                            </span>
+                                        ) : order.item_id}
+                                    </td>
+                                    <td style={{ maxWidth: 220, color: "#bbb" }}>{item ? item.description : ""}</td>
+                                    <td>{order.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} /></td>
+                                    <td>{order.status}</td>
+                                    <td>{new Date(order.created_at).toLocaleString()}</td>
+                                    <td>
+                                        {order.status === "active" ? (
+                                            <button
+                                                onClick={() => handleCancel(order)}
+                                                style={{
+                                                    background: "#ff6666",
+                                                    color: "#fff",
+                                                    border: "none",
+                                                    borderRadius: 6,
+                                                    padding: "6px 14px",
+                                                    fontWeight: 600,
+                                                    cursor: "pointer"
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        ) : (
+                                            <span style={{ color: "#888" }}>—</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            <style jsx>{`
         .market-table {
           width: 100%;
           border-collapse: separate;
@@ -230,6 +230,6 @@ export default function MyBuyOrdersPage() {
           }
         }
       `}</style>
-    </div>
-  );
+        </div>
+    );
 }
