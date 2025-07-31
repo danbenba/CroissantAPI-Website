@@ -1,62 +1,8 @@
-import Section from "../components/Section";
-import ListSection from "../components/ListSection";
-import Head from "next/head";
+import Section from "../components/common/Section/Section";
+import ListSection from "../components/common/Section/ListSection";
 import React from "react";
 import Link from "next/link";
-
-function useResponsiveStyles() {
-  const [isMobile, setIsMobile] = React.useState(false);
-  React.useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 600);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-  const detailsStyle: React.CSSProperties = {
-    border: "1px solid #333",
-    borderRadius: 8,
-    marginBottom: isMobile ? "0.8rem" : "1.5rem",
-    background: "#23272faa",
-    boxShadow: isMobile ? undefined : "0 2px 8px rgba(0,0,0,0.24)",
-    padding: isMobile
-      ? "0.3rem 0.5rem 0.7rem 0.5rem"
-      : "0.5rem 1.2rem 1rem 1.2rem",
-    color: "#f3f3f3",
-  };
-  const summaryStyle: React.CSSProperties = {
-    fontWeight: 600,
-    fontSize: isMobile ? "1rem" : "1.15rem",
-    cursor: "pointer",
-    outline: "none",
-    padding: isMobile ? "0.5rem 0" : "0.7rem 0",
-    color: "#e2e8f0",
-  };
-  const aboutStyle: React.CSSProperties = {
-    border: "1px solid #333",
-    borderRadius: 8,
-    background: "#181a20aa",
-    padding: isMobile ? "0.7rem" : "1.2rem",
-    marginTop: isMobile ? "1rem" : "2rem",
-    color: "#f3f3f3",
-    marginLeft: isMobile ? "0.5rem" : "1.5rem",
-    marginRight: isMobile ? "0.5rem" : "1.5rem",
-  };
-  return { detailsStyle, summaryStyle, aboutStyle };
-}
-
-// Style constant for the top <span>
-const topSpanStyle: React.CSSProperties = {
-  fontSize: 16,
-  marginTop: 0,
-  marginBottom: 16,
-  opacity: 0.7,
-  textAlign: "center",
-  justifyContent: "center",
-  display: "flex",
-  flexWrap: "wrap", // Allow wrapping to new line if too many words
-  whiteSpace: "normal", // Allow line breaks
-  wordBreak: "break-word", // Break long words if needed
-};
+import useIsMobile from "../hooks/useIsMobile";
 
 // Overview details content as an array for easier maintenance
 const overviewDetails = [
@@ -338,15 +284,55 @@ const aboutDetails = [
   },
 ];
 
-export default function Home() {
-  const { detailsStyle, summaryStyle, aboutStyle } = useResponsiveStyles();
+const topSpanStyle: React.CSSProperties = {
+  fontSize: 16,
+  marginTop: 0,
+  marginBottom: 16,
+  opacity: 0.7,
+  textAlign: "center",
+  justifyContent: "center",
+  display: "flex",
+  flexWrap: "wrap",
+  whiteSpace: "normal",
+  wordBreak: "break-word",
+};
+
+// Version Desktop
+function HomeDesktop() {
+  const detailsStyle: React.CSSProperties = {
+    border: "1px solid #333",
+    borderRadius: 8,
+    marginBottom: "1.5rem",
+    background: "#23272faa",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.24)",
+    padding: "0.5rem 1.2rem 1rem 1.2rem",
+    color: "#f3f3f3",
+  };
+  const summaryStyle: React.CSSProperties = {
+    fontWeight: 600,
+    fontSize: "1.15rem",
+    cursor: "pointer",
+    outline: "none",
+    padding: "0.7rem 0",
+    color: "#e2e8f0",
+  };
+  const aboutStyle: React.CSSProperties = {
+    border: "1px solid #333",
+    borderRadius: 8,
+    background: "#181a20aa",
+    padding: "1.2rem",
+    marginTop: "2rem",
+    color: "#f3f3f3",
+    marginLeft: "1.5rem",
+    marginRight: "1.5rem",
+  };
+
   return (
     <>
       <span style={topSpanStyle}>
-        Creative and Reusable Opensource Inventory System, Scalable, APIful, and
-        Network Technology
+        Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology
       </span>
-      <div className="container" style={{ margin: "0 auto", padding: "1rem" }}>
+      <div className="container" style={{ margin: "0 auto", padding: "1rem", maxWidth: 1100 }}>
         <h1>
           <span className="method post">CROISSANT PLATFORM OVERVIEW</span>
         </h1>
@@ -372,4 +358,71 @@ export default function Home() {
       </div>
     </>
   );
+}
+
+// Version Mobile
+function HomeMobile() {
+  const detailsStyle: React.CSSProperties = {
+    border: "1px solid #333",
+    borderRadius: 8,
+    marginBottom: "0.8rem",
+    background: "#23272faa",
+    padding: "0.3rem 0.5rem 0.7rem 0.5rem",
+    color: "#f3f3f3",
+  };
+  const summaryStyle: React.CSSProperties = {
+    fontWeight: 600,
+    fontSize: "1rem",
+    cursor: "pointer",
+    outline: "none",
+    padding: "0.5rem 0",
+    color: "#e2e8f0",
+  };
+  const aboutStyle: React.CSSProperties = {
+    border: "1px solid #333",
+    borderRadius: 8,
+    background: "#181a20aa",
+    padding: "0.7rem",
+    marginTop: "1rem",
+    color: "#f3f3f3",
+    marginLeft: "0.5rem",
+    marginRight: "0.5rem",
+  };
+
+  return (
+    <>
+      <span style={{ ...topSpanStyle, fontSize: 14, marginBottom: 10 }}>
+        Creative and Reusable Opensource Inventory System, Scalable, APIful, and Network Technology
+      </span>
+      <div className="container" style={{ margin: "0 auto", padding: "0.5rem", maxWidth: 1000 }}>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: 8 }}>
+          <span className="method post">Platform Overview</span>
+        </h2>
+        <div style={aboutStyle}>
+          {overviewDetails.map(({ summary, content }) => (
+            <details style={detailsStyle} open key={summary}>
+              <summary style={summaryStyle}>{summary}</summary>
+              {content}
+            </details>
+          ))}
+        </div>
+        <h2 id="about-us" style={{ fontSize: "1.1rem", marginTop: 18 }}>
+          <span className="method put">About Me</span>
+        </h2>
+        <div style={aboutStyle}>
+          {aboutDetails.map(({ summary, content }) => (
+            <details style={detailsStyle} open key={summary}>
+              <summary style={summaryStyle}>{summary}</summary>
+              {content}
+            </details>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function Home() {
+  const isMobile = useIsMobile();
+  return isMobile ? <HomeMobile /> : <HomeDesktop />;
 }

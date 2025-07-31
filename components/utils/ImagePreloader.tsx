@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useImageCache } from '../hooks/ImageCacheContext';
+import { useImageCache } from '../../hooks/ImageCacheContext';
 
 interface ImagePreloaderProps {
   images: string[];

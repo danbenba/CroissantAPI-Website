@@ -58,7 +58,7 @@ const endpoint = "/api"; // Replace with your actual API endpoint
 
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 export interface ShopItem {
   itemId: string;

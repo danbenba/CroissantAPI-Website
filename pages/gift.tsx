@@ -2,7 +2,7 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 const endpoint = "/api";
 

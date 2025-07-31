@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 // API endpoint for user search
 const API_ENDPOINT = "/api";

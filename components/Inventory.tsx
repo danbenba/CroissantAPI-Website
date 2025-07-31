@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import { ShopItem } from "../pages/profile";
-import CachedImage from "./CachedImage";
+import CachedImage from "./utils/CachedImage";
 
 const endpoint = "/api";
 

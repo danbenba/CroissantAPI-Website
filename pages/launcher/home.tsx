@@ -2,7 +2,7 @@ import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
-import CachedImage from "../../components/CachedImage";
+import CachedImage from "../../components/utils/CachedImage";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 

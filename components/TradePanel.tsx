@@ -1,7 +1,7 @@
 // TradePanel.tsx
 import React, { useEffect, useState, useRef } from "react";
 import type { Item } from "./Inventory";
-import CachedImage from "./CachedImage";
+import CachedImage from "./utils/CachedImage";
 
 type TradeStatus = "pending" | "approved" | "completed" | "canceled";
 

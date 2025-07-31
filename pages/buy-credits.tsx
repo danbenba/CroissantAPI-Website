@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 export default class extends Component {
   render(): React.ReactNode {

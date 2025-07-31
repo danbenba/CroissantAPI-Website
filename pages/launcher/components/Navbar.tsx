@@ -2,7 +2,7 @@ import React, { Component, useEffect, useState } from "react";
 import Link from "next/link";
 import SearchBar from "../../../components/Searchbar";
 import useAuth from "../../../hooks/useAuth";
-import CachedImage from "../../../components/CachedImage";
+import CachedImage from "../../../components/utils/CachedImage";
 
 const Navbar: React.FC = () => {
   const { user, token, setUser } = useAuth();

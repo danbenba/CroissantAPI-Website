@@ -8,7 +8,7 @@ import React, {
 import { useRouter } from "next/navigation";
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
-import CachedImage from "../../../components/CachedImage";
+import CachedImage from "../../../components/utils/CachedImage";
 
 const ENDPOINT = "/api";
 type Lobby = {

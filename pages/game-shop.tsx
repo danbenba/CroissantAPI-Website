@@ -3,7 +3,7 @@ import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache"; // Ajouté
 import { useRouter } from "next/router"; // Ajouté
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 const ENDPOINT = "/api";
 

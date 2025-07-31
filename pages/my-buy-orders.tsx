@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 import useUserCache from "../hooks/useUserCache";
 import Link from "next/link";
 

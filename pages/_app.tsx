@@ -3,11 +3,10 @@ import "../styles/phone.css";
 import "../styles/atom-one-dark.min.css";
 
 import type { AppProps } from "next/app";
-import MetaLinks from "../components/MetaLinks";
-import Navbar from "../components/NavBar";
-import Footer from "../components/Footer";
-import CachedImage from "../components/CachedImage";
-import ImagePreloader from "../components/ImagePreloader";
+import MetaLinks from "../components/common/MetaLinks";
+import Footer from "../components/common/Footer";
+import CachedImage from "../components/utils/CachedImage";
+import ImagePreloader from "../components/utils/ImagePreloader";
 
 import { useEffect, useState } from "react";
 import LauncherNavbar from "./launcher/components/Navbar";
@@ -16,6 +15,9 @@ import useAuth from "../hooks/useAuth";
 import { AuthProvider } from "../hooks/AuthContext";
 import { UserCacheProvider } from "../hooks/UserCacheContext";
 import { ImageCacheProvider } from "../hooks/ImageCacheContext";
+import useIsMobile from "../hooks/useIsMobile";
+import NavBarDesktop from "../components/common/NavBarDesktop";
+import NavBarMobile from "../components/common/NavBarMobile";
 
 // --- Style constants ---
 const launcherTitlebarStyle: React.CSSProperties = {
@@ -225,17 +227,23 @@ function AppContent({ Component, pageProps }: AppProps) {
     </>
   );
 
-  const WebsiteLayout = () => (
-    <div>
-      <BackgroundImage />
-      <MetaLinks />
-      {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Navbar />}
-      <main style={mainStyle}>
-        <Component {...pageProps} />
-      </main>
-      {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}
-    </div>
-  );
+  const WebsiteLayout = () => {
+    const isMobile = useIsMobile();
+
+    return (
+      <div>
+        <BackgroundImage />
+        <MetaLinks />
+        {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
+          isMobile ? <NavBarMobile /> : <NavBarDesktop />
+        )}
+        <main style={mainStyle}>
+          <Component {...pageProps} />
+        </main>
+        {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}
+      </div>
+    );
+  };
 
   if (isLauncher) {
     return user ? <LauncherLayout /> : <LauncherLogin />;

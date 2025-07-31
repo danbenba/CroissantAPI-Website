@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 import Link from "next/link";
 
 export interface EnrichedMarketListing {

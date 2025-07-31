@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
-import CachedImage from "../components/CachedImage";
+import CachedImage from "../components/utils/CachedImage";
 
 const containerStyle: React.CSSProperties = {
   maxWidth: 500,
