@@ -510,21 +510,23 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   alignItems: "center",
                   gap: "6px"
                 }}>
-                  Price: {selectedItem.purchasePrice}
-                  <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "18px", height: "18px" }} />
+                  Price: {selectedItem.purchasePrice || "N/A"}
+                  <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "18px", height: "18px", position:"relative", top:"-2px" }} />
                 </div>
               )}
               {/* Affichage du statut sellable dans la vue détaillée */}
-              {!selectedItem.metadata && (
+                {!selectedItem.metadata && (
                 <div className="inventory-details-sellable" style={{
-                  color: selectedItem.sellable ? "#00ff00" : "#ff6666",
+                  color: selectedItem.sellable && selectedItem.purchasePrice != null ? "#00ff00" : "#ff6666",
                   fontSize: "13px",
                   marginTop: "6px",
                   fontWeight: "bold"
                 }}>
-                  {selectedItem.sellable ? "✓ This item can be sold" : "✗ This item cannot be sold"}
+                  {selectedItem.sellable && selectedItem.purchasePrice != null
+                  ? "✓ This item can be sold"
+                  : "✗ This item cannot be sold"}
                 </div>
-              )}
+                )}
               {/* Affichage de l'unique ID dans la vue détaillée */}
               {selectedItem.metadata?._unique_id && (
                 <div className="inventory-details-unique-id" style={{
@@ -537,12 +539,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
-                {selectedItem.price !== undefined && (
-                  <div className="inventory-details-price">
-                    Price: {selectedItem.price} <CachedImage src="/assets/credit.png" className="inventory-credit-icon" />
-                  </div>
-                )}
-                {selectedItem.owner && ownerUser && (
+                {/* {selectedItem.owner && ownerUser && (
                   <div className="inventory-details-creator" style={{ position: "relative", top: "-6px" }}>
                     Creator:{" "}
                     <Link href={`/profile?user=${selectedItem.owner}`} className="inventory-details-creator-link">
@@ -564,7 +561,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                       )}
                     </Link>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div></>
