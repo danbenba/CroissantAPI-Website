@@ -302,7 +302,7 @@ function LoginDesktop(props: any) {
                 value={authenticatorCode}
                 onChange={e => setAuthenticatorCode(e.target.value)}
                 style={{
-                  width: "300px",
+                  width: "280px",
                   padding: "10px 12px",
                   borderRadius: 6,
                   border: "1px solid #444",
@@ -563,7 +563,7 @@ function LoginMobile(props: any) {
                 value={authenticatorCode}
                 onChange={e => setAuthenticatorCode(e.target.value)}
                 style={{
-                  width: "280px",
+                  width: "260px",
                   padding: "9px 10px",
                   borderRadius: 6,
                   border: "1px solid #444",
