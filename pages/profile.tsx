@@ -796,19 +796,34 @@ export default function Profile({ userId }: ProfileProps) {
                 )}
               </div>
             ) : (
-              <Link
-                href="/settings"
-                style={{
-                  marginTop: 8,
-                  marginRight: 8,
-                  float: "right",
-                  fontSize: 24,
-                  color: "#888",
-                }}
-                title="Settings"
-              >
-                <i className="fa fa-cog" aria-hidden="true"></i>
-              </Link>
+              <div>
+                <Link
+                  href="/my-market-listings"
+                  style={{
+                    marginTop: 8,
+                    marginRight: 8,
+                    // float: "right",
+                  }}
+                  onClick={handleDisableAccount}
+                >
+                  <button className="shop-prompt-buy-btn">
+                    My Market Listings
+                  </button>
+                </Link>
+                <Link
+                  href="/settings"
+                  style={{
+                    marginTop: 8,
+                    marginRight: 8,
+                    float: "right",
+                    fontSize: 24,
+                    color: "#888",
+                  }}
+                  title="Settings"
+                >
+                  <i className="fa fa-cog" aria-hidden="true"></i>
+                </Link>
+              </div>
             )}
           </>
         )}
@@ -841,25 +856,27 @@ export default function Profile({ userId }: ProfileProps) {
         </div>
       </div>
       {/* Trade Panel - only show if not our own profile */}
-      {user && user.id !== profile.id && (
-        <>
-          {currentTradeId && (
-            <TradePanel
-              tradeId={currentTradeId}
-              userId={user.id}
-              token={token}
-              inventory={user.inventory}
-              reloadInventory={reloadInventory}
-              onClose={() => {
-                setCurrentTradeId(null);
-                setShowTradeModal(false);
-              }}
-              profile={profile}
-              apiBase="/api"
-            />
-          )}
-        </>
-      )}
+      {
+        user && user.id !== profile.id && (
+          <>
+            {currentTradeId && (
+              <TradePanel
+                tradeId={currentTradeId}
+                userId={user.id}
+                token={token}
+                inventory={user.inventory}
+                reloadInventory={reloadInventory}
+                onClose={() => {
+                  setCurrentTradeId(null);
+                  setShowTradeModal(false);
+                }}
+                profile={profile}
+                apiBase="/api"
+              />
+            )}
+          </>
+        )
+      }
       {/* Give Credits Modal */}
       <GiveCreditsModal
         open={giveCreditsOpen}
@@ -872,39 +889,45 @@ export default function Profile({ userId }: ProfileProps) {
         username={profile.username || profile.username}
       />
       {/* Feedback for give credits */}
-      {giveCreditsLoading && (
-        <div className="shop-alert-overlay">
-          <div className="shop-alert">
-            <div>Sending credits...</div>
+      {
+        giveCreditsLoading && (
+          <div className="shop-alert-overlay">
+            <div className="shop-alert">
+              <div>Sending credits...</div>
+            </div>
           </div>
-        </div>
-      )}
-      {giveCreditsError && (
-        <div className="shop-alert-overlay">
-          <div className="shop-alert">
-            <div style={{ color: "red" }}>{giveCreditsError}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setGiveCreditsError(null)}
-            >
-              OK
-            </button>
+        )
+      }
+      {
+        giveCreditsError && (
+          <div className="shop-alert-overlay">
+            <div className="shop-alert">
+              <div style={{ color: "red" }}>{giveCreditsError}</div>
+              <button
+                className="shop-alert-ok-btn"
+                onClick={() => setGiveCreditsError(null)}
+              >
+                OK
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-      {giveCreditsSuccess && (
-        <div className="shop-alert-overlay">
-          <div className="shop-alert">
-            <div>{giveCreditsSuccess}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setGiveCreditsSuccess(null)}
-            >
-              OK
-            </button>
+        )
+      }
+      {
+        giveCreditsSuccess && (
+          <div className="shop-alert-overlay">
+            <div className="shop-alert">
+              <div>{giveCreditsSuccess}</div>
+              <button
+                className="shop-alert-ok-btn"
+                onClick={() => setGiveCreditsSuccess(null)}
+              >
+                OK
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

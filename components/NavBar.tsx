@@ -79,6 +79,7 @@ function useNavBarResponsive() {
     transition: "background .2s",
     display: isMobile ? "block" : "inline-block",
     margin: isMobile ? "2px 0" : undefined,
+    cursor: "pointer",
   };
   const loginStyle: React.CSSProperties = {
     ...linkStyle,
@@ -86,6 +87,7 @@ function useNavBarResponsive() {
     color: "#8fa1c7",
     fontWeight: 600,
     background: "#23242a",
+    cursor: "pointer",
   };
   const userBlockStyle: React.CSSProperties = {
     display: "inline-flex",
@@ -344,14 +346,17 @@ export default function NavBar() {
                 <UserBlock loading={loading} user={user} />
               ) : (
                 <Link href="/login" legacyBehavior>
-                  <a style={loginStyle}>Login</a>
+                  <span style={loginStyle}>Login</span>
                 </Link>
               )}
               <Link href="/api-docs" legacyBehavior>
-                <a style={linkStyle}>Docs</a>
+                <span style={linkStyle}>Docs</span>
               </Link>
               <Link href="/game-shop" legacyBehavior>
-                <a style={linkStyle}>Shop</a>
+                <span style={linkStyle}>Shop</span>
+              </Link>
+              <Link href="/marketplace" legacyBehavior>
+                <span style={linkStyle}>Marketplace</span>
               </Link>
               <DropdownButton label="Install" showKey="install">
                 {show === "install" && (
@@ -403,21 +408,21 @@ export default function NavBar() {
                       >
                         {!user.isStudio && (
                           <Link href="/studios" legacyBehavior>
-                            <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</a>
+                            <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</span>
                           </Link>
                         )}
                         <Link href="/oauth2/apps" legacyBehavior>
-                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</a>
+                          <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</span>
                         </Link>
                         <Link href="/dev-zone/my-items" legacyBehavior>
-                          <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</a>
+                          <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</span>
                         </Link>
                         <Link href="/dev-zone/my-games" legacyBehavior>
-                          <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</a>
+                          <span style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</span>
                         </Link>
                         <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
                         <Link href="/settings" legacyBehavior>
-                          <a style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</a>
+                          <span style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</span>
                         </Link>
                       </div>
                     )}

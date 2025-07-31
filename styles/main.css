@@ -1271,13 +1271,15 @@ input[type=text].required:focus {
 }
 
 .inventory-context-drop,
-.inventory-context-sell {
+.inventory-context-sell,
+.inventory-context-auction {
     padding: 8px 16px;
     cursor: pointer;
     user-select: none
 }
 
-.inventory-context-sell {
+.inventory-context-sell,
+.inventory-context-auction {
     color: var(--text-color-primary);
     font-weight: 500;
     border-bottom: 1px solid #444

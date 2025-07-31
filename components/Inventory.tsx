@@ -40,16 +40,17 @@ interface Props {
 }
 
 export default function Inventory({ profile, isMe, reloadFlag }: Props) {
-  const searchParams = useSearchParams();
 
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<{
     message: string;
-    resolve: (value: { confirmed: boolean; amount?: number }) => void;
+    resolve: (value: { confirmed: boolean; amount?: number; price?: number }) => void;
     maxAmount?: number;
     amount?: number;
+    price?: number;
+    showPrice?: boolean; // <--- nouveau
   } | null>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [ownerUser, setOwnerUser] = useState<any | null>(null);
@@ -86,18 +87,25 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       .catch(err => { setError(err.message); setLoading(false); });
   }
 
-  const customPrompt = (message: string, maxAmount?: number) => {
-    return new Promise<{ confirmed: boolean; amount?: number }>(resolve =>
-      setPrompt({ message, resolve, maxAmount, amount: 1 })
-    );
+  // Custom prompt for sell/drop/auction
+  const customPrompt = (
+    message: string,
+    maxAmount?: number,
+    options?: { showPrice?: boolean; defaultPrice?: number }
+  ) => {
+    return new Promise<{ confirmed: boolean; amount?: number; price?: number }>(resolve => {
+      setPrompt({
+        message,
+        resolve,
+        maxAmount,
+        amount: 1,
+        showPrice: options?.showPrice,
+        price: options?.defaultPrice || 1
+      });
+    });
   };
 
-  const handlePromptResult = (confirmed: boolean) => {
-    if (prompt) {
-      prompt.resolve({ confirmed, amount: prompt.amount });
-      setPrompt(null);
-    }
-  };
+  // Résout le prompt selon le contexte (auction, sell, drop)
 
   const handlePromptAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (prompt) {
@@ -106,71 +114,141 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     }
   };
 
-  async function handleAction(item: Item, action: "sell" | "drop", actionText: string) {
-    if (!isMe) return;
+  const handlePromptPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (prompt) {
+      const value = Math.max(1, Number(e.target.value));
+      setPrompt(prev => prev ? { ...prev, price: value } : null);
+    }
+  };
 
-    // Pour les items avec métadonnées, ils ne peuvent pas être vendus normalement
-    if (item.metadata && action === "sell") {
+  // Prompt pour SELL
+  const customPromptSell = (item: Item) => {
+    return new Promise<{ confirmed: boolean; amount?: number }>(resolve => {
+      setPrompt({
+        message: `Sell how many "${item.name}"?`,
+        resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
+        maxAmount: item.amount,
+        amount: 1,
+        showPrice: false
+      });
+    });
+  };
+
+  // Prompt pour DROP
+  const customPromptDrop = (item: Item) => {
+    return new Promise<{ confirmed: boolean; amount?: number }>(resolve => {
+      setPrompt({
+        message: `Drop how many "${item.name}"?`,
+        resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
+        maxAmount: item.amount,
+        amount: 1,
+        showPrice: false
+      });
+    });
+  };
+
+  // Prompt pour AUCTION
+  const customPromptAuction = (item: Item) => {
+    return new Promise<{ confirmed: boolean; price?: number }>(resolve => {
+      setPrompt({
+        message: `Auction "${item.name}" — set your price (per unit):`,
+        resolve: ({ confirmed, price }) => resolve({ confirmed, price }),
+        showPrice: true,
+        price: item.purchasePrice || 1
+      });
+    });
+  };
+
+
+  const handleSell = async (item: Item) => {
+    if (!isMe) return;
+    if (item.metadata) {
       setError("Items with metadata cannot be sold");
       return;
     }
-
-    // Vérifier si l'item peut être vendu (seulement les items sellable)
-    if (action === "sell" && !item.sellable) {
+    if (!item.sellable) {
       setError("This item cannot be sold. Only purchased items or items obtained from trades can be sold.");
       return;
     }
-
-    // Pour les items avec métadonnées, utiliser l'endpoint consume avec uniqueId
-    if (item.metadata && item.metadata._unique_id && action === "drop") {
-      const confirmed = await customPrompt(`Drop "${item.name}" with unique properties?`);
-      if (confirmed.confirmed) {
-        // Simuler un drop en utilisant l'endpoint consume (nécessiterait une adaptation côté serveur)
-        fetch(`${endpoint}/items/drop/${item.itemId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uniqueId: item.metadata._unique_id,
-            userId: user?.id
-          }),
-        })
-          .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || `Failed to ${action} item`);
-            return data;
-          })
-          .then(() => { refreshInventory(); })
-          .catch(err => setError(err.message));
-      }
-      return;
-    }
-
-    const result = await customPrompt(`${actionText} how many "${item.name}"?`, item.amount);
-    if (result.confirmed && result.amount && result.amount > 0) {
-      const requestBody: any = { amount: result.amount };
-      
-      // Pour la vente, inclure le prix d'achat pour identifier les items spécifiques
-      if (action === "sell" && item.purchasePrice !== undefined) {
-        requestBody.purchasePrice = item.purchasePrice;
-      }
-
-      fetch(`${endpoint}/items/${action}/${item.itemId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+    const result = await customPromptSell(item);
+    if (!result.confirmed || !result.amount || result.amount <= 0) return;
+    const requestBody: any = { amount: result.amount };
+    if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
+    fetch(`${endpoint}/items/sell/${item.itemId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to sell item");
+        return data;
       })
-        .then(async res => {
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || `Failed to ${action} item`);
-          return data;
-        })
-        .then(() => { refreshInventory(); })
-        .catch(err => setError(err.message));
-    }
-  }
+      .then(() => { refreshInventory(); })
+      .catch(err => setError(err.message));
+  };
 
-  const handleSell = (item: Item) => handleAction(item, "sell", "Sell");
-  const handleDrop = (item: Item) => handleAction(item, "drop", "Drop");
+  // Add handleAuction function
+  const handleAuction = async (item: Item) => {
+    if (!isMe) return;
+
+    // Demander le prix de mise en vente (prompt personnalisé)
+    let price = 0;
+    let confirmed = false;
+    await new Promise<void>(resolve => {
+      setPrompt({
+        message: `Auction "${item.name}" — set your price (per unit):`,
+        resolve: ({ confirmed: c, price: p }) => {
+          confirmed = c;
+          price = p || 0;
+          resolve();
+        },
+        showPrice: true,
+        price: item.purchasePrice || 1
+      });
+    });
+    if (!confirmed || price <= 0) return;
+
+    // Appel API pour créer l'ordre de vente
+    fetch("/api/market-listings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        inventoryItem: item,
+        sellingPrice: price
+      }),
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to auction item");
+        return data;
+
+      })
+      .then(() => {
+        refreshInventory();
+      })
+      .catch(err => setError(err.message));
+  };
+
+  const handleDrop = async (item: Item) => {
+    if (!isMe) return;
+    const result = await customPromptDrop(item);
+    if (!result.confirmed || !result.amount || result.amount <= 0) return;
+    const requestBody: any = { amount: result.amount };
+    if (item.metadata && item.metadata._unique_id) requestBody.uniqueId = item.metadata._unique_id;
+    fetch(`${endpoint}/items/drop/${item.itemId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to drop item");
+        return data;
+      })
+      .then(() => { refreshInventory(); })
+      .catch(err => setError(err.message));
+  };
 
   const handleItemClick = async (item: Item) => {
     try {
@@ -220,19 +298,19 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const totalCells = rows * columns;
   const emptyCells = totalCells - totalItems;
 
-  const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop }: {
+  const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop, onAuction }: {
     item: Item,
     onSelect: (item: Item) => void,
     isMe: boolean,
     onSell: (item: Item) => void,
-    onDrop: (item: Item) => void
+    onDrop: (item: Item) => void,
+    onAuction: (item: Item) => void
   }) {
     const [loaded, setLoaded] = React.useState(false);
     const [showTooltip, setShowTooltip] = React.useState(false);
     const [showContext, setShowContext] = React.useState(false);
     const [mousePos, setMousePos] = React.useState<{ x: number, y: number } | null>(null);
     const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
-    const fallbackUrl = "/assets/System_Shop.webp";
     const formattedMetadata = formatMetadata(item.metadata);
 
     const handleMouseEnter = (e: React.MouseEvent) => {
@@ -341,18 +419,20 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 gap: "4px",
               }}>
                 Price: {item.purchasePrice}
-                <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "12px", height: "12px", position: "relative", top:"0px", left: "-2px" }} />
+                <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "12px", height: "12px", position: "relative", top: "0px", left: "-2px" }} />
               </div>
             )}
             {/* Affichage du statut sellable */}
             {!item.metadata && (
               <div className="inventory-tooltip-sellable" style={{
-                color: item.sellable ? "#66ff66" : "#ff6666",
+                color: item.sellable && item.purchasePrice != null ? "#66ff66" : "#ff6666",
                 fontSize: "11px",
                 marginTop: "4px",
                 fontWeight: "bold"
               }}>
-                {item.sellable ? "✓ Can be sold" : "✗ Cannot be sold"}
+                {item.sellable && item.purchasePrice != null
+                  ? "✓ Can be sold"
+                  : "✗ Cannot be sold"}
               </div>
             )}
             {/* Affichage de l'unique ID pour debug (optionnel) */}
@@ -383,14 +463,18 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         {showContext && isMe && mousePos && (
           <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={e => e.stopPropagation()}>
             {/* Afficher "Sell" seulement si l'item n'a pas de métadonnées ET est sellable */}
-            {!item.metadata && item.sellable && (
+            {!item.metadata && item.sellable && item.purchasePrice != null && (
               <div className="inventory-context-sell" onClick={() => onSell(item)}>Sell</div>
+            )}
+            {/* Auction button: show only if item is sellable and has no metadata */}
+            {item.purchasePrice != null && (
+              <div className="inventory-context-auction" onClick={() => onAuction(item)}>Auction</div>
             )}
             <div className="inventory-context-drop" onClick={() => onDrop(item)}>Drop</div>
           </div>
         )}
       </div>
-    );
+    )
   });
 
   return (
@@ -496,6 +580,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                     isMe={!!isMe}
                     onSell={handleSell}
                     onDrop={handleDrop}
+                    onAuction={handleAuction}
                   />
                 ))}
                 {Array.from({ length: emptyCells }).map((_, idx) => (
@@ -511,14 +596,47 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         <div className="inventory-prompt-overlay">
           <div className="inventory-prompt">
             <div className="inventory-prompt-message">{prompt.message}</div>
+            {prompt.showPrice && (
+              <div className="inventory-prompt-amount">
+                <input
+                  type="number"
+                  min={1}
+                  value={prompt.price}
+                  onChange={handlePromptPriceChange}
+                  className="inventory-prompt-amount-input"
+                  placeholder="Price"
+                />
+                <span className="inventory-prompt-amount-max">credits</span>
+              </div>
+            )}
             {prompt.maxAmount && (
               <div className="inventory-prompt-amount">
                 <input type="number" min={1} max={prompt.maxAmount} value={prompt.amount} onChange={handlePromptAmountChange} className="inventory-prompt-amount-input" />
                 <span className="inventory-prompt-amount-max">/ {prompt.maxAmount}</span>
               </div>
             )}
-            <button className="inventory-prompt-yes-btn" onClick={() => handlePromptResult(true)}>Yes</button>
-            <button className="inventory-prompt-no-btn" onClick={() => handlePromptResult(false)}>No</button>
+            <button
+              className="inventory-prompt-yes-btn"
+              onClick={() => {
+                if (prompt.showPrice) {
+                  prompt.resolve({ confirmed: true, price: prompt.price });
+                } else {
+                  prompt.resolve({ confirmed: true, amount: prompt.amount });
+                }
+                setPrompt(null);
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="inventory-prompt-no-btn"
+              onClick={() => {
+                prompt.resolve({ confirmed: false });
+                setPrompt(null);
+              }}
+            >
+              No
+            </button>
           </div>
         </div>
       )}
