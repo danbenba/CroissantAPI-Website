@@ -262,8 +262,7 @@ export default function LobbyPage() {
                               className="lobby-user-btn"
                               onClick={() =>
                                 router.push(
-                                  `/profile?user=${lobbyUser.id}` +
-                                  isFromLauncher()
+                                  `/profile?user=${lobbyUser.user_id}&from=launcher`
                                 )
                               }
                             >
