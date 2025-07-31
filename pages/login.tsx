@@ -21,7 +21,7 @@ const containerStyle: React.CSSProperties = {
 const containerMobileStyle: React.CSSProperties = {
   ...containerStyle,
   maxWidth: 340,
-  margin: "32px auto",
+  // margin: "32px auto",
   padding: "18px 8px",
   borderRadius: 10,
   fontSize: "0.98em",
