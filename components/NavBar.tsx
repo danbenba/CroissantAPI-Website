@@ -64,7 +64,7 @@ function useNavBarResponsive() {
   const linksGroupStyle: React.CSSProperties = {
     display: isMobile ? "flex" : "flex",
     alignItems: "center",
-    gap: isMobile ? undefined : 12,
+    gap: isMobile ? 2 : 12,
     marginTop: isMobile ? 8 : 0,
     textAlign: isMobile ? "center" : undefined,
     flexDirection: isMobile ? "column" : "row",

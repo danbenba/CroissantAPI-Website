@@ -91,59 +91,61 @@ export default function MyBuyOrdersPage() {
       {loading && <div>Loading...</div>}
       {error && <div style={{ color: "red" }}>{error}</div>}
       {!loading && orders.length === 0 && <div>No buy orders placed.</div>}
-      <table className="market-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Placed</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map(order => {
-            const item = itemDetails[order.item_id];
-            return (
-              <tr key={order.id}>
-                <td>
-                  {item ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="" width={32} height={32} />
-                      {item.name}
-                    </span>
-                  ) : order.item_id}
-                </td>
-                <td style={{ maxWidth: 220, color: "#bbb" }}>{item ? item.description : ""}</td>
-                <td>{order.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} /></td>
-                <td>{order.status}</td>
-                <td>{new Date(order.created_at).toLocaleString()}</td>
-                <td>
-                  {order.status === "active" ? (
-                    <button
-                      onClick={() => handleCancel(order)}
-                      style={{
-                        background: "#ff6666",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 6,
-                        padding: "6px 14px",
-                        fontWeight: 600,
-                        cursor: "pointer"
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  ) : (
-                    <span style={{ color: "#888" }}>—</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="market-table-wrapper">
+        <table className="market-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Placed</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map(order => {
+              const item = itemDetails[order.item_id];
+              return (
+                <tr key={order.id}>
+                  <td>
+                    {item ? (
+                      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="" width={32} height={32} />
+                        {item.name}
+                      </span>
+                    ) : order.item_id}
+                  </td>
+                  <td style={{ maxWidth: 220, color: "#bbb" }}>{item ? item.description : ""}</td>
+                  <td>{order.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} /></td>
+                  <td>{order.status}</td>
+                  <td>{new Date(order.created_at).toLocaleString()}</td>
+                  <td>
+                    {order.status === "active" ? (
+                      <button
+                        onClick={() => handleCancel(order)}
+                        style={{
+                          background: "#ff6666",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 6,
+                          padding: "6px 14px",
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <span style={{ color: "#888" }}>—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       <style jsx>{`
         .market-table {
           width: 100%;
@@ -196,6 +198,36 @@ export default function MyBuyOrdersPage() {
         }
         .market-table button:hover {
           background: #ff3333;
+        }
+
+        @media (max-width: 700px) {
+          .market-table {
+            font-size: 12px;
+            min-width: 600px;
+            width: 100%;
+            border-radius: 0;
+            margin-top: 8px;
+          }
+          .market-table th, .market-table td {
+            padding: 8px 4px;
+            font-size: 12px;
+          }
+          .market-table th {
+            font-size: 13px;
+          }
+          .market-table img {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          .market-table button {
+            padding: 4px 8px;
+            font-size: 12px;
+          }
+          /* Pour permettre le scroll horizontal sur mobile */
+          .market-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
         }
       `}</style>
     </div>

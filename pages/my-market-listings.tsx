@@ -106,60 +106,62 @@ export default function MyMarketListingsPage() {
             {!loading && listings.filter(listing => listing.status !== "cancelled").length === 0 ? <div>No active listings.</div> :
                 (
                     <>
-                        <table className="market-table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {listings.filter(listing => listing.status !== "cancelled").map(listing => (
-                                    <tr key={listing.id}>
-                                        <td
-                                            onMouseEnter={e => {
-                                                const rect = (e.target as HTMLElement).getBoundingClientRect();
-                                                setTooltip({ x: rect.right + 8, y: rect.top, listing });
-                                            }}
-                                            onMouseLeave={() => setTooltip(null)}
-                                            style={{ cursor: "pointer", justifyContent: "center", display: "flex", alignItems: "center", gap: 8 }}
-                                        >
-                                            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                <img src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" width={32} height={32} />
-                                                {listing.item_name}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: "center" }}>
-                                            {listing.price} <img src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
-                                        </td>
-                                        <td style={{ textAlign: "center" }}>{listing.status}</td>
-                                        <td style={{ textAlign: "center" }}>{new Date(listing.created_at).toLocaleString()}</td>
-                                        <td style={{ textAlign: "center" }}>
-                                            {listing.status === "active" && (
-                                                <button
-                                                    onClick={async () => {
-                                                        if (!confirm("Cancel this listing?")) return;
-                                                        try {
-                                                            const res = await fetch(`/api/market-listings/${listing.id}/cancel`, { method: "PUT" });
-                                                            if (!res.ok) throw new Error((await res.json()).message);
-                                                            setListings(listings => listings.filter(l => l.id !== listing.id));
-                                                        } catch (e: any) {
-                                                            alert(e.message);
-                                                        }
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            )}
-                                            {listing.status !== "active" && <span style={{ color: "#888" }}>—</span>}
-                                        </td>
+                        <div className="market-table-wrapper">
+                            <table className="market-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {listings.filter(listing => listing.status !== "cancelled").map(listing => (
+                                        <tr key={listing.id}>
+                                            <td
+                                                onMouseEnter={e => {
+                                                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                                                    setTooltip({ x: rect.right + 8, y: rect.top, listing });
+                                                }}
+                                                onMouseLeave={() => setTooltip(null)}
+                                                style={{ cursor: "pointer", justifyContent: "center", display: "flex", alignItems: "center", gap: 8 }}
+                                            >
+                                                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                    <img src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" width={32} height={32} />
+                                                    {listing.item_name}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: "center" }}>
+                                                {listing.price} <img src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
+                                            </td>
+                                            <td style={{ textAlign: "center" }}>{listing.status}</td>
+                                            <td style={{ textAlign: "center" }}>{new Date(listing.created_at).toLocaleString()}</td>
+                                            <td style={{ textAlign: "center" }}>
+                                                {listing.status === "active" && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (!confirm("Cancel this listing?")) return;
+                                                            try {
+                                                                const res = await fetch(`/api/market-listings/${listing.id}/cancel`, { method: "PUT" });
+                                                                if (!res.ok) throw new Error((await res.json()).message);
+                                                                setListings(listings => listings.filter(l => l.id !== listing.id));
+                                                            } catch (e: any) {
+                                                                alert(e.message);
+                                                            }
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                )}
+                                                {listing.status !== "active" && <span style={{ color: "#888" }}>—</span>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         {tooltip && (
                             <div style={{ position: "fixed", left: tooltip.x, top: tooltip.y }}>
                                 <ItemTooltip listing={tooltip.listing} />
@@ -217,6 +219,35 @@ export default function MyMarketListingsPage() {
                             }
                             .market-table button:hover {
                             background: #ff3333;
+                            }
+                            @media (max-width: 700px) {
+                              .market-table {
+                                font-size: 12px;
+                                min-width: 600px;
+                                width: 100%;
+                                border-radius: 0;
+                                margin-top: 8px;
+                              }
+                              .market-table th, .market-table td {
+                                padding: 8px 4px;
+                                font-size: 12px;
+                              }
+                              .market-table th {
+                                font-size: 13px;
+                              }
+                              .market-table img {
+                                width: 24px !important;
+                                height: 24px !important;
+                              }
+                              .market-table button {
+                                padding: 4px 8px;
+                                font-size: 12px;
+                              }
+                              /* Pour permettre le scroll horizontal sur mobile */
+                              .market-table-wrapper {
+                                overflow-x: auto;
+                                -webkit-overflow-scrolling: touch;
+                              }
                             }
                         `}</style>
                     </>

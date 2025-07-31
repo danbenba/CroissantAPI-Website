@@ -172,61 +172,63 @@ export default function MarketplacePage() {
             {loading && <div>Loading...</div>}
             {error && <div style={{ color: "red" }}>{error}</div>}
             {!loading && listings.length === 0 ? <div>No items available for sale.</div> : (
-                <table className="market-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Description</th>
-                            <th>Seller</th>
-                            <th>Price</th>
-                            <th>Listed</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {listings.map(listing => (
-                            <tr key={listing.id}>
-                                <td>
-                                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                        <CachedImage src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" width={32} height={32} />
-                                        {listing.item_name}
-                                    </span>
-                                </td>
-                                <td style={{ maxWidth: 260, color: "#bbb" }}>{listing.item_description}</td>
-                                <td>
-                                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                        <CachedImage src={`/avatar/${listing.seller_id}`} alt="" style={{ borderRadius: "50%", width: 28, height: 28 }} />
-                                        {sellerNames[listing.seller_id] || listing.seller_id}
-                                    </span>
-                                </td>
-                                <td>
-                                    {listing.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
-                                </td>
-                                <td>{new Date(listing.created_at).toLocaleString()}</td>
-                                <td>
-                                    {user && listing.seller_id !== user.id ? (
-                                        <button
-                                            style={{
-                                                background: "#66ff66",
-                                                color: "#222",
-                                                border: "none",
-                                                borderRadius: 6,
-                                                padding: "6px 14px",
-                                                fontWeight: 600,
-                                                cursor: "pointer"
-                                            }}
-                                            onClick={() => handleBuy(listing)}
-                                        >
-                                            Buy
-                                        </button>
-                                    ) : (
-                                        <span style={{ color: "#888" }}>—</span>
-                                    )}
-                                </td>
+                <div className="market-table-wrapper">
+                    <table className="market-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Seller</th>
+                                <th>Price</th>
+                                <th>Listed</th>
+                                <th></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {listings.map(listing => (
+                                <tr key={listing.id}>
+                                    <td>
+                                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                            <CachedImage src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" width={32} height={32} />
+                                            {listing.item_name}
+                                        </span>
+                                    </td>
+                                    <td style={{ maxWidth: 260, color: "#bbb" }}>{listing.item_description}</td>
+                                    <td>
+                                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                            <CachedImage src={`/avatar/${listing.seller_id}`} alt="" style={{ borderRadius: "50%", width: 28, height: 28 }} />
+                                            {sellerNames[listing.seller_id] || listing.seller_id}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {listing.price} <CachedImage src="/assets/credit.png" alt="credits" style={{ width: 14, verticalAlign: "middle" }} />
+                                    </td>
+                                    <td>{new Date(listing.created_at).toLocaleString()}</td>
+                                    <td>
+                                        {user && listing.seller_id !== user.id ? (
+                                            <button
+                                                style={{
+                                                    background: "#66ff66",
+                                                    color: "#222",
+                                                    border: "none",
+                                                    borderRadius: 6,
+                                                    padding: "6px 14px",
+                                                    fontWeight: 600,
+                                                    cursor: "pointer"
+                                                }}
+                                                onClick={() => handleBuy(listing)}
+                                            >
+                                                Buy
+                                            </button>
+                                        ) : (
+                                            <span style={{ color: "#888" }}>—</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
             {/* Buy Order Modal */}
             {showBuyOrderModal && (
@@ -396,6 +398,36 @@ export default function MarketplacePage() {
         }
         .market-table button:hover {
           background: #33ff33;
+        }
+
+        @media (max-width: 700px) {
+          .market-table {
+            font-size: 12px;
+            min-width: 600px;
+            width: 100%;
+            border-radius: 0;
+            margin-top: 8px;
+          }
+          .market-table th, .market-table td {
+            padding: 8px 4px;
+            font-size: 12px;
+          }
+          .market-table th {
+            font-size: 13px;
+          }
+          .market-table img {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          .market-table button {
+            padding: 4px 8px;
+            font-size: 12px;
+          }
+          /* Pour permettre le scroll horizontal sur mobile */
+          .market-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
         }
       `}</style>
         </div>
