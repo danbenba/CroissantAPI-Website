@@ -302,7 +302,7 @@ function LoginDesktop(props: any) {
                 value={authenticatorCode}
                 onChange={e => setAuthenticatorCode(e.target.value)}
                 style={{
-                  width: "280px",
+                  width: "255px",
                   padding: "10px 12px",
                   borderRadius: 6,
                   border: "1px solid #444",
