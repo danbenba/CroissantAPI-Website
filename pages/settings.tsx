@@ -750,6 +750,7 @@ function useSettingsLogic() {
         if (!verifyRes.ok) throw new Error("Failed to register passkey");
         setPasskeySuccess("Passkey registered!");
       } catch (err) {
+        console.log(err);
         throw new Error("Passkey registration failed");
       }
     } catch (e: any) {
