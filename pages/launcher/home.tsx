@@ -1,11 +1,14 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
 import CachedImage from "../../components/utils/CachedImage";
 import Certification from "../../components/common/Certification";
+import { DiscordRpcManager } from "./discordRpcManager";
+import { useLobby } from "../../hooks/LobbyContext";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
+let discordRpcManager: DiscordRpcManager;
 
 type Game = {
   id?: number;
@@ -37,8 +40,116 @@ let ws: WebSocket;
 try {
   ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
   ws.onerror = () => { };
+  discordRpcManager = new DiscordRpcManager(ws);
 } catch {
   // Do nothing if connection fails
+}
+
+const ENDPOINT = "/api";
+
+
+
+export function LobbyManager() {
+  const [loading, setLoading] = useState(true);
+  const { setLobby } = useLobby();
+
+
+  const pollingInterval = useRef<number>(2000); // ms
+  const pollingTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastLobbyUsers = useRef<string>("");
+  const pageVisible = useRef<boolean>(true);
+
+
+
+  // Polling adaptatif : si la liste des users change, on réduit l'intervalle, sinon on l'augmente
+  const fetchLobby = useCallback(
+    async (showLoading = true) => {
+      if (showLoading) setLoading(true);
+      try {
+        const res = await fetch(`${ENDPOINT}/lobbies/user/@me`);
+        const data = await res.json();
+        if (data.success) {
+          const users = data.users;
+          const usersString = users
+            .map((u) => u.id)
+            .sort()
+            .join(",");
+          if (lastLobbyUsers.current !== usersString) {
+            pollingInterval.current = 2000; // 2s si changement
+          } else {
+            pollingInterval.current = Math.min(
+              pollingInterval.current + 1000,
+              10000
+            ); // max 10s
+          }
+          lastLobbyUsers.current = usersString;
+          setLobby({ lobbyId: data.lobbyId, users });
+          discordRpcManager.createLobby({
+            id: data.lobbyId,
+            size: 10,
+            max: data.maxUsers,
+            joinSecret: data.lobbyId + "secret",
+          });
+        } else {
+          setLobby(null);
+          discordRpcManager.clearLobby();
+        }
+      } finally {
+        if (showLoading) setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Gestion de la visibilité de l'onglet
+  useEffect(() => {
+    const handleVisibility = () => {
+      pageVisible.current = true;
+      if (pageVisible.current && !pollingTimer.current) {
+        startPolling();
+      } else if (!pageVisible.current && pollingTimer.current) {
+        stopPolling();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
+  // Fonction pour démarrer le polling
+  const startPolling = useCallback(() => {
+    if (pollingTimer.current) return;
+    const poll = async () => {
+      // if (!pageVisible.current) return;
+      try {
+        // On ne montre pas le loading spinner à chaque tick
+        await fetchLobby(false);
+      } finally {
+        pollingTimer.current = setTimeout(poll, pollingInterval.current);
+      }
+    };
+    pollingTimer.current = setTimeout(poll, pollingInterval.current);
+  }, [fetchLobby]);
+
+  // Fonction pour arrêter le polling
+  const stopPolling = useCallback(() => {
+    if (pollingTimer.current) {
+      clearTimeout(pollingTimer.current);
+      pollingTimer.current = null;
+    }
+  }, []);
+
+  // Démarre le polling au montage
+  useEffect(() => {
+    fetchLobby(); // premier chargement
+    startPolling();
+    return () => stopPolling();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <></>
+  );
 }
 
 const Library: React.FC = () => {
@@ -61,20 +172,6 @@ const Library: React.FC = () => {
 
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
   const { getUser: getUserFromCache } = useUserCache();
-
-  function joinLobby(lobbyId: string) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `/api/lobbies/${lobbyId}/join`, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("Authorization", `Bearer ${token || ""}`);
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        console.log("Successfully joined lobby:", lobbyId);
-      }
-    };
-    xhr.send();
-    console.log("Joining ", lobbyId);
-  }
 
   useEffect(() => {
     if (typeof location !== "undefined") {
@@ -113,7 +210,7 @@ const Library: React.FC = () => {
         setSelected(lastGame || data[0] || null);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         fetch("/api/games/list/@me", {
           method: "GET",
           headers: {
@@ -142,7 +239,15 @@ const Library: React.FC = () => {
       try {
         const message = JSON.parse(event.data);
         if (message.action === "joinLobby") {
-          joinLobby(message.lobbyId);
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", `/api/lobbies/${message.lobbyId}/join`, true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              console.log("Successfully joined lobby:", message.lobbyId);
+            }
+          };
+          xhr.send();
         }
         if (message.action === "downloadProgress" && message.gameId === selected?.gameId) {
           setDownloadPercent(message.percent);
@@ -220,6 +325,7 @@ const Library: React.FC = () => {
           if (selected && selected.gameId === message.gameId) {
             setSelected({ ...selected, state: "installed" });
           }
+          clearGameActivity();
           setIsPlaying(false);
         }
         if (message.action === "playing") {
@@ -257,6 +363,38 @@ const Library: React.FC = () => {
     };
   }, [selected]);
 
+  useEffect(() => {
+    if (selected?.owner_id || selected?.ownerId) {
+      const ownerId = selected.owner_id || selected.ownerId;
+      getUserFromCache(ownerId)
+        .then(setOwnerInfo)
+        .catch(() => setOwnerInfo(null));
+    } else {
+      setOwnerInfo(null);
+    }
+  }, [selected, getUserFromCache]);
+
+  function setPlayingGame(game) {
+    discordRpcManager.setActivity({
+      details: `Playing ${game.name}`,
+      largeImageKey: 'game_icon',
+      largeImageText: `Playing ${game.name}`,
+      smallImageKey: 'play',
+      smallImageText: 'In game',
+    });
+  }
+
+  function clearGameActivity() {
+    discordRpcManager.setActivity({
+      details: 'Ready to play',
+      state: 'In launcher',
+      largeImageKey: 'launcher_icon',
+      largeImageText: 'Croissant Launcher',
+      smallImageText: 'Ready to play',
+      instance: true,
+    });
+  }
+
   const handleInstall = () => {
     if (selected && selected.state === "not_installed") {
       setDownloadPercent(0); // Reset progress
@@ -289,6 +427,7 @@ const Library: React.FC = () => {
           verificationKey: localStorage.getItem("verificationKey"),
         })
       );
+      setPlayingGame(selected);
       setIsPlaying(true);
     }
   };
@@ -318,17 +457,6 @@ const Library: React.FC = () => {
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  useEffect(() => {
-    if (selected?.owner_id || selected?.ownerId) {
-      const ownerId = selected.owner_id || selected.ownerId;
-      getUserFromCache(ownerId)
-        .then(setOwnerInfo)
-        .catch(() => setOwnerInfo(null));
-    } else {
-      setOwnerInfo(null);
-    }
-  }, [selected, getUserFromCache]);
 
   // User search for transfer
   const handleTransferUserSearch = async (query: string) => {
@@ -401,9 +529,6 @@ const Library: React.FC = () => {
   };
 
   // Determines if the transfer option should be shown for the selected game
-  function canShowTransferOption(game: Game | null): boolean {
-    return true;
-  }
 
   if (loading || error) {
     return (
@@ -510,6 +635,7 @@ const Library: React.FC = () => {
 
   return (
     <div className="steam-library-layout">
+      <LobbyManager></LobbyManager>
       <aside className="steam-library-sidebar">
         <input
           type="text"

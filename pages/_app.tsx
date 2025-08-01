@@ -19,6 +19,7 @@ import useIsMobile from "../hooks/useIsMobile";
 import NavBarDesktop from "../components/common/NavBarDesktop";
 import NavBarMobile from "../components/common/NavBarMobile";
 import Login from "./login";
+import { LobbyProvider } from "../hooks/LobbyContext";
 
 // --- Style constants ---
 const launcherMainStyle: React.CSSProperties = {
@@ -179,7 +180,9 @@ export default function App(props: AppProps) {
     <ImageCacheProvider>
       <UserCacheProvider>
         <AuthProvider>
-          <AppContent {...props} />
+          <LobbyProvider>
+            <AppContent {...props} />
+          </LobbyProvider>
         </AuthProvider>
       </UserCacheProvider>
     </ImageCacheProvider>

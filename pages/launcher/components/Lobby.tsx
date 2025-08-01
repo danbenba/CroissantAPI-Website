@@ -9,199 +9,33 @@ import { useRouter } from "next/navigation";
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
 import CachedImage from "../../../components/utils/CachedImage";
-import Certification from "../../../components/common/Certification";
+import { useLobby } from "../../../hooks/LobbyContext";
 
 const ENDPOINT = "/api";
-type Lobby = {
-  lobbyId: string;
-  users: any[];
-};
-
-let ws: WebSocket;
-try {
-  ws = new WebSocket("ws://localhost:8081"); // Adjust if needed
-  ws.onerror = () => { };
-  ws.onopen = () => {
-    console.log("WebSocket connection established");
-  };
-} catch {
-  // Do nothing if connection fails
-}
 
 export default function LobbyPage() {
-  const [lobby, setLobby] = useState<Lobby | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    lobby,
+    loading,
+    error,
+    rpcStatus,
+    createLobby,
+    leaveLobby,
+  } = useLobby();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [tooltip, setTooltip] = useState<string | null>(null);
   // Pour le polling adaptatif
   const pollingInterval = useRef<number>(2000); // ms
-  const pollingTimer = useRef<NodeJS.Timeout | null>(null);
-  const lastLobbyUsers = useRef<string>("");
-  const pageVisible = useRef<boolean>(true);
 
   const router = useRouter();
-  const { user, token } = useAuth();
-
-  // Constantes réutilisées
-  const AUTH_HEADER = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token || ""}`,
-    }),
-    [token]
-  );
-
-  const lobbyLink = useMemo(
-    () =>
-      lobby
-        ? `https://croissant-api.fr/join-lobby?lobbyId=${lobby.lobbyId}`
-        : "",
-    [lobby]
-  );
+  const { user } = useAuth();
 
   // Tooltip
   const showTooltip = useCallback((msg: string) => {
     setTooltip(msg);
     setTimeout(() => setTooltip(null), 2000);
-  }, []);
-
-  // Polling adaptatif : si la liste des users change, on réduit l'intervalle, sinon on l'augmente
-  const fetchLobby = useCallback(
-    async (showLoading = true) => {
-      if (showLoading) setLoading(true);
-      try {
-        const res = await fetch(`${ENDPOINT}/lobbies/user/@me`, {
-          headers: AUTH_HEADER,
-        });
-        const data = await res.json();
-        if (data.success) {
-          const users = data.users;
-          const usersString = users
-            .map((u) => u.id)
-            .sort()
-            .join(",");
-          if (lastLobbyUsers.current !== usersString) {
-            pollingInterval.current = 2000; // 2s si changement
-          } else {
-            pollingInterval.current = Math.min(
-              pollingInterval.current + 1000,
-              10000
-            ); // max 10s
-          }
-          lastLobbyUsers.current = usersString;
-          setLobby({ lobbyId: data.lobbyId, users });
-          ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: data.lobbyId, users }));
-        } else {
-          setLobby(null);
-          ws.send(JSON.stringify({ action: "lobbyUpdate", lobbyId: null, users: [] }));
-        }
-      } finally {
-        if (showLoading) setLoading(false);
-      }
-    },
-    [AUTH_HEADER]
-  );
-
-  // Gestion de la visibilité de l'onglet
-  useEffect(() => {
-    const handleVisibility = () => {
-      pageVisible.current = true;
-      if (pageVisible.current && !pollingTimer.current) {
-        startPolling();
-      } else if (!pageVisible.current && pollingTimer.current) {
-        stopPolling();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
-
-  // Fonction pour démarrer le polling
-  const startPolling = useCallback(() => {
-    if (pollingTimer.current) return;
-    const poll = async () => {
-      // if (!pageVisible.current) return;
-      try {
-        // On ne montre pas le loading spinner à chaque tick
-        await fetchLobby(false);
-      } finally {
-        pollingTimer.current = setTimeout(poll, pollingInterval.current);
-      }
-    };
-    pollingTimer.current = setTimeout(poll, pollingInterval.current);
-  }, [fetchLobby]);
-
-  // Fonction pour arrêter le polling
-  const stopPolling = useCallback(() => {
-    if (pollingTimer.current) {
-      clearTimeout(pollingTimer.current);
-      pollingTimer.current = null;
-    }
-  }, []);
-
-  // Démarre le polling au montage
-  useEffect(() => {
-    fetchLobby(); // premier chargement
-    startPolling();
-    return () => stopPolling();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleCreateLobby = useCallback(async () => {
-    setActionLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${ENDPOINT}/lobbies`, {
-        method: "POST",
-        headers: AUTH_HEADER,
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create lobby");
-      }
-      await fetchLobby();
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setActionLoading(false);
-    }
-    // Force un polling rapide après action
-    pollingInterval.current = 2000;
-  }, [AUTH_HEADER, fetchLobby]);
-
-  const handleLeaveLobby = useCallback(async () => {
-    if (!lobby) return;
-    setActionLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${ENDPOINT}/lobbies/${lobby.lobbyId}/leave`, {
-        method: "POST",
-        headers: AUTH_HEADER,
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to leave lobby");
-      }
-      setLobby(null);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setActionLoading(false);
-    }
-    // Force un polling rapide après action
-    pollingInterval.current = 2000;
-  }, [AUTH_HEADER, lobby]);
-
-  const isFromLauncher = useCallback(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") ||
-      window.location.search.includes("from=launcher")
-      ? "&from=launcher"
-      : "";
   }, []);
 
   // UI helpers
@@ -299,7 +133,7 @@ export default function LobbyPage() {
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(lobbyLink);
+                              // await navigator.clipboard.writeText(lobbyLink);
                               showTooltip("Lobby link copied!");
                             } catch {
                               showTooltip("Failed to copy link.");
@@ -309,7 +143,7 @@ export default function LobbyPage() {
                           Copy Lobby Link
                         </button>
                         <button
-                          onClick={handleLeaveLobby}
+                          onClick={leaveLobby}
                           disabled={actionLoading}
                         >
                           {actionLoading ? "Leaving..." : "Leave Lobby"}
@@ -320,7 +154,7 @@ export default function LobbyPage() {
                     <div>
                       <p>You are not in any lobby.</p>
                       <button
-                        onClick={handleCreateLobby}
+                        onClick={createLobby}
                         disabled={actionLoading}
                       >
                         {actionLoading
