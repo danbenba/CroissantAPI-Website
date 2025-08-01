@@ -63,6 +63,14 @@ const Library: React.FC = () => {
   const { getUser: getUserFromCache } = useUserCache();
 
   useEffect(() => {
+    if (typeof location !== "undefined") {
+      if (location.href.includes("?from=app")) {
+        document.cookie = "from=app; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (user && user.id) {
       ws.send(JSON.stringify({
         action: "updateState",

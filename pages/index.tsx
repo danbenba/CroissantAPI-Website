@@ -1,8 +1,9 @@
 import Section from "../components/common/Section/Section";
 import ListSection from "../components/common/Section/ListSection";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useRouter } from "next/router";
 
 // Overview details content as an array for easier maintenance
 const overviewDetails = [
@@ -421,5 +422,12 @@ function HomeMobile() {
 
 export default function Home() {
   const isMobile = useIsMobile();
+  const router = useRouter();
+  useEffect(() => {
+    // check for the cookie "from=app" and set it if not present
+    if (typeof document !== "undefined" && document.cookie.includes("from=app")) {
+      router.push("/launcher/home");
+    }
+  }, []);
   return isMobile ? <HomeMobile /> : <HomeDesktop />;
 }

@@ -1,14 +1,15 @@
 import React from "react";
 
 
-export default function () {
+export default function ({metaLinksTitle}: {metaLinksTitle?: string}) {
+    const title = metaLinksTitle || "Croissant Inventory System";
     return (
         <>
             {/* Primary Meta Tags */}
-            <title>Croissant Inventory System</title>
+            <title>{title}</title>
             <meta charSet="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <meta name="description" content="Croissant Inventory System - Manage your inventory with ease." />
+            <meta name="description" content={`${title} - Manage your inventory with ease.`} />
             <meta name="keywords" content="Croissant, Inventory, System, API, Opensource, Scalable, Network Technology" />
             <meta name="author" content="Fox3000foxy" />
             <meta name="theme-color" content="#222222" />
@@ -18,14 +19,14 @@ export default function () {
             <meta property="og:description" content="Croissant Inventory System - Manage your inventory with ease." />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://croissant-api.fr/" />
-            <meta property="og:image" content="/favicon.png" />
+            <meta property="og:image" content="/assets/icons/android-icon-192x192.png" />
             <meta property="og:site_name" content="Croissant Inventory System" />
 
             {/* Twitter */}
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content="Croissant Inventory System" />
             <meta name="twitter:description" content="Croissant Inventory System - Manage your inventory with ease." />
-            <meta name="twitter:image" content="/favicon.png" />
+            <meta name="twitter:image" content="/assets/icons/android-icon-192x192.png" />
 
             {/* Icons */}
             <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png" />

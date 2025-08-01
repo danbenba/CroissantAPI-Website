@@ -18,73 +18,22 @@ import { ImageCacheProvider } from "../hooks/ImageCacheContext";
 import useIsMobile from "../hooks/useIsMobile";
 import NavBarDesktop from "../components/common/NavBarDesktop";
 import NavBarMobile from "../components/common/NavBarMobile";
+import Login from "./login";
 
 // --- Style constants ---
-const launcherTitlebarStyle: React.CSSProperties = {
-  display: "flex",
-  padding: "0rem 1rem 0rem 1rem",
-  borderBottom: "1px solid #ddd",
-  justifyContent: "start",
-  position: "fixed",
-  width: "100%",
-  backgroundColor: "#222",
-};
-const launcherIconStyle: React.CSSProperties = {
-  width: "24px",
-  height: "24px",
-};
-const launcherTitleStyle: React.CSSProperties = {
-  position: "relative",
-  top: "2px",
-  right: "10px",
-};
 const launcherMainStyle: React.CSSProperties = {
   position: "fixed",
   left: 0,
   right: 0,
-  top: "7rem",
+  top: "5rem",
   bottom: 0,
   overflowX: "hidden",
   overflowY: "auto",
 };
-const loginContainerStyle: React.CSSProperties = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#18181b",
-  userSelect: "none",
-};
-const loginBoxStyle: React.CSSProperties = {
-  background: "#23232a",
-  padding: "40px 32px",
-  borderRadius: "12px",
-  boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  minWidth: "320px",
-};
-const loginTitleStyle: React.CSSProperties = {
-  color: "#fff",
-  marginBottom: "32px",
-};
-const loginButtonStyle: React.CSSProperties = {
-  width: "220px",
-  height: "48px",
-  background: "#ffb300",
-  color: "#222",
-  border: "none",
-  borderRadius: "8px",
-  fontSize: "16px",
-  fontWeight: 600,
-  cursor: "pointer",
-  marginTop: "12px",
-};
 
 function AppContent({ Component, pageProps }: AppProps) {
   const [isLauncher, setIsLauncher] = useState(false);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [mainStyle, setMainStyle] = useState<React.CSSProperties>({});
 
   // Set main style based on whether it's a launcher or not
@@ -176,8 +125,8 @@ function AppContent({ Component, pageProps }: AppProps) {
   const LauncherLayout = () => (
     <>
       <BackgroundImage />
-      <MetaLinks />
-      
+      <MetaLinks metaLinksTitle={"Croissant Launcher"} />
+
       {/* Précharger des images importantes */}
       <ImagePreloader 
         images={[
@@ -187,17 +136,6 @@ function AppContent({ Component, pageProps }: AppProps) {
         ]} 
         priority={true} 
       />
-      
-      <nav className="titlebar" style={launcherTitlebarStyle}>
-        <CachedImage
-          src="/assets/icons/favicon-32x32.png"
-          alt="Icon"
-          style={launcherIconStyle}
-        />
-        <span className="navbar-title" style={launcherTitleStyle}>
-          Croissant Launcher
-        </span>
-      </nav>
       <LauncherNavbar />
       <main style={launcherMainStyle} className="launcher">
         <Component {...pageProps} />
@@ -209,21 +147,8 @@ function AppContent({ Component, pageProps }: AppProps) {
   const LauncherLogin = () => (
     <>
       {/* <BackgroundImage /> */}
-      <MetaLinks />
-      <div style={loginContainerStyle}>
-        <div style={loginBoxStyle}>
-          <h1 style={loginTitleStyle}>Login required</h1>
-          <button
-            style={loginButtonStyle}
-            onClick={() => {
-              // Redirects to the website login page
-              window?.electron?.window?.openEmailLogin?.();
-            }}
-          >
-            Log in on the website
-          </button>
-        </div>
-      </div>
+      <MetaLinks metaLinksTitle={pageProps?.title} />
+      <Login />
     </>
   );
 
@@ -233,7 +158,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     return (
       <div>
         <BackgroundImage />
-        <MetaLinks />
+        <MetaLinks metaLinksTitle={pageProps?.title} />
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
           isMobile ? <NavBarMobile /> : <NavBarDesktop />
         )}
