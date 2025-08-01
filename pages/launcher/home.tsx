@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
 import CachedImage from "../../components/utils/CachedImage";
 import Certification from "../../components/common/Certification";
-import { DiscordRpcManager } from "./discordRpcManager";
+import { DiscordRpcManager } from "../../components/discordRpcManager";
 import { useLobby } from "../../hooks/LobbyContext";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
