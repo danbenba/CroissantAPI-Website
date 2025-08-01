@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
+import Certification from "../components/common/Certification";
 
 // API endpoint for user search
 const API_ENDPOINT = "/api";
@@ -248,24 +249,17 @@ const SearchPage: React.FC = () => {
                   />
                   <div className="search-user-name">
                     {user.username || user.username}{" "}
-                    {user?.verified ? (
-                      <CachedImage
-                        src={
-                          !user.admin
-                            ? user.isStudio
-                              ? "/assets/brand-verified-mark.png"
-                              : "/assets/verified-mark.png"
-                            : "/assets/admin-mark.png"
-                        }
-                        alt="Verified"
-                        style={{
-                          width: "16px",
-                          height: "16px",
-                          position: "relative",
-                          top: "2px",
-                        }}
-                      />
-                    ) : null}
+                    <Certification
+                      user={user}
+                      style={{
+                        marginLeft: 4,
+                        width: 16,
+                        height: 16,
+                        position: "relative",
+                        top: -2,
+                        verticalAlign: "middle",
+                      }}
+                    />
                   </div>
                   <div
                     className="search-user-username"

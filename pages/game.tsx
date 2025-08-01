@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
+import Certification from "../components/common/Certification";
 
 const endpoint = "/api";
 
@@ -254,11 +255,17 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
               />
               <span style={{ fontWeight: 500 }}>
                 {ownerInfo.username}
-                {ownerInfo.admin ? (
-                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
-                ) : ownerInfo.verified ? (
-                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
-                ) : null}
+                <Certification
+                  user={{ ...ownerInfo, verified: ownerInfo.verified ?? false }}
+                  style={{
+                    marginLeft: 4,
+                    width: 16,
+                    height: 16,
+                    position: "relative",
+                    top: -2,
+                    verticalAlign: "middle",
+                  }}
+                />
               </span>
             </a>
           </div>
@@ -533,11 +540,17 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
               />
               <span style={{ fontWeight: 500, fontSize: "0.98em" }}>
                 {ownerInfo.username}
-                {ownerInfo.admin ? (
-                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                ) : ownerInfo.verified ? (
-                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                ) : null}
+                <Certification
+                  user={{ ...ownerInfo, verified: ownerInfo.verified ?? false }}
+                  style={{
+                    marginLeft: 4,
+                    width: 16,
+                    height: 16,
+                    position: "relative",
+                    top: -2,
+                    verticalAlign: "middle",
+                  }}
+                />  
               </span>
             </a>
           </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
 import useIsMobile from "../../hooks/useIsMobile";
+import Certification from "../../components/common/Certification";
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -794,23 +795,14 @@ const MyGames = () => {
                                 onError={(e) => (e.currentTarget.src = "/avatar/default.png")}
                               />
                               <span style={{ color: "#fff" }}>{u.username}</span>
-                              {u.admin ? (
-                                <img
-                                  src="/assets/admin-mark.png"
-                                  alt="Admin"
-                                  style={{ width: 16, height: 16, verticalAlign: "middle" }}
-                                />
-                              ) : (
-                                <>
-                                  {u.verified ? (
-                                    <img
-                                      src="/assets/verified-mark.png"
-                                      alt="Verified"
-                                      style={{ width: 16, height: 16, verticalAlign: "middle" }}
-                                    />
-                                  ) : null}
-                                </>
-                              )}
+                              <Certification
+                                user={u}
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  verticalAlign: "middle",
+                                }}
+                              />
                             </li>
                           ))}
                         </ul>

@@ -538,31 +538,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   Unique ID: {selectedItem.metadata._unique_id}
                 </div>
               )}
-              <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
-                {/* {selectedItem.owner && ownerUser && (
-                  <div className="inventory-details-creator" style={{ position: "relative", top: "-6px" }}>
-                    Creator:{" "}
-                    <Link href={`/profile?user=${selectedItem.owner}`} className="inventory-details-creator-link">
-                      <CachedImage className="inventory-details-creator-avatar" src={"/avatar/" + selectedItem.owner} />
-                      {ownerUser.username}{" "}
-                      {ownerUser.verified && (
-                        <CachedImage
-                          src={
-                            "/assets/" +
-                            (!ownerUser.admin
-                              ? ownerUser.isStudio
-                                ? "brand-verified-mark.png"
-                                : "verified-mark.png"
-                              : "admin-mark.png")
-                          }
-                          alt="Verified"
-                          style={{ marginLeft: "4px", width: "16px", height: "16px", position: "relative", top: "2px" }}
-                        />
-                      )}
-                    </Link>
-                  </div>
-                )} */}
-              </div>
             </div>
           </div></>
         ) : (

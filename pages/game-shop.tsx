@@ -5,6 +5,7 @@ import useUserCache from "../hooks/useUserCache";
 import router, { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
+import Certification from "../components/common/Certification";
 
 const ENDPOINT = "/api";
 
@@ -479,11 +480,17 @@ function ShopDesktop(props: any) {
                               />
                               <span style={{ fontWeight: 500 }}>
                                 {ownerInfo.username}
-                                {ownerInfo.admin ? (
-                                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                                ) : ownerInfo.verified ? (
-                                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                                ) : null}
+                                <Certification
+                                  user={ownerInfo}
+                                  style={{
+                                    marginLeft: 4,
+                                    width: 16,
+                                    height: 16,
+                                    position: "relative",
+                                    top: -2,
+                                    verticalAlign: "middle",
+                                  }}
+                                />
                               </span>
                             </div>
                           </a>
@@ -756,11 +763,17 @@ function ShopMobile(props: any) {
                             />
                             <span style={{ fontWeight: 500 }}>
                               {ownerInfo.username}
-                              {ownerInfo.admin ? (
-                                <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                              ) : ownerInfo.verified ? (
-                                <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                              ) : null}
+                              <Certification
+                                user={ownerInfo}
+                                style={{
+                                  marginLeft: 4,
+                                  width: 16,
+                                  height: 16,
+                                  position: "relative",
+                                  top: -2,
+                                  verticalAlign: "middle",
+                                }}
+                              />
                             </span>
                           </a>
                           <div

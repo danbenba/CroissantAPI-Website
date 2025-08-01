@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Profile from "../../profile";
 import useAuth from "../../../hooks/useAuth";
 import CachedImage from "../../../components/utils/CachedImage";
+import Certification from "../../../components/common/Certification";
 
 const ENDPOINT = "/api";
 type Lobby = {
@@ -273,35 +274,17 @@ export default function LobbyPage() {
                               />
                               <span className="lobby-user-name">
                                 {lobbyUser?.username}{" "}
-                                {lobbyUser?.admin ? (
-                                  <CachedImage
-                                    src="/assets/admin-mark.png"
-                                    alt="Admin"
-                                    style={{
-                                      marginLeft: "4px",
-                                      width: "16px",
-                                      height: "16px",
-                                      position: "relative",
-                                      top: "2px",
-                                    }}
-                                  />
-                                ) : lobbyUser?.verified ? (
-                                  <CachedImage
-                                    src={
-                                      lobbyUser.isStudio
-                                        ? "/assets/brand-verified-mark.png"
-                                        : "/assets/verified-mark.png"
-                                    }
-                                    alt="Verified"
-                                    style={{
-                                      marginLeft: "4px",
-                                      width: "16px",
-                                      height: "16px",
-                                      position: "relative",
-                                      top: "2px",
-                                    }}
-                                  />
-                                ) : null}{" "}
+                                {/* <Certification
+                                  user={lobbyUser}
+                                  style={{
+                                    marginRight: 4,
+                                    width: 16,
+                                    height: 16,
+                                    position: "relative",
+                                    top: -2,
+                                    verticalAlign: "middle",
+                                  }}
+                                /> */}
                                 {lobbyUser.user_id === user.id ? "(You)" : ""}
                               </span>
                             </button>

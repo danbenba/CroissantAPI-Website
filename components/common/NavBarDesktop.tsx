@@ -3,6 +3,7 @@ import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import CachedImage from "../utils/CachedImage";
 import Searchbar from "../Searchbar";
+import Certification from "./Certification";
 
 export default function NavBarDesktop() {
   const { user, loading, setUser } = useAuth();
@@ -215,12 +216,9 @@ export default function NavBarDesktop() {
               <CachedImage src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
               <span style={{ whiteSpace: "nowrap" }}>
                 {studio?.username || "Me"}
-                {studio?.verified ? (
-                  <span style={{ color: "#8fa1c7" }}>
-                    <CachedImage
-                      src="/assets/brand-verified-mark.png"
-                      alt="Verified"
-                      style={{
+                <Certification
+                  user={studio}
+                  style={{
                         width: 16,
                         height: 16,
                         marginLeft: 4,
@@ -228,9 +226,7 @@ export default function NavBarDesktop() {
                         top: -2,
                         verticalAlign: "middle",
                       }}
-                    />
-                  </span>
-                ) : null}
+                />
               </span>
             </button>
           );

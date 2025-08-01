@@ -3,6 +3,7 @@ import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 import useUserCache from "../../hooks/useUserCache";
 import CachedImage from "../../components/utils/CachedImage";
+import Certification from "../../components/common/Certification";
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 
@@ -572,11 +573,17 @@ const Library: React.FC = () => {
                     />
                     <span style={{ fontWeight: 500 }}>
                       {ownerInfo.username}
-                      {ownerInfo.admin ? (
-                        <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
-                      ) : ownerInfo.verified ? (
-                        <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 16, height: 16, verticalAlign: "middle" }} />
-                      ) : null}
+                      <Certification
+                        user={{ ...ownerInfo, verified: ownerInfo.verified ?? false }}
+                        style={{
+                          marginLeft: 4,
+                          width: 16,
+                          height: 16,
+                          position: "relative",
+                          top: -2,
+                          verticalAlign: "middle",
+                        }}
+                      />
                     </span>
                   </Link>
                 </div>
@@ -754,19 +761,17 @@ const Library: React.FC = () => {
                         }}
                       />
                       <span>{user.username}</span>
-                      {user.admin ? (
-                        <img
-                          src="/assets/admin-mark.png"
-                          alt="Admin"
-                          style={{ width: "16px", height: "16px" }}
-                        />
-                      ) : user.verified ? (
-                        <img
-                          src={user.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"}
-                          alt="Verified"
-                          style={{ width: "16px", height: "16px" }}
-                        />
-                      ) : null}
+                      <Certification
+                        user={{ ...user, verified: user.verified ?? false }}
+                        style={{
+                          marginLeft: 4,
+                          width: 16,
+                          height: 16,
+                          position: "relative",
+                          top: -2,
+                          verticalAlign: "middle",
+                        }}
+                      />
                     </li>
                   ))}
                 </ul>

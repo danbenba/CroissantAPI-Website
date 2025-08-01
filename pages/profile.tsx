@@ -7,6 +7,7 @@ import CachedImage from "../components/utils/CachedImage";
 import TradePanel from "../components/TradePanel";
 import useIsMobile from "../hooks/useIsMobile";
 import Inventory from "../components/Inventory";
+import Certification from "../components/common/Certification";
 
 const endpoint = "/api";
 
@@ -354,26 +355,17 @@ function ProfileShop({
                           src={"/avatar/" + (prompt.item as any).owner}
                         />
                         {promptOwnerUser.username}{" "}
-                        {promptOwnerUser?.verified ? (
-                          <CachedImage
-                            src={
-                              "/assets/" +
-                              (!promptOwnerUser.admin
-                                ? promptOwnerUser.isStudio
-                                  ? "brand-verified-mark.png"
-                                  : "verified-mark.png"
-                                : "admin-mark.png")
-                            }
-                            alt="Verified"
-                            style={{
-                              marginLeft: "4px",
-                              width: "16px",
-                              height: "16px",
-                              position: "relative",
-                              top: "3px",
-                            }}
-                          />
-                        ) : null}
+                        <Certification
+                          user={{ ...promptOwnerUser, verified: promptOwnerUser.verified ?? false }}
+                          style={{
+                            marginLeft: 4,
+                            width: 16,
+                            height: 16,
+                            position: "relative",
+                            top: -2,
+                            verticalAlign: "middle",
+                          }}
+                        />
                       </Link>
                     </div>
                   )}
@@ -769,35 +761,16 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
               <div>
                 <div className="profile-name">
                   {profile.username}{" "}
-                  {profile.admin ? (
-                    <CachedImage
-                      src={"/assets/admin-mark.png"}
-                      alt="Admin"
-                      style={{
-                        marginLeft: 4,
-                        width: 32,
-                        height: 32,
-                        position: "relative",
-                        top: "8px",
-                      }}
-                    />
-                  ) : profile.verified ? (
-                    <CachedImage
-                      src={
-                        profile.isStudio
-                          ? "/assets/brand-verified-mark.png"
-                          : "/assets/verified-mark.png"
-                      }
-                      alt="Verified"
-                      style={{
-                        marginLeft: 4,
-                        width: 32,
-                        height: 32,
-                        position: "relative",
-                        top: "8px",
-                      }}
-                    />
-                  ) : null}{" "}
+                  <Certification
+                    user={profile}
+                    style={{
+                      marginLeft: 4,
+                      width: 32,
+                      height: 32,
+                      position: "relative",
+                      top: "8px",
+                    }}
+                  />
                   {profile.disabled ? (
                     <>
                       <span style={{ color: "red" }}>(Disabled)</span>
@@ -1110,35 +1083,17 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
         <div className="profile-header" style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div className="profile-name" style={{ fontSize: "1.2em", fontWeight: 600 }}>
             {profile.username}{" "}
-            {profile.admin ? (
-              <CachedImage
-                src={"/assets/admin-mark.png"}
-                alt="Admin"
-                style={{
-                  marginLeft: 4,
-                  width: 24,
-                  height: 24,
-                  position: "relative",
-                  top: "4px",
-                }}
-              />
-            ) : profile.verified ? (
-              <CachedImage
-                src={
-                  profile.isStudio
-                    ? "/assets/brand-verified-mark.png"
-                    : "/assets/verified-mark.png"
-                }
-                alt="Verified"
-                style={{
-                  marginLeft: 4,
-                  width: 24,
-                  height: 24,
-                  position: "relative",
-                  top: "4px",
-                }}
-              />
-            ) : null}{" "}
+            <Certification
+              user={profile}
+              style={{
+                marginLeft: 4,
+                width: 24,
+                height: 24,
+                position: "relative",
+                top: -2,
+                verticalAlign: "middle",
+              }}
+            />
             {profile.disabled ? (
               <span style={{ color: "red" }}>(Disabled)</span>
             ) : null}

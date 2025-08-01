@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
+import Certification from "../components/common/Certification";
 
 export default function StudiosPage() {
   const { user, token, setUser } = useAuth();
@@ -328,17 +329,17 @@ export default function StudiosPage() {
                     }}
                   >
                     {studio.username}{" "}
-                    {studio.verified ? (
-                      <CachedImage
-                        src="/assets/brand-verified-mark.png"
-                        alt="Verified"
-                        style={{
-                          width: 20,
-                          height: 20,
-                          verticalAlign: "middle",
-                        }}
-                      />
-                    ) : null}
+                    <Certification
+                      user={studio}
+                      style={{
+                        width: 16,
+                        height: 16,
+                        marginLeft: 4,
+                        position: "relative",
+                        top: -2,
+                        verticalAlign: "middle",
+                      }}
+                    />
                   </div>
                   <div
                     className="studio-card-meta"
@@ -370,32 +371,14 @@ export default function StudiosPage() {
                               alt="User Avatar"
                             />
                             {user.username}
-                            {user.admin ? (
-                              <CachedImage
-                                src="/assets/admin-mark.png"
-                                alt="Admin"
-                                style={{
-                                  width: 16,
-                                  height: 16,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                            ) : (
-                              <>
-                                {" "}
-                                {user.verified ? (
-                                  <CachedImage
-                                    src="/assets/verified-mark.png"
-                                    alt="Verified"
-                                    style={{
-                                      width: 16,
-                                      height: 16,
-                                      verticalAlign: "middle",
-                                    }}
-                                  />
-                                ) : null}
-                              </>
-                            )}
+                            <Certification
+                              user={user}
+                              style={{
+                                width: 16,
+                                height: 16,
+                                verticalAlign: "middle",
+                              }}
+                            />
                             {studio.admin_id === user.userId ? (
                               <span
                                 style={{
@@ -662,31 +645,14 @@ export default function StudiosPage() {
                           style={{ width: 28, height: 28, borderRadius: "50%" }}
                         />
                         <span style={{ color: "#fff" }}>{u.username}</span>
-                        {u.admin ? (
-                          <CachedImage
-                            src="/assets/admin-mark.png"
-                            alt="Admin"
-                            style={{
-                              width: 16,
-                              height: 16,
-                              verticalAlign: "middle",
-                            }}
-                          />
-                        ) : (
-                          <>
-                            {u.verified ? (
-                              <CachedImage
-                                src="/assets/verified-mark.png"
-                                alt="Verified"
-                                style={{
-                                  width: 16,
-                                  height: 16,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                            ) : null}
-                          </>
-                        )}
+                        <Certification
+                          user={u}
+                          style={{
+                            width: 16,
+                            height: 16,
+                            verticalAlign: "middle",
+                          }}
+                        />
                       </li>
                     ))}
                   </ul>
