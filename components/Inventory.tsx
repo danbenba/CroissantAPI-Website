@@ -409,7 +409,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               </div>
             )}
             {/* Affichage du prix d'achat */}
-            {item.purchasePrice !== undefined && (
+            {item.purchasePrice && (
               <div className="inventory-tooltip-price" style={{
                 color: "#ffd700",
                 fontSize: "12px",
