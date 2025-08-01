@@ -54,7 +54,7 @@ function lookForCode() {
             console.error("Error fetching user by code:", data.error);
             return;
           }
-          const user = data;
+          const user = {...data, code};
           const callback = oauthBtn.getAttribute("data-callback");
           if (callback) {
             eval(`(${callback})(user)`);
