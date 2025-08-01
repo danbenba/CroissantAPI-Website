@@ -24,17 +24,6 @@ try {
   ws.onopen = () => {
     console.log("WebSocket connection established");
   };
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.action === "joinLobby") {
-      fetch(`/api/lobbies/${data.lobbyId}/join`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${useAuth().token || ""}`,
-        },
-      });
-    }
-  };
 } catch {
   // Do nothing if connection fails
 }

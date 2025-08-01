@@ -127,6 +127,19 @@ const Library: React.FC = () => {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        if (message.action === "joinLobby") {
+          console.log("Joining lobby:", message.lobbyId);
+          fetch(`/api/lobbies/${message.lobbyId}/join`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${useAuth().token || ""}`,
+            },
+          }).then((res) => {
+            if (res.ok) {
+              console.log("Successfully joined lobby:", message.lobbyId);
+            }
+          });
+        }
         if (message.action === "downloadProgress" && message.gameId === selected?.gameId) {
           setDownloadPercent(message.percent);
         }
