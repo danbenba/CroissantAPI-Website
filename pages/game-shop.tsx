@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
-import { useRouter } from "next/router";
+import router, { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
 
@@ -458,35 +458,55 @@ function ShopDesktop(props: any) {
                         </span>
                       </div>
                       {/* --- Affichage propriétaire --- */}
-                      {ownerInfo && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      {ownerInfo ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, justifyContent: "space-between" }}>
                           <a
                             href={`/profile?user=${ownerInfo.id}`}
                             style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
                           >
-                            <CachedImage
-                              src={`/avatar/${ownerInfo.id}`}
-                              alt={ownerInfo.username}
-                              style={{
-                                width: 28,
-                                height: 28,
-                                borderRadius: "50%",
-                                marginRight: 8,
-                                objectFit: "cover",
-                                border: "2px solid #444"
-                              }}
-                            />
-                            <span style={{ fontWeight: 500 }}>
-                              {ownerInfo.username}
-                              {ownerInfo.admin ? (
-                                <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                              ) : ownerInfo.verified ? (
-                                <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
-                              ) : null}
-                            </span>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <CachedImage
+                                src={`/avatar/${ownerInfo.id}`}
+                                alt={ownerInfo.username}
+                                style={{
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: "50%",
+                                  marginRight: 8,
+                                  objectFit: "cover",
+                                  border: "2px solid #444"
+                                }}
+                              />
+                              <span style={{ fontWeight: 500 }}>
+                                {ownerInfo.username}
+                                {ownerInfo.admin ? (
+                                  <CachedImage src="/assets/admin-mark.png" alt="Admin" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                                ) : ownerInfo.verified ? (
+                                  <CachedImage src={ownerInfo.isStudio ? "/assets/brand-verified-mark.png" : "/assets/verified-mark.png"} alt="Verified" style={{ marginLeft: 4, width: 14, height: 14, verticalAlign: "middle" }} />
+                                ) : null}
+                              </span>
+                            </div>
                           </a>
+                          <div
+                            style={{
+                              color: "var(--gold-color)",
+                              fontWeight: 700,
+                              fontSize: 18,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              marginLeft: 12,
+                            }}
+                          >
+                            {game.price}
+                            <CachedImage
+                              src="/assets/credit.png"
+                              className="shop-credit-icon"
+                              alt="credits"
+                            />
+                          </div>
                         </div>
-                      )}
+                      ) : null}
                       {/* --- Fin propriétaire --- */}
                       <div
                         style={{
@@ -500,73 +520,6 @@ function ShopDesktop(props: any) {
                         }}
                       >
                         {game.description}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 18,
-                          marginTop: 8,
-                          marginBottom: 8,
-                        }}
-                      >
-                        <div
-                          style={{
-                            color: "var(--gold-color)",
-                            fontWeight: 700,
-                            fontSize: 18,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          {game.price}
-                          <CachedImage
-                            src="/assets/credit.png"
-                            className="shop-credit-icon"
-                            alt="credits"
-                          />
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 12,
-                          marginTop: 12,
-                        }}
-                      >
-                        <button
-                          className="shop-game-buy-btn"
-                          style={{
-                            padding: "10px 32px",
-                            fontSize: 16,
-                            borderRadius: 8,
-                            fontWeight: 700,
-                            background: "#4caf50",
-                            color: "var(--text-color-primary)",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleBuyGame(game)}
-                        >
-                          Buy
-                        </button>
-                        <Link
-                          href={`/game?gameId=${game.gameId}${isLauncher ? "&from=launcher" : ""}`}
-                          className="shop-game-view-btn"
-                          style={{
-                            padding: "10px 32px",
-                            fontSize: 16,
-                            borderRadius: 8,
-                            fontWeight: 700,
-                            background: "#1976d2",
-                            color: "var(--text-color-primary)",
-                            textDecoration: "none",
-                            display: "inline-block",
-                          }}
-                        >
-                          View
-                        </Link>
                       </div>
                     </div>
                   </div>
@@ -708,24 +661,22 @@ function ShopMobile(props: any) {
                         background: "#18181c",
                       }}
                     >
-                      {
-                        <CachedImage
-                          src={"/banners-icons/" + game?.bannerHash}
-                          alt="banner"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            maxWidth: "100%",
-                            objectFit: "cover",
-                            opacity: 0.52,
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            zIndex: 0,
-                          }}
-                          directLoad={true}
-                        />
-                      }
+                      <CachedImage
+                        src={"/banners-icons/" + game?.bannerHash}
+                        alt="banner"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          maxWidth: "100%",
+                          objectFit: "cover",
+                          opacity: 0.52,
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          zIndex: 0,
+                        }}
+                        directLoad={true}
+                      />
                       <CachedImage
                         src={"/games-icons/" + game.iconHash}
                         alt={game.name}
@@ -786,7 +737,7 @@ function ShopMobile(props: any) {
                       </div>
                       {/* --- Affichage propriétaire --- */}
                       {ownerInfo && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, justifyContent: "space-between" }}>
                           <a
                             href={`/profile?user=${ownerInfo.id}`}
                             style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
@@ -812,6 +763,23 @@ function ShopMobile(props: any) {
                               ) : null}
                             </span>
                           </a>
+                          <div
+                            style={{
+                              color: "var(--gold-color)",
+                              fontWeight: 700,
+                              fontSize: 18,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                            }}
+                          >
+                            {game.price}
+                            <CachedImage
+                              src="/assets/credit.png"
+                              className="shop-credit-icon"
+                              alt="credits"
+                            />
+                          </div>
                         </div>
                       )}
                       {/* --- Fin propriétaire --- */}
@@ -827,73 +795,6 @@ function ShopMobile(props: any) {
                         }}
                       >
                         {game.description}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 18,
-                          marginTop: 8,
-                          marginBottom: 8,
-                        }}
-                      >
-                        <div
-                          style={{
-                            color: "var(--gold-color)",
-                            fontWeight: 700,
-                            fontSize: 18,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          {game.price}
-                          <CachedImage
-                            src="/assets/credit.png"
-                            className="shop-credit-icon"
-                            alt="credits"
-                          />
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 12,
-                          marginTop: 12,
-                        }}
-                      >
-                        <button
-                          className="shop-game-buy-btn"
-                          style={{
-                            padding: "10px 32px",
-                            fontSize: 16,
-                            borderRadius: 8,
-                            fontWeight: 700,
-                            background: "#4caf50",
-                            color: "var(--text-color-primary)",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleBuyGame(game)}
-                        >
-                          Buy
-                        </button>
-                        <Link
-                          href={`/game?gameId=${game.gameId}${isLauncher ? "&from=launcher" : ""}`}
-                          className="shop-game-view-btn"
-                          style={{
-                            padding: "10px 32px",
-                            fontSize: 16,
-                            borderRadius: 8,
-                            fontWeight: 700,
-                            background: "#1976d2",
-                            color: "var(--text-color-primary)",
-                            textDecoration: "none",
-                            display: "inline-block",
-                          }}
-                        >
-                          View
-                        </Link>
                       </div>
                     </div>
                   </div>
