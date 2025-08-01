@@ -45,7 +45,8 @@ export default function () {
             {/* Manifest & Misc */}
             <link rel="manifest" href="/manifest.json" />
             <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-            <link rel="robots" type="application/xml" href="/robots.txt" />
+            {/* Use correct MIME type for robots.txt for Firefox compatibility */}
+            <link rel="robots" type="text/plain" href="/robots.txt" />
             <meta name="msapplication-TileColor" content="#ffffff" />
             <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png" />
             <link
