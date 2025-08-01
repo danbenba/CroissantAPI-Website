@@ -2,7 +2,7 @@
   "name": "Croissant Inventory System",
   "short_name": "Croissant",
   "description": "Your gateway to seamless in-game item management",
-  "start_url": "/profile",
+  "start_url": "/launcher/home",
   "display": "standalone",
   "background_color": "#333333",
   "theme_color": "#222222",
