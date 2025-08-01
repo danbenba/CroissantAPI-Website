@@ -108,7 +108,7 @@ export default function LobbyPage() {
   // Gestion de la visibilité de l'onglet
   useEffect(() => {
     const handleVisibility = () => {
-      pageVisible.current = !document.hidden;
+      pageVisible.current = true;
       if (pageVisible.current && !pollingTimer.current) {
         startPolling();
       } else if (!pageVisible.current && pollingTimer.current) {
@@ -124,7 +124,7 @@ export default function LobbyPage() {
   const startPolling = useCallback(() => {
     if (pollingTimer.current) return;
     const poll = async () => {
-      if (!pageVisible.current) return;
+      // if (!pageVisible.current) return;
       try {
         // On ne montre pas le loading spinner à chaque tick
         await fetchLobby(false);

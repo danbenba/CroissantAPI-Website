@@ -62,6 +62,20 @@ const Library: React.FC = () => {
   const { user, token } = useAuth(); // Assuming useAuth is defined and provides user info
   const { getUser: getUserFromCache } = useUserCache();
 
+  function joinLobby(lobbyId: string) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/api/lobbies/${lobbyId}/join`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", `Bearer ${token || ""}`);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        console.log("Successfully joined lobby:", lobbyId);
+      }
+    };
+    xhr.send();
+    console.log("Joining ", lobbyId);
+  }
+
   useEffect(() => {
     if (typeof location !== "undefined") {
       if (location.href.includes("?from=app")) {
@@ -128,17 +142,7 @@ const Library: React.FC = () => {
       try {
         const message = JSON.parse(event.data);
         if (message.action === "joinLobby") {
-          console.log("Joining lobby:", message.lobbyId);
-          fetch(`/api/lobbies/${message.lobbyId}/join`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${useAuth().token || ""}`,
-            },
-          }).then((res) => {
-            if (res.ok) {
-              console.log("Successfully joined lobby:", message.lobbyId);
-            }
-          });
+          joinLobby(message.lobbyId);
         }
         if (message.action === "downloadProgress" && message.gameId === selected?.gameId) {
           setDownloadPercent(message.percent);

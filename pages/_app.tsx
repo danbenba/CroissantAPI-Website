@@ -130,9 +130,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       {/* Précharger des images importantes */}
       <ImagePreloader 
         images={[
-          "/assets/backgrounds/raiden-crow.webp",
-          "/assets/icons/favicon-32x32.png",
-          "/assets/other-important-image.webp"
+          "/assets/backgrounds/raiden-crow.webp"
         ]} 
         priority={true} 
       />
