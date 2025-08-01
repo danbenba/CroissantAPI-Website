@@ -1758,7 +1758,7 @@ input[type=text].required:focus {
     z-index: 1;
     width: 100%;
     background-color: var(--text-color-primary);
-    /* top: 2rem */
+    top: 2rem
 }
 
 .navbar-nav {

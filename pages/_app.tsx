@@ -26,10 +26,29 @@ const launcherMainStyle: React.CSSProperties = {
   position: "fixed",
   left: 0,
   right: 0,
-  top: "5rem",
+  top: "7rem",
   bottom: 0,
   overflowX: "hidden",
   overflowY: "auto",
+};
+
+const launcherTitlebarStyle: React.CSSProperties = {
+  display: "flex",
+  padding: "0rem 1rem 0rem 1rem",
+  borderBottom: "1px solid #ddd",
+  justifyContent: "start",
+  position: "fixed",
+  width: "100%",
+  backgroundColor: "#222",
+};
+const launcherIconStyle: React.CSSProperties = {
+  width: "24px",
+  height: "24px",
+};
+const launcherTitleStyle: React.CSSProperties = {
+  position: "relative",
+  top: "2px",
+  right: "10px",
 };
 
 function AppContent({ Component, pageProps }: AppProps) {
@@ -42,17 +61,17 @@ function AppContent({ Component, pageProps }: AppProps) {
     setMainStyle(
       window.location.href.includes("/oauth2/auth")
         ? {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "0",
-            margin: "15px",
-            width: "calc(100% - 30px)",
-            height: "calc(100vh - 30px)",
-            top: "0",
-            left: "0",
-            position: "fixed",
-          }
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "0",
+          margin: "15px",
+          width: "calc(100% - 30px)",
+          height: "calc(100vh - 30px)",
+          top: "0",
+          left: "0",
+          position: "fixed",
+        }
         : {}
     );
   }, []);
@@ -129,12 +148,22 @@ function AppContent({ Component, pageProps }: AppProps) {
       <MetaLinks metaLinksTitle={"Croissant Launcher"} />
 
       {/* Précharger des images importantes */}
-      <ImagePreloader 
+      <ImagePreloader
         images={[
           "/assets/backgrounds/raiden-crow.webp"
-        ]} 
-        priority={true} 
+        ]}
+        priority={true}
       />
+      <nav className="titlebar" style={launcherTitlebarStyle}>
+        <CachedImage
+          src="/assets/icons/favicon-32x32.png"
+          alt="Icon"
+          style={launcherIconStyle}
+        />
+        <span className="navbar-title" style={launcherTitleStyle}>
+          Croissant Launcher
+        </span>
+      </nav>
       <LauncherNavbar />
       <main style={launcherMainStyle} className="launcher">
         <Component {...pageProps} />
@@ -161,7 +190,7 @@ function AppContent({ Component, pageProps }: AppProps) {
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
           isMobile ? <NavBarMobile /> : <NavBarDesktop />
         )}
-        <main style={{...mainStyle, padding: isMobile ? "0px" : undefined}}>
+        <main style={{ ...mainStyle, padding: isMobile ? "0px" : undefined }}>
           <Component {...pageProps} />
         </main>
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}
