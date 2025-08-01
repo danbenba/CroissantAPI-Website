@@ -11,7 +11,7 @@ export default function () {
             <meta name="description" content="Croissant Inventory System - Manage your inventory with ease." />
             <meta name="keywords" content="Croissant, Inventory, System, API, Opensource, Scalable, Network Technology" />
             <meta name="author" content="Fox3000foxy" />
-            <meta name="theme-color" content="#ffffff" />
+            <meta name="theme-color" content="#222222" />
 
             {/* Open Graph / Facebook */}
             <meta property="og:title" content="Croissant Inventory System" />
