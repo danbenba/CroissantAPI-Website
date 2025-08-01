@@ -185,7 +185,7 @@ function OAuth2DemoDesktop() {
                       console.error("Error fetching user by code:", data.error);
                       return;
                     }
-                    const user = data;
+                    const user = {...data, code};
                     console.log("User data:", user);
                     const callback = oauthBtn.getAttribute("data-callback");
                     if (callback) {
@@ -284,8 +284,8 @@ function OAuth2DemoMobile() {
                       console.error("Error fetching user by code:", data.error);
                       return;
                     }
-                    const user = data;
-                    console.log("User data:", user);
+                    const user = {...data, code};
+                    alert("User data:" + JSON.stringify(user, null, 2));
                     const callback = oauthBtn.getAttribute("data-callback");
                     if (callback) {
                       window[callback](user);
