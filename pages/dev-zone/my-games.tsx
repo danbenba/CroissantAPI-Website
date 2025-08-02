@@ -419,6 +419,20 @@ const MyGames = () => {
                       className="mygames-card-editbtn"
                       onClick={(e) => {
                         e.stopPropagation();
+                        navigator.clipboard.writeText(game.gameId);
+                        // Optional: Add visual feedback
+                        e.currentTarget.textContent = "Copied!";
+                        setTimeout(() => {
+                          e.currentTarget.textContent = "Copy Id";
+                        }, 1000);
+                      }}
+                    >
+                      Copy Id
+                    </button>
+                    <button
+                      className="mygames-card-editbtn"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleOwnershipTransfer(game);
                       }}
                     >

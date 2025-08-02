@@ -419,15 +419,20 @@ const MyItems = () => {
                     >
                       Edit
                     </button>
-                    {/* <button
+                    <button
                       className="myitems-card-editbtn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleTransfer(item);
+                        navigator.clipboard.writeText(item.itemId);
+                        // Optional: Add visual feedback
+                        e.currentTarget.textContent = "Copied!";
+                        setTimeout(() => {
+                          e.currentTarget.textContent = "Copy Id";
+                        }, 1000);
                       }}
                     >
-                      Transfer
-                    </button> */}
+                      Copy Id
+                    </button>
                     <button
                       className="myitems-card-editbtn"
                       onClick={(e) => {
