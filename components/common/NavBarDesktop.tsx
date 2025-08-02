@@ -217,7 +217,7 @@ export default function NavBarDesktop() {
               <span style={{ whiteSpace: "nowrap" }}>
                 {studio?.username || "Me"}
                 <Certification
-                  user={studio}
+                  user={studio ? { ...studio, isStudio: true } : studio}
                   style={{
                         width: 16,
                         height: 16,

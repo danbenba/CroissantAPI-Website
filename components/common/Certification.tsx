@@ -21,10 +21,10 @@ interface User {
 export default function Certification({user, ...props}: {user: User} & React.ImgHTMLAttributes<HTMLImageElement>) {
     let markSrc = "";
     switch (true) {
-        case !!user.admin:
+        case user?.admin:
             markSrc = "/assets/admin-mark.png";
             break;
-        case !!user.isStudio:
+        case user?.isStudio:
             markSrc = "/assets/brand-verified-mark.png";
             break;
         default:

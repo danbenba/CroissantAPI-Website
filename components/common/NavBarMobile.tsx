@@ -244,7 +244,7 @@ export default function NavBarMobile() {
                             <CachedImage src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
                             <span style={{ whiteSpace: "nowrap" }}>
                                 {studio?.username || "Me"}
-                                <Certification user={studio} style={{
+                                <Certification user={studio ? { ...studio, isStudio: true } : studio} style={{
                                     width: 16,
                                     height: 16,
                                     marginLeft: 4,
