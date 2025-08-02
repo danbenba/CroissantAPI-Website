@@ -222,12 +222,12 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
         ← Back
       </button>
       <div className="banner-container">
-        <CachedImage
+        <img
           src={`/banners-icons/${game.bannerHash}`}
           alt={game.name}
           className="main-banner-steam"
         />
-        <CachedImage
+        <img
           src={`/games-icons/${game.iconHash}`}
           alt={game.name}
           className="main-icon-steam"
@@ -505,13 +505,13 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
         ← Back
       </button>
       <div className="banner-container" style={{ height: 120 }}>
-        <CachedImage
+        <img
           src={`/banners-icons/${game.bannerHash}`}
           alt={game.name}
           className="main-banner-steam"
           style={{ height: 120, objectFit: "cover" }}
         />
-        <CachedImage
+        <img
           src={`/games-icons/${game.iconHash}`}
           alt={game.name}
           className="main-icon-steam"

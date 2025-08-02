@@ -688,17 +688,17 @@ const Library: React.FC = () => {
         ) : (
           <div className="main-details-steam">
             <div className="banner-container">
-              <CachedImage
+              <img
                 src={`/banners-icons/${selected.bannerHash}`}
                 alt={selected.name}
                 className="main-banner-steam"
-                directLoad={true}
+                loading="lazy"
               />
-              <CachedImage
+              <img
                 src={`/games-icons/${selected.iconHash}`}
                 alt={selected.name}
                 className="main-icon-steam"
-                directLoad={true}
+                loading="lazy"
               />
             </div>
             <div className="main-details-content">

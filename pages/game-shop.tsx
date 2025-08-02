@@ -383,7 +383,7 @@ function ShopDesktop(props: any) {
                       }}
                     >
                       {
-                        <CachedImage
+                        <img
                           src={"/banners-icons/" + game?.bannerHash}
                           alt="banner"
                           style={{
@@ -397,10 +397,9 @@ function ShopDesktop(props: any) {
                             top: 0,
                             zIndex: 0,
                           }}
-                          directLoad={true}
                         />
                       }
-                      <CachedImage
+                      <img
                         src={"/games-icons/" + game.iconHash}
                         alt={game.name}
                         style={{
@@ -416,7 +415,6 @@ function ShopDesktop(props: any) {
                           zIndex: 2,
                           boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                         }}
-                        directLoad={true}
                       />
                     </div>
                     <div
@@ -668,7 +666,7 @@ function ShopMobile(props: any) {
                         background: "#18181c",
                       }}
                     >
-                      <CachedImage
+                      <img
                         src={"/banners-icons/" + game?.bannerHash}
                         alt="banner"
                         style={{
@@ -682,9 +680,8 @@ function ShopMobile(props: any) {
                           top: 0,
                           zIndex: 0,
                         }}
-                        directLoad={true}
                       />
-                      <CachedImage
+                      <img
                         src={"/games-icons/" + game.iconHash}
                         alt={game.name}
                         style={{
@@ -700,7 +697,6 @@ function ShopMobile(props: any) {
                           zIndex: 2,
                           boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                         }}
-                        directLoad={true}
                       />
                     </div>
                     <div
