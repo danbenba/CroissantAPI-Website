@@ -19,14 +19,14 @@ export default function ({metaLinksTitle}: {metaLinksTitle?: string}) {
             <meta property="og:description" content="Croissant Inventory System - Manage your inventory with ease." />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://croissant-api.fr/" />
-            <meta property="og:image" content="/assets/icons/android-icon-192x192.png" />
+            <meta property="og:image" content="/assets/icons/favicon.ico" />
             <meta property="og:site_name" content="Croissant Inventory System" />
 
             {/* Twitter */}
-            <meta name="twitter:card" content="summary_large_image" />
+            {/* <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content="Croissant Inventory System" />
             <meta name="twitter:description" content="Croissant Inventory System - Manage your inventory with ease." />
-            <meta name="twitter:image" content="/assets/icons/android-icon-192x192.png" />
+            <meta name="twitter:image" content="/assets/icons/favicon.ico" /> */}
 
             {/* Icons */}
             <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png" />
