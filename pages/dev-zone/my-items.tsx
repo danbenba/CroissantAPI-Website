@@ -427,11 +427,11 @@ const MyItems = () => {
                         // Optional: Add visual feedback
                         e.currentTarget.textContent = "Copied!";
                         setTimeout(() => {
-                          e.currentTarget.textContent = "Copy Id";
+                          e.currentTarget.textContent = "Id";
                         }, 1000);
                       }}
                     >
-                      Copy Id
+                      Id
                     </button>
                     <button
                       className="myitems-card-editbtn"
