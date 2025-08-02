@@ -5,7 +5,6 @@ import "../styles/atom-one-dark.min.css";
 import type { AppProps } from "next/app";
 import MetaLinks from "../components/common/MetaLinks";
 import Footer from "../components/common/Footer";
-import CachedImage from "../components/utils/CachedImage";
 import ImagePreloader from "../components/utils/ImagePreloader";
 
 import { useEffect, useState } from "react";
@@ -121,7 +120,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       }}
       aria-hidden="true"
     >
-      <CachedImage
+      <img
         src="/assets/backgrounds/raiden-crow.webp"
         alt="background"
         style={{
@@ -136,7 +135,6 @@ function AppContent({ Component, pageProps }: AppProps) {
           transition: "opacity 0.8s",
           maxWidth: "100%",
         }}
-        blurEffect={false}
       />
     </div>
   );
@@ -155,7 +153,7 @@ function AppContent({ Component, pageProps }: AppProps) {
         priority={true}
       />
       <nav className="titlebar" style={launcherTitlebarStyle}>
-        <CachedImage
+        <img
           src="/assets/icons/favicon-32x32.png"
           alt="Icon"
           style={launcherIconStyle}
