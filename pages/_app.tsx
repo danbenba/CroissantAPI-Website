@@ -173,7 +173,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   const LauncherLogin = () => (
     <>
       {/* <BackgroundImage /> */}
-      <MetaLinks metaLinksTitle={pageProps?.title} />
+      <MetaLinks metaLinksTitle={pageProps?.title} from="app" />
       <Login />
     </>
   );

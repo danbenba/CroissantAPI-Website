@@ -1,7 +1,11 @@
 import React from "react";
 
 
-export default function ({metaLinksTitle}: {metaLinksTitle?: string}) {
+export default function ({metaLinksTitle, from}: {metaLinksTitle?: string, from?: string}) {
+    const isLauncher = from === "app";
+    if(isLauncher) {
+      document.cookie = "from=app; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+    }
     const title = metaLinksTitle || "Croissant Inventory System";
     return (
         <>
