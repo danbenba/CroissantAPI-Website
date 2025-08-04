@@ -15,8 +15,6 @@
     "build-serve": "npm run build && npm run serve"
   },
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
     "@simplewebauthn/server": "^13.1.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -35,7 +33,7 @@
     "react-dom": "^19.1.0",
     "react-highlight": "^0.15.0",
     "react-router-dom": "^7.5.3",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "^0.0.0",
     "stream-browserify": "^3.0.0"
   },
   "author": "fox3000foxy",
