@@ -379,7 +379,7 @@ export default function StudiosPage() {
                                 verticalAlign: "middle",
                               }}
                             />
-                            {studio.admin_id === user.userId ? (
+                            {studio.admin_id === user.user_id ? (
                               <span
                                 style={{
                                   fontSize: 12,
@@ -399,7 +399,7 @@ export default function StudiosPage() {
                                   top: "2px",
                                 }}
                                 onClick={() =>
-                                  handleRemoveUser(studio.user_id, user.userId)
+                                  handleRemoveUser(studio.user_id, user.user_id)
                                 }
                               ></i>
                             )}
@@ -640,7 +640,7 @@ export default function StudiosPage() {
                         }}
                       >
                         <CachedImage
-                          src={`/avatar/${u.user_id}`}
+                          src={`/avatar/${u.userId}`}
                           alt="avatar"
                           style={{ width: 28, height: 28, borderRadius: "50%" }}
                         />

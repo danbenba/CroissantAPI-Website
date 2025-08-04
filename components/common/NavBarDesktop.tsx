@@ -215,7 +215,7 @@ export default function NavBarDesktop() {
             >
               <CachedImage src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
               <span style={{ whiteSpace: "nowrap" }}>
-                {studio?.username || "Me"}
+                {studio?.me.username || "Me"}
                 <Certification
                   user={studio ? { ...studio, isStudio: true } : studio}
                   style={{
