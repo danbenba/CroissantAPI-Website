@@ -6,6 +6,7 @@ import CachedImage from "../../components/utils/CachedImage";
 import Certification from "../../components/common/Certification";
 import { DiscordRpcManager } from "../../components/discordRpcManager";
 import { useLobby } from "../../hooks/LobbyContext";
+import { io } from 'socket.io-client';
 
 const myUrl = "http://localhost:3333"; // Replace with your actual URL
 let discordRpcManager: DiscordRpcManager;
@@ -47,19 +48,14 @@ try {
 
 const ENDPOINT = "/api";
 
-
-
 export function LobbyManager() {
   const [loading, setLoading] = useState(true);
   const { setLobby } = useLobby();
-
 
   const pollingInterval = useRef<number>(2000); // ms
   const pollingTimer = useRef<NodeJS.Timeout | null>(null);
   const lastLobbyUsers = useRef<string>("");
   const pageVisible = useRef<boolean>(true);
-
-
 
   // Polling adaptatif : si la liste des users change, on réduit l'intervalle, sinon on l'augmente
   const fetchLobby = useCallback(

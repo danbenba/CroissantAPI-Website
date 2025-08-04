@@ -21,7 +21,9 @@ export class DiscordRpcManager {
         this.ws = ws;
 
         setInterval(() => {
-            ws.send(JSON.stringify({ action: "setActivity", activity: this.activity }));
+            if(ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: "setActivity", activity: this.activity }));
+            }
         }, 3000);
     }
 

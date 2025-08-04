@@ -26,8 +26,6 @@ export default function LobbyPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [tooltip, setTooltip] = useState<string | null>(null);
-  // Pour le polling adaptatif
-  const pollingInterval = useRef<number>(2000); // ms
 
   const router = useRouter();
   const { user } = useAuth();

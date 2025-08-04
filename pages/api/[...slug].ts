@@ -58,7 +58,6 @@ function getRealIP(req: NextApiRequest): string {
     return connection.remoteAddress;
   }
 
-  console.log("No real IP found, all were local or missing");
   return "unknown";
 }
 
