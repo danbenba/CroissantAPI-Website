@@ -10,7 +10,7 @@ export default function Success() {
             const cookies = document.cookie.split(";").map(c => c.trim());
             const hasFromApp = cookies.some(c => c === "from=app");
             if (hasFromApp && router.asPath.indexOf("?from=app") === -1) {
-                router.push(`${router.pathname}?from=app`);
+                router.push(`${router.pathname}?from=launcher`);
             }
         }
     }, [router]);
