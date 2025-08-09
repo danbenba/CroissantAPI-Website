@@ -21,9 +21,19 @@ const CachedImage: React.FC<CachedImageProps> = ({
     directLoad = false,
     ...props
 }) => {
+    return (
+        <img
+            src={src}
+            alt={alt}
+            {...props}
+        />
+    );
+
+    // Useless cache
     const { getCachedImage, loadImage } = useImageCache();
-    const [imageSrc, setImageSrc] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(true);
+    const cached = getCachedImage(src);
+    const [imageSrc, setImageSrc] = useState<string>(cached || '');
+    const [isLoading, setIsLoading] = useState(!cached); // <-- ici
     const [hasError, setHasError] = useState(false);
     const mountedRef = useRef(true);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -89,7 +99,6 @@ const CachedImage: React.FC<CachedImageProps> = ({
         if (!src || src.includes('undefined')) return;
 
         if (directLoad) {
-            // Chargement direct sans cache
             setImageSrc(src);
             setIsLoading(false);
             setHasError(false);
