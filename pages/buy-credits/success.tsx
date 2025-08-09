@@ -1,19 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function Success() {
     const router = useRouter();
+    const [redirected, setRedirected] = useState(false);
 
     useEffect(() => {
-        if (typeof document !== "undefined") {
+        if (typeof document !== "undefined" && !redirected) {
             const cookies = document.cookie.split(";").map(c => c.trim());
             const hasFromApp = cookies.some(c => c === "from=app");
             if (hasFromApp && router.asPath.indexOf("?from=app") === -1) {
+                setRedirected(true);
                 router.push(`${router.pathname}?from=launcher`);
             }
         }
-    }, [router]);
+    }, [router, redirected]);
 
     return (
         <main>
