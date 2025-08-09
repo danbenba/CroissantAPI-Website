@@ -434,17 +434,15 @@ function ProfileShop({
 
 // Sous-composant pour préchargement/flou progressif des images d'item du shop
 const ShopItemImage = React.memo(function ShopItemImage({ item }: { item: ShopItem }) {
-  const [loaded, setLoaded] = React.useState(false);
   const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
-  const fallbackUrl = "/assets/System_Shop.webp";
   return (
     <div style={{ position: "relative", width: "48px", height: "48px" }}>
       <CachedImage
-        src={fallbackUrl}
+        src={iconUrl}
         alt="default"
         className="inventory-item-img inventory-item-img-blur"
         style={{
-          filter: loaded ? "blur(0px)" : "blur(8px)",
+          // filter: loaded ? "blur(0px)" : "blur(8px)",
           transition: "filter 0.3s",
           position: "absolute",
           inset: 0,
@@ -452,27 +450,8 @@ const ShopItemImage = React.memo(function ShopItemImage({ item }: { item: ShopIt
           height: "48px",
           objectFit: "contain",
           zIndex: 1,
-          display: loaded ? "none" : undefined
         }}
         draggable={false}
-      />
-      <CachedImage
-        src={iconUrl}
-        alt={item.name}
-        className="inventory-item-img"
-        style={{
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 0.3s",
-          position: "absolute",
-          inset: 0,
-          width: "48px",
-          height: "48px",
-          objectFit: "contain",
-          zIndex: 2
-        }}
-        draggable={false}
-        onLoad={() => setLoaded(true)}
-        onError={() => setLoaded(true)}
       />
     </div>
   );

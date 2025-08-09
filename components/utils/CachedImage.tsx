@@ -43,57 +43,47 @@ const CachedImage: React.FC<CachedImageProps> = ({
             clearTimeout(timeoutRef.current);
         }
 
-        timeoutRef.current = setTimeout(async () => {
+        timeoutRef.current = setTimeout(() => {
             if (!mountedRef.current) return;
 
-            try {
-                setIsLoading(true);
-                setHasError(false);
+            setIsLoading(true);
+            setHasError(false);
 
-                let cachedSrc: string;
-
-                if (directLoad) {
-                    // Chargement direct sans cache ni blob
-                    cachedSrc = imageUrl;
-                } else {
-                    // Utiliser le cache avec blob
-                    cachedSrc = await loadImage(imageUrl);
-                }
-
+            // Utilisation de l'objet Image natif pour profiter du cache navigateur
+            const img = new window.Image();
+            img.onload = () => {
                 if (mountedRef.current) {
-                    setImageSrc(cachedSrc);
+                    setImageSrc(imageUrl);
                     setIsLoading(false);
                     onLoad?.();
                 }
-            } catch (error) {
+            };
+            img.onerror = async () => {
                 if (mountedRef.current) {
                     setIsLoading(false);
                     setHasError(true);
 
                     if (fallback) {
-                        try {
-                            let fallbackSrc: string;
-                            
-                            if (directLoad) {
-                                fallbackSrc = fallback;
-                            } else {
-                                fallbackSrc = await loadImage(fallback);
-                            }
-                            
+                        // Essayer de charger le fallback de la même façon
+                        const fallbackImg = new window.Image();
+                        fallbackImg.onload = () => {
                             if (mountedRef.current) {
-                                setImageSrc(fallbackSrc);
+                                setImageSrc(fallback);
                                 setHasError(false);
                             }
-                        } catch {
+                        };
+                        fallbackImg.onerror = () => {
                             onError?.();
-                        }
+                        };
+                        fallbackImg.src = fallback;
                     } else {
                         onError?.();
                     }
                 }
-            }
+            };
+            img.src = imageUrl;
         }, 50); // Debounce de 50ms
-    }, [loadImage, fallback, onLoad, onError, directLoad]);
+    }, [fallback, onLoad, onError]);
 
     useEffect(() => {
         if (!src || src.includes('undefined')) return;

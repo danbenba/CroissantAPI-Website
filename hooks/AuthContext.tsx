@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import useUserCache from "./useUserCache";
+import jwt from "jsonwebtoken";
 
 export function getToken() {
   if (typeof document === "undefined") return null;
@@ -12,9 +13,18 @@ interface AuthContextType {
   loading: boolean;
   setUser: React.Dispatch<React.SetStateAction<any>>;
   token: string | null;
+  apiKey: string | null;
+  balance: number | null;
+  setBalance: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function getBalanceFromCookie() {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)balance=([^;]*)/);
+  return match ? parseFloat(match[1]) : null;
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -22,12 +32,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [token, setTokenState] = useState<string | null>(getToken());
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [balance, setBalance] = useState<number | null>(getBalanceFromCookie());
   const { cacheUser } = useUserCache();
 
   useEffect(() => {
     const token = getToken();
-    setTokenState(token);
-    if (!token) {
+    try {
+      const decodedToken = jwt.decode(token); // This will throw an error if the token is invalid, which we can catch
+      setApiKey(decodedToken?.apiKey || null);
+      setUser({
+        id: decodedToken?.user_id,
+        username: decodedToken?.username,
+        balance: balance
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error("Invalid token:", error);
       setUser(null);
       setLoading(false);
       return;
@@ -43,18 +64,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const user = await res.json();
           setUser(user);
           cacheUser(user);
+          if (user.balance !== undefined) {
+            setBalance(user.balance);
+            document.cookie = `balance=${user.balance}; path=/;`;
+          }
         } else if (res.status === 401) {
           document.cookie =
             "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie =
+            "balance=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           setUser(null);
           setTokenState(null);
+          setBalance(null);
         }
       })
       .finally(() => setLoading(false));
   }, []);
 
+  // Met à jour le cookie balance quand la balance change
+  useEffect(() => {
+    if (balance !== null && !isNaN(balance)) {
+      document.cookie = `balance=${balance}; path=/;`;
+    }
+  }, [balance]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, setUser, token }}>
+    <AuthContext.Provider
+      value={{ user, loading, setUser, token, apiKey, balance, setBalance }}
+    >
       {children}
     </AuthContext.Provider>
   );
