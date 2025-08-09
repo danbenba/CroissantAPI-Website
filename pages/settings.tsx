@@ -195,7 +195,6 @@ function GoogleAuthenticatorSetupModal({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-
   useEffect(() => {
     if (open) {
       setStep("generate");
@@ -211,7 +210,9 @@ function GoogleAuthenticatorSetupModal({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/authenticator/generateKey", { method: "POST" });
+      const res = await fetch("/api/authenticator/generateKey", {
+        method: "POST",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to generate key");
       setKey(data.key);
@@ -304,7 +305,9 @@ function GoogleAuthenticatorSetupModal({
               <button
                 type="button"
                 style={{ ...buttonStyle, width: "100%", background: "#444" }}
-                onClick={() => { onClose(false) }}
+                onClick={() => {
+                  onClose(false);
+                }}
               >
                 Cancel
               </button>
@@ -312,7 +315,9 @@ function GoogleAuthenticatorSetupModal({
           </>
         )}
         {error && <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>}
-        {success && <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>}
+        {success && (
+          <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>
+        )}
       </div>
     </div>
   );
@@ -356,14 +361,22 @@ function SecurityModal({
             <button
               style={steamBtnStyle}
               onClick={async () => {
-                if (confirm("Are you sure you want to unlink your Steam account?")) {
+                if (
+                  confirm("Are you sure you want to unlink your Steam account?")
+                ) {
                   try {
                     const res = await fetch("/api/users/unlink-steam", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                     });
-                    if (!res.ok) throw new Error("Failed to unlink Steam account");
-                    setUser({ ...user, steam_id: null, steam_username: null, steam_avatar_url: null });
+                    if (!res.ok)
+                      throw new Error("Failed to unlink Steam account");
+                    setUser({
+                      ...user,
+                      steam_id: null,
+                      steam_username: null,
+                      steam_avatar_url: null,
+                    });
                   } catch (err: any) {
                     setError(err.message);
                   }
@@ -371,8 +384,14 @@ function SecurityModal({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <CachedImage src={user?.steam_avatar_url} alt="Steam Avatar" style={{ width: 32, height: 32, borderRadius: "20%" }} />
-                <span>Linked as <b>{user?.steam_username}</b></span>
+                <CachedImage
+                  src={user?.steam_avatar_url}
+                  alt="Steam Avatar"
+                  style={{ width: 32, height: 32, borderRadius: "20%" }}
+                />
+                <span>
+                  Linked as <b>{user?.steam_username}</b>
+                </span>
               </div>
             </button>
           )}
@@ -488,14 +507,23 @@ function SecurityModal({
           >
             {passkeyLoading ? "Registering..." : "Register Passkey"}
           </button>
-          {passkeySuccess && <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>}
-          {passkeyError && <div style={{ color: "#ff5252" }}>{passkeyError}</div>}
+          {passkeySuccess && (
+            <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>
+          )}
+          {passkeyError && (
+            <div style={{ color: "#ff5252" }}>{passkeyError}</div>
+          )}
 
           {/* Google Authenticator */}
           {user && !user.haveAuthenticator ? (
             <button
               type="button"
-              style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+              style={{
+                ...buttonStyle,
+                background: "#222",
+                color: "#fff",
+                marginTop: 0,
+              }}
               onClick={() => setShowGoogleAuthModal(true)}
               disabled={!user}
             >
@@ -504,11 +532,22 @@ function SecurityModal({
           ) : (
             <button
               type="button"
-              style={{ ...buttonStyle, background: "#222", color: "#fff", marginTop: 0 }}
+              style={{
+                ...buttonStyle,
+                background: "#222",
+                color: "#fff",
+                marginTop: 0,
+              }}
               onClick={async () => {
-                const choice = confirm("Are you sure you want to delete Google Authenticator? This will disable 2FA for your account.");
+                const choice = confirm(
+                  "Are you sure you want to delete Google Authenticator? This will disable 2FA for your account."
+                );
                 if (choice) {
-                  const res = await fetch("/api/authenticator/delete", { method: "POST", body: JSON.stringify({ userId: user.user_id }), headers: { "Content-Type": "application/json" } });
+                  const res = await fetch("/api/authenticator/delete", {
+                    method: "POST",
+                    body: JSON.stringify({ userId: user.user_id }),
+                    headers: { "Content-Type": "application/json" },
+                  });
                   if (!res.ok) {
                     alert("Failed to delete Google Authenticator.");
                   } else {
@@ -522,8 +561,12 @@ function SecurityModal({
               Delete Google Authenticator
             </button>
           )}
-          {success && <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>}
-          {error && <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>}
+          {success && (
+            <div style={{ color: "#4caf50", marginTop: 8 }}>{success}</div>
+          )}
+          {error && (
+            <div style={{ color: "#ff5252", marginTop: 8 }}>{error}</div>
+          )}
           <button
             type="button"
             style={{ ...buttonStyle, background: "#444", marginTop: 16 }}
@@ -538,7 +581,7 @@ function SecurityModal({
 }
 
 function useSettingsLogic() {
-  const { user, token, setUser } = useAuth();
+  const { user, token, setUser, apiKey } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(user?.email || "");
   const [username, setUsername] = useState(user?.username || "");
@@ -547,7 +590,9 @@ function useSettingsLogic() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [avatar, setAvatar] = useState(user?.id ? `/avatar/${user.id}` : "/avatar/default.png");
+  const [avatar, setAvatar] = useState(
+    user?.id ? `/avatar/${user.id}` : "/avatar/default.png"
+  );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -677,10 +722,7 @@ function useSettingsLogic() {
         body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
       const data = await res.json();
-      if (!res.ok)
-        throw new Error(
-          data.message || "Error changing password"
-        );
+      if (!res.ok) throw new Error(data.message || "Error changing password");
       setPasswordSuccess("Password updated!");
       setShowPasswordModal(false);
     } catch (e: any) {
@@ -699,7 +741,11 @@ function useSettingsLogic() {
       const res = await fetch("/api/webauthn/register/options", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user?.id, username: user?.username, email: user?.email }),
+        body: JSON.stringify({
+          userId: user?.id,
+          username: user?.username,
+          email: user?.email,
+        }),
       });
       if (!res.ok) throw new Error("Failed to get registration options");
       const options = await res.json();
@@ -715,10 +761,14 @@ function useSettingsLogic() {
       options.requireResidentKey = true;
 
       if (typeof options.challenge === "string") {
-        options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+        options.challenge = Uint8Array.from(atob(options.challenge), (c) =>
+          c.charCodeAt(0)
+        );
       }
       if (typeof options.user.id === "string") {
-        options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+        options.user.id = Uint8Array.from(atob(options.user.id), (c) =>
+          c.charCodeAt(0)
+        );
       }
       if (!options.user.name) {
         options.user.name = user?.email || user?.username || "user";
@@ -749,10 +799,12 @@ function useSettingsLogic() {
           type: publicKeyCred.type,
           response: {
             attestationObject: bufferToBase64url(
-              (publicKeyCred.response as AuthenticatorAttestationResponse).attestationObject
+              (publicKeyCred.response as AuthenticatorAttestationResponse)
+                .attestationObject
             ),
             clientDataJSON: bufferToBase64url(
-              (publicKeyCred.response as AuthenticatorAttestationResponse).clientDataJSON
+              (publicKeyCred.response as AuthenticatorAttestationResponse)
+                .clientDataJSON
             ),
           },
           clientExtensionResults: publicKeyCred.getClientExtensionResults(),
@@ -826,9 +878,8 @@ function useSettingsLogic() {
 }
 
 function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
-  const { user, token, setUser } = useAuth();
+  const { user, token, setUser, apiKey } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState(user?.email || "");
   const [username, setUsername] = useState(user?.username || "");
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [usernameSuccess, setUsernameSuccess] = useState<string | null>(null);
@@ -892,8 +943,8 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
         window.location.search.includes("from=launcher")
         ? "Go on website to link"
         : !user?.isStudio
-          ? "Link Steam Account"
-          : "Studio can't link Steam"
+        ? "Link Steam Account"
+        : "Studio can't link Steam"
     );
   }, [user, linkText]);
 
@@ -992,7 +1043,11 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       const res = await fetch("/api/webauthn/register/options", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user?.id, username: user?.username, email: user?.email }),
+        body: JSON.stringify({
+          userId: user?.id,
+          username: user?.username,
+          email: user?.email,
+        }),
       });
       if (!res.ok) throw new Error("Failed to get registration options");
       const options = await res.json();
@@ -1008,10 +1063,14 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       options.requireResidentKey = true;
 
       if (typeof options.challenge === "string") {
-        options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+        options.challenge = Uint8Array.from(atob(options.challenge), (c) =>
+          c.charCodeAt(0)
+        );
       }
       if (typeof options.user.id === "string") {
-        options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+        options.user.id = Uint8Array.from(atob(options.user.id), (c) =>
+          c.charCodeAt(0)
+        );
       }
       if (!options.user.name) {
         options.user.name = user?.email || user?.username || "user";
@@ -1042,10 +1101,12 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
           type: publicKeyCred.type,
           response: {
             attestationObject: bufferToBase64url(
-              (publicKeyCred.response as AuthenticatorAttestationResponse).attestationObject
+              (publicKeyCred.response as AuthenticatorAttestationResponse)
+                .attestationObject
             ),
             clientDataJSON: bufferToBase64url(
-              (publicKeyCred.response as AuthenticatorAttestationResponse).clientDataJSON
+              (publicKeyCred.response as AuthenticatorAttestationResponse)
+                .clientDataJSON
             ),
           },
           clientExtensionResults: publicKeyCred.getClientExtensionResults(),
@@ -1069,10 +1130,6 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       setPasskeyLoading(false);
     }
   };
-
-  function handleSave(): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <div className="container" style={containerStyle}>
@@ -1194,9 +1251,25 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
         </div>{" "}
       </div>
       {user && (
-        <div style={{ marginTop: 32, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div
+          style={{
+            marginTop: 32,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
           <label style={{ ...labelStyle, alignSelf: "" }}>API Key</label>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexDirection: "column",
+            }}
+          >
             <code
               style={{
                 background: "#444",
@@ -1209,11 +1282,13 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
                 minWidth: 180,
               }}
               onClick={() => {
-                if (showApiKey) navigator.clipboard.writeText(token || "");
+                if (showApiKey) navigator.clipboard.writeText(apiKey || "");
               }}
               title={showApiKey ? "Click to copy" : "Click Show"}
             >
-              {showApiKey ? token : "*".repeat(Math.max(8, String(token || "").length))}
+              {showApiKey
+                ? apiKey
+                : "*".repeat(Math.max(8, String(apiKey || "").length))}
             </code>
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -1285,7 +1360,13 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       <div style={{ marginTop: 32 }} />
       <GoogleAuthenticatorSetupModal
         open={showGoogleAuthModal}
-        onClose={(success) => { setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); } }}
+        onClose={(success) => {
+          setShowGoogleAuthModal(false);
+          if (success) {
+            user.haveAuthenticator = true;
+            setUser({ ...user });
+          }
+        }}
         user={user}
       />
       <SecurityModal
@@ -1314,29 +1395,64 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
   // Version mobile : layout vertical, padding réduit, boutons plus gros, police plus petite
   // Adaptez les styles pour mobile
   const {
-    user, token, setUser, email, setEmail, username, setUsername, usernameLoading, usernameSuccess, usernameError,
-    showApiKey, setShowApiKey, avatar, avatarFile, loading, success, error, fileInputRef, linkText,
-    showPasswordModal, setShowPasswordModal, passwordLoading, passwordSuccess, passwordError,
-    handleAvatarChange, handleAvatarUpload, handleUsernameChange, handleUsernameSave, handlePasswordChange,
-    passkeyLoading, passkeySuccess, passkeyError, handleRegisterPasskey,
-    showGoogleAuthModal, setShowGoogleAuthModal, showSecurityModal, setShowSecurityModal, router
+    user,
+    token,
+    setUser,
+    email,
+    setEmail,
+    username,
+    setUsername,
+    usernameLoading,
+    usernameSuccess,
+    usernameError,
+    showApiKey,
+    setShowApiKey,
+    avatar,
+    avatarFile,
+    loading,
+    success,
+    error,
+    fileInputRef,
+    linkText,
+    showPasswordModal,
+    setShowPasswordModal,
+    passwordLoading,
+    passwordSuccess,
+    passwordError,
+    handleAvatarChange,
+    handleAvatarUpload,
+    handleUsernameChange,
+    handleUsernameSave,
+    handlePasswordChange,
+    passkeyLoading,
+    passkeySuccess,
+    passkeyError,
+    handleRegisterPasskey,
+    showGoogleAuthModal,
+    setShowGoogleAuthModal,
+    showSecurityModal,
+    setShowSecurityModal,
+    router,
   } = props;
 
   return (
-    <div className="container" style={{
-      maxWidth: 420,
-      margin: "18px",
-      background: "#23232a",
-      borderRadius: 10,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-      padding: "18px 8px",
-      color: "#fff",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      position: "relative",
-      fontSize: "0.98em"
-    }}>
+    <div
+      className="container"
+      style={{
+        maxWidth: 420,
+        margin: "18px",
+        background: "#23232a",
+        borderRadius: 10,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+        padding: "18px 8px",
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        position: "relative",
+        fontSize: "0.98em",
+      }}
+    >
       <h2 style={{ marginBottom: 18, fontSize: "1.2em" }}>Settings</h2>
       <button
         style={{
@@ -1377,7 +1493,14 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
           <i className="fas fa-link" aria-hidden="true" />
         </button>
       )}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
         <CachedImage
           src={avatar}
           alt="Profile"
@@ -1471,16 +1594,34 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
           </button>
         </form>
         {usernameSuccess && (
-          <div style={{ color: "#4caf50", marginTop: 2 }}>{usernameSuccess}</div>
+          <div style={{ color: "#4caf50", marginTop: 2 }}>
+            {usernameSuccess}
+          </div>
         )}
         {usernameError && (
           <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>
         )}
       </div>
       {user && (
-        <div style={{ marginTop: 18, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div
+          style={{
+            marginTop: 18,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
           <label style={{ fontWeight: 600, marginBottom: 2 }}>API Key</label>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexDirection: "column",
+            }}
+          >
             <code
               style={{
                 background: "#444",
@@ -1497,7 +1638,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
               }}
               title={showApiKey ? "Click to copy" : "Click Show"}
             >
-              {showApiKey ? token : "*".repeat(Math.max(8, String(token || "").length))}
+              {showApiKey
+                ? token
+                : "*".repeat(Math.max(8, String(token || "").length))}
             </code>
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -1554,7 +1697,13 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
       <div style={{ marginTop: 18 }} />
       <GoogleAuthenticatorSetupModal
         open={showGoogleAuthModal}
-        onClose={(success) => { setShowGoogleAuthModal(false); if (success) { user.haveAuthenticator = true; setUser({ ...user }); } }}
+        onClose={(success) => {
+          setShowGoogleAuthModal(false);
+          if (success) {
+            user.haveAuthenticator = true;
+            setUser({ ...user });
+          }
+        }}
         user={user}
       />
       <SecurityModal
@@ -1582,5 +1731,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
 export default function Settings() {
   const isMobile = useIsMobile();
   const logic = useSettingsLogic();
-  return isMobile ? <SettingsMobile {...logic} /> : <SettingsDesktop {...logic} />;
+  return isMobile ? (
+    <SettingsMobile {...logic} />
+  ) : (
+    <SettingsDesktop {...logic} />
+  );
 }
