@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Success() {
+    const router = useRouter();
+
+    useEffect(() => {
+        if (typeof document !== "undefined") {
+            const cookies = document.cookie.split(";").map(c => c.trim());
+            const hasFromApp = cookies.some(c => c === "from=app");
+            if (hasFromApp && router.asPath.indexOf("?from=app") === -1) {
+                router.push(`${router.pathname}?from=app`);
+            }
+        }
+    }, [router]);
+
     return (
         <main>
             <div className="container">
