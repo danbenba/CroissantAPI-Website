@@ -10,7 +10,8 @@ export default function Success() {
         if (typeof document !== "undefined" && !redirected) {
             const cookies = document.cookie.split(";").map(c => c.trim());
             const hasFromApp = cookies.some(c => c === "from=app");
-            if (hasFromApp && router.asPath.indexOf("?from=app") === -1) {
+            const urlHasLauncher = router.asPath.includes("from=launcher");
+            if (hasFromApp && !urlHasLauncher) {
                 setRedirected(true);
                 router.push(`${router.pathname}?from=launcher`);
             }
