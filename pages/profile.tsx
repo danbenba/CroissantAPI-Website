@@ -82,7 +82,7 @@ interface User {
   disabled?: boolean;
   admin?: boolean;
   isStudio?: boolean;
-  inventory?: ({ itemId: string; name: string; description: string; price: number; iconHash: string; } & { amount: number })[];
+  inventory?: ({ itemId: string; name: string; description: string; price: number; iconHash: string; rarity: 'very-common' | 'common' | 'uncommon' | 'rare' | 'very-rare' | 'epic' | 'ultra-epic' | 'legendary' | 'ancient' | 'mythic' | 'godlike' | 'radiant'; custom_url_link?: string } & { amount: number })[];
   ownedItems?: ShopItem[];
 }
 
@@ -253,7 +253,7 @@ function ProfileShop({
 
   // Grid layout calculations
   const columns = 4;
-  const minRows = 3;
+  const minRows = 8;
   const totalItems = items.length;
   const rows = Math.max(minRows, Math.ceil(totalItems / columns));
   const totalCells = rows * columns;

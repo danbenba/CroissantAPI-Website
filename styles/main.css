@@ -104,7 +104,7 @@ a {
     border-radius: 18px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, .85), 0 0 0 2px #222 inset;
     width: 90vw;
-    max-height: 80vh;
+    /* max-height: 80vh; */
     overflow-y: auto;
     overflow-x: hidden;
     color: #fff;
@@ -219,7 +219,7 @@ button:hover {
     margin-top: 10px;
     margin-bottom: 10px;
     justify-content: flex-start;
-    max-height: 65vh;
+    /* max-height: 65vh; */
     overflow-y: auto;
     width: 100%
 }
@@ -888,7 +888,7 @@ input[type=text].required:focus {
 
 .inventory-grid {
     /* max-width: 900px; */
-    height: 220px;
+    height: 47.73vh;
     display: grid;
     gap: 8px;
     padding: 16px;
@@ -898,13 +898,14 @@ input[type=text].required:focus {
     overflow-y: scroll
 }
 
-.inventory-item {
+.inventory-item, .inventory-item-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     background: #1a1a1a;
     border-radius: 4px;
     padding: 8px;
+    height: 48px;
     position: relative;
     cursor: pointer;
     user-select: none
@@ -941,7 +942,7 @@ input[type=text].required:focus {
 .profile-inventory-empty-cell {
     background: #1a1a1a;
     border-radius: 4px;
-    min-height: 64px
+    /* min-height: 64px */
 }
 
 .inventory-details-container,
@@ -1934,7 +1935,7 @@ input[type=text].required:focus {
 .shop-items-section {
     flex: 1;
     min-width: 320px;
-    max-height: calc(100vh - 7rem);
+    /* max-height: calc(100vh - 7rem); */
     background: var(--background-medium);
     border-radius: 12px;
     padding: 24px;

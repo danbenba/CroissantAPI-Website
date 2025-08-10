@@ -11,7 +11,13 @@
 .rarity-mythic,
 .rarity-godlike,
 .rarity-radiant {
-  border: 2px solid;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+}
+
+.inventory-item,
+.inventory-item-empty {
+  border: 2px solid #1a1a1a;
   border-radius: 6px;
 }
 

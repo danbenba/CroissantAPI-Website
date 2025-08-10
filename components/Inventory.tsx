@@ -31,7 +31,7 @@ interface User {
   disabled?: boolean;
   admin?: boolean;
   isStudio?: boolean;
-  inventory?: (Item & { amount: number })[];
+  inventory?: (Item & { amount: number, rarity: string })[];
   ownedItems?: ShopItem[];
 }
 
