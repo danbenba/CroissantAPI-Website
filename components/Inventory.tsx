@@ -511,10 +511,39 @@ function getRarityColor(rarity?: string) {
         {selectedItem ? (<>
           <button onClick={handleBackToInventory} className="inventory-back-btn">← Back to Inventory</button>
           <div className="inventory-details-main">
-            <CachedImage src={"/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)} alt={selectedItem.name} className="inventory-details-img" />
+            <CachedImage
+              src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)}
+              alt={selectedItem.name}
+              className="inventory-details-img"
+            />
             <div>
               <div className="inventory-details-name">{selectedItem.amount}x {selectedItem.name}</div>
               <div className="inventory-details-desc">{selectedItem.description}</div>
+              {/* Affichage de la rareté */}
+              <div
+                className="inventory-details-rarity"
+                style={
+                  selectedItem.rarity === "radiant"
+                    ? {
+                        background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        fontSize: "14px",
+                        marginTop: "6px",
+                        fontWeight: "bold",
+                        textTransform: "capitalize"
+                      }
+                    : {
+                        color: getRarityColor(selectedItem.rarity),
+                        fontSize: "14px",
+                        marginTop: "6px",
+                        fontWeight: "bold",
+                        textTransform: "capitalize"
+                      }
+                }
+              >
+                Rarity: {selectedItem.rarity?.replace(/-/g, " ")}
+              </div>
               {/* Affichage des métadonnées dans la vue détaillée */}
               {formatMetadata(selectedItem.metadata) && (
                 <div className="inventory-details-metadata" style={{
