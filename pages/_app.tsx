@@ -1,6 +1,7 @@
 import "../styles/main.css";
 import "../styles/phone.css";
 import "../styles/atom-one-dark.min.css";
+import "../styles/rarity.css";
 
 import type { AppProps } from "next/app";
 import MetaLinks from "../components/common/MetaLinks";

@@ -1,0 +1,28 @@
+/* Rareté : change la bordure */
+.rarity-verycommon { border-color: #B0B0B0; }
+.rarity-common     { border-color: #9E9E9E; }
+.rarity-uncommon   { border-color: #4CAF50; }
+.rarity-rare       { border-color: #2196F3; }
+.rarity-veryrare   { border-color: #1976D2; }
+.rarity-epic       { border-color: #7B1FA2; }
+.rarity-ultraepic  { border-color: #9C27B0; }
+.rarity-legendary  { border-color: #FF5722; }
+.rarity-ancient    { border-color: #FF9800; }
+.rarity-mythic     { border-color: #07f7ff; }
+.rarity-godlike    { border-color: #ff0000; }
+.rarity-radiant    { border-color: #FFFFFF; }
+
+.rarity-radiant {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: linear-gradient(#1b1b1b, #1b1b1b) padding-box,
+              linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet) border-box;
+  background-size: 300% 100%;
+  animation: rainbow 3s linear infinite;
+}
+
+@keyframes rainbow {
+  to {
+    background-position: 300% 0;
+  }
+}
