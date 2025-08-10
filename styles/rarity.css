@@ -1,4 +1,20 @@
 /* Rareté : change la bordure */
+.rarity-verycommon,
+.rarity-common,
+.rarity-uncommon,
+.rarity-rare,
+.rarity-veryrare,
+.rarity-epic,
+.rarity-ultraepic,
+.rarity-legendary,
+.rarity-ancient,
+.rarity-mythic,
+.rarity-godlike,
+.rarity-radiant {
+  border: 2px solid;
+  border-radius: 6px;
+}
+
 .rarity-verycommon { border-color: #B0B0B0; }
 .rarity-common     { border-color: #9E9E9E; }
 .rarity-uncommon   { border-color: #4CAF50; }

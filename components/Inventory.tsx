@@ -19,6 +19,8 @@ export interface Item {
   showInStore?: boolean;
   deleted?: boolean;
   sellable?: boolean;
+  rarity: 'very-common' | 'common' | 'uncommon' | 'rare' | 'very-rare' | 'epic' | 'ultra-epic' | 'legendary' | 'ancient' | 'mythic' | 'godlike' | 'radiant';
+  custom_url_link?: string;
   metadata?: { [key: string]: unknown; _unique_id?: string };
 }
 
@@ -291,6 +293,27 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     return displayMetadata || null;
   };
 
+  // Map des couleurs de rareté (doit correspondre à rarity.css)
+const rarityColors: Record<string, string> = {
+  "very-common": "#B0B0B0",
+  "common": "#9E9E9E",
+  "uncommon": "#4CAF50",
+  "rare": "#2196F3",
+  "very-rare": "#1976D2",
+  "epic": "#7B1FA2",
+  "ultra-epic": "#9C27B0",
+  "legendary": "#FF5722",
+  "ancient": "#FF9800",
+  "mythic": "#07f7ff",
+  "godlike": "#ff0000",
+  "radiant": "#FFFFFF"
+};
+
+function getRarityColor(rarity?: string) {
+  if (!rarity) return "#9E9E9E";
+  return rarityColors[rarity] || "#9E9E9E";
+}
+
   const columns = 8;
   const minRows = 3;
   const totalItems = items.length;
@@ -328,14 +351,21 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
     return (
-      <div className="inventory-item" tabIndex={0} draggable={false}
+      <div
+        className={
+          "inventory-item rarity-" +
+          (item.rarity?.replace(/-/g, "") || "common")
+        }
+        tabIndex={0}
+        draggable={false}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onContextMenu={handleContextMenu}
-        onClick={() => onSelect(item)}>
+        onClick={() => onSelect(item)}
+      >
         <div style={{ position: "relative", width: "48px", height: "48px" }}>
           <CachedImage
-            src={iconUrl}
+            src={item.custom_url_link || iconUrl}
             alt={item.name}
             className="inventory-item-img"
             style={{
@@ -366,99 +396,95 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             border: "1px solid #000"
           }} />
         )}
-        {/* Indicateur visuel pour les items sellable */}
-        {/* {item.sellable && !item.metadata && (
-          <div className="inventory-item-sellable-indicator" style={{ 
-            position: "absolute", 
-            bottom: "2px", 
-            right: "2px", 
-            width: "8px", 
-            height: "8px", 
-            borderRadius: "50%", 
-            backgroundColor: "#00ff00", 
-            zIndex: 3,
-            border: "1px solid #000"
-          }} />
-        )} */}
-        {/* Indicateur visuel pour les items non sellable */}
-        {/* {!item.sellable && !item.metadata && (
-          <div className="inventory-item-non-sellable-indicator" style={{ 
-            position: "absolute", 
-            bottom: "2px", 
-            right: "2px", 
-            width: "8px", 
-            height: "8px", 
-            borderRadius: "50%", 
-            backgroundColor: "#ff0000", 
-            zIndex: 3,
-            border: "1px solid #000"
-          }} />
-        )} */}
         {showTooltip && !showContext && mousePos && (
-          <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
+            <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
             <div className="inventory-tooltip-name">{item.name}</div>
             <div className="inventory-tooltip-desc">{item.description}</div>
+            {/* Affichage de la rareté */}
+            <div
+              className="inventory-tooltip-rarity"
+              style={
+                item.rarity === "radiant"
+                  ? {
+                      background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                      fontWeight: "bold",
+                      textTransform: "capitalize"
+                    }
+                  : {
+                      color: getRarityColor(item.rarity),
+                      fontSize: "12px",
+                      marginTop: "4px",
+                      fontWeight: "bold",
+                      textTransform: "capitalize"
+                    }
+              }
+            >
+              Rarity: {item.rarity?.replace(/-/g, " ")}
+            </div>
             {formattedMetadata && (
               <div className="inventory-tooltip-metadata" style={{
-                color: "#888",
-                fontSize: "12px",
-                marginTop: "4px",
-                fontStyle: "italic"
+              color: "#888",
+              fontSize: "12px",
+              marginTop: "4px",
+              fontStyle: "italic"
               }}>
-                {formattedMetadata}
+              {formattedMetadata}
               </div>
             )}
             {/* Affichage du prix d'achat */}
             {item.purchasePrice && (
               <div className="inventory-tooltip-price" style={{
-                color: "#ffd700",
-                fontSize: "12px",
-                marginTop: "4px",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
+              color: "#ffd700",
+              fontSize: "12px",
+              marginTop: "4px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
               }}>
-                Price: {item.purchasePrice}
-                <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "12px", height: "12px", position: "relative", top: "0px", left: "-2px" }} />
+              Price: {item.purchasePrice}
+              <CachedImage src="/assets/credit.png" className="inventory-credit-icon" style={{ width: "12px", height: "12px", position: "relative", top: "0px", left: "-2px" }} />
               </div>
             )}
             {/* Affichage du statut sellable */}
             {!item.metadata && (
               <div className="inventory-tooltip-sellable" style={{
-                color: item.sellable && item.purchasePrice != null ? "#66ff66" : "#ff6666",
-                fontSize: "11px",
-                marginTop: "4px",
-                fontWeight: "bold"
+              color: item.sellable && item.purchasePrice != null ? "#66ff66" : "#ff6666",
+              fontSize: "11px",
+              marginTop: "4px",
+              fontWeight: "bold"
               }}>
-                {item.sellable && item.purchasePrice != null
-                  ? "✓ Can be sold"
-                  : "✗ Cannot be sold"}
+              {item.sellable && item.purchasePrice != null
+                ? "✓ Can be sold"
+                : "✗ Cannot be sold"}
               </div>
             )}
             {/* Affichage de l'unique ID pour debug (optionnel) */}
             {item.metadata?._unique_id && (
               <>
-                <div style={{
-                  color: "#666",
-                  fontSize: "10px",
-                  marginTop: "2px",
-                  fontFamily: "monospace"
-                }}>
-                  ID: {item.metadata._unique_id}
-                </div>
+              <div style={{
+                color: "#666",
+                fontSize: "10px",
+                marginTop: "2px",
+                fontFamily: "monospace"
+              }}>
+                ID: {item.metadata._unique_id}
+              </div>
 
-                <div className="inventory-tooltip-sellable" style={{
-                  color: "#ff6666",
-                  fontSize: "11px",
-                  marginTop: "4px",
-                  fontWeight: "bold"
-                }}>
-                  ✗ Cannot be sold
-                </div>
+              <div className="inventory-tooltip-sellable" style={{
+                color: "#ff6666",
+                fontSize: "11px",
+                marginTop: "4px",
+                fontWeight: "bold"
+              }}>
+                ✗ Cannot be sold
+              </div>
               </>
-
             )}
-          </div>
+            </div>
         )}
         {showContext && isMe && mousePos && (
           <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={e => e.stopPropagation()}>
