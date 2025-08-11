@@ -9,6 +9,7 @@ export interface UserCacheUser {
     disabled?: boolean;
     inventory?: any[];
     ownedItems?: any[];
+    badges: ('staff' | 'moderator' | 'community_manager' | 'early_user' | 'bug_hunter' | 'contributor' | 'partner')[];
 }
 
 interface UserCacheContextType {

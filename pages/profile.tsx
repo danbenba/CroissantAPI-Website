@@ -84,6 +84,7 @@ interface User {
   isStudio?: boolean;
   inventory?: ({ itemId: string; name: string; description: string; price: number; iconHash: string; rarity: 'very-common' | 'common' | 'uncommon' | 'rare' | 'very-rare' | 'epic' | 'ultra-epic' | 'legendary' | 'ancient' | 'mythic' | 'godlike' | 'radiant'; custom_url_link?: string } & { amount: number })[];
   ownedItems?: ShopItem[];
+  badges: ('staff' | 'moderator' | 'community_manager' | 'early_user' | 'bug_hunter' | 'contributor' | 'partner')[]
 }
 
 type ProfileProps = {
@@ -737,8 +738,8 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
             />
 
             <div className="profile-header">
-              <div>
-                <div className="profile-name">
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="profile-name" style={{ display: "flex", alignItems: "center" }}>
                   {profile.username}{" "}
                   <Certification
                     user={profile}
@@ -747,15 +748,15 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                       width: 32,
                       height: 32,
                       position: "relative",
-                      top: "8px",
+                      top: 0,
+                      verticalAlign: "middle",
                     }}
                   />
                   {profile.disabled ? (
-                    <>
-                      <span style={{ color: "red" }}>(Disabled)</span>
-                    </>
+                    <span style={{ color: "red", marginLeft: 8 }}>(Disabled)</span>
                   ) : null}
                 </div>
+                <BadgesBox badges={profile.badges || []} />
               </div>
             </div>
           </label>
@@ -1077,6 +1078,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
               <span style={{ color: "red" }}>(Disabled)</span>
             ) : null}
           </div>
+          <BadgesBox badges={profile.badges || []} /> {/* <-- Ajout ici */}
           {/* Action buttons below username */}
           <div style={{
             display: "flex",
@@ -1230,6 +1232,48 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
             </button>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// Utilitaire pour badge
+const BADGE_INFO: Record<string, { label: string; img: string }> = {
+  staff: { label: "Staff", img: "/assets/badges/staff.png" },
+  moderator: { label: "Moderator", img: "/assets/badges/moderator.png" },
+  community_manager: { label: "Community Manager", img: "/assets/badges/community_manager.png" },
+  early_user: { label: "Early User", img: "/assets/badges/early_user.png" },
+  bug_hunter: { label: "Bug Hunter", img: "/assets/badges/bug_hunter.png" },
+  contributor: { label: "Contributor", img: "/assets/badges/contributor.png" },
+  partner: { label: "Partner", img: "/assets/badges/partner.png" },
+};
+
+function BadgesBox({ badges }: { badges: string[] }) {
+  if (!badges || badges.length === 0) return null;
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        border: "1px solid #444",
+        background: "rgba(40,40,40,0.7)",
+        borderRadius: 8,
+        padding: "6px 12px",
+        marginTop: 8,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
+      {badges.map((badge) =>
+        BADGE_INFO[badge] ? (
+          <span key={badge} title={BADGE_INFO[badge].label} style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={BADGE_INFO[badge].img}
+              alt={BADGE_INFO[badge].label}
+              style={{ height: 32, marginRight: 4, borderRadius: 4 }}
+            />
+          </span>
+        ) : null
       )}
     </div>
   );
