@@ -1,0 +1,12 @@
+<!-- Support -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: Support</title>
+  <rect width="128" height="128" rx="16" fill="#1E88E5"/>
+  <g stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M32 60 A32 32 0 0 1 96 60"/>
+    <rect x="20" y="56" width="20" height="36" rx="8" ry="8"/>
+    <rect x="88" y="56" width="20" height="36" rx="8" ry="8"/>
+    <line x1="96" y1="88" x2="76" y2="96"/>
+  </g>
+  <circle cx="74" cy="97" r="4" fill="#FFFFFF"/>
+</svg>

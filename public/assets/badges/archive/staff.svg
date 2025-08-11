@@ -1,0 +1,17 @@
+<!-- Staff -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: Staff</title>
+  <rect width="128" height="128" rx="16" fill="#212121"/>
+  <g stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M64 36 
+             L71.05 54.29 
+             L90.63 55.35 
+             L75.41 67.71 
+             L80.46 86.65 
+             L64 70 
+             L47.54 86.65 
+             L52.59 67.71 
+             L37.37 55.35 
+             L56.95 54.29 Z"/>
+  </g>
+</svg>

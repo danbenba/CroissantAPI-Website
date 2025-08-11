@@ -1,0 +1,13 @@
+<!-- Moderator -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: Moderator</title>
+  <rect width="128" height="128" rx="16" fill="#43A047"/>
+  <path d="M64 28
+           C46 28 36 36 36 50
+           V68
+           C36 86 48 98 64 104
+           C80 98 92 86 92 68
+           V50
+           C92 36 82 28 64 28 Z"
+        fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

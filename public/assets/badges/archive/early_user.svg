@@ -1,0 +1,18 @@
+<!-- Early User -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: Early User</title>
+  <defs>
+    <linearGradient id="bg-early" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5FD0FF"/>
+      <stop offset="100%" stop-color="#38B6E6"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="20" fill="url(#bg-early)"/>
+  <rect width="128" height="128" rx="20" fill="none" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="2"/>
+  <circle cx="64" cy="64" r="34" fill="#FFFFFF" opacity="0.08"/>
+  <g stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <circle cx="64" cy="64" r="22"/>
+    <line x1="64" y1="64" x2="64" y2="48"/>
+    <line x1="64" y1="64" x2="80" y2="64"/>
+  </g>
+</svg>

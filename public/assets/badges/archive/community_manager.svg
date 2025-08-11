@@ -1,0 +1,11 @@
+<!-- Community Manager -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: Community Manager</title>
+  <rect width="128" height="128" rx="16" fill="#FB8C00"/>
+  <g stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M32 52 L84 40 L84 88 L32 76 Z"/>
+    <line x1="28" y1="70" x2="24" y2="92"/>
+    <path d="M92 56 Q104 64 92 72"/>
+    <path d="M96 50 Q114 64 96 78"/>
+  </g>
+</svg>

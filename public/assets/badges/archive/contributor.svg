@@ -1,0 +1,14 @@
+<!-- GitHub Contributor -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>Badge: GitHub Contributor</title>
+  <rect width="128" height="128" rx="16" fill="#7E57C2"/>
+  <g stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="44" y1="36" x2="44" y2="92"/>
+    <line x1="44" y1="64" x2="86" y2="64"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="44" cy="36" r="6"/>
+    <circle cx="44" cy="92" r="6"/>
+    <circle cx="86" cy="64" r="6"/>
+  </g>
+</svg>
