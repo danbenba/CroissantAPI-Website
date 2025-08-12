@@ -332,12 +332,10 @@ function SecurityModal({
   passkeySuccess,
   passkeyError,
   handleRegisterPasskey,
-  showGoogleAuthModal,
   setShowGoogleAuthModal,
   success,
   error,
   setError,
-  setSuccess,
   router,
   linkText,
 }: any) {
@@ -600,7 +598,7 @@ function SecurityModal({
 }
 
 function useSettingsLogic() {
-  const { user, token, setUser, apiKey } = useAuth();
+  const { user, token, setUser } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(user?.email || "");
   const [username, setUsername] = useState(user?.username || "");
@@ -800,9 +798,6 @@ function useSettingsLogic() {
         if (!cred) throw new Error("Passkey creation failed");
 
         // Serialize credential for transport
-        function bufferToBase64(buf) {
-          return btoa(String.fromCharCode(...new Uint8Array(buf)));
-        }
 
         function bufferToBase64url(buf: ArrayBuffer): string {
           // Convert ArrayBuffer to base64url string
@@ -897,7 +892,7 @@ function useSettingsLogic() {
 }
 
 function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
-  const { user, token, setUser, apiKey } = useAuth();
+  const { user, setUser, apiKey } = useAuth();
   const router = useRouter();
   const [username, setUsername] = useState(user?.username || "");
   const [usernameLoading, setUsernameLoading] = useState(false);
@@ -1102,9 +1097,6 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
         if (!cred) throw new Error("Passkey creation failed");
 
         // Serialize credential for transport
-        function bufferToBase64(buf) {
-          return btoa(String.fromCharCode(...new Uint8Array(buf)));
-        }
 
         function bufferToBase64url(buf: ArrayBuffer): string {
           // Convert ArrayBuffer to base64url string
@@ -1336,7 +1328,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
                   textDecoration: "underline",
                   opacity: 0.7,
                 }}
-                onClick={() => navigator.clipboard.writeText(token || "")}
+                onClick={() => navigator.clipboard.writeText(apiKey || "")}
                 disabled={!showApiKey}
               >
                 Copy
@@ -1411,16 +1403,13 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
 }
 
 function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
+  const {apiKey} = useAuth();
   // Version mobile : layout vertical, padding réduit, boutons plus gros, police plus petite
   // Adaptez les styles pour mobile
   const {
     user,
-    token,
     setUser,
-    email,
-    setEmail,
     username,
-    setUsername,
     usernameLoading,
     usernameSuccess,
     usernameError,
@@ -1647,19 +1636,19 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
                 borderRadius: 4,
                 padding: "6px 12px",
                 fontWeight: 500,
-                fontSize: 14,
+                fontSize: 15,
                 userSelect: showApiKey ? "all" : "none",
                 cursor: showApiKey ? "pointer" : "default",
-                minWidth: 120,
+                minWidth: 180,
               }}
               onClick={() => {
-                if (showApiKey) navigator.clipboard.writeText(token || "");
+                if (showApiKey) navigator.clipboard.writeText(apiKey || "");
               }}
               title={showApiKey ? "Click to copy" : "Click Show"}
             >
               {showApiKey
-                ? token
-                : "*".repeat(Math.max(8, String(token || "").length))}
+                ? apiKey
+                : "*".repeat(Math.max(8, String(apiKey || "").length))}
             </code>
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -1688,7 +1677,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
                   textDecoration: "underline",
                   opacity: 0.7,
                 }}
-                onClick={() => navigator.clipboard.writeText(token || "")}
+                onClick={() => navigator.clipboard.writeText(apiKey || "")}
                 disabled={!showApiKey}
               >
                 Copy
