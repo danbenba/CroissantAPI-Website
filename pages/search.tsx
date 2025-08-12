@@ -350,6 +350,9 @@ const SearchPage: React.FC = () => {
                         marginTop: 4,
                         minHeight: 18,
                         maxHeight: 36,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                       }}
