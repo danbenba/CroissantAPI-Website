@@ -123,12 +123,9 @@ export default async function handler(
   // Forward le status et les headers
   res.status(apiRes.status);
   apiRes.headers.forEach((value, key) => {
-    // Certains headers sont interdits par Next.js (ex: transfer-encoding)
     if (
       ![
         "transfer-encoding",
-        "content-encoding",
-        "content-length",
         "connection",
       ].includes(key.toLowerCase())
     ) {
@@ -136,7 +133,12 @@ export default async function handler(
     }
   });
 
-  // Stream la réponse
-  const buffer = await apiRes.arrayBuffer();
-  res.send(Buffer.from(buffer));
+  // Stream la réponse directement
+  if (apiRes.body) {
+    // Convertit le WHATWG ReadableStream en Node.js Readable
+    const nodeStream = require("stream").Readable.fromWeb(apiRes.body);
+    nodeStream.pipe(res);
+  } else {
+    res.end();
+  }
 }
