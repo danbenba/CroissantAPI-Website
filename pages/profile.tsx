@@ -1424,7 +1424,11 @@ const BADGE_ICONS = {
 };
 
 function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
-    if (!badges || badges.length === 0) return null;
+    const filteredBadges = badges.filter((badge) => {
+        if (badge === "early_user" && studio) return false;
+        return true;
+    });
+    if (!filteredBadges || filteredBadges.length === 0) return null;
     return (
         <div
             style={{
@@ -1440,11 +1444,10 @@ function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
                 boxShadow: "0 1px 4px 0 rgba(0,0,0,0.12)",
             }}
         >
-            {badges.map((badge) => {
+            {filteredBadges.map((badge) => {
                 const info = BADGE_INFO[badge];
                 if (!info) return null;
                 const icon = BADGE_ICONS[info.icon];
-                if (icon === faBolt && studio) return null; // Skip "Early User" badge for studios
                 return (
                     <Link
                         key={badge}
