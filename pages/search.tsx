@@ -247,20 +247,22 @@ const SearchPage: React.FC = () => {
                     alt="User Avatar"
                     className="search-user-avatar"
                   />
-                  <div className="search-user-name">
-                    {user.username || user.username}{" "}
+                    <div className="search-user-name">
+                    {user.username?.length > 15
+                      ? user.username.substring(0, 15) + "..."
+                      : user.username}{" "}
                     <Certification
                       user={user}
                       style={{
-                        marginLeft: 4,
-                        width: 16,
-                        height: 16,
-                        position: "relative",
-                        top: -2,
-                        verticalAlign: "middle",
+                      marginLeft: 4,
+                      width: 16,
+                      height: 16,
+                      position: "relative",
+                      top: -2,
+                      verticalAlign: "middle",
                       }}
                     />
-                  </div>
+                    </div>
                   <div
                     className="search-user-username"
                     style={{ fontSize: 10 }}
