@@ -26,8 +26,6 @@ Official website: [https://croissant-api.fr](https://croissant-api.fr)
 
 ### Documentation
 - **API Reference**: [croissant-api.fr/api-docs](https://croissant-api.fr/api-docs)
-- **Platform Guide**: [croissant-api.fr/docs](https://croissant-api.fr/docs)
-- **Developer Portal**: [croissant-api.fr/developers](https://croissant-api.fr/developers)
 
 ### Community
 - **Discord Server**: [discord.gg/PjhRBDYZ3p](https://discord.gg/PjhRBDYZ3p)
@@ -55,7 +53,7 @@ This library is provided under the Croissant Platform License. By using this lib
 - Follow platform terms of service and community guidelines
 - Respect rate limits and usage guidelines
 
-For complete terms, visit [croissant-api.fr/terms](https://croissant-api.fr/terms).
+For complete terms, visit [croissant-api.fr/tos](https://croissant-api.fr/tos).
 
 ## Version Information
 
