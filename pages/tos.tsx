@@ -90,13 +90,15 @@ const TermsOfService: React.FC = () => {
           <button
             onClick={() => setOpenFr((v) => !v)}
             style={{
-              background: "#f0f0f0",
-              border: "1px solid #ccc",
+              background: "#23272f",
+              color: "#f5f6fa",
+              border: "1px solid #444",
               padding: "8px 16px",
               cursor: "pointer",
               fontWeight: "bold",
               borderRadius: "4px",
               marginBottom: "5px",
+              transition: "background 0.2s",
             }}
           >
             {openFr ? "▼" : "►"} Mentions légales (Français)
@@ -105,8 +107,9 @@ const TermsOfService: React.FC = () => {
             <div
               style={{
                 padding: "10px 20px",
-                background: "#fafafa",
-                border: "1px solid #eee",
+                background: "#181a20",
+                color: "#f5f6fa",
+                border: "1px solid #333",
                 borderRadius: "4px",
               }}
             >
@@ -170,13 +173,15 @@ const TermsOfService: React.FC = () => {
           <button
             onClick={() => setOpenEn((v) => !v)}
             style={{
-              background: "#f0f0f0",
-              border: "1px solid #ccc",
+              background: "#23272f",
+              color: "#f5f6fa",
+              border: "1px solid #444",
               padding: "8px 16px",
               cursor: "pointer",
               fontWeight: "bold",
               borderRadius: "4px",
               marginBottom: "5px",
+              transition: "background 0.2s",
             }}
           >
             {openEn ? "▼" : "►"} Legal Mentions (English)
@@ -185,8 +190,9 @@ const TermsOfService: React.FC = () => {
             <div
               style={{
                 padding: "10px 20px",
-                background: "#fafafa",
-                border: "1px solid #eee",
+                background: "#181a20",
+                color: "#f5f6fa",
+                border: "1px solid #333",
                 borderRadius: "4px",
               }}
             >
