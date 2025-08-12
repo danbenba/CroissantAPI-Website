@@ -315,7 +315,7 @@ function getRarityColor(rarity?: string) {
 }
 
   const columns = 8;
-  const minRows = 3;
+  const minRows = Math.ceil(48 / columns);
   const totalItems = items.length;
   const rows = Math.max(minRows, Math.ceil(totalItems / columns));
   const totalCells = rows * columns;
