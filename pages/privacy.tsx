@@ -6,7 +6,7 @@ import React from "react";
  */
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="container">
+    <div className="container" style={{padding:"30px"}}>
       <h2>Croissant - Privacy Policy</h2>
       <div className="content">
         <p>

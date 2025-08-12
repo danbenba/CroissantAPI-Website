@@ -796,75 +796,70 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
 					alignItems: "flex-start",
 				}}
 			>
-				<div className="profile-picture-container">
-					<label
-						htmlFor="profile-picture-input"
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							alignItems: "center",
-							gap: "64px",
-							cursor: isMe ? "pointer" : "default",
-						}}
-					>
-						<CachedImage
-							src={"/avatar/" + (search || user?.id)}
-							alt={profile.username}
-							className="profile-avatar"
-						/>
-
-						<div className="profile-header">
-							<div
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: 12,
-								}}
-							>
-								<div
-									className="profile-name"
-									style={{
-										display: "flex",
-										alignItems: "center",
-									}}
-								>
-									{profile.username}{" "}
-									<Certification
-										user={profile}
-										style={{
-											marginLeft: 4,
-											width: 32,
-											height: 32,
-											position: "relative",
-											top: 0,
-											verticalAlign: "middle",
-										}}
-									/>
-									{profile.disabled ? (
-										<span
-											style={{
-												color: "red",
-												marginLeft: 8,
-											}}
-										>
-											(Disabled)
-										</span>
-									) : null}
-								</div>
-								<BadgesBox badges={profile.badges || []} studio={profile.isStudio} />
-							</div>
-						</div>
-					</label>
-					{isMe && (
-						<input
-							id="profile-picture-input"
-							type="file"
-							accept="image/*"
-							style={{ display: "none" }}
-							onChange={handleProfilePictureChange}
-						/>
-					)}
-				</div>
+				   <div className="profile-picture-container">
+					   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "64px" }}>
+						   <label
+							   htmlFor="profile-picture-input"
+							   style={{ cursor: isMe ? "pointer" : "default", margin: 0 }}
+						   >
+							   <CachedImage
+								   src={"/avatar/" + (search || user?.id)}
+								   alt={profile.username}
+								   className="profile-avatar"
+							   />
+							   {isMe && (
+								   <input
+									   id="profile-picture-input"
+									   type="file"
+									   accept="image/*"
+									   style={{ display: "none" }}
+									   onChange={handleProfilePictureChange}
+								   />
+							   )}
+						   </label>
+						   <div className="profile-header">
+							   <div
+								   style={{
+									   display: "flex",
+									   alignItems: "center",
+									   gap: 12,
+								   }}
+							   >
+								   <div
+									   className="profile-name"
+									   style={{
+										   display: "flex",
+										   alignItems: "center",
+									   }}
+								   >
+									   {profile.username}{" "}
+									   <Certification
+										   user={profile}
+										   style={{
+											   marginLeft: 4,
+											   width: 32,
+											   height: 32,
+											   position: "relative",
+											   top: 0,
+											   verticalAlign: "middle",
+										   }}
+									   />
+									   {profile.disabled ? (
+										   <span
+											   style={{
+												   color: "red",
+												   marginLeft: 8,
+											   }}
+										   >
+											   (Disabled)
+										   </span>
+									   ) : null}
+								   </div>
+								   <BadgesBox badges={profile.badges || []} studio={profile.isStudio} />
+							   </div>
+						   </div>
+					   </div>
+				   </div>
 				{user && (
 					<>
 						{!isMe ? (

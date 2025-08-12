@@ -6,7 +6,7 @@ import React from "react";
  */
 const TermsOfService: React.FC = () => {
   return (
-    <div className="container">
+    <div className="container" style={{padding:"30px"}}>
       <h2>Croissant - Terms of Service</h2>
       <div className="content">
         <p>
@@ -78,6 +78,19 @@ const TermsOfService: React.FC = () => {
         </p>
         <p className="indent">
           6.2. Major changes will be announced through our Discord bot.
+        </p>
+      </div>
+      <div style={{ marginTop: 32 }}>
+        <h3>Legal Mentions</h3>
+        <p className="indent">
+          Croissant is published by Fox (fox3000foxy), an independent developer
+          based in France. For any questions or requests regarding the site, you
+          can contact us via Discord or by email at the address provided on our
+          official server. The personal data collected is only used for the
+          proper functioning of the service and is never resold to third
+          parties. The site is hosted by a European provider that complies with
+          the GDPR. Any reproduction, even partial, of the content of the site
+          is prohibited without prior authorization.
         </p>
       </div>
     </div>

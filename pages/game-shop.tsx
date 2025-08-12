@@ -518,8 +518,9 @@ function ShopDesktop(props: any) {
                           color: "var(--text-color-secondary)",
                           fontSize: 15,
                           marginBottom: 6,
-                          minHeight: 38,
-                          maxHeight: 38,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                         }}
