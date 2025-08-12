@@ -1424,60 +1424,66 @@ const BADGE_ICONS = {
 };
 
 function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
-	if (!badges || badges.length === 0) return null;
-	return (
-		<div
-			style={{
-				display: "flex",
-				gap: 8,
-				border: "1px solid #36393f",
-				background: "rgba(54,57,63,0.85)",
-				borderRadius: 8,
-				padding: "6px 12px",
-				marginTop: 8,
-				alignItems: "center",
-				flexWrap: "wrap",
-				boxShadow: "0 1px 4px 0 rgba(0,0,0,0.12)",
-			}}
-		>
-			{badges.map((badge) => {
-				const info = BADGE_INFO[badge];
-				if (!info) return null;
-				const icon = BADGE_ICONS[info.icon];
-        if(icon === faBolt && studio) return null; // Skip "Early User" badge for studios
-				return (
-					<span
-						key={badge}
-						title={info.label}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							// background: info.color,
-							borderRadius: 6,
-							padding: "2px 10px 2px 10px",
-							// color: "#fff",
-							fontWeight: 500,
-							fontSize: 15,
-							// boxShadow: "0 1px 2px 0 rgba(0,0,0,0.10)",
-							// border: `1.5px solid ${info.color}`,
-							transition: "transform 0.1s",
-						}}
-					>
-						<FontAwesomeIcon
-							icon={icon}
-							style={{
-								fontSize: 20,
-                filter: "drop-shadow(0 0px 0px rgba(0, 0, 0, 0))",
-							}}
-							color={info.color}
-							fixedWidth
-						/>
-						{/* {info.label} */}
-					</span>
-				);
-			})}
-		</div>
-	);
+    if (!badges || badges.length === 0) return null;
+    return (
+        <div
+            style={{
+                display: "flex",
+                gap: 8,
+                border: "1px solid #36393f",
+                background: "rgba(54,57,63,0.85)",
+                borderRadius: 8,
+                padding: "6px 12px",
+                marginTop: 8,
+                alignItems: "center",
+                flexWrap: "wrap",
+                boxShadow: "0 1px 4px 0 rgba(0,0,0,0.12)",
+            }}
+        >
+            {badges.map((badge) => {
+                const info = BADGE_INFO[badge];
+                if (!info) return null;
+                const icon = BADGE_ICONS[info.icon];
+                if (icon === faBolt && studio) return null; // Skip "Early User" badge for studios
+                return (
+                    <Link
+                        key={badge}
+                        href={`/badges#${badge}`}
+                        passHref
+                        legacyBehavior
+                    >
+                        <a
+                            title={info.label}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                borderRadius: 6,
+                                padding: "2px 10px 2px 10px",
+                                fontWeight: 500,
+                                fontSize: 15,
+                                transition: "transform 0.1s",
+                                textDecoration: "none",
+                                cursor: "pointer",
+                                outline: "none",
+                            }}
+                            tabIndex={0}
+                        >
+                            <FontAwesomeIcon
+                                icon={icon}
+                                style={{
+                                    fontSize: 20,
+                                    filter: "drop-shadow(0 0px 0px rgba(0, 0, 0, 0))",
+                                }}
+                                color={info.color}
+                                fixedWidth
+                            />
+                            {/* {info.label} */}
+                        </a>
+                    </Link>
+                );
+            })}
+        </div>
+    );
 }
 
 export default function Profile({ userId }: ProfileProps) {
