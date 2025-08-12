@@ -941,7 +941,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
 								<Link
 									href="/settings"
 									style={{
-										marginTop: 8,
+										marginTop: 4,
 										marginRight: 8,
 										float: "right",
 										fontSize: 24,
