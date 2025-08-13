@@ -1424,7 +1424,7 @@ function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
         return (
           <Link
             key={badge}
-            href={`/badges#${badge}` + isFromLauncher()}
+            href={`/badges${isFromLauncher()}#${badge}`}
             passHref
             legacyBehavior
           >
