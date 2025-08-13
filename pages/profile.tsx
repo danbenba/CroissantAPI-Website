@@ -1394,7 +1394,7 @@ function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
     if (typeof window === "undefined") return "";
     return window.location.pathname.startsWith("/launcher") ||
       window.location.search.includes("from=launcher")
-      ? "&from=launcher"
+      ? "?from=launcher"
       : "";
   }, []);
   const filteredBadges = badges.filter((badge) => {
