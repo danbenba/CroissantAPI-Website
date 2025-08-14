@@ -96,25 +96,20 @@ export default async function handler(
     url += `?${searchParams.toString()}`;
   }
 
-  // Récupère le body brut (pour POST/PUT/PATCH/DELETE)
-  let body: any = undefined;
-  if (!["GET", "HEAD"].includes(req.method || "")) {
-    body = await new Promise<Buffer>((resolve) => {
-      const chunks: Buffer[] = [];
-      req.on("data", (chunk) => chunks.push(chunk));
-      req.on("end", () => resolve(Buffer.concat(chunks)));
-    });
-  }
+  // Prépare les headers
+  const headers = {
+    ...filterHeaders(req.headers as Record<string, any>),
+    "x-forwarded-for": getRealIP(req),
+    "x-real-ip": getRealIP(req),
+  };
 
+  // Utilise le flux brut de la requête comme body si ce n'est pas GET/HEAD
   const fetchOptions: RequestInit = {
     method: req.method,
-    headers: {
-      ...filterHeaders(req.headers as Record<string, any>),
-      "x-forwarded-for": getRealIP(req),
-      "x-real-ip": getRealIP(req),
-    },
-    body: body && body.length > 0 ? body : undefined,
-    // Pas de redirect automatique
+    headers,
+    // @ts-ignore
+    body: !["GET", "HEAD"].includes(req.method || "") ? req : undefined,
+    duplex: !["GET", "HEAD"].includes(req.method || "") ? "half" : undefined, // Important pour Node.js 18+ et fetch streaming
   };
 
   // Forward la requête
