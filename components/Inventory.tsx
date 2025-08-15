@@ -81,33 +81,14 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         const processedItems = (data.inventory || []).map((item: any) => ({
           ...item,
           uniqueId: item.metadata?._unique_id as string | undefined,
-          sellable: item.sellable ?? false
+          sellable: item.sellable ?? false,
+          iconHash: item.iconHash || item.item_id // Assurer que iconHash est défini
         }));
         setItems(processedItems);
         setLoading(false);
       })
       .catch(err => { setError(err.message); setLoading(false); });
   }
-
-  // Custom prompt for sell/drop/auction
-  const customPrompt = (
-    message: string,
-    maxAmount?: number,
-    options?: { showPrice?: boolean; defaultPrice?: number }
-  ) => {
-    return new Promise<{ confirmed: boolean; amount?: number; price?: number }>(resolve => {
-      setPrompt({
-        message,
-        resolve,
-        maxAmount,
-        amount: 1,
-        showPrice: options?.showPrice,
-        price: options?.defaultPrice || 1
-      });
-    });
-  };
-
-  // Résout le prompt selon le contexte (auction, sell, drop)
 
   const handlePromptAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (prompt) {
@@ -150,16 +131,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   };
 
   // Prompt pour AUCTION
-  const customPromptAuction = (item: Item) => {
-    return new Promise<{ confirmed: boolean; price?: number }>(resolve => {
-      setPrompt({
-        message: `Auction "${item.name}" — set your price (per unit):`,
-        resolve: ({ confirmed, price }) => resolve({ confirmed, price }),
-        showPrice: true,
-        price: item.purchasePrice || 1
-      });
-    });
-  };
 
 
   const handleSell = async (item: Item) => {
