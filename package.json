@@ -5,7 +5,7 @@
   "main": "server/serve.js",
   "scripts": {
     "dev": "next dev --port=8580 --turbopack",
-    "build": "mkdir ./tmp_next && next build ./tmp_next && rm -rf .next && mv ./tmp_next/.next .next && rm -rf ./tmp_next",
+    "build": "TMP_DIR=$(mktemp -d) && rsync -a --exclude=node_modules --exclude=.next ./ \"$TMP_DIR\" && cd \"$TMP_DIR\" && npm ci --omit=dev && npm run build && cd - && rm -rf .next && cp -r \"$TMP_DIR/.next\" .next && rm -rf \"$TMP_DIR\"",
     "start": "next start --port=8580",
     "test": "react-scripts test --env=jsdom",
     "lint": "next lint",
