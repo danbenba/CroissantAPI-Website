@@ -55,7 +55,11 @@ const nextConfig = {
             {
                 source: '/explorer/:path*',
                 destination: 'http://127.0.0.1:8080/explorer/:path*',
-            }
+            },
+            {
+                source: '/api/:path*',
+                destination: 'http://localhost:3456/:path*',
+            },
         ];
     },
     experimental: {
