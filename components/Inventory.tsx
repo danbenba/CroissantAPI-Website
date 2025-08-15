@@ -9,7 +9,7 @@ const endpoint = "/api";
 
 export interface Item {
   iconHash: string;
-  itemId: string;
+  item_id: string;
   name: string;
   description: string;
   amount: number;
@@ -147,7 +147,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     if (!result.confirmed || !result.amount || result.amount <= 0) return;
     const requestBody: any = { amount: result.amount };
     if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
-    fetch(`${endpoint}/items/sell/${item.itemId}`, {
+    fetch(`${endpoint}/items/sell/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
@@ -209,7 +209,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     if (!result.confirmed || !result.amount || result.amount <= 0) return;
     const requestBody: any = { amount: result.amount };
     if (item.metadata && item.metadata._unique_id) requestBody.uniqueId = item.metadata._unique_id;
-    fetch(`${endpoint}/items/drop/${item.itemId}`, {
+    fetch(`${endpoint}/items/drop/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
@@ -225,7 +225,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
   const handleItemClick = async (item: Item) => {
     try {
-      const res = await fetch(`${endpoint}/items/${item.itemId}`, { headers: { "Content-Type": "application/json" } });
+      const res = await fetch(`${endpoint}/items/${item.item_id}`, { headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error("Failed to fetch item details");
       const details = await res.json();
       let ownerUser = null;
@@ -304,7 +304,7 @@ function getRarityColor(rarity?: string) {
     const [showTooltip, setShowTooltip] = React.useState(false);
     const [showContext, setShowContext] = React.useState(false);
     const [mousePos, setMousePos] = React.useState<{ x: number, y: number } | null>(null);
-    const iconUrl = "/items-icons/" + (item?.iconHash || item.itemId);
+    const iconUrl = "/items-icons/" + (item?.iconHash || item.item_id);
     const formattedMetadata = formatMetadata(item.metadata);
 
     const handleMouseEnter = (e: React.MouseEvent) => {
@@ -483,7 +483,7 @@ function getRarityColor(rarity?: string) {
           <button onClick={handleBackToInventory} className="inventory-back-btn">← Back to Inventory</button>
           <div className="inventory-details-main">
             <CachedImage
-              src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.itemId)}
+              src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.item_id)}
               alt={selectedItem.name}
               className="inventory-details-img"
             />
@@ -572,7 +572,7 @@ function getRarityColor(rarity?: string) {
               <>
                 {items.map((item, index) => (
                   <InventoryItem
-                    key={item?.metadata?._unique_id ? `${item.itemId}-${item.metadata._unique_id}` : `${item.itemId}-${index}`}
+                    key={item?.metadata?._unique_id ? `${item.item_id}-${item.metadata._unique_id}` : `${item.item_id}-${index}`}
                     item={item}
                     onSelect={handleItemClick}
                     isMe={!!isMe}
