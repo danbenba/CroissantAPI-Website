@@ -207,8 +207,9 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     if (!isMe) return;
     const result = await customPromptDrop(item);
     if (!result.confirmed || !result.amount || result.amount <= 0) return;
-    const requestBody: any = { amount: result.amount };
-    if (item.metadata && item.metadata._unique_id) requestBody.uniqueId = item.metadata._unique_id;
+    let requestBody: any = { amount: result.amount };
+    if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
+    if (item.metadata && item.metadata._unique_id) requestBody = { uniqueId: item.metadata._unique_id };
     fetch(`${endpoint}/items/drop/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
