@@ -555,23 +555,23 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Afficher "Sell" seulement si l'item n'a pas de métadonnées ET est sellable */}
-            {!item.metadata && item.sellable && item.purchasePrice != null && (
+            {!item.metadata && item.sellable && item.purchasePrice != null ? (
               <div
                 className="inventory-context-sell"
                 onClick={() => onSell(item, dataItemIndex)}
               >
                 Sell
               </div>
-            )}
+            ) : null}
             {/* Auction button: show only if item is sellable and has no metadata */}
-            {item.purchasePrice != null && (
+            {item.purchasePrice != null ? (
               <div
                 className="inventory-context-auction"
                 onClick={() => onAuction(item)}
               >
                 Auction
               </div>
-            )}
+            ) : null}
             <div
               className="inventory-context-drop"
               onClick={() => onDrop(item, dataItemIndex)}

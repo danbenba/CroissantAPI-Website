@@ -75,7 +75,7 @@ const SearchPage: React.FC = () => {
     const controller = new AbortController();
     const debounceTimeout = setTimeout(() => {
       fetch(
-      `${API_ENDPOINT}/search${user?.admin ? "/admin" : ""}?q=${encodeURIComponent(query)}`,
+      `${API_ENDPOINT}/search?q=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: {
