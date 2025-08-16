@@ -422,11 +422,17 @@ export default function StudiosPage() {
                               marginRight: 8,
                               userSelect: "all",
                               cursor: "pointer",
+                              maxWidth: 180,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              display: "inline-block",
+                              verticalAlign: "middle",
                             }}
                             onClick={() =>
                               navigator.clipboard.writeText(studio.apiKey)
                             }
-                            title="Click to copy"
+                            title={studio.apiKey}
                           >
                             {studio.apiKey}
                           </code>
@@ -438,8 +444,14 @@ export default function StudiosPage() {
                               padding: "2px 6px",
                               fontWeight: 500,
                               marginRight: 8,
-                              userSelect: "none",
+                              userSelect: "all",
                               cursor: "pointer",
+                              maxWidth: 180,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              display: "inline-block",
+                              verticalAlign: "middle",
                             }}
                             title="Click to reveal"
                           >

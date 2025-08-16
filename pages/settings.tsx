@@ -1285,12 +1285,17 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
               style={{
                 background: "#444",
                 borderRadius: 4,
-                padding: "6px 12px",
+                padding: "2px 6px",
                 fontWeight: 500,
-                fontSize: 15,
-                userSelect: showApiKey ? "all" : "none",
-                cursor: showApiKey ? "pointer" : "default",
-                minWidth: 180,
+                marginRight: 8,
+                userSelect: "all",
+                cursor: "pointer",
+                maxWidth: 180,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                display: "inline-block",
+                verticalAlign: "middle",
               }}
               onClick={() => {
                 if (showApiKey) navigator.clipboard.writeText(apiKey || "");
@@ -1403,7 +1408,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
 }
 
 function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
-  const {apiKey} = useAuth();
+  const { apiKey } = useAuth();
   // Version mobile : layout vertical, padding réduit, boutons plus gros, police plus petite
   // Adaptez les styles pour mobile
   const {
@@ -1634,12 +1639,17 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
               style={{
                 background: "#444",
                 borderRadius: 4,
-                padding: "6px 12px",
+                padding: "2px 6px",
                 fontWeight: 500,
-                fontSize: 15,
-                userSelect: showApiKey ? "all" : "none",
-                cursor: showApiKey ? "pointer" : "default",
-                minWidth: 180,
+                marginRight: 8,
+                userSelect: "all",
+                cursor: "pointer",
+                maxWidth: 180,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                display: "inline-block",
+                verticalAlign: "middle",
               }}
               onClick={() => {
                 if (showApiKey) navigator.clipboard.writeText(apiKey || "");
