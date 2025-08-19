@@ -39,14 +39,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const token = getToken();
     try {
-      const decodedToken = jwt.decode(token); // This will throw an error if the token is invalid, which we can catch
-      setApiKey(decodedToken?.apiKey || null);
-      setUser({
-        id: decodedToken?.user_id,
-        username: decodedToken?.username,
-        balance: balance
-      });
-      setLoading(false);
+      const decodedToken = jwt.decode(token);
+      if (decodedToken && typeof decodedToken === "object" && decodedToken.user_id) {
+        setApiKey(decodedToken.apiKey || null);
+        setUser({
+          id: decodedToken.user_id,
+          username: decodedToken.username,
+          balance: balance,
+        });
+        setLoading(false);
+      } else {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
     } catch (error) {
       console.error("Invalid token:", error);
       setUser(null);
