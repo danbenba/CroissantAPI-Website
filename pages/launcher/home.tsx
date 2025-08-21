@@ -408,7 +408,7 @@ const Library: React.FC = () => {
           action: "downloadGame",
           gameId: selected.gameId,
           downloadUrl: selected.download_link,
-          token: useAuth().token, // Assuming useAuth provides the token
+          token
         })
       );
     }
