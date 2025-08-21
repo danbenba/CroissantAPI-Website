@@ -3,10 +3,12 @@ const endpoint = "/api"; // Replace with your actual API endpoint
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
 import useIsMobile from "../../hooks/useIsMobile";
+import { useRouter } from "next/router"; // Ajouté
 
 const GameForm = () => {
   const isMobile = useIsMobile();
   const { token } = useAuth();
+  const router = useRouter(); // Ajouté
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -66,8 +68,7 @@ const GameForm = () => {
     if (!formData.downloadLink)
       newErrors.downloadLink = "Download link is required";
     // iconFile is now optional
-    if (!bannerFile && !formData.bannerHash)
-      newErrors.bannerHash = "Banner is required";
+    // Bannière n'est plus requise
     return newErrors;
   };
 
@@ -182,6 +183,9 @@ const GameForm = () => {
         });
         setIconFile(null);
         setBannerFile(null);
+        // Redirection après succès
+        router.push("/dev-zone/my-games");
+        return;
       } else {
         const err = await res.json();
         setErrors({ submit: err.message || "Failed to create game." });
@@ -332,9 +336,7 @@ const GameForm = () => {
           </div>
           {errors.iconHash && <span className="error">{errors.iconHash}</span>}
           <div className="form-row">
-            <label htmlFor="banner">
-              Banner (Optional)
-            </label>
+            <label htmlFor="banner">Banner (Optional)</label>
             <label
               htmlFor="banner"
               className="custom-file-label creategame-file-label"

@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
 import useIsMobile from "../../hooks/useIsMobile";
+import { useRouter } from "next/router"; // Ajouté
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -21,7 +22,7 @@ const CreateItem = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { token } = useAuth(); // Assuming useAuth is imported from your hooks
+  const router = useRouter(); // Ajouté
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -112,6 +113,9 @@ const CreateItem = () => {
           showInStore: false,
         });
         setIconFile(null);
+        // Redirection après succès
+        router.push("/dev-zone/my-items");
+        return;
       } else {
         const err = await res.json();
         setErrors({ submit: err.message || "Failed to create item." });
