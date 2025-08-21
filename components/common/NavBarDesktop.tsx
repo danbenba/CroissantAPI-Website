@@ -267,6 +267,9 @@ export default function NavBarDesktop() {
               <Link href="/download-launcher" legacyBehavior>
                 <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Launcher</a>
               </Link>
+              <Link href="https://github.com/Croissant-API/Croissant-VPN/releases/tag/v1.0.0" legacyBehavior>
+                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>VPN</a>
+              </Link>
               <a
                 href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
                 style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}

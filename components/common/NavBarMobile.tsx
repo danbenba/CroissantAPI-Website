@@ -275,6 +275,9 @@ export default function NavBarMobile() {
                 <Link href="/download-launcher" legacyBehavior>
                     <span style={linkStyle}>Download Launcher</span>
                 </Link>
+                <Link href="https://github.com/Croissant-API/Croissant-VPN/releases/tag/v1.0.0" legacyBehavior>
+                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>VPN</a>
+                </Link>
                 <a
                     href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
                     style={linkStyle}
