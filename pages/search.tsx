@@ -56,11 +56,10 @@ const SearchPage: React.FC = () => {
 
   // Helper to check if the request is from the launcher
   const isFromLauncher = useCallback(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") ||
-      window.location.search.includes("from=launcher")
-      ? "&from=launcher"
-      : "";
+    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
+      return "&from=launcher";
+    else 
+      return "";
   }, []);
 
   // Fetch users/games/items with debounce when query or token changes

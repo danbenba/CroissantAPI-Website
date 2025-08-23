@@ -82,8 +82,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     typeof window !== "undefined" &&
     window.location.pathname.startsWith("/launcher");
   const isFromLauncher =
-    typeof window !== "undefined" &&
-    window.location.search.includes("from=launcher");
+    typeof document !== "undefined" && document.cookie.includes("from=app");
   useEffect(() => {
     // Set app height for CSS variable
     const setAppHeight = () => {

@@ -159,11 +159,10 @@ function ProfileShop({
   const [promptOwnerUser, setPromptOwnerUser] = useState<any | null>(null);
   const [alert, setAlert] = useState<{ message: string } | null>(null);
   const isFromLauncher = useCallback(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") ||
-      window.location.search.includes("from=launcher")
-      ? "&from=launcher"
-      : "";
+    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
+      return "&from=launcher";
+    else 
+      return "";
   }, []);
 
   useEffect(() => {
@@ -945,7 +944,17 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
             <h2 className="profile-inventory-title">Inventory</h2>
             {/* Pass inventoryReloadFlag as a prop */}
             <Inventory
-              profile={profile}
+              profile={{
+                ...profile,
+                inventory: profile.inventory
+                  ? profile.inventory.map((item) => ({
+                      ...item,
+                      item_id: item.itemId,
+                      icon_hash: item.iconHash,
+                      // Optionally remove itemId/iconHash if Inventory expects only snake_case
+                    }))
+                  : [],
+              }}
               isMe={isMe}
               reloadFlag={inventoryReloadFlag}
             />
@@ -1252,7 +1261,17 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
           <div className="profile-shop-section">
             <h2 className="profile-inventory-title">Inventory</h2>
             <Inventory
-              profile={profile}
+              profile={{
+                ...profile,
+                inventory: profile.inventory
+                  ? profile.inventory.map((item) => ({
+                      ...item,
+                      item_id: item.itemId,
+                      icon_hash: item.iconHash,
+                      // Optionally remove itemId/iconHash if Inventory expects only snake_case
+                    }))
+                  : [],
+              }}
               isMe={isMe}
               reloadFlag={inventoryReloadFlag}
             />

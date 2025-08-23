@@ -186,11 +186,10 @@ function useOAuth2AppsLogic() {
   };
 
   function isFromLauncher() {
-    if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") ||
-      window.location.search.includes("from=launcher")
-      ? "&from=launcher"
-      : "";
+    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
+      return "&from=launcher";
+    else 
+      return "";
   }
 
   function toggleSpoiler(client_id: string) {
