@@ -802,7 +802,7 @@ const Library: React.FC = () => {
                       In Game
                     </button>
                   )}
-                  <Link href={`/game?gameId=${selected.gameId}&from=launcher`}>
+                  <Link href={`/game?gameId=${selected.gameId}`}>
                     <button className="library-play-btn">
                       View
                     </button>

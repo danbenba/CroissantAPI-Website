@@ -54,14 +54,6 @@ const SearchPage: React.FC = () => {
   const query = searchParams.get("q") || "";
   const { cacheUser } = useUserCache();
 
-  // Helper to check if the request is from the launcher
-  const isFromLauncher = useCallback(() => {
-    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
-      return "&from=launcher";
-    else 
-      return "";
-  }, []);
-
   // Fetch users/games/items with debounce when query or token changes
   useEffect(() => {
     if (!query) {
@@ -226,7 +218,7 @@ const SearchPage: React.FC = () => {
             {users.map((user) => (
               <Link
                 key={user.id}
-                href={`/profile?user=${user.id}${isFromLauncher()}`}
+                href={`/profile?user=${user.id}`}
                 style={{ textDecoration: "none" }}
               >
                 <div
@@ -284,7 +276,7 @@ const SearchPage: React.FC = () => {
             {games.map((game) => (
               <Link
                 key={game.gameId}
-                href={`/game?gameId=${game.gameId}` + isFromLauncher()}
+                href={`/game?gameId=${game.gameId}`}
                 style={{ textDecoration: "none" }}
               >
                 <div

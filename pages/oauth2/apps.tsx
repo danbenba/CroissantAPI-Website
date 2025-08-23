@@ -185,13 +185,6 @@ function useOAuth2AppsLogic() {
     if (editing === client_id) handleCancelEdit();
   };
 
-  function isFromLauncher() {
-    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
-      return "&from=launcher";
-    else 
-      return "";
-  }
-
   function toggleSpoiler(client_id: string) {
     setSpoilers((s) => ({ ...s, [client_id]: !s[client_id] }));
   }
@@ -217,7 +210,6 @@ function useOAuth2AppsLogic() {
     handleEdit,
     handleCancelEdit,
     handleDelete,
-    isFromLauncher,
     toggleSpoiler,
   };
 }
@@ -227,7 +219,7 @@ function OAuth2AppsDesktop(props: ReturnType<typeof useOAuth2AppsLogic>) {
   const {
     apps, name, setName, redirectUrls, setRedirectUrls, iframeCode, setIframeCode,
     editing, showForm, setShowForm, showEditForm, handleCreate, handleIframe,
-    handleEdit, handleCancelEdit, handleDelete, isFromLauncher, spoilers, toggleSpoiler,
+    handleEdit, handleCancelEdit, handleDelete, spoilers, toggleSpoiler,
     setEditing
   } = props;
 
@@ -239,7 +231,7 @@ function OAuth2AppsDesktop(props: ReturnType<typeof useOAuth2AppsLogic>) {
         <h2 style={{ marginBottom: 18 }}>My OAuth2 Applications</h2>
         <div style={{ display: "flex", gap: 16, flexDirection: "row" }}>
           <Link
-            href={"/oauth2/test" + isFromLauncher()}
+            href={"/oauth2/test"}
             style={linkStyle}
             tabIndex={-1}
           >
@@ -375,7 +367,7 @@ function OAuth2AppsMobile(props: ReturnType<typeof useOAuth2AppsLogic>) {
   const {
     apps, name, setName, redirectUrls, setRedirectUrls, iframeCode, setIframeCode,
     editing, showForm, setShowForm, showEditForm, handleCreate, handleIframe,
-    handleEdit, handleCancelEdit, handleDelete, isFromLauncher, spoilers, toggleSpoiler,
+    handleEdit, handleCancelEdit, handleDelete, spoilers, toggleSpoiler,
     setEditing
   } = props;
 
@@ -387,7 +379,7 @@ function OAuth2AppsMobile(props: ReturnType<typeof useOAuth2AppsLogic>) {
         <h2 style={{ marginBottom: 8, fontSize: "1.1em" }}>My OAuth2 Applications</h2>
         <div style={{ display: "flex", gap: 10, flexDirection: "row" }}>
           <Link
-            href={"/oauth2/test" + isFromLauncher()}
+            href={"/oauth2/test"}
             style={{ ...linkStyle, position: "static", fontSize: 14 }}
             tabIndex={-1}
           >

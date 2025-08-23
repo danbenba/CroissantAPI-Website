@@ -946,14 +946,6 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
   const [showSecurityModal, setShowSecurityModal] = useState(false);
 
   useEffect(() => {
-    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
-      setLinkText("Go on website to link");
-    else 
-      setLinkText(!user?.isStudio ? "Link Steam Account" : "Studio can't link Steam"
-    );
-  }, [user, linkText]);
-
-  useEffect(() => {
     if (typeof document == "undefined") return;
     setTimeout(() => {
       if (

@@ -158,11 +158,6 @@ function ProfileShop({
   } | null>(null);
   const [promptOwnerUser, setPromptOwnerUser] = useState<any | null>(null);
   const [alert, setAlert] = useState<{ message: string } | null>(null);
-  const isFromLauncher = useCallback(() => {
-    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
-      return "&from=launcher";
-    else return "";
-  }, []);
 
   useEffect(() => {
     setItems(user.ownedItems || []);
@@ -376,8 +371,7 @@ function ProfileShop({
                       Creator:{" "}
                       <Link
                         href={
-                          `/profile?user=${(prompt.item as any).owner}` +
-                          isFromLauncher()
+                          `/profile?user=${(prompt.item as any).owner}`
                         }
                         className="shop-prompt-owner-link"
                       >
@@ -1408,11 +1402,6 @@ const BADGE_ICONS = {
 };
 
 function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
-  const isFromLauncher = useCallback(() => {
-    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
-      return "&from=launcher";
-    else return "";
-  }, []);
   const filteredBadges = badges.filter((badge) => {
     if (badge === "early_user" && studio) return false;
     return true;
@@ -1440,7 +1429,7 @@ function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
         return (
           <Link
             key={badge}
-            href={`/badges${isFromLauncher()}#${badge}`}
+            href={`/badges#${badge}`}
             passHref
             legacyBehavior
           >

@@ -209,9 +209,6 @@ function useShopLogic() {
     // eslint-disable-next-line
   }, [games, getUserFromCache]);
 
-  // Vérifier si on est dans le launcher
-  const isLauncher = typeof document !== "undefined" && document.cookie.includes("from=app");
-
   return {
     games,
     loading,
@@ -221,7 +218,6 @@ function useShopLogic() {
     handleBuyGame,
     setAlert,
     setPrompt,
-    isLauncher,
     ownerInfoMap,
     skeletons,
     handlePromptResult,
@@ -439,7 +435,7 @@ function ShopDesktop(props: any) {
                         }}
                       >
                         <Link
-                          href={`/game?gameId=${game.gameId}${isLauncher ? "&from=launcher" : ""}`}
+                          href={`/game?gameId=${game.gameId}`}
                           className="shop-game-link"
                           style={{ color: "white", textDecoration: "none" }}
                         >
@@ -722,7 +718,7 @@ function ShopMobile(props: any) {
                         }}
                       >
                         <Link
-                          href={`/game?gameId=${game.gameId}${isLauncher ? "&from=launcher" : ""}`}
+                          href={`/game?gameId=${game.gameId}`}
                           className="shop-game-link"
                           style={{ color: "white", textDecoration: "none" }}
                         >

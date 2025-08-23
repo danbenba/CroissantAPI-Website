@@ -37,21 +37,21 @@ const Navbar: React.FC = () => {
         <nav className="navbar-nav">
           <div className="links-group">
             <Link href="/launcher/home">Library</Link>
-            <Link href="/game-shop?from=launcher">Shop</Link>
+            <Link href="/game-shop">Shop</Link>
             <div className="create-dropdown">
               Manage
               <div className="create-dropdown-content">
-                <Link href="/studios?from=launcher">Studios</Link>
-                <Link href="/oauth2/apps?from=launcher">OAuth2</Link>
-                <Link href="/dev-zone/my-items?from=launcher">My Items</Link>
-                <Link href="/dev-zone/my-games?from=launcher">My Games</Link>
+                <Link href="/studios">Studios</Link>
+                <Link href="/oauth2/apps">OAuth2</Link>
+                <Link href="/dev-zone/my-items">My Items</Link>
+                <Link href="/dev-zone/my-games">My Games</Link>
               </div>
             </div>
           </div>
           <SearchBar />
           <div className="navbar-user-group" style={{ position: "relative" }}>
             <Link
-              href="/buy-credits?from=launcher"
+              href="/buy-credits"
               style={{ textDecoration: "none" }}
             >
               <div className="navbar-credits">
@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
               </div>
             </Link>
             <Link
-              href="/profile?from=launcher"
+              href="/profile"
               style={{
                 textDecoration: "none",
                 display: "flex",
