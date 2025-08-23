@@ -210,7 +210,7 @@ function useShopLogic() {
   }, [games, getUserFromCache]);
 
   // Vérifier si on est dans le launcher
-  const isLauncher = router.query.from === "launcher";
+  const isLauncher = typeof document !== "undefined" && document.cookie.includes("from=app");
 
   return {
     games,

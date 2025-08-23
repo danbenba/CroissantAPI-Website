@@ -704,7 +704,7 @@ const Library: React.FC = () => {
               {ownerInfo && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <Link
-                    href={`/profile?user=${ownerInfo.id}&from=launcher`}
+                    href={`/profile?user=${ownerInfo.id}`}
                     style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
                   >
                     <CachedImage

@@ -161,8 +161,7 @@ function ProfileShop({
   const isFromLauncher = useCallback(() => {
     if (typeof document !== "undefined" && document.cookie.includes("from=app"))
       return "&from=launcher";
-    else 
-      return "";
+    else return "";
   }, []);
 
   useEffect(() => {
@@ -1410,11 +1409,9 @@ const BADGE_ICONS = {
 
 function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
   const isFromLauncher = useCallback(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.pathname.startsWith("/launcher") ||
-      window.location.search.includes("from=launcher")
-      ? "?from=launcher"
-      : "";
+    if (typeof document !== "undefined" && document.cookie.includes("from=app"))
+      return "&from=launcher";
+    else return "";
   }, []);
   const filteredBadges = badges.filter((badge) => {
     if (badge === "early_user" && studio) return false;
