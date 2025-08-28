@@ -29,32 +29,22 @@ export default async function handler(
     const tokenData = await tokenRes.json();
     const { access_token } = tokenData;
 
-    // 2. Récupère les infos utilisateur Discord
-    const userRes = await fetch("https://discord.com/api/v10/users/@me", {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
-    if (!userRes.ok) {
-      return res.status(500).send("Failed to fetch user info");
-    }
-    const user = await userRes.json();
-
-    // 3. Appelle le backend pour login/register OAuth
+    // 2. Appelle le backend pour login/register OAuth (ne récupère plus les infos utilisateur ici)
     const apiBase = process.env.API_BASE_URL || "http://localhost:3456";
     const loginRes = await fetch(`${apiBase}/users/login-oauth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: user.email,
         provider: "discord",
-        providerId: user.id,
-        username: user?.global_name || user.username,
+        code: code as string, // optionnel, utile si tu veux que le backend gère tout
+        accessToken: access_token,
       }),
     });
     const loginData = await loginRes.json();
     if (!loginRes.ok || !loginData.token) {
       return res.status(401).send(loginData.message || "OAuth login failed");
     }
-    // 4. Place le token backend en cookie et redirige
+    // 3. Place le token backend en cookie et redirige
     res.setHeader(
       "Set-Cookie",
       `token=${loginData.token}; Path=/; Expires=Fri, 31 Dec 9999 23:59:59 GMT`

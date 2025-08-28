@@ -29,29 +29,15 @@ export default async function handler(
     const tokenData = await tokenRes.json();
     const { access_token } = tokenData;
 
-    // 2. Récupère les infos utilisateur Google
-    const userRes = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    );
-    if (!userRes.ok) {
-      return res.status(500).send("Failed to fetch user info");
-    }
-    const user = await userRes.json();
-
-    // 3. Appelle le backend pour login/register OAuth
+    // 2. Appelle le backend pour login/register OAuth (sans fetch userinfo ici)
     const apiBase = process.env.API_BASE_URL || "http://localhost:3456";
-    // return res.send(`${apiBase}/api/users/login-oauth`);
     const loginRes = await fetch(`${apiBase}/users/login-oauth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: user.email,
         provider: "google",
-        providerId: user.id,
-        username: user.name || user.email.split("@")[0],
+        code: code as string, // tu peux aussi transmettre le code si tu veux que le backend fasse tout
+        accessToken: access_token,
       }),
     });
     const loginData = await loginRes.json();
