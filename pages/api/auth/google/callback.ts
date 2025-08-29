@@ -8,36 +8,15 @@ export default async function handler(
   if (!code) return res.status(400).send("Missing code");
 
   try {
-    // 1. Échange le code contre un access_token
-    const params = new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      grant_type: "authorization_code",
-      code: code as string,
-      redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
-    });
-
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params.toString(),
-    });
-
-    if (!tokenRes.ok) {
-      return res.status(500).send("Failed to fetch access token");
-    }
-    const tokenData = await tokenRes.json();
-    const { access_token } = tokenData;
-
-    // 2. Appelle le backend pour login/register OAuth (sans fetch userinfo ici)
+    // 1. Envoie simplement le code au backend, il gère tout (échange + userinfo)
     const apiBase = process.env.API_BASE_URL || "http://localhost:3456";
     const loginRes = await fetch(`${apiBase}/users/login-oauth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         provider: "google",
-        code: code as string, // tu peux aussi transmettre le code si tu veux que le backend fasse tout
-        accessToken: access_token,
+        code: code as string,
+        // plus besoin d'envoyer accessToken ici
       }),
     });
     const loginData = await loginRes.json();
