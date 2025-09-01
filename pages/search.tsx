@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
 import Certification from "../components/common/Certification";
+import { Trans, useTranslation } from "next-i18next";
 
 // API endpoint for user search
 const API_ENDPOINT = "/api";
@@ -53,6 +54,7 @@ const SearchPage: React.FC = () => {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const { cacheUser } = useUserCache();
+  const { t } = useTranslation("common");
 
   // Fetch users/games/items with debounce when query or token changes
   useEffect(() => {
@@ -140,7 +142,7 @@ const SearchPage: React.FC = () => {
   if (!query) {
     return (
       <div className="search-container">
-        <div className="search-header">Please enter a search query.</div>
+        <div className="search-header">{t("search.enterQuery")}</div>
       </div>
     );
   }
@@ -175,12 +177,14 @@ const SearchPage: React.FC = () => {
               <div className="shop-prompt-item-name">{item.name}</div>
               <div className="shop-prompt-item-desc">{item.description}</div>
               <div className="shop-prompt-item-price">
-                Price: {item.price}
+                {t("search.price")}: {item.price}
                 <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
               </div>
             </div>
           </div>
-          <div className="shop-prompt-message">Buy how many "{item.name}"?</div>
+          <div className="shop-prompt-message">
+            <Trans i18nKey="search.buyHowMany" values={{ item: item.name }} />
+          </div>
           <div className="shop-prompt-amount">
             <input
               type="number"
@@ -190,15 +194,15 @@ const SearchPage: React.FC = () => {
               className="shop-prompt-amount-input"
             />
             <span className="shop-prompt-amount-total">
-              Total: {amount * (item.price || 0)}
+              <Trans i18nKey="search.total" values={{ total: amount * (item.price || 0) }} />
               <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
             </span>
           </div>
           <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>
-            Buy
+            {t("search.buy")}
           </button>
           <button className="shop-prompt-cancel-btn" onClick={onClose}>
-            Cancel
+            {t("search.cancel")}
           </button>
         </div>
       </div>
@@ -208,12 +212,12 @@ const SearchPage: React.FC = () => {
   return (
     <div className="search-container">
       <div className="search-header">
-        Search results for <strong>{query}</strong>
+        <Trans i18nKey="search.resultsFor" values={{ query }} components={{ strong: <strong /> }} />
       </div>
       {/* Section Users */}
       {users.length > 0 && (
         <>
-          <h1 className="search-title">Users</h1>
+          <h1 className="search-title">{t("search.users")}</h1>
           <div className="search-users-grid">
             {users.map((user) => (
               <Link
@@ -270,7 +274,7 @@ const SearchPage: React.FC = () => {
       {games.length > 0 && (
         <>
           <h1 className="search-title" style={{ marginTop: 40 }}>
-            Games
+            {t("search.games")}
           </h1>
           <div className="search-games-grid">
             {games.map((game) => (
@@ -386,7 +390,7 @@ const SearchPage: React.FC = () => {
       {items.length > 0 && (
         <>
           <h1 className="search-title" style={{ marginTop: 40 }}>
-            Items
+            {t("search.items")}
           </h1>
           <div className="search-items-grid">
             {items.map((item) => (
@@ -497,7 +501,7 @@ const SearchPage: React.FC = () => {
       {buyLoading && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>Buying item...</div>
+            <div>{t("search.buyingItem")}</div>
           </div>
         </div>
       )}
@@ -505,11 +509,8 @@ const SearchPage: React.FC = () => {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div style={{ color: "red" }}>{buyError}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setBuyError(null)}
-            >
-              OK
+            <button className="shop-alert-ok-btn" onClick={() => setBuyError(null)}>
+              {t("search.ok")}
             </button>
           </div>
         </div>
@@ -517,12 +518,9 @@ const SearchPage: React.FC = () => {
       {buySuccess && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>{buySuccess}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setBuySuccess(null)}
-            >
-              OK
+            <div>{t("search.itemPurchased")}</div>
+            <button className="shop-alert-ok-btn" onClick={() => setBuySuccess(null)}>
+              {t("search.ok")}
             </button>
           </div>
         </div>

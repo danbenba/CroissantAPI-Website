@@ -2,6 +2,7 @@ import React from "react";
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 
 // Style constants
 const containerStyle: React.CSSProperties = {
@@ -71,6 +72,7 @@ const infoTextStyle: React.CSSProperties = {
 };
 
 export default function Register() {
+  const { t } = useTranslation("common");
   const { user, loading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = React.useState("");
@@ -138,11 +140,11 @@ export default function Register() {
 
   return (
     <div className="container" style={containerStyle}>
-      <h2 style={titleStyle}>Register</h2>
+      <h2 style={titleStyle}>{t("register.title")}</h2>
       <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleRegister}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Email
+            {t("register.email")}
           </label>
           <input
             type="email"
@@ -163,7 +165,7 @@ export default function Register() {
         </div>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Username
+            {t("register.username")}
           </label>
           <input
             type="text"
@@ -184,7 +186,7 @@ export default function Register() {
         </div>
         <div style={{ marginBottom: 8 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Password
+            {t("register.password")}
           </label>
           <input
             type="password"
@@ -205,7 +207,7 @@ export default function Register() {
         </div>
         <div style={{ marginBottom: 8 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Confirm Password
+            {t("register.confirmPassword")}
           </label>
           <input
             type="password"
@@ -240,14 +242,22 @@ export default function Register() {
           }}
           disabled={registerLoading}
         >
-          {registerLoading ? "Registering..." : "Register"}
+          {registerLoading ? t("register.registering") : t("register.register")}
         </button>
         {registerError && (
-          <div style={{ color: "#ff5252", marginTop: 12 }}>{registerError}</div>
+          <div style={{ color: "#ff5252", marginTop: 12 }}>
+            {registerError === "All fields are required."
+              ? t("register.error.allFields")
+              : registerError === "Passwords do not match."
+              ? t("register.error.passwords")
+              : registerError === "Registration failed"
+              ? t("register.error.failed")
+              : registerError}
+          </div>
         )}
         {registerSuccess && (
           <div style={{ color: "#4caf50", marginTop: 12 }}>
-            {registerSuccess}
+            {t("register.success")}
           </div>
         )}
       </form>
@@ -267,7 +277,7 @@ export default function Register() {
             href="/login"
             style={{ color: "#8ab4f8", textDecoration: "none" }}
           >
-            Have an account?{" "}
+            {t("register.haveAccount")}
           </Link>
         </span>
       </div>
@@ -283,7 +293,7 @@ export default function Register() {
         }}
       >
         <div style={{ flex: 1, height: 1, background: "#444" }} />
-        <span style={{ color: "#888", fontSize: 14 }}>or</span>
+        <span style={{ color: "#888", fontSize: 14 }}>{t("register.or")}</span>
         <div style={{ flex: 1, height: 1, background: "#444" }} />
       </div>
       {/* OAuth buttons */}
@@ -293,7 +303,7 @@ export default function Register() {
           style={discordIconStyle}
           aria-hidden="true"
         />
-        Sign up with Discord
+        {t("register.signUpWithDiscord")}
       </button>
       <button style={googleBtnStyle} onClick={handleGoogle}>
         <span style={googleIconSpanStyle}>
@@ -318,10 +328,10 @@ export default function Register() {
             </g>
           </svg>
         </span>
-        Sign up with Google
+        {t("register.signUpWithGoogle")}
       </button>
       <div style={infoTextStyle}>
-        You will be redirected automatically after registration.
+        {t("register.redirectInfo")}
       </div>
     </div>
   );

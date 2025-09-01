@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
+import { useTranslation } from "next-i18next";
 
 const JoinLobbyPage = () => {
   const router = useRouter();
   const { lobbyId } = router.query;
   const [status, setStatus] = useState("pending");
   const { token } = useAuth();
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     if (!token) {
@@ -23,15 +25,15 @@ const JoinLobbyPage = () => {
         })
         .catch(() => setStatus("error"));
     }
-  }, [lobbyId]);
+  }, [lobbyId, token, router]);
 
   if (!lobbyId) {
-    return <div>No lobbyId found in URL.</div>;
+    return <div>{t("joinLobby.noLobbyId")}</div>;
   }
 
-  if (status === "pending") return <div>Joining lobby...</div>;
-  if (status === "success") return <div>Lobby joined!</div>;
-  return <div>Failed to join lobby.</div>;
+  if (status === "pending") return <div>{t("joinLobby.joining")}</div>;
+  if (status === "success") return <div>{t("joinLobby.success")}</div>;
+  return <div>{t("joinLobby.failed")}</div>;
 };
 
 export default JoinLobbyPage;

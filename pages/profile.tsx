@@ -8,11 +8,13 @@ import TradePanel from "../components/TradePanel";
 import useIsMobile from "../hooks/useIsMobile";
 import Inventory from "../components/Inventory";
 import Certification from "../components/common/Certification";
+import { useTranslation, Trans } from "next-i18next";
 
 const endpoint = "/api";
 
 // --- Give Credits Modal ---
 function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
+  const { t } = useTranslation("common");
   const [amount, setAmount] = useState(1);
   useEffect(() => {
     if (open) setAmount(1);
@@ -22,7 +24,11 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
     <div className="shop-prompt-overlay">
       <div className="shop-prompt">
         <div className="shop-prompt-message">
-          Give credits to <b>{username}</b>
+          <Trans
+            i18nKey="profile.giveCreditsTo"
+            values={{ username }}
+            components={{ b: <b /> }}
+          />
         </div>
         <div className="shop-prompt-amount">
           <input
@@ -44,17 +50,19 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
             className="shop-prompt-amount-input"
           />
           {maxAmount ? (
-            <span className="shop-prompt-amount-max">/ {maxAmount}</span>
+            <span className="shop-prompt-amount-max">
+              {t("profile.max", { max: maxAmount })}
+            </span>
           ) : null}
         </div>
         <button
           className="shop-prompt-buy-btn"
           onClick={() => onSubmit(amount)}
         >
-          Give
+          {t("profile.giveCredits")}
         </button>
         <button className="shop-prompt-cancel-btn" onClick={onClose}>
-          Cancel
+          {t("profile.cancel")}
         </button>
       </div>
     </div>
@@ -141,6 +149,7 @@ function ProfileShop({
   user: User;
   onBuySuccess: () => void;
 }) {
+  const { t } = useTranslation("common");
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -282,12 +291,13 @@ function ProfileShop({
   const totalCells = rows * columns;
   const emptyCells = totalCells - totalItems;
 
-  if (loading) return <p>Loading shop...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (loading) return <p>{t("profile.loading")}</p>;
+  if (error) return <p style={{ color: "red" }}>{t("profile.error")}</p>;
+  if (items.length === 0) return <p>{t("profile.noItems")}</p>;
 
   return (
     <div className="profile-shop-section">
-      <h2 className="profile-shop-title">Shop</h2>
+      <h2 className="profile-shop-title">{t("profile.shop")}</h2>
       <div className="inventory-grid" style={inventoryGridStyle(columns)}>
         {items.map((item) => (
           <div
@@ -320,14 +330,11 @@ function ProfileShop({
           <div className="shop-tooltip-name">{tooltip.item.name}</div>
           <div className="shop-tooltip-desc">{tooltip.item.description}</div>
           <div className="shop-tooltip-price">
-            Price: {tooltip.item.price}
-            <CachedImage
-              src="/assets/credit.png"
-              className="shop-credit-icon"
-            />
+            {t("profile.price")} {tooltip.item.price}
+            <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
             {tooltip.item.stock !== undefined && (
               <span className="shop-tooltip-stock">
-                Stock: {tooltip.item.stock}
+                {t("profile.shopTooltipStock", { stock: tooltip.item.stock })}
               </span>
             )}
           </div>
@@ -355,7 +362,7 @@ function ProfileShop({
                     {prompt.item.description}
                   </div>
                   <div className="shop-prompt-item-price">
-                    Price: {prompt.item.price}
+                    {t("profile.price")} {prompt.item.price}
                     <CachedImage
                       src="/assets/credit.png"
                       className="shop-credit-icon"
@@ -431,13 +438,13 @@ function ProfileShop({
               className="shop-prompt-buy-btn"
               onClick={() => handlePromptResult(true)}
             >
-              Buy
+              {t("profile.buy")}
             </button>
             <button
               className="shop-prompt-cancel-btn"
               onClick={() => handlePromptResult(false)}
             >
-              Cancel
+              {t("profile.cancel")}
             </button>
           </div>
         </div>
@@ -447,11 +454,8 @@ function ProfileShop({
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div className="shop-alert-message">{alert.message}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setAlert(null)}
-            >
-              OK
+            <button className="shop-alert-ok-btn" onClick={() => setAlert(null)}>
+              {t("profile.ok")}
             </button>
           </div>
         </div>
@@ -712,6 +716,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
   } = props;
 
   const { user, token } = useAuth();
+  const {t} = useTranslation("common");
 
   // Debounce reloadProfile to avoid too many fetches
   useEffect(() => {
@@ -726,19 +731,19 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
   if (loading)
     return (
       <div className="container">
-        <p>Loading profile...</p>
+        <p>{t("profile.loading")}</p>
       </div>
     );
   if (error)
     return (
       <div className="container">
-        <p style={{ color: "red" }}>{error}</p>
+        <p style={{ color: "red" }}>{t("profile.error")}</p>
       </div>
     );
   if (!profile)
     return (
       <div className="container">
-        <p>No profile found.</p>
+        <p>{t("profile.notFound")}</p>
       </div>
     );
 
@@ -810,13 +815,8 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                     }}
                   />
                   {profile.disabled ? (
-                    <span
-                      style={{
-                        color: "red",
-                        marginLeft: 8,
-                      }}
-                    >
-                      (Disabled)
+                    <span style={{ color: "red", marginLeft: 8 }}>
+                      {t("profile.disabled")}
                     </span>
                   ) : null}
                 </div>
@@ -844,7 +844,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                       }}
                       onClick={handleReenableAccount}
                     >
-                      Reenable Account
+                      {t("profile.reenable")}
                     </button>
                   ) : (
                     <button
@@ -857,7 +857,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                       }}
                       onClick={handleDisableAccount}
                     >
-                      Disable Account
+                      {t("profile.disable")}
                     </button>
                   ))}
                 {!profile.disabled && (
@@ -875,7 +875,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                         setGiveCreditsSuccess(null);
                       }}
                     >
-                      Give Credits
+                      {t("profile.giveCredits")}
                     </button>
                     <button
                       className="shop-prompt-buy-btn"
@@ -886,7 +886,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                       }}
                       onClick={handleStartTrade}
                     >
-                      Trade
+                      {t("profile.trade")}
                     </button>
                   </>
                 )}
@@ -903,7 +903,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                   onClick={handleDisableAccount}
                 >
                   <button className="shop-prompt-buy-btn">
-                    My Market Listings
+                    {t("profile.myMarketListings")}
                   </button>
                 </Link>
                 <Link
@@ -915,7 +915,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                     fontSize: 24,
                     color: "#888",
                   }}
-                  title="Settings"
+                  title={t("profile.settings")}
                 >
                   <i className="fa fa-cog" aria-hidden="true"></i>
                 </Link>
@@ -996,7 +996,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
       {giveCreditsLoading && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>Sending credits...</div>
+            <div>{t("profile.sendingCredits")}</div>
           </div>
         </div>
       )}
@@ -1016,12 +1016,9 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
       {giveCreditsSuccess && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>{giveCreditsSuccess}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setGiveCreditsSuccess(null)}
-            >
-              OK
+            <div>{t("profile.creditsSent")}</div>
+            <button className="shop-alert-ok-btn" onClick={() => setGiveCreditsSuccess(null)}>
+              {t("profile.ok")}
             </button>
           </div>
         </div>
@@ -1061,7 +1058,8 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
   } = props;
 
   const { user, token } = useAuth();
-
+  const {t} = useTranslation("common");
+  
   useEffect(() => {
     if (isProfileReloading) return;
     const handler = setTimeout(() => {
@@ -1074,7 +1072,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
   if (loading)
     return (
       <div className="container">
-        <p>Loading profile...</p>
+        <p>{t("profile.loading")}</p>
       </div>
     );
   if (error)
@@ -1086,7 +1084,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
   if (!profile)
     return (
       <div className="container">
-        <p>No profile found.</p>
+        <p>{t("profile.notFound")}</p>
       </div>
     );
 
@@ -1182,7 +1180,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                     }}
                     onClick={handleReenableAccount}
                   >
-                    Reenable
+                    {t("profile.reenable")}
                   </button>
                 ) : null}
                 {user.admin && !profile.disabled ? (
@@ -1194,7 +1192,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                     }}
                     onClick={handleDisableAccount}
                   >
-                    Disable
+                    {t("profile.disable")}
                   </button>
                 ) : null}
                 {!profile.disabled ? (
@@ -1208,14 +1206,14 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                         setGiveCreditsSuccess(null);
                       }}
                     >
-                      Give Credits
+                      {t("profile.giveCredits")}
                     </button>
                     <button
                       className="shop-prompt-buy-btn"
                       style={{ minWidth: 90 }}
                       onClick={handleStartTrade}
                     >
-                      Trade
+                      {t("profile.trade")}
                     </button>
                   </>
                 ) : null}
@@ -1228,10 +1226,10 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                     className="shop-prompt-buy-btn"
                     style={{ minWidth: 90 }}
                   >
-                    My Listings
+                    {t("profile.myListings")}
                   </button>
                 </Link>
-                <Link href="/settings" title="Settings">
+                <Link href="/settings" title={t("profile.settings")}>
                   <button
                     className="shop-prompt-buy-btn"
                     style={{ minWidth: 90 }}
@@ -1315,7 +1313,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
       {giveCreditsLoading && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>Sending credits...</div>
+            <div>{t("profile.sendingCredits")}</div>
           </div>
         </div>
       )}
@@ -1335,12 +1333,9 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
       {giveCreditsSuccess && (
         <div className="shop-alert-overlay">
           <div className="shop-alert">
-            <div>{giveCreditsSuccess}</div>
-            <button
-              className="shop-alert-ok-btn"
-              onClick={() => setGiveCreditsSuccess(null)}
-            >
-              OK
+            <div>{t("profile.creditsSent")}</div>
+            <button className="shop-alert-ok-btn" onClick={() => setGiveCreditsSuccess(null)}>
+              {t("profile.ok")}
             </button>
           </div>
         </div>
@@ -1472,7 +1467,6 @@ export default function Profile({ userId }: ProfileProps) {
   const logic = useProfileLogic(userId);
   return isMobile ? (
     <ProfileMobile {...logic} />
-  ) : (
-    <ProfileDesktop {...logic} />
-  );
+  ) :
+    <ProfileDesktop {...logic} />;
 }

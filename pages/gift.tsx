@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
 import CachedImage from "../components/utils/CachedImage";
+import { Trans, useTranslation } from "react-i18next";
 
 const endpoint = "/api";
 
@@ -15,6 +16,7 @@ const GiftPage: React.FC = () => {
   const [alert, setAlert] = React.useState<string | null>(null);
   const router = useRouter();
   const { token } = useAuth();
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (!giftCode) {
@@ -85,10 +87,10 @@ const GiftPage: React.FC = () => {
   if (!giftCode) {
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
-        <h2>Invalid Gift Link</h2>
-        <p>No gift code provided in the URL.</p>
+        <h2>{t("shop.invalidGiftLink")}</h2>
+        <p>{t("shop.noGiftCode")}</p>
         <button onClick={() => router.push("/")} className="gamepage-back-btn">
-          Go Home
+          {t("shop.goHome")}
         </button>
       </div>
     );
@@ -97,10 +99,10 @@ const GiftPage: React.FC = () => {
   if (!giftInfo) {
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
-        <h2>Gift Not Found</h2>
-        <p>{alert || "This gift code is invalid or has expired."}</p>
+        <h2>{t("shop.giftNotFound")}</h2>
+        <p>{alert || t("shop.giftNotFoundDesc")}</p>
         <button onClick={() => router.push("/")} className="gamepage-back-btn">
-          Go Home
+          {t("shop.goHome")}
         </button>
       </div>
     );
@@ -113,7 +115,7 @@ const GiftPage: React.FC = () => {
       </button>
       
       <div style={{ textAlign: "center", padding: "40px 20px" }}>
-        <h2>🎁 You've Received a Gift!</h2>
+        <h2>🎁 {t("shop.youReceivedGift")}</h2>
         
         {giftInfo?.game && (
           <div style={{ margin: "20px 0" }}>
@@ -129,7 +131,11 @@ const GiftPage: React.FC = () => {
 
         {giftInfo?.fromUser && (
           <div style={{ margin: "20px 0" }}>
-            <p>From: <strong>{giftInfo.fromUser.username}</strong></p>
+            <Trans
+              i18nKey="shop.from"
+              values={{ username: giftInfo.fromUser.username }}
+              components={{ strong: <strong /> }}
+            />
           </div>
         )}
 
@@ -161,20 +167,22 @@ const GiftPage: React.FC = () => {
               opacity: claiming ? 0.7 : 1,
             }}
           >
-            {claiming ? "Claiming..." : "Claim Gift"}
+            {claiming ? t("shop.claiming") : t("shop.claimGift")}
           </button>
         ) : giftInfo?.userOwnsGame ? (
           <div>
             <p style={{ color: "#f44336", fontWeight: "bold" }}>
-              You already own this game and cannot claim this gift.
+              {t("shop.giftAlreadyOwned")}
             </p>
           </div>
         ) : (
           <div>
-            <p style={{ color: "#666" }}>This gift has already been claimed.</p>
+            <p style={{ color: "#666" }}>{t("shop.giftAlreadyClaimed")}</p>
             {giftInfo?.gift.claimedAt && (
               <p style={{ fontSize: "0.9em", color: "#999" }}>
-                Claimed on: {new Date(giftInfo.gift.claimedAt).toLocaleDateString()}
+                {t("shop.giftClaimedOn", {
+                  date: new Date(giftInfo.gift.claimedAt).toLocaleDateString(),
+                })}
               </p>
             )}
           </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import useIsMobile from "../hooks/useIsMobile";
+import { Trans, useTranslation } from "next-i18next";
 
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
@@ -36,6 +37,7 @@ const titleMobileStyle: React.CSSProperties = {
 };
 
 export default function ResetPassword() {
+  const { t } = useTranslation("common");
   const isMobile = useIsMobile();
   const router = useRouter();
   const [newPassword, setNewPassword] = React.useState("");
@@ -124,13 +126,26 @@ export default function ResetPassword() {
   if (isMobile) {
     return (
       <div className="container" style={containerMobileStyle}>
-        <h2 style={titleMobileStyle}>Reset Password</h2>
+        <h2 style={titleMobileStyle}>{t("resetPassword.title")}</h2>
         {tokenChecked && error && (
-          <div style={{ color: "#ff5252", marginBottom: 12 }}>{error}</div>
+          <div style={{ color: "#ff5252", marginBottom: 12 }}>
+            {error === "Invalid reset token, please try again."
+              ? t("resetPassword.error.invalidToken")
+              : error === "Invalid or missing reset token."
+              ? t("resetPassword.error.missingToken")
+              : error === "Please fill in all fields."
+              ? t("resetPassword.error.allFields")
+              : error === "Passwords do not match."
+              ? t("resetPassword.error.passwords")
+              : error}
+          </div>
         )}
         {tokenChecked && !error && user && (
           <div style={{ color: "#4caf50", marginBottom: 12 }}>
-            Welcome {user.username}, please reset your password.
+            <Trans
+              i18nKey="resetPassword.welcome"
+              values={{ username: user.username }}
+            />
             <form
               style={{ width: "280px", maxWidth: 280 }}
               onSubmit={handleSubmit}
@@ -139,7 +154,7 @@ export default function ResetPassword() {
                 <label
                   style={{ fontWeight: 600, marginBottom: 4, display: "block" }}
                 >
-                  New Password
+                  {t("resetPassword.newPassword")}
                 </label>
                 <input
                   type="password"
@@ -163,7 +178,7 @@ export default function ResetPassword() {
                 <label
                   style={{ fontWeight: 600, marginBottom: 4, display: "block" }}
                 >
-                  Confirm Password
+                  {t("resetPassword.confirmPassword")}
                 </label>
                 <input
                   type="password"
@@ -199,10 +214,12 @@ export default function ResetPassword() {
                 }}
                 disabled={loading || !!error}
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? t("resetPassword.resetting") : t("resetPassword.reset")}
               </button>
               {success && (
-                <div style={{ color: "#4caf50", marginTop: 10 }}>{success}</div>
+                <div style={{ color: "#4caf50", marginTop: 10 }}>
+                  {t("resetPassword.success")}
+                </div>
               )}
             </form>
           </div>
@@ -213,13 +230,26 @@ export default function ResetPassword() {
 
   return (
     <div className="container" style={containerStyle}>
-      <h2 style={titleStyle}>Reset Password</h2>
+      <h2 style={titleStyle}>{t("resetPassword.title")}</h2>
       {tokenChecked && error && (
-        <div style={{ color: "#ff5252", marginBottom: 16 }}>{error}</div>
+        <div style={{ color: "#ff5252", marginBottom: 16 }}>
+          {error === "Invalid reset token, please try again."
+            ? t("resetPassword.error.invalidToken")
+            : error === "Invalid or missing reset token."
+            ? t("resetPassword.error.missingToken")
+            : error === "Please fill in all fields."
+            ? t("resetPassword.error.allFields")
+            : error === "Passwords do not match."
+            ? t("resetPassword.error.passwords")
+            : error}
+        </div>
       )}
       {tokenChecked && !error && user && (
         <div style={{ color: "#4caf50", marginBottom: 16 }}>
-          Welcome {user.username}, please reset your password.
+          <Trans
+            i18nKey="resetPassword.welcome"
+            values={{ username: user.username }}
+          />
           <form
             style={{ width: "300px", maxWidth: 340 }}
             onSubmit={handleSubmit}
@@ -228,7 +258,7 @@ export default function ResetPassword() {
               <label
                 style={{ fontWeight: 600, marginBottom: 6, display: "block" }}
               >
-                New Password
+                {t("resetPassword.newPassword")}
               </label>
               <input
                 type="password"
@@ -252,7 +282,7 @@ export default function ResetPassword() {
               <label
                 style={{ fontWeight: 600, marginBottom: 6, display: "block" }}
               >
-                Confirm Password
+                {t("resetPassword.confirmPassword")}
               </label>
               <input
                 type="password"
@@ -288,10 +318,12 @@ export default function ResetPassword() {
               }}
               disabled={loading || !!error}
             >
-              {loading ? "Resetting..." : "Reset Password"}
+              {loading ? t("resetPassword.resetting") : t("resetPassword.reset")}
             </button>
             {success && (
-              <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>
+              <div style={{ color: "#4caf50", marginTop: 12 }}>
+                {t("resetPassword.success")}
+              </div>
             )}
           </form>
         </div>

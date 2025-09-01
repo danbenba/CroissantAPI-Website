@@ -3,6 +3,7 @@ import Highlight from "react-highlight";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import useIsMobile from "../hooks/useIsMobile"; // Ajoutez ce hook
+import { useTranslation } from "next-i18next";
 
 const API_URL = "/api";
 
@@ -76,6 +77,7 @@ export default function ApiDocs() {
 
 // Version Desktop
 function ApiDocsDesktop() {
+  const { t } = useTranslation("common");
   const { docs, categories, categoryList, loading } = useApiDocs();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -143,7 +145,7 @@ function ApiDocsDesktop() {
         <div>
           <input
             type="text"
-            placeholder="Search endpoints..."
+            placeholder={t("apiDocs.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -158,7 +160,9 @@ function ApiDocsDesktop() {
         </div>
         {/* Categories */}
         <div>
-          <h3 style={{ color: "#fff", marginBottom: "12px" }}>Categories</h3>
+          <h3 style={{ color: "#fff", marginBottom: "12px" }}>
+            {t("apiDocs.categories")}
+          </h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
             <li
               style={{
@@ -171,7 +175,7 @@ function ApiDocsDesktop() {
                 setSearchTerm(""); // Clear search when "All" is clicked
               }}
             >
-              All
+              {t("apiDocs.all")}
             </li>
             {categoryList.map((cat) => (
               <li
@@ -221,7 +225,7 @@ function ApiDocsDesktop() {
         {/* SDKs */}
         <div>
           <h3 style={{ color: "#fff", marginBottom: "12px" }}>
-            Libraries/SDKs
+            {t("apiDocs.libraries")}
           </h3>
           <ul
             style={{
@@ -319,9 +323,9 @@ function ApiDocsDesktop() {
 
       {/* Main Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <h2 style={{ color: "#ffffff" }}>API Documentation</h2>
+        <h2 style={{ color: "#ffffff" }}>{t("apiDocs.title")}</h2>
         <div style={{ fontSize: "16px", color: "#cccccc" }}>
-          You will find the API documentation below.
+          {t("apiDocs.intro")}
           <br />
           <br />
           <div>
@@ -329,20 +333,19 @@ function ApiDocsDesktop() {
               icon={faUsers}
               style={{ color: "#808080", marginLeft: "5px" }}
             />{" "}
-            Requires authentication via headers Authorization: "Bearer [token]"
-            (use <code>/api-key</code> command on Discord to generate your API
-            key)
+            {t("apiDocs.requiresAuth")}
             <br />
             <br />
-            <strong>Precisions:</strong>
+            <strong>{t("apiDocs.precisions")}</strong>
             <br />
-            <br />- <code>iconHash</code> is linked to <code>/games-icons</code>{" "}
-            and <code>/items-icons</code>.<br />- <code>bannerHash</code> is
-            linked to <code>/banners-icons</code>.<br />-{" "}
-            <code>splashHash</code> is now deprecated and will be removed in the
-            future.
-            <br />- Both hashes can be used to construct URLs for fetching the
-            respective assets icons.
+            <br />
+            {t("apiDocs.iconHash")}
+            <br />
+            {t("apiDocs.bannerHash")}
+            <br />
+            {t("apiDocs.splashHash")}
+            <br />
+            {t("apiDocs.hashes")}
           </div>
         </div>
         <div
@@ -372,71 +375,13 @@ function ApiDocsDesktop() {
                 }}
               ></div>
               <span style={{ marginLeft: "10px" }}>
-                Loading documentation...
+                {t("apiDocs.loading")}
               </span>
             </div>
-          ) : searchTerm ? (
-            // Display filtered results directly
-            filteredDocs.map((doc) => (
-              <div
-                className="api-doc"
-                key={doc.endpoint}
-                id={doc.endpoint}
-                style={{ marginBottom: "24px" }}
-              >
-                <a href={`#${doc.endpoint}`} className="endpoint-link">
-                  <div className="endpoint-header">
-                    <span className={`method ${doc.method?.toLowerCase()}`}>
-                      {doc.method}
-                    </span>
-                    <h4 style={{ display: "inline-block", marginLeft: "8px" }}>
-                      /api{doc.endpoint}
-                      {doc.requiresAuth == true ? (
-                        <FontAwesomeIcon
-                          icon={faUsers}
-                          style={{ color: "#808080", marginLeft: "5px" }}
-                        />
-                      ) : (
-                        ""
-                      )}
-                    </h4>
-                  </div>
-                  <p className="description">{doc.description}</p>
-                </a>
-                <div className="endpoint-details">
-                  <InfoSection
-                    title="Response Type"
-                    content={doc.responseType}
-                    language="javascript"
-                  />
-                  <InfoSection
-                    title="Params Parameters"
-                    content={doc.params}
-                    language="javascript"
-                  />
-                  <InfoSection
-                    title="Query Parameters"
-                    content={doc.query}
-                    language="javascript"
-                  />
-                  <InfoSection
-                    title="Body Parameters"
-                    content={doc.body}
-                    language="javascript"
-                  />
-                  <InfoSection
-                    title="Example"
-                    content={doc.example}
-                    language="javascript"
-                  />
-                  <InfoSection
-                    title="Example Response"
-                    content={doc.exampleResponse}
-                    language="json"
-                  />
-                </div>
-              </div>
-            ))
+          ) : searchTerm && filteredDocs.length === 0 && !loading ? (
+            <div style={{ color: "#fff" }}>
+              {t("apiDocs.noResults", { searchTerm })}
+            </div>
           ) : (
             // Original category-based display
             displayedCategories.map((cat) => (
@@ -487,32 +432,32 @@ function ApiDocsDesktop() {
                       </a>
                       <div className="endpoint-details">
                         <InfoSection
-                          title="Response Type"
+                          title="apiDocs.responseType"
                           content={doc.responseType}
                           language="javascript"
                         />
                         <InfoSection
-                          title="Params Parameters"
+                          title="apiDocs.params"
                           content={doc.params}
                           language="javascript"
                         />
                         <InfoSection
-                          title="Query Parameters"
+                          title="apiDocs.query"
                           content={doc.query}
                           language="javascript"
                         />
                         <InfoSection
-                          title="Body Parameters"
+                          title="apiDocs.body"
                           content={doc.body}
                           language="javascript"
                         />
                         <InfoSection
-                          title="Example"
+                          title="apiDocs.example"
                           content={doc.example}
                           language="javascript"
                         />
                         <InfoSection
-                          title="Example Response"
+                          title="apiDocs.exampleResponse"
                           content={doc.exampleResponse}
                           language="json"
                         />
@@ -544,6 +489,7 @@ function ApiDocsDesktop() {
 
 // Version Mobile
 function ApiDocsMobile() {
+  const { t } = useTranslation("common");
   const { docs, categories, categoryList, loading } = useApiDocs();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -595,7 +541,7 @@ function ApiDocsMobile() {
       <div style={{ marginBottom: 12 }}>
         <input
           type="text"
-          placeholder="Search endpoints..."
+          placeholder={t("apiDocs.searchPlaceholder")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -611,7 +557,7 @@ function ApiDocsMobile() {
       </div>
       <div>
         <h3 style={{ color: "#fff", marginBottom: "8px", fontSize: "1.1em" }}>
-          Categories
+          {t("apiDocs.categories")}
         </h3>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           <span
@@ -629,7 +575,7 @@ function ApiDocsMobile() {
               setSearchTerm("");
             }}
           >
-            All
+            {t("apiDocs.all")}
           </span>
           {categoryList.map((cat) => (
             <span
@@ -657,7 +603,7 @@ function ApiDocsMobile() {
       {/* SDKs */}
       <div>
         <h3 style={{ color: "#fff", marginBottom: "8px", fontSize: "1.1em" }}>
-          Libraries/SDKs
+          {t("apiDocs.libraries")}
         </h3>
         <ul style={{ listStyleType: "none", padding: 0, fontSize: "0.98em", display: "flex", flexWrap: "wrap", gap: "4px" }}>
           <li>
@@ -744,9 +690,9 @@ function ApiDocsMobile() {
         </ul>
       </div>
       <div style={{ marginTop: 18 }}>
-        <h2 style={{ color: "#ffffff", fontSize: "1.2em" }}>API Documentation</h2>
+        <h2 style={{ color: "#ffffff", fontSize: "1.2em" }}>{t("apiDocs.title")}</h2>
         <div style={{ fontSize: "0.98em", color: "#cccccc" }}>
-          You will find the API documentation below.
+          {t("apiDocs.intro")}
           <br />
           <br />
           <div>
@@ -754,20 +700,19 @@ function ApiDocsMobile() {
               icon={faUsers}
               style={{ color: "#808080", marginLeft: "5px" }}
             />{" "}
-            Requires authentication via headers Authorization: "Bearer [token]"
-            (use <code>/api-key</code> command on Discord to generate your API
-            key)
+            {t("apiDocs.requiresAuth")}
             <br />
             <br />
-            <strong>Precisions:</strong>
+            <strong>{t("apiDocs.precisions")}</strong>
             <br />
-            <br />- <code>iconHash</code> is linked to <code>/games-icons</code>{" "}
-            and <code>/items-icons</code>.<br />- <code>bannerHash</code> is
-            linked to <code>/banners-icons</code>.<br />-{" "}
-            <code>splashHash</code> is now deprecated and will be removed in the
-            future.
-            <br />- Both hashes can be used to construct URLs for fetching the
-            respective assets icons.
+            <br />
+            {t("apiDocs.iconHash")}
+            <br />
+            {t("apiDocs.bannerHash")}
+            <br />
+            {t("apiDocs.splashHash")}
+            <br />
+            {t("apiDocs.hashes")}
           </div>
         </div>
         <div
@@ -797,7 +742,7 @@ function ApiDocsMobile() {
                   animation: "spin 1s linear infinite",
                 }}
               ></div>
-              <span style={{ marginLeft: "8px" }}>Loading documentation...</span>
+              <span style={{ marginLeft: "8px" }}>{t("apiDocs.loading")}</span>
             </div>
           ) : searchTerm ? (
             filteredDocs.map((doc) => (
@@ -844,6 +789,7 @@ function ApiDocsMobile() {
 
 // Bloc d'affichage d'un endpoint (utilisé dans mobile et desktop)
 function DocBlock({ doc }: { doc: any }) {
+  const { t } = useTranslation("common");
   return (
     <div
       className="api-doc"
@@ -871,12 +817,12 @@ function DocBlock({ doc }: { doc: any }) {
         <p className="description">{doc.description}</p>
       </a>
       <div className="endpoint-details">
-        <InfoSection title="Response Type" content={doc.responseType} language="javascript" />
-        <InfoSection title="Params Parameters" content={doc.params} language="javascript" />
-        <InfoSection title="Query Parameters" content={doc.query} language="javascript" />
-        <InfoSection title="Body Parameters" content={doc.body} language="javascript" />
-        <InfoSection title="Example" content={doc.example} language="javascript" />
-        <InfoSection title="Example Response" content={doc.exampleResponse} language="json" />
+        <InfoSection title="apiDocs.responseType" content={doc.responseType} language="javascript" />
+        <InfoSection title="apiDocs.params" content={doc.params} language="javascript" />
+        <InfoSection title="apiDocs.query" content={doc.query} language="javascript" />
+        <InfoSection title="apiDocs.body" content={doc.body} language="javascript" />
+        <InfoSection title="apiDocs.example" content={doc.example} language="javascript" />
+        <InfoSection title="apiDocs.exampleResponse" content={doc.exampleResponse} language="json" />
       </div>
     </div>
   );
@@ -891,11 +837,12 @@ function InfoSection({
   content: any;
   language: string;
 }) {
+  const { t } = useTranslation("common");
   return (
     <>
       {content ? (
         <div className={`${title.toLowerCase().replace(" ", "-")}-info`}>
-          <h4>{title}:</h4>
+          <h4>{t(title)}:</h4>
           <pre>
             <Highlight className={language}>
               {typeof content === "string"

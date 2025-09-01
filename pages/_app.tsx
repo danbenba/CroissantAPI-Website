@@ -2,6 +2,7 @@ import "../styles/main.css";
 import "../styles/phone.css";
 import "../styles/atom-one-dark.min.css";
 import "../styles/rarity.css";
+// import '../styles/globals.css';
 
 import type { AppProps } from "next/app";
 import MetaLinks from "../components/common/MetaLinks";
@@ -20,6 +21,10 @@ import NavBarDesktop from "../components/common/NavBarDesktop";
 import NavBarMobile from "../components/common/NavBarMobile";
 import Login from "./login";
 import { LobbyProvider } from "../hooks/LobbyContext";
+import { appWithTranslation } from 'next-i18next';
+import { useRouter } from "next/router";
+import { I18nextProvider } from "react-i18next";
+import i18n from "../i18n";
 
 // --- Style constants ---
 const launcherMainStyle: React.CSSProperties = {
@@ -197,13 +202,20 @@ function AppContent({ Component, pageProps }: AppProps) {
     );
   };
 
+  // Ajoute ce bloc pour la 404 et fallback
+  const router = useRouter();
+  const locale = router.locale || "en";
+  if (!pageProps?.__N_SSG && !pageProps?.__N_SSP && !pageProps?._nextI18Next) {
+    i18n.changeLanguage(locale);
+  }
+
   if (isLauncher) {
     return user ? <LauncherLayout /> : <LauncherLogin />;
   }
   return <WebsiteLayout />;
 }
 
-export default function App(props: AppProps) {
+export function App(props: AppProps) {
   return (
     <ImageCacheProvider>
       <UserCacheProvider>
@@ -216,3 +228,5 @@ export default function App(props: AppProps) {
     </ImageCacheProvider>
   );
 }
+
+export default appWithTranslation(App);

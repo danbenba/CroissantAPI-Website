@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
 const containerStyle: React.CSSProperties = {
   maxWidth: 500,
@@ -339,11 +340,12 @@ function SecurityModal({
   router,
   linkText,
 }: any) {
+  const { t } = useTranslation("common");
   if (!open) return null;
   return (
     <div className="shop-prompt-overlay">
       <div className="shop-prompt">
-        <div className="shop-prompt-message">Security & Social Links</div>
+        <div className="shop-prompt-message">{t("title")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Steam */}
           {!user?.steam_id ? (
@@ -417,7 +419,7 @@ function SecurityModal({
               disabled={user?.isStudio}
             >
               <span className="fab fa-discord" style={{ fontSize: "22px" }} />
-              Link Discord
+              {t("linkDiscord")}
             </button>
           ) : (
             <button
@@ -487,7 +489,7 @@ function SecurityModal({
                   />
                 </g>
               </svg>
-              Link Google
+              {t("linkGoogle")}
             </button>
           ) : (
             <button
@@ -522,7 +524,7 @@ function SecurityModal({
             onClick={handleRegisterPasskey}
             disabled={passkeyLoading || !user}
           >
-            {passkeyLoading ? "Registering..." : "Register Passkey"}
+            {passkeyLoading ? t("registering") : t("registerPasskey")}
           </button>
           {passkeySuccess && (
             <div style={{ color: "#4caf50" }}>{passkeySuccess}</div>
@@ -544,7 +546,7 @@ function SecurityModal({
               onClick={() => setShowGoogleAuthModal(true)}
               disabled={!user}
             >
-              Setup Google Authenticator
+              {t("setupGoogleAuth")}
             </button>
           ) : (
             <button
@@ -575,7 +577,7 @@ function SecurityModal({
               }}
               disabled={!user}
             >
-              Delete Google Authenticator
+              {t("deleteGoogleAuth")}
             </button>
           )}
           {success && (
@@ -589,7 +591,7 @@ function SecurityModal({
             style={{ ...buttonStyle, background: "#444", marginTop: 16 }}
             onClick={onClose}
           >
-            Close
+            {t("close")}
           </button>
         </div>
       </div>
@@ -947,6 +949,8 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
   const [showGoogleAuthModal, setShowGoogleAuthModal] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
 
+  const { t } = useTranslation("common");
+
   useEffect(() => {
     if (typeof document == "undefined") return;
     setTimeout(() => {
@@ -1129,7 +1133,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
 
   return (
     <div className="container" style={containerStyle}>
-      <h2 style={{ marginBottom: 32 }}>Settings</h2>
+      <h2 style={{ marginBottom: 32 }}>{t("settings.title")}</h2>
       <button
         style={{
           position: "absolute",
@@ -1145,7 +1149,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
         onClick={() => setShowPasswordModal(true)}
         disabled={user?.isStudio}
         type="button"
-        title="Change password"
+        title={t("settings.changePassword")}
       >
         <i className="fas fa-key" aria-hidden="true" />
       </button>
@@ -1165,7 +1169,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
           }}
           onClick={() => setShowSecurityModal(true)}
           type="button"
-          title="Security & Social Links"
+          title={t("settings.securityLinks")}
         >
           <i className="fas fa-link" aria-hidden="true" />
         </button>
@@ -1177,7 +1181,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
             alt="Profile"
             style={avatarStyle}
             onClick={() => fileInputRef.current?.click()}
-            title="Change profile picture"
+            title={t("settings.profilePicture")}
           />
           <input
             type="file"
@@ -1193,7 +1197,9 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
               onClick={handleAvatarUpload}
               disabled={loading}
             >
-              {loading ? "Uploading..." : "Upload new picture"}
+              {loading
+                ? t("settings.uploading")
+                : t("settings.uploadNewPicture")}
             </button>
           )}
         </div>
@@ -1208,7 +1214,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
               marginBottom: 8,
             }}
           >
-            <label style={labelStyle}>Username</label>
+            <label style={labelStyle}>{t("settings.username")}</label>
             <input
               type="text"
               style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
@@ -1230,7 +1236,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
               }}
               disabled={usernameLoading}
             >
-              {usernameLoading ? "Saving..." : "Save"}
+              {usernameLoading ? t("settings.saving") : t("settings.save")}
             </button>
           </form>
 
@@ -1257,7 +1263,9 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
             textAlign: "center",
           }}
         >
-          <label style={{ ...labelStyle, alignSelf: "" }}>User ID</label>
+          <label style={{ ...labelStyle, alignSelf: "" }}>
+            {t("settings.userId")}
+          </label>
           <div
             style={{
               display: "flex",
@@ -1295,9 +1303,9 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
                 opacity: 0.7,
               }}
               onClick={() => navigator.clipboard.writeText(user.id || "")}
-              title="Copy User ID"
+              title={t("settings.copy")}
             >
-              Copy
+              {t("settings.copy")}
             </button>
           </div>
         </div>
@@ -1313,7 +1321,9 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
             textAlign: "center",
           }}
         >
-          <label style={{ ...labelStyle, alignSelf: "" }}>API Key</label>
+          <label style={{ ...labelStyle, alignSelf: "" }}>
+            {t("settings.apiKey")}
+          </label>
           <div
             style={{
               display: "flex",
@@ -1361,7 +1371,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
                 }}
                 onClick={() => setShowApiKey((v) => !v)}
               >
-                {showApiKey ? "Hide" : "Show"}
+                {showApiKey ? t("settings.hide") : t("settings.show")}
               </button>
               <button
                 type="button"
@@ -1377,12 +1387,12 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
                 onClick={() => navigator.clipboard.writeText(apiKey || "")}
                 disabled={!showApiKey}
               >
-                Copy
+                {t("settings.copy")}
               </button>
             </div>
           </div>
           <div style={{ fontSize: 13, color: "#aaa", marginTop: 4 }}>
-            This key allows you to use the API on your behalf.
+            {t("settings.thisKeyAllows")}
           </div>
         </div>
       )}
@@ -1488,6 +1498,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
     setShowSecurityModal,
     router,
   } = props;
+  const { t } = useTranslation("common");
 
   return (
     <div
@@ -1507,7 +1518,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
         fontSize: "0.98em",
       }}
     >
-      <h2 style={{ marginBottom: 18, fontSize: "1.2em" }}>Settings</h2>
+      <h2 style={{ marginBottom: 18, fontSize: "1.2em" }}>{t("title")}</h2>
       <button
         style={{
           position: "absolute",
@@ -1523,7 +1534,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
         onClick={() => setShowPasswordModal(true)}
         disabled={user?.isStudio}
         type="button"
-        title="Change password"
+        title={t("settings.changePassword")}
       >
         <i className="fas fa-key" aria-hidden="true" />
       </button>
@@ -1542,7 +1553,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
           }}
           onClick={() => setShowSecurityModal(true)}
           type="button"
-          title="Security & Social Links"
+          title={t("settings.securityLinks")}
         >
           <i className="fas fa-link" aria-hidden="true" />
         </button>
@@ -1567,7 +1578,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             border: "2px solid #444",
           }}
           onClick={() => fileInputRef.current?.click()}
-          title="Change profile picture"
+          title={t("settings.profilePicture")}
         />
         <input
           type="file"
@@ -1593,7 +1604,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             onClick={handleAvatarUpload}
             disabled={loading}
           >
-            {loading ? "Uploading..." : "Upload new picture"}
+            {loading ? t("settings.uploading") : t("settings.uploadNewPicture")}
           </button>
         )}
         <form
@@ -1608,7 +1619,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             width: "100%",
           }}
         >
-          <label style={{ fontWeight: 600, marginBottom: 2 }}>Username</label>
+          <label style={{ fontWeight: 600, marginBottom: 2 }}>
+            {t("settings.username")}
+          </label>
           <input
             type="text"
             style={{
@@ -1644,7 +1657,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             }}
             disabled={usernameLoading}
           >
-            {usernameLoading ? "Saving..." : "Save"}
+            {usernameLoading ? t("settings.saving") : t("settings.save")}
           </button>
         </form>
         {usernameSuccess && (
@@ -1667,7 +1680,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             textAlign: "center",
           }}
         >
-          <label style={{ ...labelStyle, alignSelf: "" }}>User ID</label>
+          <label style={{ ...labelStyle, alignSelf: "" }}>
+            {t("settings.userId")}
+          </label>
           <div
             style={{
               display: "flex",
@@ -1705,9 +1720,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
                 opacity: 0.7,
               }}
               onClick={() => navigator.clipboard.writeText(user.id || "")}
-              title="Copy User ID"
+              title={t("settings.copy")}
             >
-              Copy
+              {t("settings.copy")}
             </button>
           </div>
         </div>
@@ -1723,7 +1738,9 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
             textAlign: "center",
           }}
         >
-          <label style={{ fontWeight: 600, marginBottom: 2 }}>API Key</label>
+          <label style={{ fontWeight: 600, marginBottom: 2 }}>
+            {t("settings.apiKey")}
+          </label>
           <div
             style={{
               display: "flex",
@@ -1771,7 +1788,7 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
                 }}
                 onClick={() => setShowApiKey((v) => !v)}
               >
-                {showApiKey ? "Hide" : "Show"}
+                {showApiKey ? t("settings.hide") : t("settings.show")}
               </button>
               <button
                 type="button"
@@ -1787,12 +1804,12 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
                 onClick={() => navigator.clipboard.writeText(apiKey || "")}
                 disabled={!showApiKey}
               >
-                Copy
+                {t("settings.copy")}
               </button>
             </div>
           </div>
           <div style={{ fontSize: 12, color: "#aaa", marginTop: 4 }}>
-            This key allows you to use the API on your behalf.
+            {t("settings.thisKeyAllows")}
           </div>
         </div>
       )}

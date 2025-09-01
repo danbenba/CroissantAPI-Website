@@ -4,6 +4,7 @@ import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
 export interface EnrichedMarketListing {
     id: string;
@@ -176,10 +177,12 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
         handleItemSearch,
     } = props;
 
+    const { t } = useTranslation("common");
+
     return (
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2>Marketplace</h2>
+                <h2>{t("marketplace.title")}</h2>
                 <div style={{ display: "flex", gap: 12 }}>
                     <button
                         style={{
@@ -195,7 +198,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                         }}
                         onClick={() => setShowBuyOrderModal(true)}
                     >
-                        Place Buy Order
+                        {t("marketplace.placeBuyOrder")}
                     </button>
                     {user && (
                         <Link href="/my-buy-orders" style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>
@@ -211,24 +214,24 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                     cursor: "pointer"
                                 }}
                             >
-                                My Buy Orders
+                                {t("marketplace.myBuyOrders")}
                             </button>
                         </Link>
                     )}
                 </div>
             </div>
-            {loading && <div>Loading...</div>}
-            {error && <div style={{ color: "red" }}>{error}</div>}
-            {!loading && listings.length === 0 ? <div>No items available for sale.</div> : (
+            {loading && <div>{t("marketplace.loading")}</div>}
+            {error && <div style={{ color: "red" }}>{t("marketplace.error")}</div>}
+            {!loading && listings.length === 0 ? <div>{t("marketplace.noItems")}</div> : (
                 <div className="market-table-wrapper">
                     <table className="market-table">
                         <thead>
                             <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Seller</th>
-                                <th>Price</th>
-                                <th>Listed</th>
+                                <th>{t("marketplace.item")}</th>
+                                <th>{t("marketplace.description")}</th>
+                                <th>{t("marketplace.seller")}</th>
+                                <th>{t("marketplace.price")}</th>
+                                <th>{t("marketplace.listed")}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -307,7 +310,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                                 }}
                                                 onClick={() => handleBuy(listing)}
                                             >
-                                                Buy
+                                                {t("marketplace.buy")}
                                             </button>
                                         ) : (
                                             <span style={{ color: "#888" }}>—</span>
@@ -328,9 +331,9 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                     <div style={{
                         background: "#23272e", borderRadius: 12, padding: 32, minWidth: 340, boxShadow: "0 2px 16px #0008"
                     }}>
-                        <h3>Place Buy Order</h3>
+                        <h3>{t("marketplace.modalTitle")}</h3>
                         <div style={{ marginBottom: 12, position: "relative" }}>
-                            <label>Item&nbsp;
+                            <label>{t("marketplace.item")}&nbsp;
                                 <input
                                     type="text"
                                     value={buyOrderItemSearch}
@@ -343,7 +346,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                         if (buyOrderItemSearch.length > 1) setBuyOrderDropdownOpen(true);
                                     }}
                                     onBlur={() => setTimeout(() => setBuyOrderDropdownOpen(false), 150)}
-                                    placeholder="Search item by name..."
+                                    placeholder={t("marketplace.searchItem")}
                                     style={{ width: 180 }}
                                 />
                                 {buyOrderDropdownOpen && buyOrderItemResults.length > 0 && (
@@ -395,7 +398,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                             </label>
                         </div>
                         <div style={{ marginBottom: 12 }}>
-                            <label>Price&nbsp;
+                            <label>{t("marketplace.price")}&nbsp;
                                 <input type="number" min={1} value={buyOrderPrice} onChange={e => setBuyOrderPrice(Number(e.target.value))} style={{ width: 100 }} />
                             </label>
                         </div>
@@ -414,7 +417,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                 marginRight: 12
                             }}
                         >
-                            {placingOrder ? "Placing..." : "Confirm"}
+                            {placingOrder ? t("marketplace.placing") : t("marketplace.confirm")}
                         </button>
                         <button
                             onClick={() => setShowBuyOrderModal(false)}
@@ -429,7 +432,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                 cursor: "pointer"
                             }}
                         >
-                            Cancel
+                            {t("marketplace.cancel")}
                         </button>
                     </div>
                 </div>
@@ -545,10 +548,12 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
         handleItemSearch,
     } = props;
 
+    const { t } = useTranslation("common");
+
     return (
         <div style={{ maxWidth: 480, margin: "0 auto", padding: 8, fontSize: "0.98em" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
-                <h2 style={{ fontSize: "1.1em" }}>Marketplace</h2>
+                <h2 style={{ fontSize: "1.1em" }}>{t("marketplace.title")}</h2>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button
                         style={{
@@ -564,7 +569,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                         }}
                         onClick={() => setShowBuyOrderModal(true)}
                     >
-                        Place Buy Order
+                        {t("marketplace.placeBuyOrder")}
                     </button>
                     {user && (
                         <Link href="/my-buy-orders" style={{ color: "#fff", fontWeight: 600, fontSize: "1em" }}>
@@ -580,16 +585,16 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                     cursor: "pointer"
                                 }}
                             >
-                                My Buy Orders
+                                {t("marketplace.myBuyOrders")}
                             </button>
                         </Link>
                     )}
                 </div>
             </div>
-            {loading && <div>Loading...</div>}
-            {error && <div style={{ color: "red" }}>{error}</div>}
+            {loading && <div>{t("marketplace.loading")}</div>}
+            {error && <div style={{ color: "red" }}>{t("marketplace.error")}</div>}
             {!loading && listings.length === 0 ? (
-                <div>No items available for sale.</div>
+                <div>{t("marketplace.noItems")}</div>
             ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {listings.map(listing => (
@@ -697,7 +702,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                             }}
                                             onClick={() => handleBuy(listing)}
                                         >
-                                            Buy
+                                            {t("marketplace.buy")}
                                         </button>
                                     ) : (
                                         <span style={{ color: "#888" }}>—</span>
@@ -748,10 +753,10 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                 margin: "0 auto 12px auto",
                             }}
                         />
-                        <h3 style={{ fontSize: "1.08em", textAlign: "center", marginBottom: 14 }}>Place Buy Order</h3>
+                        <h3 style={{ fontSize: "1.08em", textAlign: "center", marginBottom: 14 }}>{t("marketplace.modalTitle")}</h3>
                         <div style={{ marginBottom: 12, position: "relative" }}>
                             <label style={{ fontWeight: 500, fontSize: "1em" }}>
-                                Item&nbsp;
+                                {t("marketplace.item")}&nbsp;
                                 <input
                                     type="text"
                                     value={buyOrderItemSearch}
@@ -764,7 +769,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                         if (buyOrderItemSearch.length > 1) setBuyOrderDropdownOpen(true);
                                     }}
                                     onBlur={() => setTimeout(() => setBuyOrderDropdownOpen(false), 150)}
-                                    placeholder="Search item by name..."
+                                    placeholder={t("marketplace.searchItem")}
                                     style={{
                                         width: "95%",
                                         fontSize: "1em",
@@ -827,7 +832,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                         </div>
                         <div style={{ marginBottom: 14 }}>
                             <label style={{ fontWeight: 500, fontSize: "1em" }}>
-                                Price&nbsp;
+                                {t("marketplace.price")}&nbsp;
                                 <input
                                     type="number"
                                     min={1}
@@ -862,7 +867,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                     flex: 1
                                 }}
                             >
-                                {placingOrder ? "Placing..." : "Confirm"}
+                                {placingOrder ? t("marketplace.placing") : t("marketplace.confirm")}
                             </button>
                             <button
                                 onClick={() => setShowBuyOrderModal(false)}
@@ -878,7 +883,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                                     flex: 1
                                 }}
                             >
-                                Cancel
+                                {t("marketplace.cancel")}
                             </button>
                         </div>
                         <style>

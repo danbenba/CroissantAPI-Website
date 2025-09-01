@@ -1,39 +1,34 @@
 import React from "react";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
-function NotFoundDesktop() {
+function NotFoundDesktop({ t }) {
   return (
     <main>
       <div className="container" style={{ maxWidth: 600, margin: "48px auto", padding: 32 }}>
-        <h2 style={{ fontSize: "2.2em", marginBottom: 12 }}>Oops! The page you are looking for does not exist.</h2>
+        <h2 style={{ fontSize: "2.2em", marginBottom: 12 }}>{t("404.title.desktop")}</h2>
         <div className="indent" style={{ marginBottom: 18 }}>
-          <p>
-            It seems that the page you were trying to reach is either
-            unavailable or does not exist.
-          </p>
-          <p>
-            Please check the URL for any mistakes or return to the homepage to
-            continue exploring our services.
-          </p>
+          <p>{t("404.desc1.desktop")}</p>
+          <p>{t("404.desc2.desktop")}</p>
         </div>
-        <h3 style={{ marginBottom: 8 }}>What can you do?</h3>
+        <h3 style={{ marginBottom: 8 }}>{t("404.whatcan.desktop")}</h3>
         <div className="indent">
-          <p>Try the following options:</p>
+          <p>{t("404.try.desktop")}</p>
           <ul>
             <li>
               <Link href="/" legacyBehavior>
-                <a>Return to Home</a>
+                <a>{t("404.home")}</a>
               </Link>
             </li>
             <li>
               <Link href="/contact" legacyBehavior>
-                <a>Contact Support</a>
+                <a>{t("404.contact")}</a>
               </Link>
             </li>
             <li>
               <Link href="/api-docs" legacyBehavior>
-                <a>View API Documentation</a>
+                <a>{t("404.api")}</a>
               </Link>
             </li>
           </ul>
@@ -43,7 +38,7 @@ function NotFoundDesktop() {
   );
 }
 
-function NotFoundMobile() {
+function NotFoundMobile({ t }) {
   return (
     <main>
       <div
@@ -60,31 +55,27 @@ function NotFoundMobile() {
         }}
       >
         <h2 style={{ fontSize: "1.2em", marginBottom: 10, textAlign: "center" }}>
-          Oops! Page not found.
+          {t("404.title.mobile")}
         </h2>
         <div className="indent" style={{ marginBottom: 12 }}>
-          <p style={{ marginBottom: 6 }}>
-            The page you tried to reach does not exist or is unavailable.
-          </p>
-          <p style={{ marginBottom: 0 }}>
-            Please check the URL or use one of the options below.
-          </p>
+          <p style={{ marginBottom: 6 }}>{t("404.desc1.mobile")}</p>
+          <p style={{ marginBottom: 0 }}>{t("404.desc2.mobile")}</p>
         </div>
         <div className="indent" style={{ marginTop: 10 }}>
           <ul style={{ paddingLeft: 18, marginBottom: 0 }}>
             <li style={{ marginBottom: 6 }}>
               <Link href="/" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>Return to Home</a>
+                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.home")}</a>
               </Link>
             </li>
             <li style={{ marginBottom: 6 }}>
               <Link href="/contact" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>Contact Support</a>
+                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.contact")}</a>
               </Link>
             </li>
             <li>
               <Link href="/api-docs" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>API Documentation</a>
+                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.api.mobile")}</a>
               </Link>
             </li>
           </ul>
@@ -95,6 +86,7 @@ function NotFoundMobile() {
 }
 
 export default function NotFoundPage() {
+  const { t } = useTranslation("common");
   const isMobile = useIsMobile();
-  return isMobile ? <NotFoundMobile /> : <NotFoundDesktop />;
+  return isMobile ? <NotFoundMobile t={t} /> : <NotFoundDesktop t={t} />;
 }

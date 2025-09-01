@@ -6,6 +6,7 @@ import router, { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
 import Certification from "../components/common/Certification";
+import { useTranslation } from "next-i18next";
 
 const ENDPOINT = "/api";
 
@@ -239,6 +240,8 @@ function ShopDesktop(props: any) {
     ownerInfoMap,
   } = props;
 
+  const { t } = useTranslation("common");
+
   // Shop skeleton cards for loading
   const skeletons = useMemo(
     () =>
@@ -333,9 +336,9 @@ function ShopDesktop(props: any) {
             </div>
           </div>
         )}
-        {error && <div className="shop-error">{error}</div>}
+        {error && <div className="shop-error">{t("shop.error")}</div>}
         {games.length === 0 && !loading && !error && (
-          <div className="shop-games-empty">No games available.</div>
+          <div className="shop-games-empty">{t("shop.noGames")}</div>
         )}
         {!loading && (
           <div
@@ -539,13 +542,13 @@ function ShopDesktop(props: any) {
               className="shop-prompt-buy-btn"
               onClick={() => handlePromptResult(true)}
             >
-              Buy
+              {t("shop.buy")}
             </button>
             <button
               className="shop-prompt-cancel-btn"
               onClick={() => handlePromptResult(false)}
             >
-              Cancel
+              {t("shop.cancel")}
             </button>
           </div>
         </div>
@@ -559,7 +562,7 @@ function ShopDesktop(props: any) {
               className="shop-alert-ok-btn"
               onClick={() => setAlert(null)}
             >
-              OK
+              {t("shop.ok")}
             </button>
           </div>
         </div>
@@ -584,6 +587,8 @@ function ShopMobile(props: any) {
   } = props;
 
   const { skeletons, handlePromptResult } = props;
+  const { t } = useTranslation("common");
+
   return (
     <div className="shop-root">
       <div
@@ -618,9 +623,9 @@ function ShopMobile(props: any) {
             </div>
           </div>
         )}
-        {error && <div className="shop-error">{error}</div>}
+        {error && <div className="shop-error">{t("shop.error")}</div>}
         {games.length === 0 && !loading && !error && (
-          <div className="shop-games-empty">No games available.</div>
+          <div className="shop-games-empty">{t("shop.noGames")}</div>
         )}
         {!loading && (
           <div
@@ -818,13 +823,13 @@ function ShopMobile(props: any) {
               className="shop-prompt-buy-btn"
               onClick={() => handlePromptResult(true)}
             >
-              Buy
+              {t("shop.buy")}
             </button>
             <button
               className="shop-prompt-cancel-btn"
               onClick={() => handlePromptResult(false)}
             >
-              Cancel
+              {t("shop.cancel")}
             </button>
           </div>
         </div>
@@ -838,7 +843,7 @@ function ShopMobile(props: any) {
               className="shop-alert-ok-btn"
               onClick={() => setAlert(null)}
             >
-              OK
+              {t("shop.ok")}
             </button>
           </div>
         </div>

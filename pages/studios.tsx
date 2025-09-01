@@ -3,8 +3,10 @@ import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import Certification from "../components/common/Certification";
+import { useTranslation } from "next-i18next";
 
 export default function StudiosPage() {
+  const { t } = useTranslation("common");
   const { user, token, setUser } = useAuth();
   const router = useRouter();
   const [studioName, setStudioName] = useState("");
@@ -75,7 +77,7 @@ export default function StudiosPage() {
   };
 
   const handleRemoveUser = async (studioId: string, userId: string) => {
-    if (!confirm("Are you sure you want to remove this user?")) return;
+    if (!confirm(t("studios.removeUserConfirm"))) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/studios/${studioId}/remove-user`, {
@@ -87,14 +89,14 @@ export default function StudiosPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        alert(data.message || "Error removing user");
+        alert(data.message || t("studios.errorRemoveUser"));
       } else {
         // Refresh page or update user context
         // window.location.reload();
         refreshStudiosList();
       }
     } catch (err) {
-      alert("Error removing user");
+      alert(t("studios.errorRemoveUser"));
     } finally {
       setLoading(false);
     }
@@ -159,7 +161,7 @@ export default function StudiosPage() {
           alignItems: "center",
         }}
       >
-        <h2 style={{ marginBottom: 18 }}>My studios</h2>
+        <h2 style={{ marginBottom: 18 }}>{t("studios.title")}</h2>
         <button
           onClick={() => setShowForm(true)}
           style={{
@@ -176,7 +178,7 @@ export default function StudiosPage() {
             top: "12px",
           }}
         >
-          + Create a studio
+          {t("studios.create")}
         </button>
       </div>
       {showForm && (
@@ -224,13 +226,13 @@ export default function StudiosPage() {
             >
               &times;
             </button>
-            <h3 style={{ marginBottom: 18 }}>Create a studio</h3>
+            <h3 style={{ marginBottom: 18 }}>{t("studios.createTitle")}</h3>
             <form onSubmit={handleCreateStudio}>
               <input
                 type="text"
                 value={studioName}
                 onChange={(e) => setStudioName(e.target.value)}
-                placeholder="Studio name"
+                placeholder={t("studios.studioNamePlaceholder")}
                 required
                 style={{
                   marginRight: 8,
@@ -259,7 +261,7 @@ export default function StudiosPage() {
                     cursor: "pointer",
                   }}
                 >
-                  Create
+                  {t("studios.createBtn")}
                 </button>
                 <button
                   type="button"
@@ -274,11 +276,13 @@ export default function StudiosPage() {
                     cursor: "pointer",
                   }}
                 >
-                  Cancel
+                  {t("studios.cancelBtn")}
                 </button>
               </div>
               {error && (
-                <div style={{ color: "red", marginTop: 12 }}>{error}</div>
+                <div style={{ color: "red", marginTop: 12 }}>
+                  {t("studios.errorCreate")}
+                </div>
               )}
             </form>
           </div>
@@ -345,7 +349,7 @@ export default function StudiosPage() {
                     className="studio-card-meta"
                     style={{ fontSize: 13, color: "#aaa" }}
                   >
-                    <span>Users:</span>
+                    <span>{t("studios.users")}</span>
                     <ul>
                       {studio.users && studio.users.length > 0 ? (
                         studio.users.map((user: any) => (
@@ -406,12 +410,12 @@ export default function StudiosPage() {
                           </li>
                         ))
                       ) : (
-                        <li>No users</li>
+                        <li>{t("studios.noUsers")}</li>
                       )}
                     </ul>
                     <div>
                       <span>
-                        API Key:{" "}
+                        {t("studios.apiKey")}:{" "}
                         {apiKeySpoilers[studio.user_id] ? (
                           <code
                             style={{
@@ -474,7 +478,9 @@ export default function StudiosPage() {
                           }}
                           onClick={() => toggleApiKeySpoiler(studio.user_id)}
                         >
-                          {apiKeySpoilers[studio.user_id] ? "Hide" : "Show"}
+                          {apiKeySpoilers[studio.user_id]
+                            ? t("studios.hide")
+                            : t("studios.show")}
                         </button>
                         <button
                           type="button"
@@ -492,7 +498,7 @@ export default function StudiosPage() {
                             navigator.clipboard.writeText(studio.apiKey)
                           }
                         >
-                          Copy
+                          {t("studios.copy")}
                         </button>
                       </span>
                     </div>
@@ -518,7 +524,7 @@ export default function StudiosPage() {
                         setAddUserError(null);
                       }}
                     >
-                      + Add user
+                      {t("studios.addUser")}
                     </button>
                   </div>
                   {/* Add more info if needed */}
@@ -527,7 +533,7 @@ export default function StudiosPage() {
           )
         ) : (
           <div style={{ color: "#aaa", fontSize: 16, gridColumn: "1/-1" }}>
-            You don't have any studios yet.
+            {t("studios.noStudios")}
           </div>
         )}
       </div>
@@ -577,7 +583,7 @@ export default function StudiosPage() {
             >
               &times;
             </button>
-            <h3 style={{ marginBottom: 18 }}>Add user to studio</h3>
+            <h3 style={{ marginBottom: 18 }}>{t("studios.addUserTitle")}</h3>
             <form
               autoComplete="off"
               onSubmit={(e) => {
@@ -604,7 +610,7 @@ export default function StudiosPage() {
                   onBlur={() =>
                     setTimeout(() => setAddUserDropdownOpen(false), 150)
                   }
-                  placeholder="Search user by name..."
+                  placeholder={t("studios.searchUserPlaceholder")}
                   style={{
                     marginRight: 8,
                     padding: "10px 12px",
@@ -685,7 +691,7 @@ export default function StudiosPage() {
                     cursor: addUserId ? "pointer" : "not-allowed",
                   }}
                 >
-                  Add
+                  {t("studios.addBtn")}
                 </button>
                 <button
                   type="button"
@@ -700,12 +706,12 @@ export default function StudiosPage() {
                     cursor: "pointer",
                   }}
                 >
-                  Cancel
+                  {t("studios.cancelBtn")}
                 </button>
               </div>
               {addUserError && (
                 <div style={{ color: "red", marginTop: 12 }}>
-                  {addUserError}
+                  {t("studios.errorAddUser")}
                 </div>
               )}
             </form>

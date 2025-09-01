@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
 // Style constants
 const containerStyle: React.CSSProperties = {
@@ -116,13 +117,15 @@ function LoginDesktop(props: any) {
     handleAuthenticatorSubmit, setShowAuthenticatorModal, setAuthenticatorError, setPendingUserId
   } = props;
 
+  const { t } = useTranslation("common");
+
   return (
     <div className="container" style={containerStyle}>
-      <h2 style={titleStyle}>Login</h2>
+      <h2 style={titleStyle}>{t("login.title")}</h2>
       <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleLogin}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Email
+            {t("login.email")}
           </label>
           <input
             type="email"
@@ -143,7 +146,7 @@ function LoginDesktop(props: any) {
         </div>
         <div style={{ marginBottom: 8 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Password
+            {t("login.password")}
           </label>
           <input
             type="password"
@@ -178,7 +181,7 @@ function LoginDesktop(props: any) {
           }}
           disabled={loginLoading}
         >
-          {loginLoading ? "Logging in..." : "Login"}
+          {loginLoading ? t("login.loggingIn") : t("login.login")}
         </button>
         {loginError && (
           <div style={{ color: "#ff5252", marginTop: 12 }}>{loginError}</div>
@@ -204,7 +207,7 @@ function LoginDesktop(props: any) {
             alignSelf: "flex-start",
           }}
         >
-          Forgot password?
+          {t("login.forgotPassword")}
         </Link>
         <Link
           href="/register"
@@ -214,7 +217,7 @@ function LoginDesktop(props: any) {
             alignSelf: "flex-start",
           }}
         >
-          Register
+          {t("login.register")}
         </Link>
       </div>
       {/* Separator */}
@@ -229,7 +232,7 @@ function LoginDesktop(props: any) {
         }}
       >
         <div style={{ flex: 1, height: 1, background: "#444" }} />
-        <span style={{ color: "#888", fontSize: 14 }}>or</span>
+        <span style={{ color: "#888", fontSize: 14 }}>{t("login.or")}</span>
         <div style={{ flex: 1, height: 1, background: "#444" }} />
       </div>
       {/* OAuth buttons */}
@@ -239,7 +242,7 @@ function LoginDesktop(props: any) {
           style={discordIconStyle}
           aria-hidden="true"
         />
-        Sign in with Discord
+        {t("login.signInWithDiscord")}
       </button>
       <button style={googleBtnStyle} onClick={handleGoogle}>
         <span style={googleIconSpanStyle}>
@@ -264,7 +267,7 @@ function LoginDesktop(props: any) {
             </g>
           </svg>
         </span>
-        Sign in with Google
+        {t("login.signInWithGoogle")}
       </button>
       <div style={{ width: "260px", maxWidth: 340, marginTop: 8 }}>
         <button
@@ -273,7 +276,7 @@ function LoginDesktop(props: any) {
           onClick={handlePasskeyLogin}
           disabled={passkeyLoading}
         >
-          {passkeyLoading ? "Authenticating..." : "Login with Passkey"}
+          {passkeyLoading ? t("login.authenticating") : t("login.passkey")}
         </button>
         {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
       </div>
@@ -295,7 +298,7 @@ function LoginDesktop(props: any) {
             minWidth: 320,
             color: "#fff"
           }}>
-            <h3 style={{ marginBottom: 16 }}>Enter Google Authenticator Code</h3>
+            <h3 style={{ marginBottom: 16 }}>{t("login.enterAuthenticator")}</h3>
             <form onSubmit={handleAuthenticatorSubmit}>
               <input
                 type="text"
@@ -311,7 +314,7 @@ function LoginDesktop(props: any) {
                   fontSize: 16,
                   marginBottom: 12,
                 }}
-                placeholder="6-digit code"
+                placeholder={t("login.codePlaceholder")}
                 autoFocus
                 required
               />
@@ -330,10 +333,10 @@ function LoginDesktop(props: any) {
                   marginBottom: 8,
                 }}
               >
-                Verify
+                {t("login.verify")}
               </button>
               {authenticatorError && (
-                <div style={{ color: "#ff5252", marginTop: 8 }}>{authenticatorError}</div>
+                <div style={{ color: "#ff5252", marginTop: 8 }}>{t("login.authenticatorError")}</div>
               )}
             </form>
             <button
@@ -357,13 +360,13 @@ function LoginDesktop(props: any) {
                 setPendingUserId(null);
               }}
             >
-              Cancel
+              {t("login.cancel")}
             </button>
           </div>
         </div>
       )}
       <div style={infoTextStyle}>
-        You will be redirected automatically after login.
+        {t("login.redirectInfo")}
       </div>
     </div>
   );
@@ -377,13 +380,15 @@ function LoginMobile(props: any) {
     handleAuthenticatorSubmit, setShowAuthenticatorModal, setAuthenticatorError, setPendingUserId
   } = props;
 
+  const { t } = useTranslation("common");
+
   return (
     <div className="container" style={containerMobileStyle}>
-      <h2 style={titleMobileStyle}>Login</h2>
+      <h2 style={titleMobileStyle}>{t("login.title")}</h2>
       <form style={{ width: "280px", maxWidth: 300 }} onSubmit={handleLogin}>
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontWeight: 600, marginBottom: 4, display: "block" }}>
-            Email
+            {t("login.email")}
           </label>
           <input
             type="email"
@@ -404,7 +409,7 @@ function LoginMobile(props: any) {
         </div>
         <div style={{ marginBottom: 8 }}>
           <label style={{ fontWeight: 600, marginBottom: 4, display: "block" }}>
-            Password
+            {t("login.password")}
           </label>
           <input
             type="password"
@@ -439,7 +444,7 @@ function LoginMobile(props: any) {
           }}
           disabled={loginLoading}
         >
-          {loginLoading ? "Logging in..." : "Login"}
+          {loginLoading ? t("login.loggingIn") : t("login.login")}
         </button>
         {loginError && (
           <div style={{ color: "#ff5252", marginTop: 10 }}>{loginError}</div>
@@ -465,7 +470,7 @@ function LoginMobile(props: any) {
             alignSelf: "flex-start",
           }}
         >
-          Forgot password?
+          {t("login.forgotPassword")}
         </Link>
         <Link
           href="/register"
@@ -475,7 +480,7 @@ function LoginMobile(props: any) {
             alignSelf: "flex-start",
           }}
         >
-          Register
+          {t("login.register")}
         </Link>
       </div>
       {/* Separator */}
@@ -490,7 +495,7 @@ function LoginMobile(props: any) {
         }}
       >
         <div style={{ flex: 1, height: 1, background: "#444" }} />
-        <span style={{ color: "#888", fontSize: 13 }}>or</span>
+        <span style={{ color: "#888", fontSize: 13 }}>{t("login.or")}</span>
         <div style={{ flex: 1, height: 1, background: "#444" }} />
       </div>
       {/* OAuth buttons */}
@@ -500,7 +505,7 @@ function LoginMobile(props: any) {
           style={discordIconStyle}
           aria-hidden="true"
         />
-        Sign in with Discord
+        {t("login.signInWithDiscord")}
       </button>
       <button style={googleBtnMobileStyle} onClick={handleGoogle}>
         <span style={googleIconSpanStyle}>
@@ -525,7 +530,7 @@ function LoginMobile(props: any) {
             </g>
           </svg>
         </span>
-        Sign in with Google
+        {t("login.signInWithGoogle")}
       </button>
       <div style={{ width: "280px", maxWidth: 300, marginTop: 8 }}>
         <button
@@ -534,7 +539,7 @@ function LoginMobile(props: any) {
           onClick={handlePasskeyLogin}
           disabled={passkeyLoading}
         >
-          {passkeyLoading ? "Authenticating..." : "Login with Passkey"}
+          {passkeyLoading ? t("login.authenticating") : t("login.passkey")}
         </button>
         {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
       </div>
@@ -556,7 +561,7 @@ function LoginMobile(props: any) {
             minWidth: 220,
             color: "#fff"
           }}>
-            <h3 style={{ marginBottom: 12, fontSize: "1.08em" }}>Enter Google Authenticator Code</h3>
+            <h3 style={{ marginBottom: 12, fontSize: "1.08em" }}>{t("login.enterAuthenticator")}</h3>
             <form onSubmit={handleAuthenticatorSubmit}>
               <input
                 type="text"
@@ -572,7 +577,7 @@ function LoginMobile(props: any) {
                   fontSize: 15,
                   marginBottom: 10,
                 }}
-                placeholder="6-digit code"
+                placeholder={t("login.codePlaceholder")}
                 autoFocus
                 required
               />
@@ -591,10 +596,10 @@ function LoginMobile(props: any) {
                   marginBottom: 8,
                 }}
               >
-                Verify
+                {t("login.verify")}
               </button>
               {authenticatorError && (
-                <div style={{ color: "#ff5252", marginTop: 8 }}>{authenticatorError}</div>
+                <div style={{ color: "#ff5252", marginTop: 8 }}>{t("login.authenticatorError")}</div>
               )}
             </form>
             <button
@@ -618,13 +623,13 @@ function LoginMobile(props: any) {
                 setPendingUserId(null);
               }}
             >
-              Cancel
+              {t("login.cancel")}
             </button>
           </div>
         </div>
       )}
       <div style={infoTextMobileStyle}>
-        You will be redirected automatically after login.
+        {t("login.redirectInfo")}
       </div>
     </div>
   );

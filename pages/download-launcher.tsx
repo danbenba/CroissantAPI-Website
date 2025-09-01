@@ -1,8 +1,10 @@
 import React from "react";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation, Trans } from "next-i18next";
 
 function DownloadLauncherDesktop() {
+  const { t } = useTranslation("common");
   return (
     <div
       className="container"
@@ -16,34 +18,29 @@ function DownloadLauncherDesktop() {
       }}
     >
       <h1 id="about-us">
-        <span className="method put">Download the Launcher</span>
+        <span className="method put">{t("downloadLauncher.title")}</span>
       </h1>
-      <p>To download the Croissant launcher:</p>
+      <p>{t("downloadLauncher.instructions")}</p>
       <ol>
         <li>
-          Go to the{" "}
-          <a
-            href="https://github.com/croissant-API/Launcher/releases/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            releases page
-          </a>{" "}
-          on the Croissant API GitHub repository.
+          <Trans
+            i18nKey="downloadLauncher.step1"
+            components={{
+              link: (
+                <a
+                  href="https://github.com/croissant-API/Launcher/releases/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              ),
+            }}
+          />
         </li>
-        <li>Find the latest release.</li>
-        <li>
-          Download the appropriate executable file for your operating system
-          (e.g., <code>.exe</code> for Windows).
-        </li>
-        <li>Run the executable to install the launcher.</li>
+        <li>{t("downloadLauncher.step2")}</li>
+        <li>{t("downloadLauncher.step3")}</li>
+        <li>{t("downloadLauncher.step4")}</li>
       </ol>
-      <p>
-        The Croissant launcher is important because it allows you to easily
-        access and manage your Croissant account and items, discover and
-        launch games, and automatically stay updated with the latest
-        platform features.
-      </p>
+      <p>{t("downloadLauncher.description.desktop")}</p>
       <CachedImage
         src="/assets/launcher.png"
         alt="Croissant Launcher Screenshot"
@@ -54,6 +51,7 @@ function DownloadLauncherDesktop() {
 }
 
 function DownloadLauncherMobile() {
+  const { t } = useTranslation("common");
   return (
     <div
       className="container"
@@ -68,35 +66,32 @@ function DownloadLauncherMobile() {
       }}
     >
       <h2 id="about-us" style={{ fontSize: "1.1em" }}>
-        <span className="method put">Download the Launcher</span>
+        <span className="method put">{t("downloadLauncher.title")}</span>
       </h2>
       <p>
-        <b>Note:</b> The Croissant launcher is only available for PC (Windows).
+        <b>{t("downloadLauncher.note")}</b>
       </p>
-      <p>To download the Croissant launcher:</p>
+      <p>{t("downloadLauncher.instructions")}</p>
       <ol>
         <li>
-          Go to the{" "}
-          <a
-            href="https://github.com/croissant-API/Launcher/releases/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            releases page
-          </a>{" "}
-          on the Croissant API GitHub repository.
+          <Trans
+            i18nKey="downloadLauncher.step1"
+            components={{
+              link: (
+                <a
+                  href="https://github.com/croissant-API/Launcher/releases/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              ),
+            }}
+          />
         </li>
-        <li>Find the latest release.</li>
-        <li>
-          Download the <code>.exe</code> file for Windows.
-        </li>
-        <li>Run the executable to install the launcher.</li>
+        <li>{t("downloadLauncher.step2")}</li>
+        <li>{t("downloadLauncher.step3.windows")}</li>
+        <li>{t("downloadLauncher.step4")}</li>
       </ol>
-      <p>
-        The Croissant launcher lets you manage your Croissant account and items,
-        discover and launch games, and always stay updated with the latest
-        features.
-      </p>
+      <p>{t("downloadLauncher.description.mobile")}</p>
       <CachedImage
         src="/assets/launcher.png"
         alt="Croissant Launcher Screenshot"

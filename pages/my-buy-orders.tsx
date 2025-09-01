@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import CachedImage from "../components/utils/CachedImage";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
 interface BuyOrder {
     id: string;
@@ -92,28 +93,31 @@ function useMyBuyOrdersLogic() {
 
 function MyBuyOrdersDesktop(props: ReturnType<typeof useMyBuyOrdersLogic>) {
     const { user, userLoading, orders, loading, error, itemDetails, handleCancel } = props;
+    const { t } = useTranslation("common");
 
-    if (userLoading) return <div>Loading...</div>;
-    if (!user) return <div>You must be logged in to view your buy orders.</div>;
+    if (userLoading) return <div>{t("myBuyOrders.loading")}</div>;
+    if (!user) return <div>{t("myBuyOrders.mustLogin")}</div>;
 
     return (
         <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2>My Buy Orders</h2>
-                <Link href="/marketplace" style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>← Back to Marketplace</Link>
+                <h2>{t("myBuyOrders.title")}</h2>
+                <Link href="/marketplace" style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>
+                    {t("myBuyOrders.back")}
+                </Link>
             </div>
-            {loading && <div>Loading...</div>}
+            {loading && <div>{t("myBuyOrders.loading")}</div>}
             {error && <div style={{ color: "red" }}>{error}</div>}
-            {!loading && orders.length === 0 && <div>No buy orders placed.</div>}
+            {!loading && orders.length === 0 && <div>{t("myBuyOrders.noOrders")}</div>}
             <div className="market-table-wrapper">
                 <table className="market-table">
                     <thead>
                         <tr>
-                            <th>Item</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Placed</th>
+                            <th>{t("myBuyOrders.item")}</th>
+                            <th>{t("myBuyOrders.description")}</th>
+                            <th>{t("myBuyOrders.price")}</th>
+                            <th>{t("myBuyOrders.status")}</th>
+                            <th>{t("myBuyOrders.placed")}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -148,7 +152,7 @@ function MyBuyOrdersDesktop(props: ReturnType<typeof useMyBuyOrdersLogic>) {
                                                     cursor: "pointer"
                                                 }}
                                             >
-                                                Cancel
+                                                {t("myBuyOrders.cancel")}
                                             </button>
                                         ) : (
                                             <span style={{ color: "#888" }}>—</span>
@@ -249,22 +253,23 @@ function MyBuyOrdersDesktop(props: ReturnType<typeof useMyBuyOrdersLogic>) {
 
 function MyBuyOrdersMobile(props: ReturnType<typeof useMyBuyOrdersLogic>) {
     const { user, userLoading, orders, loading, error, itemDetails, handleCancel } = props;
+    const { t } = useTranslation("common");
 
-    if (userLoading) return <div>Loading...</div>;
-    if (!user) return <div>You must be logged in to view your buy orders.</div>;
+    if (userLoading) return <div>{t("myBuyOrders.loading")}</div>;
+    if (!user) return <div>{t("myBuyOrders.mustLogin")}</div>;
 
     return (
         <div style={{ maxWidth: 480, margin: "0 auto", padding: 8, fontSize: "0.98em" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
-                <h2 style={{ fontSize: "1.1em" }}>My Buy Orders</h2>
+                <h2 style={{ fontSize: "1.1em" }}>{t("myBuyOrders.title")}</h2>
                 <Link href="/marketplace" style={{ color: "#fff", fontWeight: 600, fontSize: "1em" }}>
-                    ← Back to Marketplace
+                    {t("myBuyOrders.back")}
                 </Link>
             </div>
-            {loading && <div>Loading...</div>}
+            {loading && <div>{t("myBuyOrders.loading")}</div>}
             {error && <div style={{ color: "red" }}>{error}</div>}
             {!loading && orders.length === 0 ? (
-                <div>No buy orders placed.</div>
+                <div>{t("myBuyOrders.noOrders")}</div>
             ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {orders.map(order => {
@@ -330,7 +335,7 @@ function MyBuyOrdersMobile(props: ReturnType<typeof useMyBuyOrdersLogic>) {
                                                     cursor: "pointer"
                                                 }}
                                             >
-                                                Cancel
+                                                {t("myBuyOrders.cancel")}
                                             </button>
                                         ) : (
                                             <span style={{ color: "#888" }}>—</span>

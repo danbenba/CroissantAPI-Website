@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
+import { useTranslation } from "next-i18next";
 
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
@@ -49,14 +50,15 @@ const infoTextMobileStyle: React.CSSProperties = {
 };
 
 function ForgotPasswordDesktop(props: any) {
+  const { t } = useTranslation("common");
   const { email, setEmail, loading, error, success, handleSubmit } = props;
   return (
     <div className="container" style={containerStyle}>
-      <h2 style={titleStyle}>Forgot Password</h2>
+      <h2 style={titleStyle}>{t("forgotPassword.title")}</h2>
       <form style={{ width: "260px", maxWidth: 340 }} onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: 600, marginBottom: 6, display: "block" }}>
-            Email
+            {t("forgotPassword.emailLabel")}
           </label>
           <input
             type="email"
@@ -91,13 +93,17 @@ function ForgotPasswordDesktop(props: any) {
           }}
           disabled={loading}
         >
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? t("forgotPassword.sending") : t("forgotPassword.send")}
         </button>
         {error && (
-          <div style={{ color: "#ff5252", marginTop: 12 }}>{error}</div>
+          <div style={{ color: "#ff5252", marginTop: 12 }}>
+            {t("forgotPassword.error")}
+          </div>
         )}
         {success && (
-          <div style={{ color: "#4caf50", marginTop: 12 }}>{success}</div>
+          <div style={{ color: "#4caf50", marginTop: 12 }}>
+            {t("forgotPassword.success")}
+          </div>
         )}
       </form>
       <div
@@ -108,8 +114,7 @@ function ForgotPasswordDesktop(props: any) {
           textAlign: "center",
         }}
       >
-        Enter your email address and we'll send you a link to reset your
-        password.
+        {t("forgotPassword.info")}
       </div>
       <div
         style={{
@@ -126,7 +131,7 @@ function ForgotPasswordDesktop(props: any) {
             href="/login"
             style={{ color: "#8ab4f8", textDecoration: "none" }}
           >
-            I just remembered my password
+            {t("forgotPassword.remembered")}
           </Link>
         </span>
       </div>
@@ -135,14 +140,15 @@ function ForgotPasswordDesktop(props: any) {
 }
 
 function ForgotPasswordMobile(props: any) {
+  const { t } = useTranslation("common");
   const { email, setEmail, loading, error, success, handleSubmit } = props;
   return (
     <div className="container" style={containerMobileStyle}>
-      <h2 style={titleMobileStyle}>Forgot Password</h2>
+      <h2 style={titleMobileStyle}>{t("forgotPassword.title")}</h2>
       <form style={{ width: "100%", maxWidth: 300 }} onSubmit={handleSubmit}>
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontWeight: 600, marginBottom: 4, display: "block" }}>
-            Email
+            {t("forgotPassword.emailLabel")}
           </label>
           <input
             type="email"
@@ -177,13 +183,17 @@ function ForgotPasswordMobile(props: any) {
           }}
           disabled={loading}
         >
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? t("forgotPassword.sending") : t("forgotPassword.send")}
         </button>
         {error && (
-          <div style={{ color: "#ff5252", marginTop: 10 }}>{error}</div>
+          <div style={{ color: "#ff5252", marginTop: 10 }}>
+            {t("forgotPassword.error")}
+          </div>
         )}
         {success && (
-          <div style={{ color: "#4caf50", marginTop: 10 }}>{success}</div>
+          <div style={{ color: "#4caf50", marginTop: 10 }}>
+            {t("forgotPassword.success")}
+          </div>
         )}
       </form>
       <div
@@ -194,8 +204,7 @@ function ForgotPasswordMobile(props: any) {
           textAlign: "center",
         }}
       >
-        Enter your email address and we'll send you a link to reset your
-        password.
+        {t("forgotPassword.info")}
       </div>
       <div
         style={{
@@ -212,7 +221,7 @@ function ForgotPasswordMobile(props: any) {
             href="/login"
             style={{ color: "#8ab4f8", textDecoration: "none" }}
           >
-            I just remembered my password
+            {t("forgotPassword.remembered")}
           </Link>
         </span>
       </div>
