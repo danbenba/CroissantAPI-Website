@@ -514,5 +514,11 @@
   "inventory.yes": "Yes",
   "inventory.no": "No",
   "inventory.loading": "Loading...",
-  "inventory.error": "Error: {{error}}"
+  "inventory.error": "Error: {{error}}",
+
+  "profile.inventoryTitle": "Inventory",
+  "profile.creatorLabel": "Creator:",
+  "profile.stockLabel": "Stock:",
+  "profile.totalLabel": "Total:",
+  "profile.disabledLabel": "(Disabled)"
 }

@@ -514,5 +514,11 @@
   "inventory.yes": "Ja",
   "inventory.no": "Nein",
   "inventory.loading": "Lädt...",
-  "inventory.error": "Fehler: {{error}}"
+  "inventory.error": "Fehler: {{error}}",
+
+  "profile.inventoryTitle": "Inventar",
+  "profile.creatorLabel": "Creator:",
+  "profile.stockLabel": "Bestand:",
+  "profile.totalLabel": "Gesamt:",
+  "profile.disabledLabel": "(Deaktiviert)"
 }

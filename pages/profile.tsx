@@ -380,13 +380,13 @@ function ProfileShop({
                     />
                     {prompt.item.stock !== undefined && (
                       <span className="shop-prompt-item-stock">
-                        Stock: {prompt.item.stock}
+                        {t("profile.stockLabel")}: {prompt.item.stock}
                       </span>
                     )}
                   </div>
                   {(prompt.item as any).owner && promptOwnerUser && (
                     <div className="shop-prompt-item-owner">
-                      Creator:{" "}
+                      {t("profile.creatorLabel")}{" "}
                       <Link
                         href={`/profile?user=${(prompt.item as any).owner}`}
                         className="shop-prompt-owner-link"
@@ -434,7 +434,8 @@ function ProfileShop({
                 )}
                 {prompt.item && (
                   <span className="shop-prompt-amount-total">
-                    Total: {(prompt.amount || 1) * (prompt.item.price || 0)}
+                    {t("profile.totalLabel")}{" "}
+                    {(prompt.amount || 1) * (prompt.item.price || 0)}
                     <CachedImage
                       src="/assets/credit.png"
                       className="shop-credit-icon"
@@ -828,7 +829,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                   />
                   {profile.disabled ? (
                     <span style={{ color: "red", marginLeft: 8 }}>
-                      {t("profile.disabled")}
+                      {t("profile.disabledLabel")}
                     </span>
                   ) : null}
                 </div>
@@ -946,7 +947,9 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
       >
         <div style={{ flex: "0 0 70%" }}>
           <div className="profile-shop-section">
-            <h2 className="profile-inventory-title">Inventory</h2>
+            <h2 className="profile-inventory-title">
+              {t("profile.inventoryTitle")}
+            </h2>
             {/* Pass inventoryReloadFlag as a prop */}
             <Inventory
               profile={{
@@ -1168,7 +1171,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
               }}
             />
             {profile.disabled ? (
-              <span style={{ color: "red" }}>(Disabled)</span>
+              <span style={{ color: "red" }}>{t("profile.disabledLabel")}</span>
             ) : null}
           </div>
           <BadgesBox badges={profile.badges || []} studio={profile.isStudio} />{" "}
@@ -1265,7 +1268,9 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
           }}
         >
           <div className="profile-shop-section">
-            <h2 className="profile-inventory-title">Inventory</h2>
+            <h2 className="profile-inventory-title">
+              {t("profile.inventoryTitle")}
+            </h2>
             <Inventory
               profile={{
                 ...profile,
