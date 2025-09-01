@@ -127,13 +127,8 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    typescript: { ignoreBuildErrors: true }
-};
-
-const { i18n } = require('./next-i18next.config');
-module.exports = {
-  i18n,
-  // ...autres options éventuelles
+    typescript: { ignoreBuildErrors: true },
+    i18n: require('./next-i18next.config').i18n, // Ajoute cette ligne pour activer i18n dans Next.js
 };
 
 module.exports = nextConfig;
