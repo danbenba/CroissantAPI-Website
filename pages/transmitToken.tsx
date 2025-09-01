@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 /**
  * Page to transmit the authentication token to the Croissant Launcher via a custom protocol.
  * Redirects to the launcher if token is present, otherwise displays an error message.

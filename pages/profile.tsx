@@ -9,7 +9,15 @@ import useIsMobile from "../hooks/useIsMobile";
 import Inventory from "../components/Inventory";
 import Certification from "../components/common/Certification";
 import { useTranslation, Trans } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const endpoint = "/api";
 
 // --- Give Credits Modal ---
@@ -331,7 +339,10 @@ function ProfileShop({
           <div className="shop-tooltip-desc">{tooltip.item.description}</div>
           <div className="shop-tooltip-price">
             {t("profile.price")} {tooltip.item.price}
-            <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
+            <CachedImage
+              src="/assets/credit.png"
+              className="shop-credit-icon"
+            />
             {tooltip.item.stock !== undefined && (
               <span className="shop-tooltip-stock">
                 {t("profile.shopTooltipStock", { stock: tooltip.item.stock })}
@@ -377,9 +388,7 @@ function ProfileShop({
                     <div className="shop-prompt-item-owner">
                       Creator:{" "}
                       <Link
-                        href={
-                          `/profile?user=${(prompt.item as any).owner}`
-                        }
+                        href={`/profile?user=${(prompt.item as any).owner}`}
                         className="shop-prompt-owner-link"
                       >
                         <CachedImage
@@ -454,7 +463,10 @@ function ProfileShop({
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div className="shop-alert-message">{alert.message}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setAlert(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setAlert(null)}
+            >
               {t("profile.ok")}
             </button>
           </div>
@@ -716,7 +728,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
   } = props;
 
   const { user, token } = useAuth();
-  const {t} = useTranslation("common");
+  const { t } = useTranslation("common");
 
   // Debounce reloadProfile to avoid too many fetches
   useEffect(() => {
@@ -1017,7 +1029,10 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div>{t("profile.creditsSent")}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setGiveCreditsSuccess(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setGiveCreditsSuccess(null)}
+            >
               {t("profile.ok")}
             </button>
           </div>
@@ -1058,8 +1073,8 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
   } = props;
 
   const { user, token } = useAuth();
-  const {t} = useTranslation("common");
-  
+  const { t } = useTranslation("common");
+
   useEffect(() => {
     if (isProfileReloading) return;
     const handler = setTimeout(() => {
@@ -1334,7 +1349,10 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div>{t("profile.creditsSent")}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setGiveCreditsSuccess(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setGiveCreditsSuccess(null)}
+            >
               {t("profile.ok")}
             </button>
           </div>
@@ -1422,12 +1440,7 @@ function BadgesBox({ badges, studio }: { badges: string[]; studio?: boolean }) {
         if (!info) return null;
         const icon = BADGE_ICONS[info.icon];
         return (
-          <Link
-            key={badge}
-            href={`/badges#${badge}`}
-            passHref
-            legacyBehavior
-          >
+          <Link key={badge} href={`/badges#${badge}`} passHref legacyBehavior>
             <a
               title={info.label}
               style={{
@@ -1467,6 +1480,7 @@ export default function Profile({ userId }: ProfileProps) {
   const logic = useProfileLogic(userId);
   return isMobile ? (
     <ProfileMobile {...logic} />
-  ) :
-    <ProfileDesktop {...logic} />;
+  ) : (
+    <ProfileDesktop {...logic} />
+  );
 }

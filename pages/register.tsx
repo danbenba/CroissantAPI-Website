@@ -3,7 +3,15 @@ import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 // Style constants
 const containerStyle: React.CSSProperties = {
   maxWidth: 400,
@@ -330,9 +338,7 @@ export default function Register() {
         </span>
         {t("register.signUpWithGoogle")}
       </button>
-      <div style={infoTextStyle}>
-        {t("register.redirectInfo")}
-      </div>
+      <div style={infoTextStyle}>{t("register.redirectInfo")}</div>
     </div>
   );
 }

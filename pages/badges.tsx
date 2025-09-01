@@ -10,7 +10,15 @@ import {
   faHandshake,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const BADGES = [
   {
     key: "early_user",
@@ -82,7 +90,9 @@ const BadgesPage: React.FC = () => {
                   alignItems: "flex-start",
                   gap: 18,
                   background: isHighlighted ? "#2d2300" : "#181a20",
-                  border: isHighlighted ? "2px solid #ffe066" : "1px solid #333",
+                  border: isHighlighted
+                    ? "2px solid #ffe066"
+                    : "1px solid #333",
                   borderRadius: 8,
                   padding: "18px 24px",
                   boxShadow: "0 1px 4px 0 rgba(0,0,0,0.12)",
@@ -109,14 +119,21 @@ const BadgesPage: React.FC = () => {
                   />
                 </span>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 20, color: badge.color }}>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 20,
+                      color: badge.color,
+                    }}
+                  >
                     {t(`badges.${badge.key}.label`)}
                   </div>
                   <div style={{ margin: "4px 0 8px 0", color: "#f5f6fa" }}>
                     {t(`badges.${badge.key}.description`)}
                   </div>
                   <div style={{ fontSize: 15, color: "#bdbdbd" }}>
-                    <b>{t("badges.howtogetit")}</b> {t(`badges.${badge.key}.how`)}
+                    <b>{t("badges.howtogetit")}</b>{" "}
+                    {t(`badges.${badge.key}.how`)}
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import useIsMobile from "../hooks/useIsMobile"; // Ajoutez ce hook
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 const API_URL = "/api";
 
@@ -11,6 +12,14 @@ const API_URL = "/api";
 let apiDocsCache: any[] | null = null;
 let apiDocsGroupedCache: Record<string, any[]> | null = null;
 let apiDocsCategoryListCache: string[] | null = null;
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 
 function useApiDocs() {
   const [docs, setDocs] = useState<any[]>(apiDocsCache || []);

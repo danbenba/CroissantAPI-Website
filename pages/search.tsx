@@ -6,7 +6,15 @@ import useUserCache from "../hooks/useUserCache";
 import CachedImage from "../components/utils/CachedImage";
 import Certification from "../components/common/Certification";
 import { Trans, useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 // API endpoint for user search
 const API_ENDPOINT = "/api";
 
@@ -67,33 +75,30 @@ const SearchPage: React.FC = () => {
 
     const controller = new AbortController();
     const debounceTimeout = setTimeout(() => {
-      fetch(
-      `${API_ENDPOINT}/search?q=${encodeURIComponent(query)}`,
-      {
+      fetch(`${API_ENDPOINT}/search?q=${encodeURIComponent(query)}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
         signal: controller.signal,
-      }
-    )
-      .then((res) => res.json())
-      .then(async (data) => {
-        // On met en cache les users reçus
-        if (Array.isArray(data.users)) {
-          for (const u of data.users) {
-            await cacheUser(u); // met en cache si pas déjà
-          }
-        }
-        setUsers(Array.isArray(data.users) ? data.users : []);
-        setGames(Array.isArray(data.games) ? data.games : []);
-        setItems(Array.isArray(data.items) ? data.items : []);
       })
-      .catch(() => {
-        setUsers([]);
-        setGames([]);
-        setItems([]);
-      });
+        .then((res) => res.json())
+        .then(async (data) => {
+          // On met en cache les users reçus
+          if (Array.isArray(data.users)) {
+            for (const u of data.users) {
+              await cacheUser(u); // met en cache si pas déjà
+            }
+          }
+          setUsers(Array.isArray(data.users) ? data.users : []);
+          setGames(Array.isArray(data.games) ? data.games : []);
+          setItems(Array.isArray(data.items) ? data.items : []);
+        })
+        .catch(() => {
+          setUsers([]);
+          setGames([]);
+          setItems([]);
+        });
     }, 400); // 400ms debounce
 
     return () => {
@@ -178,7 +183,10 @@ const SearchPage: React.FC = () => {
               <div className="shop-prompt-item-desc">{item.description}</div>
               <div className="shop-prompt-item-price">
                 {t("search.price")}: {item.price}
-                <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
+                <CachedImage
+                  src="/assets/credit.png"
+                  className="shop-credit-icon"
+                />
               </div>
             </div>
           </div>
@@ -194,8 +202,14 @@ const SearchPage: React.FC = () => {
               className="shop-prompt-amount-input"
             />
             <span className="shop-prompt-amount-total">
-              <Trans i18nKey="search.total" values={{ total: amount * (item.price || 0) }} />
-              <CachedImage src="/assets/credit.png" className="shop-credit-icon" />
+              <Trans
+                i18nKey="search.total"
+                values={{ total: amount * (item.price || 0) }}
+              />
+              <CachedImage
+                src="/assets/credit.png"
+                className="shop-credit-icon"
+              />
             </span>
           </div>
           <button className="shop-prompt-buy-btn" onClick={() => onBuy(amount)}>
@@ -212,7 +226,11 @@ const SearchPage: React.FC = () => {
   return (
     <div className="search-container">
       <div className="search-header">
-        <Trans i18nKey="search.resultsFor" values={{ query }} components={{ strong: <strong /> }} />
+        <Trans
+          i18nKey="search.resultsFor"
+          values={{ query }}
+          components={{ strong: <strong /> }}
+        />
       </div>
       {/* Section Users */}
       {users.length > 0 && (
@@ -242,22 +260,22 @@ const SearchPage: React.FC = () => {
                     alt="User Avatar"
                     className="search-user-avatar"
                   />
-                    <div className="search-user-name">
+                  <div className="search-user-name">
                     {user.username?.length > 15
                       ? user.username.substring(0, 15) + "..."
                       : user.username}{" "}
                     <Certification
                       user={user}
                       style={{
-                      marginLeft: 4,
-                      width: 16,
-                      height: 16,
-                      position: "relative",
-                      top: -2,
-                      verticalAlign: "middle",
+                        marginLeft: 4,
+                        width: 16,
+                        height: 16,
+                        position: "relative",
+                        top: -2,
+                        verticalAlign: "middle",
                       }}
                     />
-                    </div>
+                  </div>
                   <div
                     className="search-user-username"
                     style={{ fontSize: 10 }}
@@ -509,7 +527,10 @@ const SearchPage: React.FC = () => {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div style={{ color: "red" }}>{buyError}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setBuyError(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setBuyError(null)}
+            >
               {t("search.ok")}
             </button>
           </div>
@@ -519,7 +540,10 @@ const SearchPage: React.FC = () => {
         <div className="shop-alert-overlay">
           <div className="shop-alert">
             <div>{t("search.itemPurchased")}</div>
-            <button className="shop-alert-ok-btn" onClick={() => setBuySuccess(null)}>
+            <button
+              className="shop-alert-ok-btn"
+              onClick={() => setBuySuccess(null)}
+            >
               {t("search.ok")}
             </button>
           </div>

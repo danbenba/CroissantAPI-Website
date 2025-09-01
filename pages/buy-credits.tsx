@@ -1,7 +1,15 @@
 import React, { Component } from "react";
 import CachedImage from "../components/utils/CachedImage";
 import { withTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 class BuyCredits extends Component<{ t: any }> {
   render(): React.ReactNode {
     const { t } = this.props;

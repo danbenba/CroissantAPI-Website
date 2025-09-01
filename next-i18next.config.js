@@ -2,7 +2,7 @@
 module.exports = {
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'fr', 'es', 'de'], // Ajoute ici les langues désirées
+    locales: ['en', 'fr', 'de', 'es'],
   },
-  localePath: './public/locales',
+  react: { useSuspense: false }
 };

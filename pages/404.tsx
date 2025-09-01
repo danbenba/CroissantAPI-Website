@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 function NotFoundDesktop({ t }) {
   return (
@@ -89,4 +90,12 @@ export default function NotFoundPage() {
   const { t } = useTranslation("common");
   const isMobile = useIsMobile();
   return isMobile ? <NotFoundMobile t={t} /> : <NotFoundDesktop t={t} />;
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
 }

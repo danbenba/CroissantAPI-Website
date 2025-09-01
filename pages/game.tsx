@@ -7,7 +7,15 @@ import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
 import Certification from "../components/common/Certification";
 import { useTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const endpoint = "/api";
 
 function useGamePageLogic() {
@@ -57,12 +65,12 @@ function useGamePageLogic() {
     if (token && game) {
       fetch(`${endpoint}/games/list/@me`, {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       })
-        .then(res => res.json())
-        .then(userGames => {
-          setUserOwnsGame(userGames.some(g => g.gameId === game.gameId));
+        .then((res) => res.json())
+        .then((userGames) => {
+          setUserOwnsGame(userGames.some((g) => g.gameId === game.gameId));
         })
         .catch(() => setUserOwnsGame(false));
     }
@@ -107,12 +115,12 @@ function useGamePageLogic() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           gameId: game.gameId,
-          message: giftMessage.trim() || undefined
-        })
+          message: giftMessage.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create gift");
@@ -240,10 +248,22 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
       <div className="main-details-content">
         <h2>{game.name}</h2>
         {ownerInfo && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
             <a
               href={`/profile?user=${ownerInfo.id}`}
-              style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                color: "#fff",
+              }}
             >
               <CachedImage
                 src={`/avatar/${ownerInfo.id}`}
@@ -254,7 +274,7 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
                   borderRadius: "50%",
                   marginRight: 8,
                   objectFit: "cover",
-                  border: "2px solid #444"
+                  border: "2px solid #444",
                 }}
               />
               <span style={{ fontWeight: 500 }}>
@@ -285,7 +305,10 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
           >
             <div>
               <b>{t("shop.price")}</b> {game.price}{" "}
-              <CachedImage src="/assets/credit.png" className="gamepage-credit-icon" />
+              <CachedImage
+                src="/assets/credit.png"
+                className="gamepage-credit-icon"
+              />
             </div>
             {!userOwnsGame ? (
               <button
@@ -330,14 +353,13 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
           </div>
         )}
         <p className="gamepage-desc" style={{ overflowY: "auto" }}>
-          {game.description
-            .split('\n')
-            .map((line, idx) => (
-              <React.Fragment key={idx}>
-                {line}
-                <br />
-              </React.Fragment>
-            ))}</p>
+          {game.description.split("\n").map((line, idx) => (
+            <React.Fragment key={idx}>
+              {line}
+              <br />
+            </React.Fragment>
+          ))}
+        </p>
         <div className="game-properties">
           {game.genre && (
             <div>
@@ -371,7 +393,9 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
         <div className="shop-prompt-overlay">
           <div className="shop-prompt">
             <div className="shop-prompt-message">
-              <h3>{t("shop.gift")} "{game.name}"</h3>
+              <h3>
+                {t("shop.gift")} "{game.name}"
+              </h3>
               <textarea
                 placeholder={t("shop.giftMessagePlaceholder")}
                 value={giftMessage}
@@ -383,7 +407,7 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
                   padding: "8px",
                   borderRadius: "4px",
                   border: "1px solid #ccc",
-                  resize: "vertical"
+                  resize: "vertical",
                 }}
               />
             </div>
@@ -474,7 +498,10 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
   const { t } = useTranslation("common");
 
   const skeleton = (
-    <div className="main-details-steam gamepage-root gamepage-blur" style={{ fontSize: "0.98em" }}>
+    <div
+      className="main-details-steam gamepage-root gamepage-blur"
+      style={{ fontSize: "0.98em" }}
+    >
       <button className="gamepage-back-btn" style={{ opacity: 0 }}>
         ← Back
       </button>
@@ -503,8 +530,15 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
   if (!game) return <div>Game not found.</div>;
 
   return (
-    <div className="main-details-steam gamepage-root" style={{ fontSize: "0.98em", padding: 0 }}>
-      <button onClick={() => router.back()} className="gamepage-back-btn" style={{ fontSize: "1em", padding: "6px 18px" }}>
+    <div
+      className="main-details-steam gamepage-root"
+      style={{ fontSize: "0.98em", padding: 0 }}
+    >
+      <button
+        onClick={() => router.back()}
+        className="gamepage-back-btn"
+        style={{ fontSize: "1em", padding: "6px 18px" }}
+      >
         ← Back
       </button>
       <div className="banner-container" style={{ height: 120 }}>
@@ -521,13 +555,28 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
           style={{ width: 64, height: 64, left: 12, bottom: -32 }}
         />
       </div>
-      <div className="main-details-content" style={{ padding: "24px 10px 10px 10px" }}>
+      <div
+        className="main-details-content"
+        style={{ padding: "24px 10px 10px 10px" }}
+      >
         <h2 style={{ fontSize: "1.1em" }}>{game.name}</h2>
         {ownerInfo && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
             <a
               href={`/profile?user=${ownerInfo.id}`}
-              style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                color: "#fff",
+              }}
             >
               <CachedImage
                 src={`/avatar/${ownerInfo.id}`}
@@ -538,7 +587,7 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
                   borderRadius: "50%",
                   marginRight: 8,
                   objectFit: "cover",
-                  border: "2px solid #444"
+                  border: "2px solid #444",
                 }}
               />
               <span style={{ fontWeight: 500, fontSize: "0.98em" }}>
@@ -553,7 +602,7 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
                     top: -2,
                     verticalAlign: "middle",
                   }}
-                />  
+                />
               </span>
             </a>
           </div>
@@ -618,15 +667,16 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
             )}
           </div>
         )}
-        <p className="gamepage-desc" style={{ overflowY: "auto", fontSize: "0.98em" }}>
-          {game.description
-            .split('\n')
-            .map((line, idx) => (
-              <React.Fragment key={idx}>
-                {line}
-                <br />
-              </React.Fragment>
-            ))}
+        <p
+          className="gamepage-desc"
+          style={{ overflowY: "auto", fontSize: "0.98em" }}
+        >
+          {game.description.split("\n").map((line, idx) => (
+            <React.Fragment key={idx}>
+              {line}
+              <br />
+            </React.Fragment>
+          ))}
         </p>
         <div className="game-properties" style={{ fontSize: "0.97em" }}>
           {game.genre && (
@@ -661,7 +711,9 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
         <div className="shop-prompt-overlay">
           <div className="shop-prompt">
             <div className="shop-prompt-message">
-              <h3 style={{ fontSize: "1em" }}>{t("shop.gift")} "{game.name}"</h3>
+              <h3 style={{ fontSize: "1em" }}>
+                {t("shop.gift")} "{game.name}"
+              </h3>
               <textarea
                 placeholder={t("shop.giftMessagePlaceholder")}
                 value={giftMessage}
@@ -674,7 +726,7 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
                   borderRadius: "4px",
                   border: "1px solid #ccc",
                   resize: "vertical",
-                  fontSize: "0.98em"
+                  fontSize: "0.98em",
                 }}
               />
             </div>

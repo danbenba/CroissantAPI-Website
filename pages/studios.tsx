@@ -4,7 +4,15 @@ import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import Certification from "../components/common/Certification";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 export default function StudiosPage() {
   const { t } = useTranslation("common");
   const { user, token, setUser } = useAuth();

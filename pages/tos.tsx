@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 /**
  * Terms of Service page for Croissant.
  * Displays the rules and guidelines for using the platform.

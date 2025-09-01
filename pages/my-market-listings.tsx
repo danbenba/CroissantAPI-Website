@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 export interface MarketListing {
   id: string; // UUID
   seller_id: string; // ID du vendeur

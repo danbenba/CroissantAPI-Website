@@ -22,9 +22,6 @@ import NavBarMobile from "../components/common/NavBarMobile";
 import Login from "./login";
 import { LobbyProvider } from "../hooks/LobbyContext";
 import { appWithTranslation } from 'next-i18next';
-import { useRouter } from "next/router";
-import { I18nextProvider } from "react-i18next";
-import i18n from "../i18n";
 
 // --- Style constants ---
 const launcherMainStyle: React.CSSProperties = {
@@ -201,13 +198,6 @@ function AppContent({ Component, pageProps }: AppProps) {
       </div>
     );
   };
-
-  // Ajoute ce bloc pour la 404 et fallback
-  const router = useRouter();
-  const locale = router.locale || "en";
-  if (!pageProps?.__N_SSG && !pageProps?.__N_SSP && !pageProps?._nextI18Next) {
-    i18n.changeLanguage(locale);
-  }
 
   if (isLauncher) {
     return user ? <LauncherLayout /> : <LauncherLogin />;

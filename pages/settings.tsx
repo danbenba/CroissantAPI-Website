@@ -4,7 +4,15 @@ import { useRouter } from "next/router";
 import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const containerStyle: React.CSSProperties = {
   maxWidth: 500,
   margin: "60px auto",

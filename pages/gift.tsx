@@ -4,7 +4,15 @@ import { useRouter } from "next/router";
 import useAuth from "../hooks/useAuth";
 import CachedImage from "../components/utils/CachedImage";
 import { Trans, useTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const endpoint = "/api";
 
 const GiftPage: React.FC = () => {
@@ -32,8 +40,8 @@ const GiftPage: React.FC = () => {
 
     fetch(`${endpoint}/gifts/${giftCode}`, {
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -52,22 +60,24 @@ const GiftPage: React.FC = () => {
 
   const handleClaimGift = async () => {
     if (!giftCode || !token) return;
-    
+
     setClaiming(true);
     try {
       const res = await fetch(`${endpoint}/gifts/claim`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ giftCode })
+        body: JSON.stringify({ giftCode }),
       });
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to claim gift");
-      
-      setAlert("Gift claimed successfully! The game has been added to your library.");
+
+      setAlert(
+        "Gift claimed successfully! The game has been added to your library."
+      );
       setTimeout(() => router.push("/"), 2000);
     } catch (err: any) {
       setAlert(err.message);
@@ -78,7 +88,14 @@ const GiftPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <div className="inventory-loading-spinner" />
       </div>
     );
@@ -113,10 +130,10 @@ const GiftPage: React.FC = () => {
       <button onClick={() => router.back()} className="gamepage-back-btn">
         ← Back
       </button>
-      
+
       <div style={{ textAlign: "center", padding: "40px 20px" }}>
         <h2>🎁 {t("shop.youReceivedGift")}</h2>
-        
+
         {giftInfo?.game && (
           <div style={{ margin: "20px 0" }}>
             <CachedImage
@@ -140,14 +157,18 @@ const GiftPage: React.FC = () => {
         )}
 
         {giftInfo?.gift.message && (
-          <div style={{ 
-            background: "#f5f5f5", 
-            padding: "15px", 
-            borderRadius: 8, 
-            margin: "20px 0",
-            color: "#333"
-          }}>
-            <p><em>"{giftInfo.gift.message}"</em></p>
+          <div
+            style={{
+              background: "#f5f5f5",
+              padding: "15px",
+              borderRadius: 8,
+              margin: "20px 0",
+              color: "#333",
+            }}
+          >
+            <p>
+              <em>"{giftInfo.gift.message}"</em>
+            </p>
           </div>
         )}
 

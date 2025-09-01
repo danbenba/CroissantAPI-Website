@@ -1,5 +1,13 @@
 import React, { Component } from "react";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 export default class extends Component {
   render(): React.ReactNode {
     return (

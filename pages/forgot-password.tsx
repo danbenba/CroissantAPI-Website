@@ -3,7 +3,15 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
   maxWidth: 400,

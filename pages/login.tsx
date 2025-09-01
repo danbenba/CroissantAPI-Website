@@ -4,7 +4,15 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import useIsMobile from "../hooks/useIsMobile";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 // Style constants
 const containerStyle: React.CSSProperties = {
   maxWidth: 400,
@@ -111,10 +119,26 @@ const infoTextMobileStyle: React.CSSProperties = {
 
 function LoginDesktop(props: any) {
   const {
-    email, setEmail, password, setPassword, loginLoading, loginError, handleLogin,
-    handleDiscord, handleGoogle, handlePasskeyLogin, passkeyLoading, passkeyError,
-    showAuthenticatorModal, authenticatorCode, setAuthenticatorCode, authenticatorError,
-    handleAuthenticatorSubmit, setShowAuthenticatorModal, setAuthenticatorError, setPendingUserId
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loginLoading,
+    loginError,
+    handleLogin,
+    handleDiscord,
+    handleGoogle,
+    handlePasskeyLogin,
+    passkeyLoading,
+    passkeyError,
+    showAuthenticatorModal,
+    authenticatorCode,
+    setAuthenticatorCode,
+    authenticatorError,
+    handleAuthenticatorSubmit,
+    setShowAuthenticatorModal,
+    setAuthenticatorError,
+    setPendingUserId,
   } = props;
 
   const { t } = useTranslation("common");
@@ -272,38 +296,55 @@ function LoginDesktop(props: any) {
       <div style={{ width: "260px", maxWidth: 340, marginTop: 8 }}>
         <button
           type="button"
-          style={{ ...googleBtnStyle, background: "#222", color: "#fff", marginBottom: 8 }}
+          style={{
+            ...googleBtnStyle,
+            background: "#222",
+            color: "#fff",
+            marginBottom: 8,
+          }}
           onClick={handlePasskeyLogin}
           disabled={passkeyLoading}
         >
           {passkeyLoading ? t("login.authenticating") : t("login.passkey")}
         </button>
-        {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
+        {passkeyError && (
+          <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>
+        )}
       </div>
       {/* Authenticator Modal */}
       {showAuthenticatorModal && (
         <div
           style={{
             position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: "rgba(0,0,0,0.6)",
-            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
           }}
         >
-          <div style={{
-            background: "#23232a",
-            padding: 32,
-            borderRadius: 12,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
-            minWidth: 320,
-            color: "#fff"
-          }}>
-            <h3 style={{ marginBottom: 16 }}>{t("login.enterAuthenticator")}</h3>
+          <div
+            style={{
+              background: "#23232a",
+              padding: 32,
+              borderRadius: 12,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
+              minWidth: 320,
+              color: "#fff",
+            }}
+          >
+            <h3 style={{ marginBottom: 16 }}>
+              {t("login.enterAuthenticator")}
+            </h3>
             <form onSubmit={handleAuthenticatorSubmit}>
               <input
                 type="text"
                 value={authenticatorCode}
-                onChange={e => setAuthenticatorCode(e.target.value)}
+                onChange={(e) => setAuthenticatorCode(e.target.value)}
                 style={{
                   width: "255px",
                   padding: "10px 12px",
@@ -336,7 +377,9 @@ function LoginDesktop(props: any) {
                 {t("login.verify")}
               </button>
               {authenticatorError && (
-                <div style={{ color: "#ff5252", marginTop: 8 }}>{t("login.authenticatorError")}</div>
+                <div style={{ color: "#ff5252", marginTop: 8 }}>
+                  {t("login.authenticatorError")}
+                </div>
               )}
             </form>
             <button
@@ -365,19 +408,33 @@ function LoginDesktop(props: any) {
           </div>
         </div>
       )}
-      <div style={infoTextStyle}>
-        {t("login.redirectInfo")}
-      </div>
+      <div style={infoTextStyle}>{t("login.redirectInfo")}</div>
     </div>
   );
 }
 
 function LoginMobile(props: any) {
   const {
-    email, setEmail, password, setPassword, loginLoading, loginError, handleLogin,
-    handleDiscord, handleGoogle, handlePasskeyLogin, passkeyLoading, passkeyError,
-    showAuthenticatorModal, authenticatorCode, setAuthenticatorCode, authenticatorError,
-    handleAuthenticatorSubmit, setShowAuthenticatorModal, setAuthenticatorError, setPendingUserId
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loginLoading,
+    loginError,
+    handleLogin,
+    handleDiscord,
+    handleGoogle,
+    handlePasskeyLogin,
+    passkeyLoading,
+    passkeyError,
+    showAuthenticatorModal,
+    authenticatorCode,
+    setAuthenticatorCode,
+    authenticatorError,
+    handleAuthenticatorSubmit,
+    setShowAuthenticatorModal,
+    setAuthenticatorError,
+    setPendingUserId,
   } = props;
 
   const { t } = useTranslation("common");
@@ -535,38 +592,55 @@ function LoginMobile(props: any) {
       <div style={{ width: "280px", maxWidth: 300, marginTop: 8 }}>
         <button
           type="button"
-          style={{ ...googleBtnMobileStyle, background: "#222", color: "#fff", marginBottom: 8 }}
+          style={{
+            ...googleBtnMobileStyle,
+            background: "#222",
+            color: "#fff",
+            marginBottom: 8,
+          }}
           onClick={handlePasskeyLogin}
           disabled={passkeyLoading}
         >
           {passkeyLoading ? t("login.authenticating") : t("login.passkey")}
         </button>
-        {passkeyError && <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>}
+        {passkeyError && (
+          <div style={{ color: "#ff5252", marginTop: 8 }}>{passkeyError}</div>
+        )}
       </div>
       {/* Authenticator Modal */}
       {showAuthenticatorModal && (
         <div
           style={{
             position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: "rgba(0,0,0,0.6)",
-            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
           }}
         >
-          <div style={{
-            background: "#23232a",
-            padding: 18,
-            borderRadius: 10,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
-            minWidth: 220,
-            color: "#fff"
-          }}>
-            <h3 style={{ marginBottom: 12, fontSize: "1.08em" }}>{t("login.enterAuthenticator")}</h3>
+          <div
+            style={{
+              background: "#23232a",
+              padding: 18,
+              borderRadius: 10,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
+              minWidth: 220,
+              color: "#fff",
+            }}
+          >
+            <h3 style={{ marginBottom: 12, fontSize: "1.08em" }}>
+              {t("login.enterAuthenticator")}
+            </h3>
             <form onSubmit={handleAuthenticatorSubmit}>
               <input
                 type="text"
                 value={authenticatorCode}
-                onChange={e => setAuthenticatorCode(e.target.value)}
+                onChange={(e) => setAuthenticatorCode(e.target.value)}
                 style={{
                   width: "260px",
                   padding: "9px 10px",
@@ -599,7 +673,9 @@ function LoginMobile(props: any) {
                 {t("login.verify")}
               </button>
               {authenticatorError && (
-                <div style={{ color: "#ff5252", marginTop: 8 }}>{t("login.authenticatorError")}</div>
+                <div style={{ color: "#ff5252", marginTop: 8 }}>
+                  {t("login.authenticatorError")}
+                </div>
               )}
             </form>
             <button
@@ -628,9 +704,7 @@ function LoginMobile(props: any) {
           </div>
         </div>
       )}
-      <div style={infoTextMobileStyle}>
-        {t("login.redirectInfo")}
-      </div>
+      <div style={infoTextMobileStyle}>{t("login.redirectInfo")}</div>
     </div>
   );
 }
@@ -647,9 +721,12 @@ export default function Login() {
   // Passkey login state
   const [passkeyLoading, setPasskeyLoading] = React.useState(false);
   const [passkeyError, setPasskeyError] = React.useState<string | null>(null);
-  const [showAuthenticatorModal, setShowAuthenticatorModal] = React.useState(false);
+  const [showAuthenticatorModal, setShowAuthenticatorModal] =
+    React.useState(false);
   const [authenticatorCode, setAuthenticatorCode] = React.useState("");
-  const [authenticatorError, setAuthenticatorError] = React.useState<string | null>(null);
+  const [authenticatorError, setAuthenticatorError] = React.useState<
+    string | null
+  >(null);
   const [pendingUserId, setPendingUserId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -708,15 +785,19 @@ export default function Login() {
       const options = await res.json();
 
       // Convert base64 challenge to ArrayBuffer
-      const challengeBuffer = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+      const challengeBuffer = Uint8Array.from(atob(options.challenge), (c) =>
+        c.charCodeAt(0)
+      );
       options.challenge = challengeBuffer;
 
       // Convert allowCredentials if present
       if (options.allowCredentials) {
-        options.allowCredentials = options.allowCredentials.map((cred: any) => ({
-          ...cred,
-          id: Uint8Array.from(atob(cred.id), c => c.charCodeAt(0))
-        }));
+        options.allowCredentials = options.allowCredentials.map(
+          (cred: any) => ({
+            ...cred,
+            id: Uint8Array.from(atob(cred.id), (c) => c.charCodeAt(0)),
+          })
+        );
       }
 
       // 2. Get assertion
@@ -735,7 +816,8 @@ export default function Login() {
         body: JSON.stringify({ credential: parsedCredential }),
       });
       const data = await verifyRes.json();
-      if (!verifyRes.ok) throw new Error(data.message || "Passkey login failed");
+      if (!verifyRes.ok)
+        throw new Error(data.message || "Passkey login failed");
       document.cookie = `token=${data.token}; path=/; max-age=31536000`;
       location.href = "/";
     } catch (e: any) {
@@ -773,10 +855,26 @@ export default function Login() {
   };
 
   const props = {
-    email, setEmail, password, setPassword, loginLoading, loginError, handleLogin,
-    handleDiscord, handleGoogle, handlePasskeyLogin, passkeyLoading, passkeyError,
-    showAuthenticatorModal, authenticatorCode, setAuthenticatorCode, authenticatorError,
-    handleAuthenticatorSubmit, setShowAuthenticatorModal, setAuthenticatorError, setPendingUserId
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loginLoading,
+    loginError,
+    handleLogin,
+    handleDiscord,
+    handleGoogle,
+    handlePasskeyLogin,
+    passkeyLoading,
+    passkeyError,
+    showAuthenticatorModal,
+    authenticatorCode,
+    setAuthenticatorCode,
+    authenticatorError,
+    handleAuthenticatorSubmit,
+    setShowAuthenticatorModal,
+    setAuthenticatorError,
+    setPendingUserId,
   };
 
   return isMobile ? <LoginMobile {...props} /> : <LoginDesktop {...props} />;

@@ -7,7 +7,15 @@ import CachedImage from "../components/utils/CachedImage";
 import useIsMobile from "../hooks/useIsMobile";
 import Certification from "../components/common/Certification";
 import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 const ENDPOINT = "/api";
 
 interface Game {
@@ -46,7 +54,7 @@ function useShopLogic() {
   // Constantes réutilisées
   const AUTH_HEADER = useMemo(
     () => ({
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     }),
     [token]
   );
@@ -457,12 +465,31 @@ function ShopDesktop(props: any) {
                       </div>
                       {/* --- Affichage propriétaire --- */}
                       {ownerInfo ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, justifyContent: "space-between" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginBottom: 4,
+                            justifyContent: "space-between",
+                          }}
+                        >
                           <a
                             href={`/profile?user=${ownerInfo.id}`}
-                            style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              textDecoration: "none",
+                              color: "#fff",
+                            }}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
                               <CachedImage
                                 src={`/avatar/${ownerInfo.id}`}
                                 alt={ownerInfo.username}
@@ -472,7 +499,7 @@ function ShopDesktop(props: any) {
                                   borderRadius: "50%",
                                   marginRight: 8,
                                   objectFit: "cover",
-                                  border: "2px solid #444"
+                                  border: "2px solid #444",
                                 }}
                               />
                               <span style={{ fontWeight: 500 }}>
@@ -742,10 +769,23 @@ function ShopMobile(props: any) {
                       </div>
                       {/* --- Affichage propriétaire --- */}
                       {ownerInfo && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, justifyContent: "space-between" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginBottom: 4,
+                            justifyContent: "space-between",
+                          }}
+                        >
                           <a
                             href={`/profile?user=${ownerInfo.id}`}
-                            style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "#fff" }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              textDecoration: "none",
+                              color: "#fff",
+                            }}
                           >
                             <CachedImage
                               src={`/avatar/${ownerInfo.id}`}
@@ -756,7 +796,7 @@ function ShopMobile(props: any) {
                                 borderRadius: "50%",
                                 marginRight: 8,
                                 objectFit: "cover",
-                                border: "2px solid #444"
+                                border: "2px solid #444",
                               }}
                             />
                             <span style={{ fontWeight: 500 }}>

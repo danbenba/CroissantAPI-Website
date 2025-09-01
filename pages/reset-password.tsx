@@ -2,7 +2,15 @@ import React from "react";
 import { useRouter } from "next/router";
 import useIsMobile from "../hooks/useIsMobile";
 import { Trans, useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 // Style constants (reuse from your register page for consistency)
 const containerStyle: React.CSSProperties = {
   maxWidth: 400,
@@ -214,7 +222,9 @@ export default function ResetPassword() {
                 }}
                 disabled={loading || !!error}
               >
-                {loading ? t("resetPassword.resetting") : t("resetPassword.reset")}
+                {loading
+                  ? t("resetPassword.resetting")
+                  : t("resetPassword.reset")}
               </button>
               {success && (
                 <div style={{ color: "#4caf50", marginTop: 10 }}>
@@ -318,7 +328,9 @@ export default function ResetPassword() {
               }}
               disabled={loading || !!error}
             >
-              {loading ? t("resetPassword.resetting") : t("resetPassword.reset")}
+              {loading
+                ? t("resetPassword.resetting")
+                : t("resetPassword.reset")}
             </button>
             {success && (
               <div style={{ color: "#4caf50", marginTop: 12 }}>
