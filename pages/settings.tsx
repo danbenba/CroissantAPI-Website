@@ -631,8 +631,10 @@ function useSettingsLogic() {
   useEffect(() => {
     if (typeof document !== "undefined" && document.cookie.includes("from=app"))
       setLinkText("Go on website to link");
-    else 
-      setLinkText(!user?.isStudio ? "Link Steam Account" : "Studio can't link Steam");
+    else
+      setLinkText(
+        !user?.isStudio ? "Link Steam Account" : "Studio can't link Steam"
+      );
   }, [user, linkText]);
 
   useEffect(() => {
@@ -1247,6 +1249,62 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
       {user && (
         <div
           style={{
+            marginTop: 24,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
+          <label style={{ ...labelStyle, alignSelf: "" }}>User ID</label>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: 4,
+            }}
+          >
+            <code
+              style={{
+                background: "#444",
+                borderRadius: 4,
+                padding: "2px 8px",
+                fontWeight: 500,
+                userSelect: "all",
+                cursor: "pointer",
+                fontSize: 15,
+              }}
+              title="Click to copy"
+              onClick={() => navigator.clipboard.writeText(user.id || "")}
+            >
+              {user.id}
+            </code>
+            <button
+              type="button"
+              style={{
+                background: "none",
+                border: "none",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: 14,
+                textDecoration: "underline",
+                opacity: 0.7,
+              }}
+              onClick={() => navigator.clipboard.writeText(user.id || "")}
+              title="Copy User ID"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+      {user && (
+        <div
+          style={{
             marginTop: 32,
             width: "100%",
             display: "flex",
@@ -1598,6 +1656,62 @@ function SettingsMobile(props: ReturnType<typeof useSettingsLogic>) {
           <div style={{ color: "#ff5252", marginTop: 2 }}>{usernameError}</div>
         )}
       </div>
+      {user && (
+        <div
+          style={{
+            marginTop: 24,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
+          <label style={{ ...labelStyle, alignSelf: "" }}>User ID</label>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: 4,
+            }}
+          >
+            <code
+              style={{
+                background: "#444",
+                borderRadius: 4,
+                padding: "2px 8px",
+                fontWeight: 500,
+                userSelect: "all",
+                cursor: "pointer",
+                fontSize: 15,
+              }}
+              title="Click to copy"
+              onClick={() => navigator.clipboard.writeText(user.id || "")}
+            >
+              {user.id}
+            </code>
+            <button
+              type="button"
+              style={{
+                background: "none",
+                border: "none",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: 14,
+                textDecoration: "underline",
+                opacity: 0.7,
+              }}
+              onClick={() => navigator.clipboard.writeText(user.id || "")}
+              title="Copy User ID"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
       {user && (
         <div
           style={{
