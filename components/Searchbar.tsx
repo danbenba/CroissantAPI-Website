@@ -1,9 +1,11 @@
 import React, { useState, ChangeEvent, KeyboardEvent, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "next-i18next";
 
 export default function Searchbar() {
   const [value, setValue] = useState("");
   const router = useRouter();
+  const { t } = useTranslation("common");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setValue(e.target.value);
@@ -29,7 +31,7 @@ export default function Searchbar() {
   return (
     <input
       style={inputStyle}
-      placeholder="Search for users and games..."
+      placeholder={t("searchbar.placeholder")}
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}

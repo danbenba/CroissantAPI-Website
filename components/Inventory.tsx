@@ -4,6 +4,7 @@ import Link from "next/link";
 import useAuth from "../hooks/useAuth";
 import { ShopItem } from "../pages/profile";
 import CachedImage from "./utils/CachedImage";
+import { useTranslation } from "next-i18next";
 
 const endpoint = "/api";
 
@@ -74,6 +75,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
   const { user } = useAuth();
   const selectedUser = profile.id === "me" ? user?.id || "me" : profile.id;
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     // Traiter les items de l'inventaire pour extraire l'uniqueId et sellable
@@ -137,7 +139,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const customPromptSell = (item: Item) => {
     return new Promise<{ confirmed: boolean; amount?: number }>((resolve) => {
       setPrompt({
-        message: `Sell how many "${item.name}"?`,
+        message: t("inventory.sellPrompt", { item: item.name }),
         resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
         maxAmount: item.amount,
         amount: 1,
@@ -150,7 +152,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const customPromptDrop = (item: Item) => {
     return new Promise<{ confirmed: boolean; amount?: number }>((resolve) => {
       setPrompt({
-        message: `Drop how many "${item.name}"?`,
+        message: t("inventory.dropPrompt", { item: item.name }),
         resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
         maxAmount: item.amount,
         amount: 1,
@@ -203,7 +205,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     let confirmed = false;
     await new Promise<void>((resolve) => {
       setPrompt({
-        message: `Auction "${item.name}" — set your price (per unit):`,
+        message: t("inventory.auctionPrompt", { item: item.name }),
         resolve: ({ confirmed: c, price: p }) => {
           confirmed = c;
           price = p || 0;
@@ -458,7 +460,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                     }
               }
             >
-              Rarity: {item.rarity?.replace(/-/g, " ")}
+              {t("inventory.rarity")}: {item.rarity?.replace(/-/g, " ")}
             </div>
             {formattedMetadata && (
               <div
@@ -486,7 +488,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   gap: "4px",
                 }}
               >
-                Price: {item.purchasePrice}
+                {t("inventory.price")}: {item.purchasePrice}
                 <CachedImage
                   src="/assets/credit.png"
                   className="inventory-credit-icon"
@@ -515,8 +517,8 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 }}
               >
                 {item.sellable && item.purchasePrice != null
-                  ? "✓ Can be sold"
-                  : "✗ Cannot be sold"}
+                  ? t("inventory.canBeSold")
+                  : t("inventory.cannotBeSold")}
               </div>
             )}
             {/* Affichage de l'unique ID pour debug (optionnel) */}
@@ -530,7 +532,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                     fontFamily: "monospace",
                   }}
                 >
-                  ID: {item.metadata._unique_id}
+                  {t("inventory.uniqueId")}: {item.metadata._unique_id}
                 </div>
 
                 <div
@@ -542,7 +544,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                     fontWeight: "bold",
                   }}
                 >
-                  ✗ Cannot be sold
+                  {t("inventory.cannotBeSold")}
                 </div>
               </>
             )}
@@ -589,9 +591,10 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       {loading && (
         <div className="inventory-loading">
           <div className="inventory-loading-spinner"></div>
+          <span>{t("inventory.loading")}</span>
         </div>
       )}
-      {error && <p className="inventory-error">{error}</p>}
+      {error && <p className="inventory-error">{t("inventory.error", { error })}</p>}
       <div
         className="inventory-grid"
         style={{
@@ -607,7 +610,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               onClick={handleBackToInventory}
               className="inventory-back-btn"
             >
-              ← Back to Inventory
+              {t("inventory.back")}
             </button>
             <div className="inventory-details-main">
               <CachedImage
@@ -650,7 +653,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                         }
                   }
                 >
-                  Rarity: {selectedItem.rarity?.replace(/-/g, " ")}
+                  {t("inventory.rarity")}: {selectedItem.rarity?.replace(/-/g, " ")}
                 </div>
                 {/* Affichage des métadonnées dans la vue détaillée */}
                 {formatMetadata(selectedItem.metadata) && (
@@ -663,7 +666,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                       fontStyle: "italic",
                     }}
                   >
-                    Metadata: {formatMetadata(selectedItem.metadata)}
+                    {t("inventory.metadata")}: {formatMetadata(selectedItem.metadata)}
                   </div>
                 )}
                 {/* Affichage du prix d'achat dans la vue détaillée */}
@@ -679,7 +682,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                       gap: "6px",
                     }}
                   >
-                    Price: {selectedItem.purchasePrice || "N/A"}
+                    {t("inventory.price")}: {selectedItem.purchasePrice || "N/A"}
                     <CachedImage
                       src="/assets/credit.png"
                       className="inventory-credit-icon"
@@ -708,8 +711,8 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                     }}
                   >
                     {selectedItem.sellable && selectedItem.purchasePrice != null
-                      ? "✓ This item can be sold"
-                      : "✗ This item cannot be sold"}
+                      ? t("inventory.thisCanBeSold")
+                      : t("inventory.thisCannotBeSold")}
                   </div>
                 )}
                 {/* Affichage de l'unique ID dans la vue détaillée */}
@@ -723,7 +726,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                       fontFamily: "monospace",
                     }}
                   >
-                    Unique ID: {selectedItem.metadata._unique_id}
+                    {t("inventory.uniqueId")}: {selectedItem.metadata._unique_id}
                   </div>
                 )}
               </div>
@@ -773,9 +776,11 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   value={prompt.price}
                   onChange={handlePromptPriceChange}
                   className="inventory-prompt-amount-input"
-                  placeholder="Price"
+                  placeholder={t("inventory.price")}
                 />
-                <span className="inventory-prompt-amount-max">credits</span>
+                <span className="inventory-prompt-amount-max">
+                  {t("inventory.credits")}
+                </span>
               </div>
             )}
             {prompt.maxAmount && (
@@ -804,7 +809,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 setPrompt(null);
               }}
             >
-              Yes
+              {t("inventory.yes")}
             </button>
             <button
               className="inventory-prompt-no-btn"
@@ -813,7 +818,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                 setPrompt(null);
               }}
             >
-              No
+              {t("inventory.no")}
             </button>
           </div>
         </div>

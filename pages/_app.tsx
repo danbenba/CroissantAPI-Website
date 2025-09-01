@@ -22,6 +22,15 @@ import NavBarMobile from "../components/common/NavBarMobile";
 import Login from "./login";
 import { LobbyProvider } from "../hooks/LobbyContext";
 import { appWithTranslation } from 'next-i18next';
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 
 // --- Style constants ---
 const launcherMainStyle: React.CSSProperties = {

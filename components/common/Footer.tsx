@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-
-const footerLinks = [
-  { href: "/tos", label: "Terms" },
-  { href: "/privacy", label: "Privacy" },
-]; 
+import { useTranslation } from "next-i18next";
 
 export default function Footer() {
+  const { t } = useTranslation("common");
   const [show, setShow] = useState("");
   const [footerPosition, setFooterPosition] = useState<"relative" | "absolute">(
     "absolute"
@@ -30,6 +27,11 @@ export default function Footer() {
     };
   }, []);
 
+  const footerLinks = [
+    { href: "/tos", label: t("footer.terms") },
+    { href: "/privacy", label: t("footer.privacy") },
+  ];
+
   const linkStyle = {
     color: "#8fa1c7",
     textDecoration: "none",
@@ -52,7 +54,7 @@ export default function Footer() {
         left: 0,
       }}
     >
-      <span style={{ marginRight: 8 }}>Copyright © 2025 Croissant API</span>
+      <span style={{ marginRight: 8 }}>{t("footer.copyright")}</span>
       {footerLinks.map((link, idx) => (
         <React.Fragment key={link.href}>
           {idx > 0 && <span style={{ color: "#444" }}>|</span>}

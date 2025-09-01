@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import useAuth from "../../hooks/useAuth";
 import CachedImage from "../utils/CachedImage";
 import Searchbar from "../Searchbar";
@@ -137,7 +138,11 @@ export default function NavBarDesktop() {
       <Link href="/profile" legacyBehavior>
         <a>
           <CachedImage
-            src={loading ? "/avatar/default.png" : "/avatar/" + (user.role || user.id)}
+            src={
+              loading
+                ? "/avatar/default.png"
+                : "/avatar/" + (user.role || user.id)
+            }
             alt="avatar"
             style={avatarStyle}
           />
@@ -185,7 +190,9 @@ export default function NavBarDesktop() {
     >
       {user &&
         user?.roles.map((role: any) => {
-          const studio = user.studios.find((studio: any) => studio.user_id === role);
+          const studio = user.studios.find(
+            (studio: any) => studio.user_id === role
+          );
           return (
             <button
               style={{
@@ -203,8 +210,16 @@ export default function NavBarDesktop() {
                   method: "POST",
                   body: JSON.stringify({ role }),
                 })
-                  .then((res) => res.ok ? res.json() : Promise.reject("Failed to change role"))
-                  .then(() => fetch("/api/users/@me", { headers: { "Content-Type": "application/json" } }))
+                  .then((res) =>
+                    res.ok
+                      ? res.json()
+                      : Promise.reject("Failed to change role")
+                  )
+                  .then(() =>
+                    fetch("/api/users/@me", {
+                      headers: { "Content-Type": "application/json" },
+                    })
+                  )
                   .then((res) => res.json())
                   .then((userData) => {
                     setUser(userData);
@@ -213,19 +228,23 @@ export default function NavBarDesktop() {
                   .catch((err) => console.error(err));
               }}
             >
-              <CachedImage src={"/avatar/" + role} alt="avatar" style={avatarStyle} />
+              <CachedImage
+                src={"/avatar/" + role}
+                alt="avatar"
+                style={avatarStyle}
+              />
               <span style={{ whiteSpace: "nowrap" }}>
                 {studio?.me.username || "Me"}
                 <Certification
                   user={studio ? { ...studio, isStudio: true } : studio}
                   style={{
-                        width: 16,
-                        height: 16,
-                        marginLeft: 4,
-                        position: "relative",
-                        top: -2,
-                        verticalAlign: "middle",
-                      }}
+                    width: 16,
+                    height: 16,
+                    marginLeft: 4,
+                    position: "relative",
+                    top: -2,
+                    verticalAlign: "middle",
+                  }}
                 />
               </span>
             </button>
@@ -236,18 +255,19 @@ export default function NavBarDesktop() {
 
   // Groupe de liens desktop
   function DesktopLinks() {
+    const { t } = useTranslation("common");
     return (
       <>
         <Link href="/api-docs" legacyBehavior>
-          <span style={linkStyle}>Docs</span>
+          <span style={linkStyle}>{t("navbar.docs")}</span>
         </Link>
         <Link href="/game-shop" legacyBehavior>
-          <span style={linkStyle}>Shop</span>
+          <span style={linkStyle}>{t("navbar.shop")}</span>
         </Link>
         <Link href="/marketplace" legacyBehavior>
-          <span style={linkStyle}>Marketplace</span>
+          <span style={linkStyle}>{t("navbar.marketplace")}</span>
         </Link>
-        <DropdownButton label="Install" showKey="install">
+        <DropdownButton label={t("navbar.install")} showKey="install">
           {show === "install" && (
             <div
               style={{
@@ -265,23 +285,34 @@ export default function NavBarDesktop() {
               onMouseLeave={() => setShow("")}
             >
               <Link href="/download-launcher" legacyBehavior>
-                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Launcher</a>
+                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>
+                  {t("navbar.launcher")}
+                </a>
               </Link>
-              <Link href="https://github.com/Croissant-API/Croissant-VPN/releases" legacyBehavior>
-                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>VPN</a>
+              <Link
+                href="https://github.com/Croissant-API/Croissant-VPN/releases"
+                legacyBehavior
+              >
+                <a style={{ ...linkStyle, display: "block", borderRadius: 0 }}>
+                  {t("navbar.vpn")}
+                </a>
               </Link>
               <a
                 href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
-                style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}
+                style={{
+                  ...linkStyle,
+                  display: "block",
+                  borderRadius: "0 0 6px 6px",
+                }}
               >
-                Bot
+                {t("navbar.bot")}
               </a>
             </div>
           )}
         </DropdownButton>
         {!loading && user && (
           <>
-            <DropdownButton label="Manage" showKey="manage">
+            <DropdownButton label={t("navbar.manage")} showKey="manage">
               {show === "manage" && (
                 <div
                   style={{
@@ -300,21 +331,67 @@ export default function NavBarDesktop() {
                 >
                   {!user.isStudio && (
                     <Link href="/studios" legacyBehavior>
-                      <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Studios</span>
+                      <span
+                        style={{
+                          ...linkStyle,
+                          display: "block",
+                          borderRadius: 0,
+                        }}
+                      >
+                        {t("navbar.studios")}
+                      </span>
                     </Link>
                   )}
                   <Link href="/oauth2/apps" legacyBehavior>
-                    <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>OAuth2</span>
+                    <span
+                      style={{
+                        ...linkStyle,
+                        display: "block",
+                        borderRadius: 0,
+                      }}
+                    >
+                      {t("navbar.oauth2")}
+                    </span>
                   </Link>
                   <Link href="/dev-zone/my-items" legacyBehavior>
-                    <span style={{ ...linkStyle, display: "block", borderRadius: 0 }}>Items</span>
+                    <span
+                      style={{
+                        ...linkStyle,
+                        display: "block",
+                        borderRadius: 0,
+                      }}
+                    >
+                      {t("navbar.items")}
+                    </span>
                   </Link>
                   <Link href="/dev-zone/my-games" legacyBehavior>
-                    <span style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Games</span>
+                    <span
+                      style={{
+                        ...linkStyle,
+                        display: "block",
+                        borderRadius: "0 0 6px 6px",
+                      }}
+                    >
+                      {t("navbar.games")}
+                    </span>
                   </Link>
-                  <hr style={{ border: "none", borderTop: "1px solid #35363b", margin: "6px 0" }} />
+                  <hr
+                    style={{
+                      border: "none",
+                      borderTop: "1px solid #35363b",
+                      margin: "6px 0",
+                    }}
+                  />
                   <Link href="/settings" legacyBehavior>
-                    <span style={{ ...linkStyle, display: "block", borderRadius: "0 0 6px 6px" }}>Settings</span>
+                    <span
+                      style={{
+                        ...linkStyle,
+                        display: "block",
+                        borderRadius: "0 0 6px 6px",
+                      }}
+                    >
+                      {t("navbar.settings")}
+                    </span>
                   </Link>
                 </div>
               )}
@@ -322,7 +399,7 @@ export default function NavBarDesktop() {
             <button
               onClick={handleLogout}
               style={logoutBtnStyle}
-              title="Logout"
+              title={t("navbar.logout")}
             >
               <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
             </button>
@@ -330,7 +407,7 @@ export default function NavBarDesktop() {
         )}
         {!user && !loading && (
           <Link href="/login" legacyBehavior>
-            <span style={loginStyle}>Login</span>
+            <span style={loginStyle}>{t("navbar.login")}</span>
           </Link>
         )}
       </>
@@ -369,8 +446,18 @@ export default function NavBarDesktop() {
         <div style={rowStyle}>
           <div style={logoGroupStyle}>
             <Link style={logoStyle} href="/" legacyBehavior>
-              <span style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
-                <CachedImage src="/assets/icons/favicon-32x32.png" alt="Croissant Logo" style={logoImgStyle} />
+              <span
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <CachedImage
+                  src="/assets/icons/favicon-32x32.png"
+                  alt="Croissant Logo"
+                  style={logoImgStyle}
+                />
                 <div style={logoSpanStyle}>CROISSANT</div>
               </span>
             </Link>
