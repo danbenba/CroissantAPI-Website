@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const API_URL = "http://localhost:3456";
-
 export const config = {
   api: {
     bodyParser: false, // Permet de forwarder les bodies bruts (utile pour fichiers, etc.)
@@ -81,7 +79,17 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { slug = [], ...query } = req.query;
-  let url = `${API_URL}/${Array.isArray(slug) ? slug.join("/") : slug}`;
+
+  // Détection du host pour choisir l'API cible
+  const host = req.headers.host || "";
+  let apiBaseUrl: string;
+  if (host.includes("croissant-api.fr")) {
+    apiBaseUrl = "http://localhost:3456";
+  } else {
+    apiBaseUrl = "https://croissant-api.fr/api";
+  }
+
+  let url = `${apiBaseUrl}/${Array.isArray(slug) ? slug.join("/") : slug}`;
 
   // Ajoute les query params à l'URL
   const searchParams = new URLSearchParams();
