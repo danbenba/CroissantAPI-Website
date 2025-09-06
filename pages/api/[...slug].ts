@@ -8,7 +8,12 @@ export const config = {
 
 function filterHeaders(headers: Record<string, any>) {
   // Supprime les headers qui posent problème
-  const excluded = ["host", "connection", "content-length", "accept-encoding"];
+  const excluded = [
+    "host",
+    "connection",
+    "content-length",
+    "accept-encoding",
+  ];
   const result: Record<string, any> = {};
   for (const [key, value] of Object.entries(headers)) {
     if (!excluded.includes(key.toLowerCase())) {
@@ -130,6 +135,7 @@ export default async function handler(
       ![
         "transfer-encoding",
         "connection",
+        "content-encoding", // <-- Ajouté ici
       ].includes(key.toLowerCase())
     ) {
       res.setHeader(key, value);
