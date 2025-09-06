@@ -38,7 +38,7 @@
   border: 2px solid transparent;
   border-radius: 6px;
   background: linear-gradient(#1b1b1b, #1b1b1b) padding-box,
-              linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet) border-box;
+              linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red) border-box;
   background-size: 300% 100%;
   animation: rainbow 3s linear infinite;
 }
