@@ -520,5 +520,9 @@
   "profile.creatorLabel": "Creator:",
   "profile.stockLabel": "Stock:",
   "profile.totalLabel": "Total:",
-  "profile.disabledLabel": "(Disabled)"
+  "profile.disabledLabel": "(Disabled)",
+
+  "shop.allGames": "All Games",
+  "shop.title": "Shop",
+  "shop.searchPlaceholder": "Search games..."
 }

@@ -109,109 +109,61 @@ export default function NavBarDesktop() {
     const { t } = useTranslation("common");
     return (
       <>
-        <Link
-          href="/api-docs"
-          className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#23242a] transition-colors"
-        >
+        <Link href="/api-docs" className="nav-link">
           {t("navbar.docs")}
         </Link>
-        <Link
-          href="/game-shop"
-          className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#23242a] transition-colors"
-        >
+        <Link href="/game-shop" className="nav-link">
           {t("navbar.shop")}
         </Link>
-        <Link
-          href="/marketplace"
-          className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#23242a] transition-colors"
-        >
+        <Link href="/marketplace" className="nav-link">
           {t("navbar.marketplace")}
         </Link>
         <DropdownButton label={t("navbar.install")} showKey="install">
           {show === "install" && (
-            <div
-              className="absolute top-full left-0 bg-[#23242a] border border-[#23242a] rounded-md min-w-[140px] shadow-lg z-100 mt-0.5"
-              onMouseLeave={() => setShow("")}
-            >
-              <Link
-                href="/download-launcher"
-                className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#2a2b31] transition-colors"
-              >
+            <div className="nav-dropdown" onMouseLeave={() => setShow("")}>
+              <Link href="/download-launcher" className="nav-link">
                 {t("navbar.launcher")}
               </Link>
-              <Link
-                href="https://github.com/Croissant-API/Croissant-VPN/releases"
-                className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#2a2b31] transition-colors"
-              >
+              <Link href="https://github.com/Croissant-API/Croissant-VPN/releases" className="nav-link">
                 {t("navbar.vpn")}
               </Link>
-              <a
-                href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923"
-                className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded-b-md hover:bg-[#2a2b31] transition-colors"
-              >
+              <a href="https://ptb.discord.com/oauth2/authorize?client_id=1324530344900431923" className="nav-link">
                 {t("navbar.bot")}
               </a>
             </div>
           )}
         </DropdownButton>
+        {/* Pour le dropdown manage */}
         {!loading && user && (
-          <>
-            <DropdownButton label={t("navbar.manage")} showKey="manage">
-              {show === "manage" && (
-                <div
-                  className="absolute top-full left-0 bg-[#23242a] border border-[#23242a] rounded-md min-w-[140px] shadow-lg z-100 mt-0.5"
-                  onMouseLeave={() => setShow("")}
-                >
-                  {!user.isStudio && (
-                    <Link
-                      href="/studios"
-                      className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#2a2b31] transition-colors"
-                    >
-                      {t("navbar.studios")}
-                    </Link>
-                  )}
-                  <Link
-                    href="/oauth2/apps"
-                    className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#2a2b31] transition-colors"
-                  >
-                    {t("navbar.oauth2")}
+          <DropdownButton label={t("navbar.manage")} showKey="manage">
+            {show === "manage" && (
+              <div className="nav-dropdown" onMouseLeave={() => setShow("")}>
+                {!user.isStudio && (
+                  <Link href="/studios" className="nav-link">
+                    {t("navbar.studios")}
                   </Link>
-                  <Link
-                    href="/dev-zone/my-items"
-                    className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded hover:bg-[#2a2b31] transition-colors"
-                  >
-                    {t("navbar.items")}
-                  </Link>
-                  <Link
-                    href="/dev-zone/my-games"
-                    className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded-b-md hover:bg-[#2a2b31] transition-colors"
-                  >
-                    {t("navbar.games")}
-                  </Link>
-                  <Divider />
-                  <Link
-                    href="/settings"
-                    className="text-[#bdbdbd] text-[15px] p-[0.2rem_0.7rem] rounded-b-md hover:bg-[#2a2b31] transition-colors"
-                  >
-                    {t("navbar.settings")}
-                  </Link>
-                </div>
-              )}
-            </DropdownButton>
-            <button
-              onClick={handleLogout}
-              className="ml-1 bg-[#23242a] text-white border-none rounded-md py-1 px-3 cursor-pointer text-[15px]"
-              title={t("navbar.logout")}
-            >
-              <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
-            </button>
-          </>
+                )}
+                <Link href="/oauth2/apps" className="nav-link">
+                  {t("navbar.oauth2")}
+                </Link>
+                <Link href="/dev-zone/my-items" className="nav-link">
+                  {t("navbar.items")}
+                </Link>
+                <Link href="/dev-zone/my-games" className="nav-link">
+                  {t("navbar.games")}
+                </Link>
+                <Divider />
+                <Link href="/settings" className="nav-link">
+                  {t("navbar.settings")}
+                </Link>
+              </div>
+            )}
+          </DropdownButton>
         )}
+        {/* Bouton de connexion */}
         {!user && !loading && (
-          <Link href="/login" legacyBehavior>
-            <span className="text-[#8fa1c7] font-semibold bg-[#23242a] p-[0.2rem_0.7rem] rounded cursor-pointer">
-              {t("navbar.login")}
-            </span>
+          <Link href="/login" className="nav-link font-semibold bg-[#23242a]">
+            {t("navbar.login")}
           </Link>
         )}
       </>

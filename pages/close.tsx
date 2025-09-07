@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { withTranslation } from "react-i18next";
+import React from "react";
+import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export async function getStaticProps({ locale }) {
@@ -9,28 +9,17 @@ export async function getStaticProps({ locale }) {
     },
   };
 }
-class ClosePage extends Component<{ t: any }> {
-  render() {
-    const { t } = this.props;
-    return (
-      <div
-        className="container"
-        style={{ padding: "20px", borderRadius: "8px" }}
-      >
-        <h1
-          style={{
-            fontSize: "2.5rem",
-            textAlign: "center",
-            margin: "40px 0",
-            color: "white",
-            letterSpacing: "1px",
-          }}
-        >
+
+export default function ClosePage() {
+  const { t } = useTranslation("common");
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="container p-5 rounded-lg">
+        <h1 className="text-4xl text-center my-10 text-white tracking-wider">
           {t("close.title")}
         </h1>
       </div>
-    );
-  }
+    </div>
+  );
 }
-
-export default withTranslation("common")(ClosePage);

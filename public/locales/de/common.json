@@ -520,5 +520,8 @@
   "profile.creatorLabel": "Creator:",
   "profile.stockLabel": "Bestand:",
   "profile.totalLabel": "Gesamt:",
-  "profile.disabledLabel": "(Deaktiviert)"
+  "profile.disabledLabel": "(Deaktiviert)",
+  "shop.allGames": "Alle Games",
+  "shop.title": "Shop",
+  "shop.searchPlaceholder": "Games suchen..."
 }
