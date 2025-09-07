@@ -524,5 +524,53 @@
 
   "shop.allGames": "All Games",
   "shop.title": "Shop",
-  "shop.searchPlaceholder": "Search games..."
+  "shop.searchPlaceholder": "Search games...",
+
+  "oauth2": {
+    "demo": {
+      "title": "Croissant OAuth2 Integration Example",
+      "subtitle": "OAuth2 Demo",
+      "description": "Open the console to see the OAuth2 flow in action. This example demonstrates how to authenticate users with Croissant's OAuth2 service. Just click the button below to start authentication:",
+      "connectButton": "Connect with Croissant",
+      "expectedResult": "Expected result",
+      "expectedDescription": "After clicking the button, a popup will open for authentication. Once you log in, the popup will close and the user data will be logged in the console.",
+      "downloadCode": "Download OAuth2 Test HTML to study the code"
+    },
+    "auth": {
+      "authorize": "Do you want to authorize",
+      "accessData": "to access your user data?",
+      "login": "Log in",
+      "authorizing": "Authorizing...",
+      "authorizeButton": "Authorize",
+      "redirectUri": "Redirect URI:",
+      "missingParams": "Missing parameters.",
+      "networkError": "Network error."
+    },
+    "apps": {
+      "title": "My OAuth2 Applications",
+      "testLink": "Test OAuth2 ↗",
+      "addButton": "Add Application",
+      "addButtonMobile": "+ Add",
+      "createTitle": "Create Application",
+      "editTitle": "Edit Application",
+      "clientId": "Client ID:",
+      "clientSecret": "Client Secret:",
+      "redirectUrls": "Redirect URLs:",
+      "copy": "Copy",
+      "show": "Show",
+      "hide": "Hide",
+      "integrationCode": "Integration code",
+      "edit": "Edit",
+      "delete": "Delete",
+      "appName": "App Name",
+      "appNamePlaceholder": "My Game, My Website...",
+      "redirectUrlsHelp": "(comma-separated)",
+      "redirectUrlsPlaceholder": "https://myapp.com/callback, http://localhost:3000/cb",
+      "save": "Save Changes",
+      "create": "Create",
+      "cancel": "Cancel",
+      "integrationTitle": "Integration button code:",
+      "deleteConfirm": "Are you sure you want to delete this app?"
+    }
+  }
 }

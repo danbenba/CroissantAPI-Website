@@ -294,9 +294,16 @@ const Desktop: React.FC<ShopProps> = ({ games, loading, error, prompt, alert, ha
         <h1 className="text-3xl font-bold text-white mb-6">{t("shop.title")}</h1>
         <div className="flex gap-6 items-center">
           {/* Search Bar */}
-          <div className="relative flex-1 max-w-xl">
-            <input type="text" placeholder={t("shop.searchPlaceholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#2a2a32] border border-[#444] rounded-xl py-3 px-4 text-white placeholder-[#666] focus:outline-none focus:border-[#1e90ff]" />
-          </div>
+            <div className="flex-1">
+            <input
+              type="text"
+              placeholder={t("shop.searchPlaceholder")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-[#2a2a32] border border-[#444] rounded-xl py-3 px-4 text-white placeholder-[#666] focus:outline-none focus:border-[#1e90ff]"
+              style={{ minWidth: 0 }}
+            />
+            </div>
 
           {/* Genre Filter */}
           <div className="flex gap-2 overflow-x-auto pb-2">
@@ -489,17 +496,17 @@ const Mobile: React.FC<ShopProps> = ({ games, loading, error, prompt, alert, han
 
 function GameCard({ game, ownerInfo }: { game: Game; ownerInfo: OwnerInfo | null }) {
   return (
-    <div className="bg-[#1c1c24] rounded-xl overflow-hidden flex flex-col w-[420px] border border-[#333] shadow-lg transform transition-transform hover:scale-[1.02] hover:shadow-xl">
-      {/* Banner et Icon */}
+    <div className="bg-[#1c1c24] rounded-xl overflow-hidden flex flex-col border border-[#333] shadow-lg transform transition-transform hover:scale-[1.02] hover:shadow-xl">
+      {/* Banner et Icon avec effet de verre */}
       <div className="relative h-40 bg-[#18181c]">
-        <img src={"/banners-icons/" + game?.bannerHash} alt="banner" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        {game?.bannerHash && <img src={"/banners-icons/" + game.bannerHash} alt="banner" className="absolute inset-0 w-full h-full object-cover opacity-50" />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c24] to-transparent opacity-60" />
         <img src={"/games-icons/" + game.iconHash} alt={game.name} className="absolute -bottom-8 left-8 w-24 h-24 rounded-xl object-contain bg-[#23232a] border-2 border-[#444] shadow-lg" />
       </div>
 
-      {/* Contenu */}
+      {/* Contenu avec effet de verre */}
       <div className="pt-12 px-8 pb-6 flex flex-col gap-4">
-        {/* En-tête avec titre et genre */}
+        {/* En-tête avec titre et prix */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <Link href={`/game?gameId=${game.gameId}`} className="text-xl font-bold text-white hover:text-[#1e90ff] transition-colors">
@@ -513,7 +520,7 @@ function GameCard({ game, ownerInfo }: { game: Game; ownerInfo: OwnerInfo | null
           </div>
         </div>
 
-        {/* Information du créateur */}
+        {/* Information du créateur avec effet de verre */}
         {ownerInfo && (
           <Link href={`/profile?user=${ownerInfo.id}`} className="flex items-center gap-3 bg-[#2a2a32] rounded-lg p-2 hover:bg-[#32323a] transition-colors w-fit">
             <CachedImage src={`/avatar/${ownerInfo.id}`} alt={ownerInfo.username} className="w-8 h-8 rounded-full object-cover border-2 border-[#444]" />
@@ -524,8 +531,8 @@ function GameCard({ game, ownerInfo }: { game: Game; ownerInfo: OwnerInfo | null
           </Link>
         )}
 
-        {/* Description */}
-        <p className="text-[#999] text-sm line-clamp-3">{game.description}</p>
+        {/* Description avec effet de verre */}
+        <p className="text-[#999] text-sm line-clamp-3 bg-[#2a2a32] p-3 rounded-lg">{game.description}</p>
       </div>
     </div>
   );

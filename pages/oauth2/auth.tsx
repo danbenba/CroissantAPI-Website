@@ -1,114 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import useAuth from "../../hooks/useAuth";
 
-// --- Style constants ---
-const popupContainerStyle: React.CSSProperties = {
-  //   minWidth: 340,
-  minHeight: 180,
-  margin: "0 auto",
-  marginTop: 0,
-  background: "linear-gradient(135deg, #232323 80%, #2d2d2d 100%)",
-  borderRadius: 18,
-  boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
-  padding: "36px 28px 28px 28px",
-  color: "#fff",
-  fontFamily: "'Segoe UI', Arial, sans-serif",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  position: "relative",
-  maxWidth: "98vw",
-  overflow: "hidden",
-};
-const appInfoStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 18,
-  marginBottom: 22,
-  width: "100%",
-  justifyContent: "center",
-  overflow: "hidden",
-};
-const appAvatarStyle: React.CSSProperties = {
-  width: 56,
-  height: 56,
-  borderRadius: 16,
-  background: "#333",
-  objectFit: "cover" as const,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-};
-const appDescStyle: React.CSSProperties = {
-  fontSize: "0.98rem",
-  color: "#bdbdbd",
-  marginBottom: 0,
-};
-const errorMsgStyle: React.CSSProperties = {
-  color: "#fff",
-  background: "#b91c1c",
-  borderRadius: 8,
-  padding: "10px 14px",
-  marginTop: 18,
-  fontSize: "1.01rem",
-  textAlign: "center" as const,
-  width: "100%",
-  boxSizing: "border-box" as const,
-};
-const btnBottomStyle: React.CSSProperties = {
-  position: "absolute" as const,
-  left: 0,
-  right: 0,
-  bottom: 48,
-  padding: "0 12px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  zIndex: 2,
-};
-const oauthBtnStyle: React.CSSProperties = {
-  width: "100%",
-  background: "linear-gradient(90deg, #3b82f6 60%, #2563eb 100%)",
-  color: "#fff",
-  border: "none",
-  borderRadius: 10,
-  padding: "14px 0",
-  fontSize: "1.08rem",
-  fontWeight: 700,
-  cursor: "pointer",
-  marginBottom: 12,
-  marginTop: 8,
-  boxShadow: "0 2px 8px rgba(59,130,246,0.08)",
-  transition: "background 0.18s, box-shadow 0.18s",
-};
-const oauthBtnDisabledStyle: React.CSSProperties = {
-  ...oauthBtnStyle,
-  background: "#444",
-  cursor: "not-allowed",
-  boxShadow: "none",
-};
-const oauthBtnLoginStyle: React.CSSProperties = {
-  ...oauthBtnStyle,
-  background: "#444",
-  color: "#fff",
-  fontWeight: 600,
-};
-const redirectInfoBottomStyle: React.CSSProperties = {
-  position: "absolute" as const,
-  bottom: 16,
-  left: 0,
-  width: "100%",
-  textAlign: "center" as const,
-  fontSize: "0.82rem",
-  color: "#888",
-  opacity: 0.85,
-  padding: "0 12px",
-  wordBreak: "break-all" as const,
-  pointerEvents: "none" as const,
-  userSelect: "text" as const,
-  zIndex: 1,
-};
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+      isOauth2Auth: true,
+    },
+  };
+}
 
 export default function OAuth2Auth() {
+  const { t } = useTranslation("common");
   const [params, setParams] = useState<{
     client_id?: string;
     redirect_uri?: string;
@@ -140,18 +45,14 @@ export default function OAuth2Auth() {
   }, [token]);
 
   const handleLogin = () => {
-    window.location.href = `/login?redirect=${encodeURIComponent(
-      window.location.pathname + window.location.search
-    )}`;
+    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   };
 
   const handleAuth = async () => {
     setLoading(true);
     setError(null);
     try {
-      const url = `/api/oauth2/authorize?client_id=${encodeURIComponent(
-        params.client_id!
-      )}&redirect_uri=${encodeURIComponent(params.redirect_uri!)}`;
+      const url = `/api/oauth2/authorize?client_id=${encodeURIComponent(params.client_id!)}&redirect_uri=${encodeURIComponent(params.redirect_uri!)}`;
       const res = await fetch(url, {
         credentials: "include",
         headers: {
@@ -165,9 +66,7 @@ export default function OAuth2Auth() {
         return;
       }
       const data = await res.json();
-      window.location.href = `${params.redirect_uri}?code=${encodeURIComponent(
-        data.code
-      )}`;
+      window.location.href = `${params.redirect_uri}?code=${encodeURIComponent(data.code)}`;
     } catch (e) {
       setError("Network error.");
       setLoading(false);
@@ -178,57 +77,46 @@ export default function OAuth2Auth() {
   const missingParams = !params.client_id || !params.redirect_uri;
 
   return (
-    <div style={popupContainerStyle}>
-      <div style={appInfoStyle}>
-        <img
-          src={"/assets/icons/favicon-96x96.avif"}
-          alt="App avatar"
-          style={appAvatarStyle}
-        />
+    <div className="min-h-[180px] mx-auto mt-0 bg-gradient-to-br from-[#232323] to-[#2d2d2d] rounded-[18px] shadow-xl p-7 text-white font-['Segoe_UI',Arial,sans-serif] flex flex-col items-center justify-start relative max-w-[98vw]">
+      {/* App Info Section */}
+      <div className="flex items-center gap-[18px] mb-4 w-full justify-center">
+        <img src="/assets/icons/favicon-96x96.png" alt="App avatar" className="w-14 h-14 rounded-2xl bg-[#333] object-cover shadow-md" />
         <div>
-          <div style={appDescStyle}>
-            Do you want to authorize{" "}
-            <b style={{ color: "white" }}>
-              {userFromApp?.name || "Unknown application"}
-            </b>{" "}
-            to access your user data?
+          <div className="text-[0.98rem] text-[#bdbdbd]">
+            {t("oauth2.auth.authorize")} <b className="text-white">{userFromApp?.name || "Unknown application"}</b> {t("oauth2.auth.accessData")}
           </div>
         </div>
       </div>
-      {(error || missingParams) && (
-        <div style={errorMsgStyle}>
-          {missingParams ? "Missing parameters." : error}
-        </div>
-      )}
-      {/* Bouton déplacé en bas */}
-      <div style={btnBottomStyle}>
+
+      {/* Contenu Principal avec espace réservé pour les boutons */}
+      <div className="w-full flex-1 flex flex-col min-h-[80px] mb-8">
+        {/* Error Message */}
+        {(error || missingParams) && <div className="text-white bg-red-700 rounded-lg px-[14px] py-[10px] text-[1.01rem] text-center w-full">{missingParams ? t("oauth2.auth.missingParams") : error}</div>}
+      </div>
+
+      {/* Bottom Buttons Section */}
+      <div className="absolute left-0 right-0 bottom-12 px-6 flex flex-col items-center gap-3">
         {!authLoading && !user && !missingParams && (
-          <button style={oauthBtnLoginStyle} onClick={handleLogin}>
-            Log in
+          <button onClick={handleLogin} className="w-full bg-[#444] text-white rounded-lg py-[14px] text-[1.08rem] font-bold cursor-pointer transition-all duration-180 hover:bg-[#4a4a4a]">
+            {t("oauth2.auth.login")}
           </button>
         )}
         {!authLoading && user && !missingParams && (
           <button
-            style={loading ? oauthBtnDisabledStyle : oauthBtnStyle}
             onClick={handleAuth}
             disabled={loading}
+            className={`w-full text-white rounded-lg py-[14px] text-[1.08rem] font-bold cursor-pointer transition-all duration-180 
+            ${loading ? "bg-[#444] cursor-not-allowed shadow-none" : "bg-gradient-to-r from-blue-500 to-blue-600 shadow-[0_2px_8px_rgba(59,130,246,0.08)] hover:from-blue-600 hover:to-blue-700"}`}
           >
-            {loading ? "Authorizing..." : "Authorize"}
+            {loading ? t("oauth2.auth.authorizing") : t("oauth2.auth.authorizeButton")}
           </button>
         )}
       </div>
-      <div style={redirectInfoBottomStyle}>
-        Redirect URI:{" "}
-        {params.redirect_uri || <span style={{ color: "#b91c1c" }}>N/A</span>}
+
+      {/* Redirect Info */}
+      <div className="absolute bottom-4 left-0 w-full text-center text-[0.82rem] text-[#888] opacity-85 px-6 break-all select-text">
+        {t("oauth2.auth.redirectUri")} {params.redirect_uri || <span className="text-red-700">N/A</span>}
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps() {
-  return {
-    props: {
-      isOauth2Auth: true,
-    },
-  };
 }

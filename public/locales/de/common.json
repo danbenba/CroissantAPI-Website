@@ -523,5 +523,53 @@
   "profile.disabledLabel": "(Deaktiviert)",
   "shop.allGames": "Alle Games",
   "shop.title": "Shop",
-  "shop.searchPlaceholder": "Games suchen..."
+  "shop.searchPlaceholder": "Games suchen...",
+
+  "oauth2": {
+    "demo": {
+      "title": "Croissant OAuth2 Integrations-Beispiel",
+      "subtitle": "OAuth2 Demo",
+      "description": "Öffne die Konsole, um den OAuth2-Flow in Aktion zu sehen. Dieses Beispiel zeigt, wie Nutzer mit Croissants OAuth2-Service authentifiziert werden. Klick einfach auf den Button unten:",
+      "connectButton": "Mit Croissant verbinden",
+      "expectedResult": "Erwartetes Ergebnis",
+      "expectedDescription": "Nach dem Klick öffnet sich ein Popup für die Authentifizierung. Nach dem Login schließt sich das Popup und die Nutzerdaten werden in der Konsole angezeigt.",
+      "downloadCode": "OAuth2 Test-HTML zum Lernen herunterladen"
+    },
+    "auth": {
+      "authorize": "Möchtest du",
+      "accessData": "den Zugriff auf deine Nutzerdaten erlauben?",
+      "login": "Einloggen",
+      "authorizing": "Autorisierung läuft...",
+      "authorizeButton": "Autorisieren",
+      "redirectUri": "Weiterleitungs-URI:",
+      "missingParams": "Fehlende Parameter.",
+      "networkError": "Netzwerkfehler."
+    },
+    "apps": {
+      "title": "Meine OAuth2-Anwendungen",
+      "testLink": "OAuth2 testen ↗",
+      "addButton": "Anwendung hinzufügen",
+      "addButtonMobile": "+ Hinzufügen",
+      "createTitle": "Anwendung erstellen",
+      "editTitle": "Anwendung bearbeiten",
+      "clientId": "Client ID:",
+      "clientSecret": "Client Secret:",
+      "redirectUrls": "Weiterleitungs-URLs:",
+      "copy": "Kopieren",
+      "show": "Anzeigen",
+      "hide": "Verbergen",
+      "integrationCode": "Integrationscode",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "appName": "App-Name",
+      "appNamePlaceholder": "Mein Spiel, Meine Website...",
+      "redirectUrlsHelp": "(durch Kommas getrennt)",
+      "redirectUrlsPlaceholder": "https://meineapp.de/callback, http://localhost:3000/cb",
+      "save": "Änderungen speichern",
+      "create": "Erstellen",
+      "cancel": "Abbrechen",
+      "integrationTitle": "Integrations-Button-Code:",
+      "deleteConfirm": "Möchtest du diese App wirklich löschen?"
+    }
+  }
 }
