@@ -1,140 +1,21 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import useIsMobile from "../../hooks/useIsMobile";
 
 const OAUTH2_SERVER_URL = "/downloadables/oauth2-test-server.js";
 const OAUTH2_RESULT_IMG = "/assets/oauth2_result.png";
 
-// --- Style constants ---
-const containerStyle: React.CSSProperties = {
-  maxWidth: 900,
-  margin: "40px auto",
-  background: "#222",
-  borderRadius: 18,
-  boxShadow: "0 6px 32px rgba(0,0,0,0.45)",
-  padding: "40px 32px 32px 32px",
-  fontFamily: "Montserrat, Arial, sans-serif",
-  color: "#fff",
-};
-const containerMobileStyle: React.CSSProperties = {
-  ...containerStyle,
-  maxWidth: 420,
-  margin: "18px auto",
-  borderRadius: 10,
-  padding: "18px 18px",
-  fontSize: "0.98em",
-};
-const titleStyle: React.CSSProperties = {
-  color: "#3a8fdc",
-  fontSize: "2.5rem",
-  marginBottom: 8,
-};
-const titleMobileStyle: React.CSSProperties = {
-  ...titleStyle,
-  fontSize: "1.5rem",
-  marginBottom: 6,
-};
-const descStyle: React.CSSProperties = {
-  fontSize: "1.15rem",
-  color: "#ccc",
-};
-const descMobileStyle: React.CSSProperties = {
-  ...descStyle,
-  fontSize: "1em",
-};
-const downloadLinkStyle: React.CSSProperties = {
-  display: "inline-block",
-  margin: "1em 0 2em 0",
-  padding: "0.7em 1.5em",
-  background: "#3a8fdc",
-  color: "#fff",
-  borderRadius: 8,
-  textDecoration: "none",
-  fontWeight: 700,
-  transition: "background 0.2s",
-  border: "1px solid #222",
-  boxShadow: "0 2px 8px rgba(58,143,220,0.08)",
-};
-const downloadLinkMobileStyle: React.CSSProperties = {
-  ...downloadLinkStyle,
-  width: "100%",
-  textAlign: "center",
-  padding: "0.7em 0.5em",
-  fontSize: "1em",
-};
-const demoTitleStyle: React.CSSProperties = {
-  color: "#fff",
-  fontSize: "1.5rem",
-  marginTop: 32,
-};
-const demoTitleMobileStyle: React.CSSProperties = {
-  ...demoTitleStyle,
-  fontSize: "1.1rem",
-  marginTop: 18,
-};
-const demoDescStyle: React.CSSProperties = {
-  color: "#aaa",
-};
-const demoDescMobileStyle: React.CSSProperties = {
-  ...demoDescStyle,
-  fontSize: "0.97em",
-};
-const oauthBtnStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "8px",
-  padding: "10px 22px",
-  fontSize: "1.1rem",
-  borderRadius: "8px",
-  border: "none",
-  background: "#333",
-  color: "#fff",
-  cursor: "pointer",
-  fontWeight: 600,
-  marginBottom: 24,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-  transition: "background 0.2s",
-};
-const oauthBtnMobileStyle: React.CSSProperties = {
-  ...oauthBtnStyle,
-  width: "100%",
-  padding: "10px 0",
-  fontSize: "1em",
-  borderRadius: "7px",
-  justifyContent: "center",
-  marginBottom: 16,
-};
-const oauthBtnImgStyle: React.CSSProperties = {
-  width: 24,
-  height: 24,
-  verticalAlign: "middle",
-  display: "inline-block",
-};
-const oauthBtnImgMobileStyle: React.CSSProperties = {
-  ...oauthBtnImgStyle,
-  width: 20,
-  height: 20,
-};
-const oauthBtnSpanStyle: React.CSSProperties = {
-  verticalAlign: "middle",
-};
-const resultTitleStyle: React.CSSProperties = {
-  color: "#fff",
-  fontSize: "1.5rem",
-  marginTop: 32,
-};
-const resultTitleMobileStyle: React.CSSProperties = {
-  ...resultTitleStyle,
-  fontSize: "1.08rem",
-  marginTop: 18,
-};
-const resultImgStyle: React.CSSProperties = {
-  maxWidth: "100%",
-  borderRadius: 12,
-  boxShadow: "0 2px 12px rgba(58,143,220,0.08)",
-  textAlign: "left"
-};
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+}
 
 function OAuth2DemoDesktop() {
+  const { t } = useTranslation("common");
   const [serverCode, setServerCode] = useState<string>("");
 
   useEffect(() => {
@@ -144,28 +25,23 @@ function OAuth2DemoDesktop() {
   }, []);
 
   return (
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>Croissant OAuth2 Integration Example</h1>
+    <div className="max-w-[900px] mx-auto my-10 bg-[#222] rounded-[18px] shadow-[0_6px_32px_rgba(0,0,0,0.45)] p-8 font-['Montserrat',Arial,sans-serif] text-white">
+      <h1 className="text-[#3a8fdc] text-4xl mb-2">
+        {t("oauth2.demo.title")}
+      </h1>
 
-      <h2 style={demoTitleStyle}>OAuth2 Demo</h2>
-      <p style={demoDescStyle}>
-        Open the console to see the OAuth2 flow in action. This example
-        demonstrates how to authenticate users with Croissant's OAuth2 service.
-        Just click the button below to start authentication:
+      <h2 className="text-white text-2xl mt-8">{t("oauth2.demo.subtitle")}</h2>
+      <p className="text-[#aaa] text-lg">
+        {t("oauth2.demo.description")}
       </p>
-      {/* Croissant OAuth2 Button via external script */}
+
       <button
         data-client_id="2b90be46-3fdb-45f1-98bd-081b70cc3d9f"
-        className="croissant-oauth2-btn"
-        style={oauthBtnStyle}
+        className="croissant-oauth2-btn inline-flex items-center gap-2 px-[22px] py-[10px] text-lg rounded-lg bg-[#333] text-white cursor-pointer font-semibold mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#3a3a3a]"
         onClick={(e) => {
           const clientId = e.currentTarget.getAttribute("data-client_id");
           const redirectUri = location.origin;
-          let page = window.open(
-            `/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`,
-            "_oauth2",
-            "width=600,height=600"
-          );
+          let page = window.open(`/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`, "_oauth2", "width=600,height=600");
 
           function lookForCode() {
             requestAnimationFrame(lookForCode);
@@ -174,9 +50,7 @@ function OAuth2DemoDesktop() {
               const code = new URL(page.location.href).searchParams.get("code");
               if (code) {
                 page.close();
-                const oauthBtn = document.querySelector(
-                  ".croissant-oauth2-btn"
-                );
+                const oauthBtn = document.querySelector(".croissant-oauth2-btn");
                 const clientId = oauthBtn.getAttribute("data-client_id");
                 fetch(`/api/oauth2/user?code=${code}&client_id=${clientId}`)
                   .then((response) => response.json())
@@ -185,7 +59,7 @@ function OAuth2DemoDesktop() {
                       console.error("Error fetching user by code:", data.error);
                       return;
                     }
-                    const user = {...data, code};
+                    const user = { ...data, code };
                     console.log("User data:", user);
                     const callback = oauthBtn.getAttribute("data-callback");
                     if (callback) {
@@ -201,40 +75,43 @@ function OAuth2DemoDesktop() {
           lookForCode();
         }}
       >
-        <img
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
-          alt="icon"
-          style={oauthBtnImgStyle}
+        <img 
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.png" 
+          alt="icon" 
+          className="w-6 h-6" 
         />
-        <span style={oauthBtnSpanStyle}>Connect with Croissant</span>
+        <span>{t("oauth2.demo.connectButton")}</span>
       </button>
 
-      <h2 style={resultTitleStyle}>Expected result</h2>
-      <p>
-        After clicking the button, a popup will open for authentication. Once
-        you log in, the popup will close and the user data will be logged in the
-        console.
+      <h2 className="text-white text-2xl mt-8">
+        {t("oauth2.demo.expectedResult")}
+      </h2>
+      <p className="text-[#aaa]">
+        {t("oauth2.demo.expectedDescription")}
       </p>
-      <img
-        src={OAUTH2_RESULT_IMG}
-        alt="Expected result of OAuth2 authentication"
-        style={resultImgStyle}
-      /><br /><br/>
+      <img 
+        src={OAUTH2_RESULT_IMG} 
+        alt="Expected result of OAuth2 authentication" 
+        className="max-w-full rounded-xl shadow-[0_2px_12px_rgba(58,143,220,0.08)] text-left" 
+      />
+      <br />
+      <br />
 
-      <a
-        href="/downloadables/oauth2-test.html"
-        style={downloadLinkStyle}
-        download
-        target="_blank"
+      <a 
+        href="/downloadables/oauth2-test.html" 
+        className="inline-block my-4 px-6 py-3 bg-[#3a8fdc] text-white rounded-lg no-underline font-bold transition-colors hover:bg-[#3272b3] border border-[#222] shadow-[0_2px_8px_rgba(58,143,220,0.08)]" 
+        download 
+        target="_blank" 
         rel="noopener noreferrer"
       >
-        Download OAuth2 Test HTML to study the code
+        {t("oauth2.demo.downloadCode")}
       </a>
     </div>
   );
 }
 
 function OAuth2DemoMobile() {
+  const { t } = useTranslation("common");
   const [serverCode, setServerCode] = useState<string>("");
 
   useEffect(() => {
@@ -244,27 +121,25 @@ function OAuth2DemoMobile() {
   }, []);
 
   return (
-    <div style={containerMobileStyle}>
-      <h1 style={titleMobileStyle}>Croissant OAuth2 Example</h1>
+    <div className="max-w-[420px] mx-[18px] my-[18px] bg-[#222] rounded-[10px] shadow-[0_6px_32px_rgba(0,0,0,0.45)] p-[18px] font-['Montserrat',Arial,sans-serif] text-white text-[0.98em]">
+      <h1 className="text-[#3a8fdc] text-2xl mb-1.5">
+        {t("oauth2.demo.title")}
+      </h1>
 
-      <h2 style={demoTitleMobileStyle}>OAuth2 Demo</h2>
-      <p style={demoDescMobileStyle}>
-        Open the console to see the OAuth2 flow in action. This example
-        demonstrates how to authenticate users with Croissant's OAuth2 service.
-        Just click the button below to start authentication:
+      <h2 className="text-white text-lg mt-[18px]">
+        {t("oauth2.demo.subtitle")}
+      </h2>
+      <p className="text-[#aaa] text-base">
+        {t("oauth2.demo.description")}
       </p>
+
       <button
         data-client_id="2b90be46-3fdb-45f1-98bd-081b70cc3d9f"
-        className="croissant-oauth2-btn"
-        style={oauthBtnMobileStyle}
+        className="croissant-oauth2-btn w-full flex items-center justify-center gap-2 py-[10px] text-base rounded-[7px] bg-[#333] text-white cursor-pointer font-semibold mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#3a3a3a]"
         onClick={(e) => {
           const clientId = e.currentTarget.getAttribute("data-client_id");
           const redirectUri = location.origin;
-          let page = window.open(
-            `/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`,
-            "_oauth2",
-            "width=600,height=600"
-          );
+          let page = window.open(`/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`, "_oauth2", "width=600,height=600");
 
           function lookForCode() {
             requestAnimationFrame(lookForCode);
@@ -273,9 +148,7 @@ function OAuth2DemoMobile() {
               const code = new URL(page.location.href).searchParams.get("code");
               if (code) {
                 page.close();
-                const oauthBtn = document.querySelector(
-                  ".croissant-oauth2-btn"
-                );
+                const oauthBtn = document.querySelector(".croissant-oauth2-btn");
                 const clientId = oauthBtn.getAttribute("data-client_id");
                 fetch(`/api/oauth2/user?code=${code}&client_id=${clientId}`)
                   .then((response) => response.json())
@@ -284,7 +157,7 @@ function OAuth2DemoMobile() {
                       console.error("Error fetching user by code:", data.error);
                       return;
                     }
-                    const user = {...data, code};
+                    const user = { ...data, code };
                     alert("User data:" + JSON.stringify(user, null, 2));
                     const callback = oauthBtn.getAttribute("data-callback");
                     if (callback) {
@@ -300,25 +173,27 @@ function OAuth2DemoMobile() {
           lookForCode();
         }}
       >
-        <img
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
-          alt="icon"
-          style={oauthBtnImgMobileStyle}
+        <img 
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.png" 
+          alt="icon" 
+          className="w-5 h-5" 
         />
-        <span style={oauthBtnSpanStyle}>Connect with Croissant</span>
+        <span>{t("oauth2.demo.connectButton")}</span>
       </button>
 
-      <h2 style={resultTitleMobileStyle}>Expected result</h2>
-      <p style={{ fontSize: "0.97em" }}>
-        After clicking the button, a popup will open for authentication. Once
-        you log in, the popup will close and the user data will be logged in the
-        console.
+      <h2 className="text-white text-lg mt-[18px]">
+        {t("oauth2.demo.expectedResult")}
+      </h2>
+      <p className="text-[0.97em]">
+        {t("oauth2.demo.expectedDescription")}
       </p>
-      <img
-        src={OAUTH2_RESULT_IMG}
-        alt="Expected result of OAuth2 authentication"
-        style={resultImgStyle}
-      /><br /><br/>
+      <img 
+        src={OAUTH2_RESULT_IMG} 
+        alt="Expected result of OAuth2 authentication" 
+        className="max-w-full rounded-xl shadow-[0_2px_12px_rgba(58,143,220,0.08)] text-left" 
+      />
+      <br />
+      <br />
     </div>
   );
 }
