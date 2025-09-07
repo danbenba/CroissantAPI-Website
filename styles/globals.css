@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables globales et styles custom si nécessaire */
+:root {
+  --app-height: 100vh;
+}
+
+@layer components {
+  .bg-gradient-custom {
+    @apply bg-gradient-to-b from-[rgba(24,24,27,0.85)] via-[rgba(24,24,27,0.7)] to-[rgba(24,24,27,1)];
+  }
+}
