@@ -520,5 +520,9 @@
   "profile.creatorLabel": "Créateur :",
   "profile.stockLabel": "Stock :",
   "profile.totalLabel": "Total :",
-  "profile.disabledLabel": "(Désactivé)"
+  "profile.disabledLabel": "(Désactivé)",
+
+  "shop.allGames": "Tous les jeux",
+  "shop.title": "Boutique",
+  "shop.searchPlaceholder": "Cherche un jeu..."
 }
