@@ -1,8 +1,8 @@
-import "../styles/main.css";
-import "../styles/phone.css";
-import "../styles/atom-one-dark.min.css";
-import "../styles/rarity.css";
-// import '../styles/globals.css';
+// import "../styles/main.css";
+// import "../styles/phone.css";
+// import "../styles/atom-one-dark.min.css";
+// import "../styles/rarity.css";
+import '../styles/globals.css';
 
 import type { AppProps } from "next/app";
 import MetaLinks from "../components/common/MetaLinks";
@@ -32,59 +32,17 @@ export async function getStaticProps({ locale }) {
   };
 }
 
-// --- Style constants ---
-const launcherMainStyle: React.CSSProperties = {
-  position: "fixed",
-  left: 0,
-  right: 0,
-  top: "7rem",
-  bottom: 0,
-  overflowX: "hidden",
-  overflowY: "auto",
-};
-
-const launcherTitlebarStyle: React.CSSProperties = {
-  display: "flex",
-  padding: "0rem 1rem 0rem 1rem",
-  borderBottom: "1px solid #ddd",
-  justifyContent: "start",
-  position: "fixed",
-  width: "100%",
-  backgroundColor: "#222",
-};
-const launcherIconStyle: React.CSSProperties = {
-  width: "24px",
-  height: "24px",
-};
-const launcherTitleStyle: React.CSSProperties = {
-  position: "relative",
-  top: "2px",
-  right: "10px",
-};
-
 function AppContent({ Component, pageProps }: AppProps) {
   const [isLauncher, setIsLauncher] = useState(false);
   const { user } = useAuth();
-  const [mainStyle, setMainStyle] = useState<React.CSSProperties>({});
+  const [mainStyle, setMainStyle] = useState<string>('');
 
   // Set main style based on whether it's a launcher or not
   useEffect(() => {
     setMainStyle(
       window.location.href.includes("/oauth2/auth")
-        ? {
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "0",
-          margin: "auto",
-          height: "calc(100vh - 30px)",
-          top: "0",
-          left: "0",
-          right: "0",
-          bottom: "0",
-          position: "fixed",
-        }
-        : {}
+        ? "flex justify-center items-center p-0 m-auto h-[calc(100vh-30px)] top-0 left-0 right-0 bottom-0 fixed"
+        : ""
     );
   }, []);
 
@@ -116,37 +74,14 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   // --- Background image component ---
   const BackgroundImage = () => (
-    <div
-      style={{
-        position: "fixed",
-        zIndex: -1,
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        pointerEvents: "none",
-        background:
-          "linear-gradient(to bottom, rgba(24,24,27,0.85) 0%, rgba(24,24,27,0.7) 60%, rgba(24,24,27,1) 100%)",
-        overflow: "hidden",
-        objectFit: "cover",
-      }}
+    <div 
+      className="fixed -z-10 top-0 left-0 w-screen h-screen pointer-events-none overflow-hidden object-cover bg-gradient-custom"
       aria-hidden="true"
     >
       <img
         src="/assets/backgrounds/raiden-crow.webp"
         alt="background"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          objectFit: "cover",
-          opacity: 0.32,
-          filter: "blur(0.5px)",
-          transition: "opacity 0.8s",
-          maxWidth: "100%",
-        }}
+        className="absolute top-0 left-0 w-screen h-screen object-cover opacity-30 blur-[0.5px] transition-opacity duration-800 max-w-full"
       />
     </div>
   );
@@ -159,23 +94,21 @@ function AppContent({ Component, pageProps }: AppProps) {
 
       {/* Précharger des images importantes */}
       <ImagePreloader
-        images={[
-          "/assets/backgrounds/raiden-crow.webp"
-        ]}
+        images={["/assets/backgrounds/raiden-crow.webp"]}
         priority={true}
       />
-      <nav className="titlebar" style={launcherTitlebarStyle}>
+      <nav className="flex px-4 py-0 border-b border-[#ddd] justify-start fixed w-full bg-[#222]">
         <img
           src="/assets/icons/favicon-32x32.png"
           alt="Icon"
-          style={launcherIconStyle}
+          className="w-6 h-6"
         />
-        <span className="navbar-title" style={launcherTitleStyle}>
+        <span className="relative top-0.5 -right-2.5">
           Croissant Launcher
         </span>
       </nav>
       <LauncherNavbar />
-      <main style={launcherMainStyle} className="launcher">
+      <main className="fixed inset-x-0 top-28 bottom-0 overflow-x-hidden overflow-y-auto launcher">
         <Component {...pageProps} />
       </main>
       <LauncherLobby />
@@ -184,7 +117,6 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   const LauncherLogin = () => (
     <>
-      {/* <BackgroundImage /> */}
       <MetaLinks metaLinksTitle={pageProps?.title} from="app" />
       <Login />
     </>
@@ -200,7 +132,7 @@ function AppContent({ Component, pageProps }: AppProps) {
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
           isMobile ? <NavBarMobile /> : <NavBarDesktop />
         )}
-        <main style={{ ...mainStyle, padding: isMobile ? "0px" : undefined }}>
+        <main className={`${mainStyle} ${isMobile ? 'p-0' : ''}`}>
           <Component {...pageProps} />
         </main>
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}

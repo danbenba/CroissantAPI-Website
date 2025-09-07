@@ -32,34 +32,22 @@ export default function Footer() {
     { href: "/privacy", label: t("footer.privacy") },
   ];
 
-  const linkStyle = {
-    color: "#8fa1c7",
-    textDecoration: "none",
-    margin: "0 0.5rem",
-  };
-
   return (
     <footer
-      style={{
-        display: show,
-        width: "100%",
-        background: "#191b20",
-        color: "#bdbdbd",
-        fontSize: "0.92rem",
-        textAlign: "center",
-        padding: "1.4rem 0 1.2rem 0",
-        borderTop: "1px solid #23242a",
-        position: footerPosition,
-        bottom: 0,
-        left: 0,
-      }}
+      className={`w-full bg-primary text-[#bdbdbd] text-[0.92rem] text-center py-[1.4rem] px-0 border-t border-secondary ${
+        footerPosition === "absolute" ? "absolute bottom-0 left-0" : "relative"
+      }`}
+      style={{ display: show }}
     >
-      <span style={{ marginRight: 8 }}>{t("footer.copyright")}</span>
+      <span className="mr-2">{t("footer.copyright")}</span>
       {footerLinks.map((link, idx) => (
         <React.Fragment key={link.href}>
-          {idx > 0 && <span style={{ color: "#444" }}>|</span>}
-          <Link href={link.href} legacyBehavior>
-            <a style={linkStyle}>{link.label}</a>
+          {idx > 0 && <span className="text-[#444]">|</span>}
+          <Link
+            href={link.href}
+            className="text-accent no-underline mx-2 hover:text-[#a3b3d6] transition-colors"
+          >
+            {link.label}
           </Link>
         </React.Fragment>
       ))}
