@@ -55,18 +55,14 @@ function AppCard({ app, onIframe, onEdit, onDelete, spoilers, toggleSpoiler }) {
                 </button>
               </div>
             </div>
-            <code className="block w-full bg-[#1c1c24] rounded p-2 text-sm font-mono cursor-pointer select-all truncate">
-              {spoilers[app.client_id] ? app.client_secret : "*".repeat(32)}
-            </code>
+            <code className="block w-full bg-[#1c1c24] rounded p-2 text-sm font-mono cursor-pointer select-all truncate">{spoilers[app.client_id] ? app.client_secret : "*".repeat(32)}</code>
           </div>
         )}
 
         {/* Redirects Section */}
         <div className="bg-[#2a2a32] rounded-lg p-4">
           <span className="text-sm text-gray-400 block mb-2">{t("oauth2.apps.redirectUrls")}</span>
-          <div className="text-sm text-white">
-            {Array.isArray(app.redirect_urls) ? app.redirect_urls.join(", ") : app.redirect_urls}
-          </div>
+          <div className="text-sm text-white">{Array.isArray(app.redirect_urls) ? app.redirect_urls.join(", ") : app.redirect_urls}</div>
         </div>
 
         {/* Actions */}
@@ -218,10 +214,10 @@ function OAuth2AppsDesktop(props: ReturnType<typeof useOAuth2AppsLogic>) {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="w-full flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white">{t("My OAuth2 Applications")}</h1>
+        <h1 className="text-3xl font-bold text-white">{t("oauth2.apps.title")}</h1>
         <div className="flex items-center gap-4">
           <Link href="/oauth2/test" className="text-sm text-gray-400 hover:text-gray-300 transition-colors underline">
-            {t("Test OAuth2")} ↗
+            {t("oauth2.apps.testLink")}
           </Link>
           <button
             onClick={() => {
@@ -232,7 +228,7 @@ function OAuth2AppsDesktop(props: ReturnType<typeof useOAuth2AppsLogic>) {
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
           >
-            {t("+ Add Application")}
+            {t("oauth2.apps.addButton")}
           </button>
         </div>
       </div>
@@ -303,29 +299,14 @@ function OAuth2AppModal({ title, name, setName, redirectUrls, setRedirectUrls, o
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm text-gray-400">{t("oauth2.apps.appName")}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder={t("oauth2.apps.appNamePlaceholder")}
-              className="w-full bg-[#2a2a32] border border-[#444] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("oauth2.apps.appNamePlaceholder")} className="w-full bg-[#2a2a32] border border-[#444] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm text-gray-400">
-              {t("oauth2.apps.redirectUrls")}{" "}
-              <span className="font-normal opacity-70">{t("oauth2.apps.redirectUrlsHelp")}</span>
+              {t("oauth2.apps.redirectUrls")} <span className="font-normal opacity-70">{t("oauth2.apps.redirectUrlsHelp")}</span>
             </label>
-            <input
-              type="text"
-              value={redirectUrls}
-              onChange={(e) => setRedirectUrls(e.target.value)}
-              required
-              placeholder={t("oauth2.apps.redirectUrlsPlaceholder")}
-              className="w-full bg-[#2a2a32] border border-[#444] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
+            <input type="text" value={redirectUrls} onChange={(e) => setRedirectUrls(e.target.value)} required placeholder={t("oauth2.apps.redirectUrlsPlaceholder")} className="w-full bg-[#2a2a32] border border-[#444] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
           </div>
 
           <div className="flex gap-3 pt-2">
