@@ -10,15 +10,15 @@
   "index.overview.players.2": "Échange, achète ou vends tes objets avec d’autres utilisateurs.",
   "index.overview.players.3": "Rejoins des parties multijoueur en deux clics grâce aux salons.",
   "index.overview.players.4": "Gère ton inventaire et tes crédits sur Discord ou via le launcher.",
-  "index.overview.players.5": "NOUVEAU : Relie ton compte Steam pour accéder à ton inventaire Steam.",
+  "index.overview.players.5": "Relie ton compte Steam pour accéder à ton inventaire Steam.",
 
   "index.overview.creators.title": "Pour les créateurs & développeurs de jeux",
   "index.overview.creators.1": "Connecte ton jeu à Croissant via le SDK ou l’API.",
   "index.overview.creators.2": "Authentifie les joueurs et interagis avec leur inventaire (ajoute/retire des objets, récompenses, achats en jeu).",
   "index.overview.creators.3": "Crée et vends tes propres objets ou bundles sur le marché.",
   "index.overview.creators.4": "Utilise les salons pour gérer des parties privées multijoueur.",
-  "index.overview.creators.5": "NOUVEAU : Utilise OAuth2 comme authentification sur ton site.",
-  "index.overview.creators.6": "NOUVEAU : Les utilisateurs peuvent lier leur compte Steam. Si ton jeu est sur Steam, retrouve un joueur par son Steam ID et récupère son inventaire.",
+  "index.overview.creators.5": "Utilise OAuth2 comme authentification sur ton site.",
+  "index.overview.creators.6": "Les utilisateurs peuvent lier leur compte Steam. Si ton jeu est sur Steam, retrouve un joueur par son Steam ID et récupère son inventaire.",
   "index.overview.creators.getstarted": "Commence : Génère ta clé API dans les paramètres et consulte la doc.",
 
   "index.overview.marketplace.title": "Marché & Inventaire",

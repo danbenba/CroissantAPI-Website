@@ -269,24 +269,24 @@ export default function Home() {
   function HomeMobile() {
     return (
       <>
-        <div className="page-container !p-2 !max-w-[1000px]">
-          <div className="content-card !p-3 !mt-4 !mx-2">
+        <div className="page-container !max-w-[1000px]">
+          <div className="content-card !mt-0 !mx-0">
             <h2 className="section-title !text-[1.1rem]">
               <span className="method post">{t("index.overview.title")}</span>
             </h2>
             {overviewDetails.map(({ summary, content }) => (
-              <details className="details-item !mb-3 !p-1 !px-2 !pb-3" open key={summary}>
+              <details className="details-item !mb-3 !p-0 !px-0 !pb-0" open key={summary}>
                 <summary className="details-summary !text-base !py-2">{summary}</summary>
                 {content}
               </details>
             ))}
           </div>
-          <div className="content-card !p-3 !mt-4 !mx-2">
+          <div className="content-card !mt-4 !mx-0">
             <h2 id="about-us" className="section-title !text-[1.1rem] !mt-[18px]">
               <span className="method put">{t("index.about.title")}</span>
             </h2>
             {aboutDetails.map(({ summary, content }) => (
-              <details className="details-item !mb-3 !p-1 !px-2 !pb-3" open key={summary}>
+              <details className="details-item !mb-3 !p-0 !px-0 !pb-0" open key={summary}>
                 <summary className="details-summary !text-base !py-2">{summary}</summary>
                 {content}
               </details>

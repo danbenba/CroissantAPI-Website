@@ -173,4 +173,20 @@ pre::-webkit-scrollbar-track {
   .api-link {
     @apply text-[#1e90ff] no-underline hover:underline;
   }
+
+  /* MOBILE: enlever margin et padding */
+  @media (max-width: 640px) {
+    .page-container {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    .container {
+      margin: 0 !important;
+    }
+  }
 }

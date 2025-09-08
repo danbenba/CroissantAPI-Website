@@ -10,15 +10,15 @@
   "index.overview.players.2": "Tausche, kaufe oder verkaufe deine Items mit anderen Nutzern.",
   "index.overview.players.3": "Tritt Multiplayer-Games easy über Lobbys bei.",
   "index.overview.players.4": "Verwalte dein Inventar und deine Credits über Discord oder den Launcher.",
-  "index.overview.players.5": "NEU: Verknüpfe deinen Steam-Account und greif auf dein Steam-Inventar zu.",
+  "index.overview.players.5": "Verknüpfe deinen Steam-Account und greif auf dein Steam-Inventar zu.",
 
   "index.overview.creators.title": "Für Creator & Game-Entwickler",
   "index.overview.creators.1": "Verbinde dein Game per SDK oder API mit Croissant.",
   "index.overview.creators.2": "Authentifiziere Spieler und interagiere mit deren Inventar (Items hinzufügen/entfernen, Belohnungen, Ingame-Käufe).",
   "index.overview.creators.3": "Erstelle und verkaufe deine eigenen Items oder Bundles im Marktplatz.",
   "index.overview.creators.4": "Nutze Lobbys für private Multiplayer-Sessions.",
-  "index.overview.creators.5": "NEU: Nutze OAuth2 als Login auf deiner Website.",
-  "index.overview.creators.6": "NEU: Nutzer können jetzt ihren Steam-Account verknüpfen. Wenn dein Game auf Steam ist, findest du Spieler per Steam-ID und holst ihr Inventar.",
+  "index.overview.creators.5": "Nutze OAuth2 als Login auf deiner Website.",
+  "index.overview.creators.6": "Nutzer können jetzt ihren Steam-Account verknüpfen. Wenn dein Game auf Steam ist, findest du Spieler per Steam-ID und holst ihr Inventar.",
   "index.overview.creators.getstarted": "Los geht’s: API-Key in den Einstellungen generieren und Doku lesen.",
 
   "index.overview.marketplace.title": "Marktplatz & Inventar",
