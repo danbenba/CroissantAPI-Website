@@ -279,7 +279,7 @@ function ProfileShop({ user, onBuySuccess }: { user: User; onBuySuccess: () => v
                   </div>
                   {(prompt.item as any).owner && promptOwnerUser && (
                     <div className="shop-prompt-item-owner" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      {t("profile.creatorLabel")} {" "}
+                      {t("profile.creatorLabel")}{" "}
                       <Link href={`/profile?user=${(prompt.item as any).owner}`} className="shop-prompt-owner-link">
                         <CachedImage className="shop-prompt-owner-avatar" src={"/avatar/" + (prompt.item as any).owner} />
                         {promptOwnerUser.username} <Certification user={{ ...promptOwnerUser, verified: promptOwnerUser.verified ?? false }} style={{ marginLeft: 4, width: 16, height: 16, position: "relative", top: -2, verticalAlign: "middle" }} />
@@ -543,8 +543,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
             <div className="profile-header">
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div className="profile-name" style={{ display: "flex", alignItems: "center" }}>
-                  {profile.username} {" "}
-                  <Certification user={profile} style={{ marginLeft: 4, width: 32, height: 32, position: "relative", top: 0, verticalAlign: "middle" }} />
+                  {profile.username} <Certification user={profile} style={{ marginLeft: 4, width: 32, height: 32, position: "relative", top: 0, verticalAlign: "middle" }} />
                   {profile.disabled ? <span style={{ color: "red", marginLeft: 8 }}>{t("profile.disabledLabel")}</span> : null}
                 </div>
                 <BadgesBox badges={profile.badges || []} studio={profile.isStudio} />
@@ -568,7 +567,14 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                 )}
                 {!profile.disabled && (
                   <>
-                    <button className="shop-prompt-buy-btn" onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}>
+                    <button
+                      className="shop-prompt-buy-btn"
+                      onClick={() => {
+                        setGiveCreditsOpen(true);
+                        setGiveCreditsError(null);
+                        setGiveCreditsSuccess(null);
+                      }}
+                    >
                       {t("profile.giveCredits")}
                     </button>
                     <button className="shop-prompt-buy-btn" onClick={handleStartTrade}>
@@ -582,7 +588,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
                 <Link href="/my-market-listings">
                   <button className="shop-prompt-buy-btn">{t("profile.myMarketListings")}</button>
                 </Link>
-                <Link href="/settings" title={t("profile.settings")}> 
+                <Link href="/settings" title={t("profile.settings")}>
                   <button className="shop-prompt-buy-btn" style={{ padding: 0, background: "none", border: "none" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", fontSize: 24, color: "#888" }}>
                       <i className="fa fa-cog" aria-hidden="true"></i>
@@ -598,7 +604,7 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
         <div style={{ flex: "0 0 70%" }}>
           <div className="profile-shop-section">
             <h2 className="profile-inventory-title">{t("profile.inventoryTitle")}</h2>
-            <Inventory profile={{ ...profile, inventory: profile.inventory ? profile.inventory.map((item) => ({ ...item, item_id: item.itemId, icon_hash: item.iconHash })) : [], }} isMe={isMe} reloadFlag={inventoryReloadFlag} />
+            <Inventory profile={{ ...profile, inventory: profile.inventory ? profile.inventory.map((item) => ({ ...item, item_id: item.itemId, icon_hash: item.iconHash })) : [] }} isMe={isMe} reloadFlag={inventoryReloadFlag} />
           </div>
         </div>
         <div style={{ flex: "0 0 30%" }}>
@@ -607,10 +613,31 @@ function ProfileDesktop(props: ReturnType<typeof useProfileLogic>) {
       </div>
       {/* Trade Panel - only show if not our own profile */}
       {user && user.id !== profile.id && currentTradeId && (
-        <TradePanel tradeId={currentTradeId} userId={user.id} token={token} inventory={user.inventory} reloadInventory={reloadInventory} onClose={() => { setCurrentTradeId(null); setShowTradeModal(false); }} profile={profile} apiBase="/api" />
+        <TradePanel
+          tradeId={currentTradeId}
+          userId={user.id}
+          token={token}
+          inventory={user.inventory}
+          reloadInventory={reloadInventory}
+          onClose={() => {
+            setCurrentTradeId(null);
+            setShowTradeModal(false);
+          }}
+          profile={profile}
+          apiBase="/api"
+        />
       )}
       {/* Give Credits Modal */}
-      <GiveCreditsModal open={giveCreditsOpen} onClose={() => setGiveCreditsOpen(false)} onSubmit={(amount) => { setGiveCreditsOpen(false); handleGiveCredits(amount); }} maxAmount={user?.balance} username={profile.username || profile.username} />
+      <GiveCreditsModal
+        open={giveCreditsOpen}
+        onClose={() => setGiveCreditsOpen(false)}
+        onSubmit={(amount) => {
+          setGiveCreditsOpen(false);
+          handleGiveCredits(amount);
+        }}
+        maxAmount={user?.balance}
+        username={profile.username || profile.username}
+      />
       {/* Feedback for give credits */}
       {giveCreditsLoading && (
         <div className="shop-alert-overlay">
@@ -691,8 +718,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
         </div>
         <div className="profile-header" style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <div className="profile-name" style={{ fontSize: "1.2em", fontWeight: 600 }}>
-            {profile.username} {" "}
-            <Certification user={profile} style={{ marginLeft: 4, width: 24, height: 24, position: "relative", top: -2, verticalAlign: "middle" }} />
+            {profile.username} <Certification user={profile} style={{ marginLeft: 4, width: 24, height: 24, position: "relative", top: -2, verticalAlign: "middle" }} />
             {profile.disabled ? <span style={{ color: "red" }}>{t("profile.disabledLabel")}</span> : null}
           </div>
           <BadgesBox badges={profile.badges || []} studio={profile.isStudio} />
@@ -711,7 +737,15 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                 )}
                 {!profile.disabled && (
                   <>
-                    <button className="shop-prompt-buy-btn" style={{ minWidth: 90 }} onClick={() => { setGiveCreditsOpen(true); setGiveCreditsError(null); setGiveCreditsSuccess(null); }}>
+                    <button
+                      className="shop-prompt-buy-btn"
+                      style={{ minWidth: 90 }}
+                      onClick={() => {
+                        setGiveCreditsOpen(true);
+                        setGiveCreditsError(null);
+                        setGiveCreditsSuccess(null);
+                      }}
+                    >
                       {t("profile.giveCredits")}
                     </button>
                     <button className="shop-prompt-buy-btn" style={{ minWidth: 90 }} onClick={handleStartTrade}>
@@ -728,7 +762,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
                     {t("profile.myListings")}
                   </button>
                 </Link>
-                <Link href="/settings" title={t("profile.settings")}> 
+                <Link href="/settings" title={t("profile.settings")}>
                   <button className="shop-prompt-buy-btn" style={{ minWidth: 90, padding: 0, background: "none", border: "none" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", fontSize: 24, color: "#888" }}>
                       <i className="fa fa-cog" aria-hidden="true"></i>
@@ -742,7 +776,7 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
         <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 8px" }}>
           <div className="profile-shop-section">
             <h2 className="profile-inventory-title">{t("profile.inventoryTitle")}</h2>
-            <Inventory profile={{ ...profile, inventory: profile.inventory ? profile.inventory.map((item) => ({ ...item, item_id: item.itemId, icon_hash: item.iconHash })) : [], }} isMe={isMe} reloadFlag={inventoryReloadFlag} />
+            <Inventory profile={{ ...profile, inventory: profile.inventory ? profile.inventory.map((item) => ({ ...item, item_id: item.itemId, icon_hash: item.iconHash })) : [] }} isMe={isMe} reloadFlag={inventoryReloadFlag} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", width: "100%", gap: 8 }}>
             <ProfileShop user={profile} onBuySuccess={() => setInventoryReloadFlag((f) => f + 1)} />
@@ -751,10 +785,31 @@ function ProfileMobile(props: ReturnType<typeof useProfileLogic>) {
       </div>
       {/* Trade Panel - only show if not our own profile */}
       {user && user.id !== profile.id && currentTradeId && (
-        <TradePanel tradeId={currentTradeId} userId={user.id} token={token} inventory={user.inventory} reloadInventory={reloadInventory} onClose={() => { setCurrentTradeId(null); setShowTradeModal(false); }} profile={profile} apiBase="/api" />
+        <TradePanel
+          tradeId={currentTradeId}
+          userId={user.id}
+          token={token}
+          inventory={user.inventory}
+          reloadInventory={reloadInventory}
+          onClose={() => {
+            setCurrentTradeId(null);
+            setShowTradeModal(false);
+          }}
+          profile={profile}
+          apiBase="/api"
+        />
       )}
       {/* Give Credits Modal */}
-      <GiveCreditsModal open={giveCreditsOpen} onClose={() => setGiveCreditsOpen(false)} onSubmit={(amount) => { setGiveCreditsOpen(false); handleGiveCredits(amount); }} maxAmount={user?.balance} username={profile.username || profile.username} />
+      <GiveCreditsModal
+        open={giveCreditsOpen}
+        onClose={() => setGiveCreditsOpen(false)}
+        onSubmit={(amount) => {
+          setGiveCreditsOpen(false);
+          handleGiveCredits(amount);
+        }}
+        maxAmount={user?.balance}
+        username={profile.username || profile.username}
+      />
       {/* Feedback for give credits */}
       {giveCreditsLoading && (
         <div className="shop-alert-overlay">
