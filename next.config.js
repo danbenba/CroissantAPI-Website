@@ -58,10 +58,6 @@ const nextConfig = {
             }
         ];
     },
-    experimental: {
-        // Faire confiance aux headers de proxy
-        trustHostHeader: true,
-    },
     async headers() {
         return [
             {

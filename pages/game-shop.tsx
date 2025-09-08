@@ -94,7 +94,6 @@ function useShopLogic() {
       })
       .then((data) => {
         setGames(data);
-        setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
@@ -239,6 +238,8 @@ function useShopLogic() {
       if (newInvalidIds.length > 0) {
         setInvalidOwnerIds((prev) => new Set([...prev, ...newInvalidIds]));
       }
+
+      setLoading(false);
     };
     if (games.length > 0) fetchOwners();
   }, [games, getUserFromCache, ownerInfoMap, invalidOwnerIds]);
@@ -290,20 +291,13 @@ const Desktop: React.FC<ShopProps> = ({ games, loading, error, prompt, alert, ha
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header Section */}
-      <div className="mb-8">
+      <div className="mb-8 w-full justify-content">
         <h1 className="text-3xl font-bold text-white mb-6">{t("shop.title")}</h1>
         <div className="flex gap-6 items-center">
           {/* Search Bar */}
-            <div className="flex-1">
-            <input
-              type="text"
-              placeholder={t("shop.searchPlaceholder")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#2a2a32] border border-[#444] rounded-xl py-3 px-4 text-white placeholder-[#666] focus:outline-none focus:border-[#1e90ff]"
-              style={{ minWidth: 0 }}
-            />
-            </div>
+          <div className="flex-1">
+            <input type="text" placeholder={t("shop.searchPlaceholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#2a2a32] border border-[#444] rounded-xl py-3 px-4 text-white placeholder-[#666] focus:outline-none focus:border-[#1e90ff]" style={{ minWidth: 0 }} />
+          </div>
 
           {/* Genre Filter */}
           <div className="flex gap-2 overflow-x-auto pb-2">
@@ -320,15 +314,19 @@ const Desktop: React.FC<ShopProps> = ({ games, loading, error, prompt, alert, ha
       </div>
 
       {/* Games Grid */}
-      <div className="min-h-[calc(100vh-16rem)]">
+      <div className="min-h-[calc(100vh-16rem)]  w-full justify-content">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="w-full bg-gray-800 rounded-lg overflow-hidden shadow-lg animate-pulse">
-                <div className="h-48 bg-gray-700"></div>
-                <div className="p-4">
-                  <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="shop-game-modern-card shop-blur" style={{ width: 400, background: "var(--background-medium)", borderRadius: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.22)", overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", marginBottom: 24, border: "2px solid var(--border-color)", filter: "blur(0.5px) grayscale(0.2) brightness(0.8)", pointerEvents: "none" }}>
+                <div style={{ position: "relative", width: "100%", height: 160, background: "#18181c" }}>
+                  <div className="skeleton-banner" />
+                  <div className="skeleton-icon" style={{ left: 32, bottom: -48, position: "absolute" }} />
+                </div>
+                <div style={{ padding: "56px 32px 24px 32px", display: "flex", flexDirection: "column", gap: 8, position: "relative", minHeight: 160 }}>
+                  <div className="skeleton-title" style={{ width: "60%" }} />
+                  <div className="skeleton-desc" style={{ width: "90%" }} />
+                  <div className="skeleton-properties" style={{ width: "40%", height: 32 }} />
                 </div>
               </div>
             ))}
@@ -408,7 +406,7 @@ const Mobile: React.FC<ShopProps> = ({ games, loading, error, prompt, alert, han
   return (
     <div className="px-4 py-6">
       {/* Header Section */}
-      <div className="mb-6">
+      <div className="mb-6 w-full justify-content">
         <h1 className="text-2xl font-bold text-white mb-4">{t("shop.title")}</h1>
 
         {/* Search Bar */}
