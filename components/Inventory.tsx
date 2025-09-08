@@ -20,19 +20,7 @@ export interface Item {
   showInStore?: boolean;
   deleted?: boolean;
   sellable?: boolean;
-  rarity:
-    | "very-common"
-    | "common"
-    | "uncommon"
-    | "rare"
-    | "very-rare"
-    | "epic"
-    | "ultra-epic"
-    | "legendary"
-    | "ancient"
-    | "mythic"
-    | "godlike"
-    | "radiant";
+  rarity: "very-common" | "common" | "uncommon" | "rare" | "very-rare" | "epic" | "ultra-epic" | "legendary" | "ancient" | "mythic" | "godlike" | "radiant";
   custom_url_link?: string;
   metadata?: { [key: string]: unknown; _unique_id?: string };
 }
@@ -60,11 +48,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<{
     message: string;
-    resolve: (value: {
-      confirmed: boolean;
-      amount?: number;
-      price?: number;
-    }) => void;
+    resolve: (value: { confirmed: boolean; amount?: number; price?: number }) => void;
     maxAmount?: number;
     amount?: number;
     price?: number;
@@ -96,11 +80,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     fetch(`${endpoint}/inventory/${selectedUser}`, {
       headers: { "Content-Type": "application/json" },
     })
-      .then((res) =>
-        res.ok
-          ? res.json()
-          : Promise.reject(new Error("Failed to fetch inventory"))
-      )
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to fetch inventory"))))
       .then((data) => {
         // Traiter les items pour extraire l'uniqueId et sellable
         const processedItems = (data.inventory || []).map((item: any) => ({
@@ -120,10 +100,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
 
   const handlePromptAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (prompt) {
-      const value = Math.max(
-        1,
-        Math.min(Number(e.target.value), prompt.maxAmount || 1)
-      );
+      const value = Math.max(1, Math.min(Number(e.target.value), prompt.maxAmount || 1));
       setPrompt((prev) => (prev ? { ...prev, amount: value } : null));
     }
   };
@@ -170,16 +147,13 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       return;
     }
     if (!item.sellable) {
-      setError(
-        "This item cannot be sold. Only purchased items or items obtained from trades can be sold."
-      );
+      setError("This item cannot be sold. Only purchased items or items obtained from trades can be sold.");
       return;
     }
     const result = await customPromptSell(item);
     if (!result.confirmed || !result.amount || result.amount <= 0) return;
     const requestBody: any = { amount: result.amount, dataItemIndex };
-    if (item.purchasePrice !== undefined)
-      requestBody.purchasePrice = item.purchasePrice;
+    if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
     fetch(`${endpoint}/items/sell/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -242,10 +216,8 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     const result = await customPromptDrop(item);
     if (!result.confirmed || !result.amount || result.amount <= 0) return;
     let requestBody: any = { amount: result.amount, dataItemIndex };
-    if (item.purchasePrice !== undefined)
-      requestBody.purchasePrice = item.purchasePrice;
-    if (item.metadata && item.metadata._unique_id)
-      requestBody = { uniqueId: item.metadata._unique_id, dataItemIndex };
+    if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
+    if (item.metadata && item.metadata._unique_id) requestBody = { uniqueId: item.metadata._unique_id, dataItemIndex };
     fetch(`${endpoint}/items/drop/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -333,23 +305,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const totalCells = rows * columns;
   const emptyCells = totalCells - totalItems;
 
-  const InventoryItem = React.memo(function InventoryItem({
-    item,
-    onSelect,
-    isMe,
-    onSell,
-    onDrop,
-    onAuction,
-    dataItemIndex,
-  }: {
-    item: Item;
-    onSelect: (item: Item) => void;
-    isMe: boolean;
-    onSell: (item: Item, dataItemIndex: number) => void;
-    onDrop: (item: Item, dataItemIndex: number) => void;
-    onAuction: (item: Item) => void;
-    dataItemIndex: number;
-  }) {
+  const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop, onAuction, dataItemIndex }: { item: Item; onSelect: (item: Item) => void; isMe: boolean; onSell: (item: Item, dataItemIndex: number) => void; onDrop: (item: Item, dataItemIndex: number) => void; onAuction: (item: Item) => void; dataItemIndex: number }) {
     const [loaded, setLoaded] = React.useState(false);
     const [showTooltip, setShowTooltip] = React.useState(false);
     const [showContext, setShowContext] = React.useState(false);
@@ -375,41 +331,38 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
     return (
-      <div
-        className={
-          "inventory-item rarity-" +
-          (item.rarity?.replace(/-/g, "") || "common")
-        }
-        data-item-index={dataItemIndex}
-        tabIndex={0}
-        draggable={false}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onContextMenu={handleContextMenu}
-        onClick={() => onSelect(item)}
-      >
-        <div style={{ position: "relative", width: "48px", height: "48px" }}>
+      <div className={"inventory-item rarity-" + (item.rarity?.replace(/-/g, "") || "common")} data-item-index={dataItemIndex} tabIndex={0} draggable={false} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onContextMenu={handleContextMenu} onClick={() => onSelect(item)}>
+        <div
+          style={{
+            position: "relative",
+            width: "48px",
+            height: "48px",
+            background: "#181a1a",
+            borderRadius: "6px",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <CachedImage
             src={item.custom_url_link || iconUrl}
             alt={item.name}
             className="inventory-item-img"
             style={{
-              position: "absolute",
-              inset: 0,
-              width: "48px",
-              height: "48px",
+              width: "100%",
+              height: "100%",
               objectFit: "contain",
-              zIndex: 2,
+              borderRadius: "6px",
+              background: "#181a1a",
+              display: "block",
             }}
             draggable={false}
             onLoad={() => setLoaded(true)}
             onError={() => setLoaded(true)}
           />
         </div>
-        <div
-          className="inventory-item-qty"
-          style={{ position: "absolute", zIndex: 3 }}
-        >
+        <div className="inventory-item-qty" style={{ position: "absolute", zIndex: 3 }}>
           x{item.amount}
         </div>
         {/* Indicateur visuel pour les items avec métadonnées */}
@@ -430,10 +383,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           />
         )}
         {showTooltip && !showContext && mousePos && (
-          <div
-            className="inventory-tooltip"
-            style={{ left: mousePos.x, top: mousePos.y }}
-          >
+          <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
             <div className="inventory-tooltip-name">{item.name}</div>
             <div className="inventory-tooltip-desc">{item.description}</div>
             {/* Affichage de la rareté */}
@@ -442,8 +392,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               style={
                 item.rarity === "radiant"
                   ? {
-                      background:
-                        "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
+                      background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       fontSize: "12px",
@@ -507,18 +456,13 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               <div
                 className="inventory-tooltip-sellable"
                 style={{
-                  color:
-                    item.sellable && item.purchasePrice != null
-                      ? "#66ff66"
-                      : "#ff6666",
+                  color: item.sellable && item.purchasePrice != null ? "#66ff66" : "#ff6666",
                   fontSize: "11px",
                   marginTop: "4px",
                   fontWeight: "bold",
                 }}
               >
-                {item.sellable && item.purchasePrice != null
-                  ? t("inventory.canBeSold")
-                  : t("inventory.cannotBeSold")}
+                {item.sellable && item.purchasePrice != null ? t("inventory.canBeSold") : t("inventory.cannotBeSold")}
               </div>
             )}
             {/* Affichage de l'unique ID pour debug (optionnel) */}
@@ -551,33 +495,20 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
           </div>
         )}
         {showContext && isMe && mousePos && (
-          <div
-            className="inventory-context-menu"
-            style={{ left: mousePos.x, top: mousePos.y }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={(e) => e.stopPropagation()}>
             {/* Afficher "Sell" seulement si l'item n'a pas de métadonnées ET est sellable */}
             {!item.metadata && item.sellable && item.purchasePrice != null ? (
-              <div
-                className="inventory-context-sell"
-                onClick={() => onSell(item, dataItemIndex)}
-              >
+              <div className="inventory-context-sell" onClick={() => onSell(item, dataItemIndex)}>
                 Sell
               </div>
             ) : null}
             {/* Auction button: show only if item is sellable and has no metadata */}
             {item.purchasePrice != null ? (
-              <div
-                className="inventory-context-auction"
-                onClick={() => onAuction(item)}
-              >
+              <div className="inventory-context-auction" onClick={() => onAuction(item)}>
                 Auction
               </div>
             ) : null}
-            <div
-              className="inventory-context-drop"
-              onClick={() => onDrop(item, dataItemIndex)}
-            >
+            <div className="inventory-context-drop" onClick={() => onDrop(item, dataItemIndex)}>
               Drop
             </div>
           </div>
@@ -598,45 +529,29 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       <div
         className="inventory-grid"
         style={{
-          gridTemplateColumns: !selectedItem
-            ? `repeat(${columns}, 1fr)`
-            : "auto",
+          gridTemplateColumns: !selectedItem ? `repeat(${columns}, 1fr)` : "auto",
           gap: selectedItem ? "0px" : undefined,
         }}
       >
         {selectedItem ? (
           <>
-            <button
-              onClick={handleBackToInventory}
-              className="inventory-back-btn"
-            >
+            <button onClick={handleBackToInventory} className="inventory-back-btn">
               {t("inventory.back")}
             </button>
             <div className="inventory-details-main">
-              <CachedImage
-                src={
-                  selectedItem.custom_url_link ||
-                  "/items-icons/" +
-                    (selectedItem.iconHash || selectedItem.item_id)
-                }
-                alt={selectedItem.name}
-                className="inventory-details-img"
-              />
+              <CachedImage src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.item_id)} alt={selectedItem.name} className="inventory-details-img" />
               <div>
                 <div className="inventory-details-name">
                   {selectedItem.amount}x {selectedItem.name}
                 </div>
-                <div className="inventory-details-desc">
-                  {selectedItem.description}
-                </div>
+                <div className="inventory-details-desc">{selectedItem.description}</div>
                 {/* Affichage de la rareté */}
                 <div
                   className="inventory-details-rarity"
                   style={
                     selectedItem.rarity === "radiant"
                       ? {
-                          background:
-                            "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
+                          background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
                           WebkitBackgroundClip: "text",
                           WebkitTextFillColor: "transparent",
                           fontSize: "14px",
@@ -700,19 +615,13 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   <div
                     className="inventory-details-sellable"
                     style={{
-                      color:
-                        selectedItem.sellable &&
-                        selectedItem.purchasePrice != null
-                          ? "#00ff00"
-                          : "#ff6666",
+                      color: selectedItem.sellable && selectedItem.purchasePrice != null ? "#00ff00" : "#ff6666",
                       fontSize: "13px",
                       marginTop: "6px",
                       fontWeight: "bold",
                     }}
                   >
-                    {selectedItem.sellable && selectedItem.purchasePrice != null
-                      ? t("inventory.thisCanBeSold")
-                      : t("inventory.thisCannotBeSold")}
+                    {selectedItem.sellable && selectedItem.purchasePrice != null ? t("inventory.thisCanBeSold") : t("inventory.thisCannotBeSold")}
                   </div>
                 )}
                 {/* Affichage de l'unique ID dans la vue détaillée */}
@@ -737,27 +646,10 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             {!loading && !error && (
               <>
                 {items.map((item, index) => (
-                  <InventoryItem
-                    key={
-                      item?.metadata?._unique_id
-                        ? `${item.item_id}-${item.metadata._unique_id}`
-                        : `${item.item_id}-${index}`
-                    }
-                    dataItemIndex={index}
-                    item={item}
-                    onSelect={handleItemClick}
-                    isMe={!!isMe}
-                    onSell={handleSell}
-                    onDrop={handleDrop}
-                    onAuction={handleAuction}
-                  />
+                  <InventoryItem key={item?.metadata?._unique_id ? `${item.item_id}-${item.metadata._unique_id}` : `${item.item_id}-${index}`} dataItemIndex={index} item={item} onSelect={handleItemClick} isMe={!!isMe} onSell={handleSell} onDrop={handleDrop} onAuction={handleAuction} />
                 ))}
                 {Array.from({ length: emptyCells }).map((_, idx) => (
-                  <div
-                    key={`empty-${idx}`}
-                    className="inventory-item-empty"
-                    draggable={false}
-                  />
+                  <div key={`empty-${idx}`} className="inventory-item-empty" draggable={false} />
                 ))}
               </>
             )}
@@ -770,32 +662,14 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
             <div className="inventory-prompt-message">{prompt.message}</div>
             {prompt.showPrice && (
               <div className="inventory-prompt-amount">
-                <input
-                  type="number"
-                  min={1}
-                  value={prompt.price}
-                  onChange={handlePromptPriceChange}
-                  className="inventory-prompt-amount-input"
-                  placeholder={t("inventory.price")}
-                />
-                <span className="inventory-prompt-amount-max">
-                  {t("inventory.credits")}
-                </span>
+                <input type="number" min={1} value={prompt.price} onChange={handlePromptPriceChange} className="inventory-prompt-amount-input" placeholder={t("inventory.price")} />
+                <span className="inventory-prompt-amount-max">{t("inventory.credits")}</span>
               </div>
             )}
             {prompt.maxAmount && (
               <div className="inventory-prompt-amount">
-                <input
-                  type="number"
-                  min={1}
-                  max={prompt.maxAmount}
-                  value={prompt.amount}
-                  onChange={handlePromptAmountChange}
-                  className="inventory-prompt-amount-input"
-                />
-                <span className="inventory-prompt-amount-max">
-                  / {prompt.maxAmount}
-                </span>
+                <input type="number" min={1} max={prompt.maxAmount} value={prompt.amount} onChange={handlePromptAmountChange} className="inventory-prompt-amount-input" />
+                <span className="inventory-prompt-amount-max">/ {prompt.maxAmount}</span>
               </div>
             )}
             <button
