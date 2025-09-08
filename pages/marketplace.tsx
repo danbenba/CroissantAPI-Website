@@ -235,7 +235,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                   <td className="p-3 text-gray-300 border-b border-[#292c33] max-w-[260px]">{listing.item_description}</td>
                   <td className="p-3 text-white border-b border-[#292c33]">
                     <div className="flex items-center gap-2">
-                      <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-7 h-7 rounded-full" />
+                      <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-6 h-6 rounded-full" />
                       {sellerNames[listing.seller_id] || listing.seller_id}
                     </div>
                   </td>
@@ -296,7 +296,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                           setBuyOrderDropdownOpen(false);
                         }}
                       >
-                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-7 h-7 rounded-lg bg-[#1c1c24]" />
+                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-6 h-6 rounded bg-[#1c1c24]" />
                         <span className="text-white">{item.name}</span>
                       </li>
                     ))}
@@ -386,7 +386,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
               </div>
 
               <div className="flex items-center gap-2 mt-1">
-                <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-5.5 h-5.5 rounded-full" />
+                <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-6 h-6 rounded-full" />
                 <span className="text-white text-[0.97em]">{sellerNames[listing.seller_id] || listing.seller_id}</span>
                 <span className="ml-auto text-white font-semibold">
                   {listing.price}
@@ -448,7 +448,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                           setBuyOrderDropdownOpen(false);
                         }}
                       >
-                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-5.5 h-5.5 rounded bg-[#1c1c24]" />
+                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-6 h-6 rounded bg-[#1c1c24]" />
                         <span className="text-white">{item.name}</span>
                       </li>
                     ))}

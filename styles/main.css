@@ -41,7 +41,7 @@ header {
 }
 
 main:not(.launcher) {
-    padding: 20px
+    /* padding: 20px */
 }
 
 footer {

@@ -10,15 +10,15 @@
   "index.overview.players.2": "Intercambia, compra o vende tus objetos con otros usuarios.",
   "index.overview.players.3": "Únete a partidas multijugador fácilmente con lobbies.",
   "index.overview.players.4": "Gestiona tu inventario y créditos desde Discord o el launcher.",
-  "index.overview.players.5": "¡NUEVO! Vincula tu cuenta de Steam y accede a tu inventario de Steam.",
+  "index.overview.players.5": "Vincula tu cuenta de Steam y accede a tu inventario de Steam.",
 
   "index.overview.creators.title": "Para creadores y desarrolladores",
   "index.overview.creators.1": "Conecta tu juego a Croissant usando el SDK o la API.",
   "index.overview.creators.2": "Autentica jugadores e interactúa con sus inventarios (añadir/quitar objetos, recompensas, compras in-game).",
   "index.overview.creators.3": "Crea y vende tus propios objetos o bundles en el marketplace.",
   "index.overview.creators.4": "Usa lobbies para gestionar partidas privadas multijugador.",
-  "index.overview.creators.5": "¡NUEVO! Usa OAuth2 como autenticación en tu web.",
-  "index.overview.creators.6": "¡NUEVO! Los usuarios pueden vincular su cuenta de Steam. Si tu juego está en Steam, puedes encontrar jugadores por su Steam ID y ver su inventario.",
+  "index.overview.creators.5": "Usa OAuth2 como autenticación en tu web.",
+  "index.overview.creators.6": "Los usuarios pueden vincular su cuenta de Steam. Si tu juego está en Steam, puedes encontrar jugadores por su Steam ID y ver su inventario.",
   "index.overview.creators.getstarted": "Empieza: genera tu clave API en ajustes y consulta la documentación.",
 
   "index.overview.marketplace.title": "Marketplace e Inventario",
