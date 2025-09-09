@@ -24,28 +24,28 @@ const BuyCredits: React.FC = () => {
 
   const tiers: Tier[] = [
     {
-      img: "/assets/credits/tier1.png",
+      img: "/assets/credits/tier1.avif",
       alt: t("buyCredits.tier1.alt"),
       credits: "200",
       price: "0.99€",
       id: "tier1",
     },
     {
-      img: "/assets/credits/tier2.png",
+      img: "/assets/credits/tier2.avif",
       alt: t("buyCredits.tier2.alt"),
       credits: "400",
       price: "1.98€",
       id: "tier2",
     },
     {
-      img: "/assets/credits/tier3.png",
+      img: "/assets/credits/tier3.avif",
       alt: t("buyCredits.tier3.alt"),
       credits: "1000",
       price: "4.95€",
       id: "tier3",
     },
     {
-      img: "/assets/credits/tier4.png",
+      img: "/assets/credits/tier4.avif",
       alt: t("buyCredits.tier4.alt"),
       credits: "2000",
       price: "9.90€",
@@ -88,7 +88,7 @@ const BuyCredits: React.FC = () => {
 
             <div className="flex items-center gap-2 text-xl font-bold text-white">
               {tier.credits}
-              <CachedImage src="/assets/credit.png" className="w-5 h-5" alt="credits" />
+              <CachedImage src="/assets/credit.avif" className="w-5 h-5" alt="credits" />
             </div>
 
             <div className="text-lg font-semibold text-[#1e90ff]">{tier.price}</div>

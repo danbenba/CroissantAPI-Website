@@ -241,7 +241,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                   </td>
                   <td className="p-3 text-white border-b border-[#292c33]">
                     {listing.price}
-                    <CachedImage src="/assets/credit.png" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
+                    <CachedImage src="/assets/credit.avif" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
                   </td>
                   <td className="p-3 text-white border-b border-[#292c33]">{new Date(listing.created_at).toLocaleString()}</td>
                   <td className="p-3 text-white border-b border-[#292c33]">
@@ -390,7 +390,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                 <span className="text-white text-[0.97em]">{sellerNames[listing.seller_id] || listing.seller_id}</span>
                 <span className="ml-auto text-white font-semibold">
                   {listing.price}
-                  <CachedImage src="/assets/credit.png" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
+                  <CachedImage src="/assets/credit.avif" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
                 </span>
               </div>
 

@@ -21,7 +21,7 @@ export default function NavBarDesktop() {
     <div className="inline-flex items-center gap-1.5 ml-2.5">
       <Link href="/buy-credits" className="no-underline">
         <div className="flex items-center bg-[#23242a] rounded px-2 py-1">
-          <CachedImage src="/assets/credit.png" className="w-4 h-4 mr-1.5" />
+          <CachedImage src="/assets/credit.avif" className="w-4 h-4 mr-1.5" />
           <div className="text-[#bdbdbd] text-sm font-semibold">
             <span>{loading ? "..." : user?.balance}</span>
           </div>
@@ -31,7 +31,7 @@ export default function NavBarDesktop() {
         <CachedImage
           src={
             loading
-              ? "/avatar/default.png"
+              ? "/avatar/default.avif"
               : `/avatar/${user.role || user.id}`
           }
           alt="avatar"

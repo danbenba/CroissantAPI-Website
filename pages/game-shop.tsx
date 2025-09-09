@@ -514,7 +514,7 @@ function GameCard({ game, ownerInfo }: { game: Game; ownerInfo: OwnerInfo | null
           </div>
           <div className="flex items-center gap-2 bg-[#2a2a32] px-4 py-2 rounded-lg">
             <span className="text-[#ffd700] font-bold">{game.price}</span>
-            <CachedImage src="/assets/credit.png" alt="credits" className="w-5 h-5" />
+            <CachedImage src="/assets/credit.avif" alt="credits" className="w-5 h-5" />
           </div>
         </div>
 

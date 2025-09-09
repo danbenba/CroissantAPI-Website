@@ -43,7 +43,7 @@ function DownloadLauncherDesktop() {
         </ol>
         <p className="text-[#e2e8f0] mb-4">{t("downloadLauncher.description.desktop")}</p>
         <CachedImage
-          src="/assets/launcher.png"
+          src="/assets/launcher.avif"
           alt="Croissant Launcher Screenshot"
           className="w-full h-auto rounded-lg"
         />
@@ -84,7 +84,7 @@ function DownloadLauncherMobile() {
         </ol>
         <p className="text-[#e2e8f0] mb-4">{t("downloadLauncher.description.mobile")}</p>
         <CachedImage
-          src="/assets/launcher.png"
+          src="/assets/launcher.avif"
           alt="Croissant Launcher Screenshot"
           className="w-full h-auto rounded-lg"
         /> */}

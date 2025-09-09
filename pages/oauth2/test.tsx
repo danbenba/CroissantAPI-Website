@@ -76,7 +76,7 @@ function OAuth2DemoDesktop() {
         }}
       >
         <img 
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png" 
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.avif" 
           alt="icon" 
           className="w-6 h-6" 
         />
@@ -174,7 +174,7 @@ function OAuth2DemoMobile() {
         }}
       >
         <img 
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png" 
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.avif" 
           alt="icon" 
           className="w-5 h-5" 
         />

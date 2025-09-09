@@ -32,7 +32,7 @@ export default function NavBarMobile() {
     <div className="flex items-center gap-3 mb-4">
       <Link href="/buy-credits">
         <div className="flex items-center bg-secondary rounded-lg px-3 py-2">
-          <CachedImage src="/assets/credit.png" className="w-5 h-5" />
+          <CachedImage src="/assets/credit.avif" className="w-5 h-5" />
           <span className="text-[#bdbdbd] text-base font-semibold ml-2">
             {loading ? "..." : user?.balance}
           </span>
@@ -42,7 +42,7 @@ export default function NavBarMobile() {
         <CachedImage
           src={
             loading
-              ? "/avatar/default.png"
+              ? "/avatar/default.avif"
               : `/avatar/${user.role || user.id}`
           }
           alt="avatar"
@@ -209,7 +209,7 @@ export default function NavBarMobile() {
             >
               <span className="cursor-pointer flex items-center">
                 <CachedImage
-                  src="/assets/icons/favicon-32x32.png"
+                  src="/assets/icons/favicon-32x32.avif"
                   alt="Croissant Logo"
                   className="w-7 h-7 relative align-middle mr-1.5"
                 />

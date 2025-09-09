@@ -80,7 +80,7 @@ export default function OAuth2Auth() {
     <div className="min-h-[180px] mx-auto mt-0 bg-gradient-to-br from-[#232323] to-[#2d2d2d] rounded-[18px] shadow-xl p-7 text-white font-['Segoe_UI',Arial,sans-serif] flex flex-col items-center justify-start relative max-w-[98vw]">
       {/* App Info Section */}
       <div className="flex items-center gap-[18px] mb-4 w-full justify-center">
-        <img src="/assets/icons/favicon-96x96.png" alt="App avatar" className="w-14 h-14 rounded-2xl bg-[#333] object-cover shadow-md" />
+        <img src="/assets/icons/favicon-96x96.avif" alt="App avatar" className="w-14 h-14 rounded-2xl bg-[#333] object-cover shadow-md" />
         <div>
           <div className="text-[0.98rem] text-[#bdbdbd]">
             {t("oauth2.auth.authorize")} <b className="text-white">{userFromApp?.name || "Unknown application"}</b> {t("oauth2.auth.accessData")}
