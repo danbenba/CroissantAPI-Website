@@ -82,7 +82,7 @@ function ItemTooltip({ listing }: { listing: EnrichedMarketListing }) {
         <div style={{ color: "#ffd700", fontSize: 12, marginBottom: 4 }}>
           {` ${listing.price} `}{" "}
           <img
-            src="/assets/credit.png"
+            src="/assets/credit.avif"
             alt="credits"
             style={{ width: 12, verticalAlign: "middle" }}
           />
@@ -197,7 +197,7 @@ export default function MyMarketListingsPage() {
                       <td style={{ textAlign: "center" }}>
                         {listing.price}{" "}
                         <img
-                          src="/assets/credit.png"
+                          src="/assets/credit.avif"
                           alt="credits"
                           style={{ width: 14, verticalAlign: "middle" }}
                         />

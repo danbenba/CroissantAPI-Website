@@ -490,7 +490,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
               >
                 {t("inventory.price")}: {item.purchasePrice}
                 <CachedImage
-                  src="/assets/credit.png"
+                  src="/assets/credit.avif"
                   className="inventory-credit-icon"
                   style={{
                     width: "12px",
@@ -684,7 +684,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
                   >
                     {t("inventory.price")}: {selectedItem.purchasePrice || "N/A"}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       className="inventory-credit-icon"
                       style={{
                         width: "18px",

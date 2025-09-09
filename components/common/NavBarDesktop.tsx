@@ -129,7 +129,7 @@ export default function NavBarDesktop() {
     <div style={userBlockStyle}>
       <Link href="/buy-credits" style={{ textDecoration: "none" }}>
         <div className="navbar-credits">
-          <CachedImage src="/assets/credit.png" className="navbar-credit-img" />
+          <CachedImage src="/assets/credit.avif" className="navbar-credit-img" />
           <div className="navbar-balance">
             <span id="my-balance">{loading ? "..." : user?.balance}</span>
           </div>
@@ -140,7 +140,7 @@ export default function NavBarDesktop() {
           <CachedImage
             src={
               loading
-                ? "/avatar/default.png"
+                ? "/avatar/default.avif"
                 : "/avatar/" + (user.role || user.id)
             }
             alt="avatar"
@@ -454,7 +454,7 @@ export default function NavBarDesktop() {
                 }}
               >
                 <CachedImage
-                  src="/assets/icons/favicon-32x32.png"
+                  src="/assets/icons/favicon-32x32.avif"
                   alt="Croissant Logo"
                   style={logoImgStyle}
                 />

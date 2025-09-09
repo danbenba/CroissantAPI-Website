@@ -181,7 +181,7 @@ export default function OAuth2Auth() {
     <div style={popupContainerStyle}>
       <div style={appInfoStyle}>
         <img
-          src={"/assets/icons/favicon-96x96.png"}
+          src={"/assets/icons/favicon-96x96.avif"}
           alt="App avatar"
           style={appAvatarStyle}
         />

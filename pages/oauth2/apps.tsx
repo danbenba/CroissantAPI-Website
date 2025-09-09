@@ -147,7 +147,7 @@ function useOAuth2AppsLogic() {
   data-callback="function(user) { console.log('User data:', user); }"
   class="croissant-oauth2-btn">
   <img
-    src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+    src="https://croissant-api.fr/assets/icons/favicon-32x32.avif"
     alt="icon"
   />
   Login with Croissant

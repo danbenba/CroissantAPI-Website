@@ -55,7 +55,7 @@ const Navbar: React.FC = () => {
               style={{ textDecoration: "none" }}
             >
               <div className="navbar-credits">
-                <CachedImage src="/assets/credit.png" className="navbar-credit-img" />
+                <CachedImage src="/assets/credit.avif" className="navbar-credit-img" />
                 <div className="navbar-balance">
                   <span id="my-balance">{user?.balance}</span>
                 </div>

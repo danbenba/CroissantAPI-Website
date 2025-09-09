@@ -47,7 +47,7 @@ export default async function handler(
     // Ici, récupère l'userId (ex: depuis le token ou un champ)
     const userId = (userData.id as string) || "unknown";
     console.log(`Uploading avatar for user:`, userData);
-    const destPath = path.join(avatarsDir, `${userId}.png`);
+    const destPath = path.join(avatarsDir, `${userId}.avif`);
     fs.renameSync(tempPath, destPath);
 
     res.json({ message: "Avatar uploaded successfully", userId });

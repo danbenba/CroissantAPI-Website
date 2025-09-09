@@ -10,7 +10,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const iconsDir = path.join(process.cwd(), "uploads/gameIcons");
-  const exts = [".png", ".jpg", ".jpeg", ".webp"];
+  const exts = [".avif", ".jpg", ".jpeg", ".webp"];
   let iconPath: string | undefined;
   for (const ext of exts) {
     const candidate = path.join(iconsDir, `${hash}${ext}`);
@@ -25,7 +25,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(iconPath).pipe(res);
   } else {
-    const fallbackPath = path.join(process.cwd(), "public/assets", "8293566.png");
+    const fallbackPath = path.join(process.cwd(), "public/assets", "8293566.avif");
     res.setHeader("Content-Type", "image/png");
     // res.setHeader("Cache-Control", "public, max-age=300");
     fs.createReadStream(fallbackPath).pipe(res);

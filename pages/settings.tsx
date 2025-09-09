@@ -618,7 +618,7 @@ function useSettingsLogic() {
 
   const [showApiKey, setShowApiKey] = useState(false);
   const [avatar, setAvatar] = useState(
-    user?.id ? `/avatar/${user.id}` : "/avatar/default.png"
+    user?.id ? `/avatar/${user.id}` : "/avatar/default.avif"
   );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -654,7 +654,7 @@ function useSettingsLogic() {
         document
           .querySelector("img[alt='Profile']")
           ?.getAttribute("src")
-          ?.includes("default.png")
+          ?.includes("default.avif")
       ) {
         router.push("/login");
       }
@@ -937,7 +937,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
     }
   };
   const [avatar, setAvatar] = useState(
-    user?.id ? `/avatar/${user.id}` : "/avatar/default.png"
+    user?.id ? `/avatar/${user.id}` : "/avatar/default.avif"
   );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -966,7 +966,7 @@ function SettingsDesktop(props: ReturnType<typeof useSettingsLogic>) {
         document
           .querySelector("img[alt='Profile']")
           ?.getAttribute("src")
-          ?.includes("default.png")
+          ?.includes("default.avif")
       ) {
         // Do something with the document
         console.log("Default avatar detected, setting to user avatar");

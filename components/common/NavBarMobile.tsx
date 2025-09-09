@@ -160,7 +160,7 @@ export default function NavBarMobile() {
       <Link href="/buy-credits" legacyBehavior>
         <span style={creditsStyle}>
           <CachedImage
-            src="/assets/credit.png"
+            src="/assets/credit.avif"
             style={{ width: 16, height: 16 }}
           />
           <span>{loading ? "..." : user?.balance}</span>
@@ -171,7 +171,7 @@ export default function NavBarMobile() {
           <CachedImage
             src={
               loading
-                ? "/avatar/default.png"
+                ? "/avatar/default.avif"
                 : "/avatar/" + (user.role || user.id)
             }
             alt="avatar"
@@ -371,7 +371,7 @@ export default function NavBarMobile() {
               <Link style={{ ...logoStyle, pointerEvents: "auto" }} href="/">
                 <>
                   <CachedImage
-                    src="/assets/icons/favicon-32x32.png"
+                    src="/assets/icons/favicon-32x32.avif"
                     alt="Croissant Logo"
                     style={logoImgStyle}
                   />

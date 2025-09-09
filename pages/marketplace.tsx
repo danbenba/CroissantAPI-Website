@@ -355,7 +355,7 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                   <td>
                     {listing.price}{" "}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       alt="credits"
                       style={{ width: 14, verticalAlign: "middle" }}
                     />
@@ -824,7 +824,7 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                 >
                   {listing.price}{" "}
                   <CachedImage
-                    src="/assets/credit.png"
+                    src="/assets/credit.avif"
                     alt="credits"
                     style={{ width: 14, verticalAlign: "middle" }}
                   />

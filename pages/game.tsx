@@ -306,7 +306,7 @@ function GameDesktop(props: ReturnType<typeof useGamePageLogic>) {
             <div>
               <b>{t("shop.price")}</b> {game.price}{" "}
               <CachedImage
-                src="/assets/credit.png"
+                src="/assets/credit.avif"
                 className="gamepage-credit-icon"
               />
             </div>
@@ -620,7 +620,7 @@ function GameMobile(props: ReturnType<typeof useGamePageLogic>) {
             <div>
               <b>{t("shop.price")}</b> {game.price}{" "}
               <CachedImage
-                src="/assets/credit.png"
+                src="/assets/credit.avif"
                 className="gamepage-credit-icon"
                 style={{ width: 18, height: 18 }}
               />
