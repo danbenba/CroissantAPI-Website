@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 export const config = {
   api: { bodyParser: false },
@@ -44,12 +45,15 @@ export default async function handler(
     const tempPath = file.filepath || file.path;
     if (!tempPath) return res.status(500).json({ error: "File path missing" });
 
-    // Ici, récupère l'userId (ex: depuis le token ou un champ)
     const userId = (userData.id as string) || "unknown";
     console.log(`Uploading avatar for user:`, userData);
     const destPath = path.join(avatarsDir, `${userId}.avif`);
-    fs.renameSync(tempPath, destPath);
-
+    try {
+      await sharp(tempPath).avif({ quality: 80 }).toFile(destPath);
+      fs.unlinkSync(tempPath);
+    } catch (err) {
+      return res.status(500).json({ error: "AVIF conversion failed" });
+    }
     res.json({ message: "Avatar uploaded successfully", userId });
   });
 }

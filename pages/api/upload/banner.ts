@@ -3,6 +3,7 @@ import formidable from "formidable";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import sharp from "sharp";
 
 export const config = {
   api: { bodyParser: false },
@@ -31,10 +32,13 @@ export default async function handler(
       .createHash("sha256")
       .update(Date.now() + (file.originalFilename || ""))
       .digest("hex");
-    const ext = path.extname(file.originalFilename || "");
-    const destPath = path.join(bannersDir, `${hash}${ext}`);
-    fs.renameSync(tempPath, destPath);
-
+    const destPath = path.join(bannersDir, `${hash}.avif`);
+    try {
+      await sharp(tempPath).avif({ quality: 80 }).toFile(destPath);
+      fs.unlinkSync(tempPath);
+    } catch (err) {
+      return res.status(500).json({ error: "AVIF conversion failed" });
+    }
     res.json({ hash });
   });
 }
