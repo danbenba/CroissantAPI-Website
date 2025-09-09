@@ -18,20 +18,20 @@ export async function getStaticProps({ locale }) {
 export default function Home() {
   const isMobile = useIsMobile();
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
 
   // Overview details content as an array for easier maintenance
   const overviewDetails = [
     {
       summary: t("index.overview.players.title"),
       content: (
-        <ul>
-          <li>{t("index.overview.players.1")}</li>
+        <ul className="list-disc pl-5 space-y-2 text-[#e2e8f0]">
+          <li className="text-[#bdbdbd]">{t("index.overview.players.1")}</li>
           <li>{t("index.overview.players.2")}</li>
           <li>{t("index.overview.players.3")}</li>
           <li>{t("index.overview.players.4")}</li>
           <li>
-            <span style={{ color: "red" }}>NEW:</span> {t("index.overview.players.5")}
+            <span className="text-red-500">NEW:</span> {t("index.overview.players.5")}
           </li>
         </ul>
       ),
@@ -48,8 +48,8 @@ export default function Home() {
                 return (
                   <>
                     {parts[0]}
-                    <Link href="/api-docs" legacyBehavior>
-                      <a>SDK or API</a>
+                    <Link href="/api-docs" className="text-accent hover:text-[#a3b3d6] transition-colors">
+                      SDK or API
                     </Link>
                     {parts[1]}
                   </>
@@ -60,14 +60,16 @@ export default function Home() {
             <li>{t("index.overview.creators.3")}</li>
             <li>{t("index.overview.creators.4")}</li>
             <li>
-              <span style={{ color: "red" }}>NEW:</span> {t("index.overview.creators.5")}
+              <span className="text-red-500">NEW:</span> {t("index.overview.creators.5")}
             </li>
             <li>
-              <span style={{ color: "red" }}>NEW:</span> {t("index.overview.creators.6")}
+              <span className="text-red-500">NEW:</span> {t("index.overview.creators.6")}
             </li>
           </ul>
+          <p className="text-[#bdbdbd] mb-3">
+            <span className="font-bold text-[#e2e8f0]">{t("index.overview.creators.getstarted").split(":")[0]}:</span>
+          </p>
           <p>
-            <b>{t("index.overview.creators.getstarted").split(":")[0]}:</b>{" "}
             {
               // Fix: Don't use .replace with a React element, use string splitting and React fragments
               (() => {
@@ -105,33 +107,11 @@ export default function Home() {
     },
     {
       summary: t("index.overview.marketplace.title"),
-      content: (
-        <ListSection
-          title={t("index.overview.marketplace.title")}
-          description={t("index.overview.marketplace.desc")}
-          items={[
-            t("index.overview.marketplace.1"),
-            t("index.overview.marketplace.2"),
-            t("index.overview.marketplace.3"),
-            t("index.overview.marketplace.4"),
-          ]}
-        />
-      ),
+      content: <ListSection title={t("index.overview.marketplace.title")} description={t("index.overview.marketplace.desc")} items={[t("index.overview.marketplace.1"), t("index.overview.marketplace.2"), t("index.overview.marketplace.3"), t("index.overview.marketplace.4")]} />,
     },
     {
       summary: t("index.overview.lobby.title"),
-      content: (
-        <ListSection
-          title={t("index.overview.lobby.title")}
-          description={t("index.overview.lobby.desc")}
-          items={[
-            t("index.overview.lobby.1"),
-            t("index.overview.lobby.2"),
-            t("index.overview.lobby.3"),
-            t("index.overview.lobby.4"),
-          ]}
-        />
-      ),
+      content: <ListSection title={t("index.overview.lobby.title")} description={t("index.overview.lobby.desc")} items={[t("index.overview.lobby.1"), t("index.overview.lobby.2"), t("index.overview.lobby.3"), t("index.overview.lobby.4")]} />,
     },
     {
       summary: t("index.overview.safety.title"),
@@ -253,71 +233,29 @@ export default function Home() {
     },
   ];
 
-  const topSpanStyle: React.CSSProperties = {
-    fontSize: 16,
-    marginTop: 0,
-    marginBottom: 16,
-    opacity: 0.7,
-    textAlign: "center",
-    justifyContent: "center",
-    display: "flex",
-    flexWrap: "wrap",
-    whiteSpace: "normal",
-    wordBreak: "break-word",
-  };
-
   // Version Desktop
   function HomeDesktop() {
-    const detailsStyle: React.CSSProperties = {
-      border: "1px solid #333",
-      borderRadius: 8,
-      marginBottom: "1.5rem",
-      background: "#23272faa",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.24)",
-      padding: "0.5rem 1.2rem 1rem 1.2rem",
-      color: "#f3f3f3",
-    };
-    const summaryStyle: React.CSSProperties = {
-      fontWeight: 600,
-      fontSize: "1.15rem",
-      cursor: "pointer",
-      outline: "none",
-      padding: "0.7rem 0",
-      color: "#e2e8f0",
-    };
-    const aboutStyle: React.CSSProperties = {
-      border: "1px solid #333",
-      borderRadius: 8,
-      background: "#181a20aa",
-      padding: "1.2rem",
-      marginTop: "2rem",
-      color: "#f3f3f3",
-      marginLeft: "1.5rem",
-      marginRight: "1.5rem",
-    };
-
     return (
       <>
-        <span style={topSpanStyle}>{t("index.topspan")}</span>
-        <div className="container" style={{ margin: "0 auto", padding: "1rem", maxWidth: 1100 }}>
-          <h1>
-            <span className="method post">{t("index.overview.title")}</span>
-          </h1>
-          <div style={aboutStyle} className="indent">
+        <div className="page-container">
+          <div className="content-card">
+            <h1 className="section-title">
+              <span className="method post">{t("index.overview.title")}</span>
+            </h1>
             {overviewDetails.map(({ summary, content }) => (
-              <details style={detailsStyle} open key={summary}>
-                <summary style={summaryStyle}>{summary}</summary>
+              <details className="details-item" open key={summary}>
+                <summary className="details-summary">{summary}</summary>
                 {content}
               </details>
             ))}
           </div>
-          <h1 id="about-us">
-            <span className="method put">{t("index.about.title")}</span>
-          </h1>
-          <div style={aboutStyle}>
+          <div className="content-card">
+            <h1 id="about-us" className="section-title">
+              <span className="method put">{t("index.about.title")}</span>
+            </h1>
             {aboutDetails.map(({ summary, content }) => (
-              <details style={detailsStyle} open key={summary}>
-                <summary style={summaryStyle}>{summary}</summary>
+              <details className="details-item" open key={summary}>
+                <summary className="details-summary">{summary}</summary>
                 {content}
               </details>
             ))}
@@ -329,54 +267,27 @@ export default function Home() {
 
   // Version Mobile
   function HomeMobile() {
-    const detailsStyle: React.CSSProperties = {
-      border: "1px solid #333",
-      borderRadius: 8,
-      marginBottom: "0.8rem",
-      background: "#23272faa",
-      padding: "0.3rem 0.5rem 0.7rem 0.5rem",
-      color: "#f3f3f3",
-    };
-    const summaryStyle: React.CSSProperties = {
-      fontWeight: 600,
-      fontSize: "1rem",
-      cursor: "pointer",
-      outline: "none",
-      padding: "0.5rem 0",
-      color: "#e2e8f0",
-    };
-    const aboutStyle: React.CSSProperties = {
-      border: "1px solid #333",
-      borderRadius: 8,
-      background: "#181a20aa",
-      padding: "0.7rem",
-      marginTop: "1rem",
-      color: "#f3f3f3",
-      marginLeft: "0.5rem",
-      marginRight: "0.5rem",
-    };
-
     return (
       <>
-        <div className="container" style={{ margin: "0 auto", padding: "0.5rem", maxWidth: 1000 }}>
-          <h2 style={{ fontSize: "1.1rem", marginBottom: 8 }}>
-            <span className="method post">{t("index.overview.title")}</span>
-          </h2>
-          <div style={aboutStyle}>
+        <div className="page-container !max-w-[1000px]">
+          <div className="content-card !mt-0 !mx-0">
+            <h2 className="section-title !text-[1.1rem]">
+              <span className="method post">{t("index.overview.title")}</span>
+            </h2>
             {overviewDetails.map(({ summary, content }) => (
-              <details style={detailsStyle} open key={summary}>
-                <summary style={summaryStyle}>{summary}</summary>
+              <details className="details-item !mb-3 !p-0 !px-0 !pb-0" open key={summary}>
+                <summary className="details-summary !text-base !py-2">{summary}</summary>
                 {content}
               </details>
             ))}
           </div>
-          <h2 id="about-us" style={{ fontSize: "1.1rem", marginTop: 18 }}>
-            <span className="method put">{t("index.about.title")}</span>
-          </h2>
-          <div style={aboutStyle}>
+          <div className="content-card !mt-4 !mx-0">
+            <h2 id="about-us" className="section-title !text-[1.1rem] !mt-[18px]">
+              <span className="method put">{t("index.about.title")}</span>
+            </h2>
             {aboutDetails.map(({ summary, content }) => (
-              <details style={detailsStyle} open key={summary}>
-                <summary style={summaryStyle}>{summary}</summary>
+              <details className="details-item !mb-3 !p-0 !px-0 !pb-0" open key={summary}>
+                <summary className="details-summary !text-base !py-2">{summary}</summary>
                 {content}
               </details>
             ))}

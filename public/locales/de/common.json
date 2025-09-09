@@ -10,15 +10,15 @@
   "index.overview.players.2": "Tausche, kaufe oder verkaufe deine Items mit anderen Nutzern.",
   "index.overview.players.3": "Tritt Multiplayer-Games easy über Lobbys bei.",
   "index.overview.players.4": "Verwalte dein Inventar und deine Credits über Discord oder den Launcher.",
-  "index.overview.players.5": "NEU: Verknüpfe deinen Steam-Account und greif auf dein Steam-Inventar zu.",
+  "index.overview.players.5": "Verknüpfe deinen Steam-Account und greif auf dein Steam-Inventar zu.",
 
   "index.overview.creators.title": "Für Creator & Game-Entwickler",
   "index.overview.creators.1": "Verbinde dein Game per SDK oder API mit Croissant.",
   "index.overview.creators.2": "Authentifiziere Spieler und interagiere mit deren Inventar (Items hinzufügen/entfernen, Belohnungen, Ingame-Käufe).",
   "index.overview.creators.3": "Erstelle und verkaufe deine eigenen Items oder Bundles im Marktplatz.",
   "index.overview.creators.4": "Nutze Lobbys für private Multiplayer-Sessions.",
-  "index.overview.creators.5": "NEU: Nutze OAuth2 als Login auf deiner Website.",
-  "index.overview.creators.6": "NEU: Nutzer können jetzt ihren Steam-Account verknüpfen. Wenn dein Game auf Steam ist, findest du Spieler per Steam-ID und holst ihr Inventar.",
+  "index.overview.creators.5": "Nutze OAuth2 als Login auf deiner Website.",
+  "index.overview.creators.6": "Nutzer können jetzt ihren Steam-Account verknüpfen. Wenn dein Game auf Steam ist, findest du Spieler per Steam-ID und holst ihr Inventar.",
   "index.overview.creators.getstarted": "Los geht’s: API-Key in den Einstellungen generieren und Doku lesen.",
 
   "index.overview.marketplace.title": "Marktplatz & Inventar",
@@ -520,5 +520,56 @@
   "profile.creatorLabel": "Creator:",
   "profile.stockLabel": "Bestand:",
   "profile.totalLabel": "Gesamt:",
-  "profile.disabledLabel": "(Deaktiviert)"
+  "profile.disabledLabel": "(Deaktiviert)",
+  "shop.allGames": "Alle Games",
+  "shop.title": "Shop",
+  "shop.searchPlaceholder": "Games suchen...",
+
+  "oauth2": {
+    "demo": {
+      "title": "Croissant OAuth2 Integrations-Beispiel",
+      "subtitle": "OAuth2 Demo",
+      "description": "Öffne die Konsole, um den OAuth2-Flow in Aktion zu sehen. Dieses Beispiel zeigt, wie Nutzer mit Croissants OAuth2-Service authentifiziert werden. Klick einfach auf den Button unten:",
+      "connectButton": "Mit Croissant verbinden",
+      "expectedResult": "Erwartetes Ergebnis",
+      "expectedDescription": "Nach dem Klick öffnet sich ein Popup für die Authentifizierung. Nach dem Login schließt sich das Popup und die Nutzerdaten werden in der Konsole angezeigt.",
+      "downloadCode": "OAuth2 Test-HTML zum Lernen herunterladen"
+    },
+    "auth": {
+      "authorize": "Möchtest du",
+      "accessData": "den Zugriff auf deine Nutzerdaten erlauben?",
+      "login": "Einloggen",
+      "authorizing": "Autorisierung läuft...",
+      "authorizeButton": "Autorisieren",
+      "redirectUri": "Weiterleitungs-URI:",
+      "missingParams": "Fehlende Parameter.",
+      "networkError": "Netzwerkfehler."
+    },
+    "apps": {
+      "title": "Meine OAuth2-Anwendungen",
+      "testLink": "OAuth2 testen ↗",
+      "addButton": "Anwendung hinzufügen",
+      "addButtonMobile": "+ Hinzufügen",
+      "createTitle": "Anwendung erstellen",
+      "editTitle": "Anwendung bearbeiten",
+      "clientId": "Client ID:",
+      "clientSecret": "Client Secret:",
+      "redirectUrls": "Weiterleitungs-URLs:",
+      "copy": "Kopieren",
+      "show": "Anzeigen",
+      "hide": "Verbergen",
+      "integrationCode": "Integrationscode",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "appName": "App-Name",
+      "appNamePlaceholder": "Mein Spiel, Meine Website...",
+      "redirectUrlsHelp": "(durch Kommas getrennt)",
+      "redirectUrlsPlaceholder": "https://meineapp.de/callback, http://localhost:3000/cb",
+      "save": "Änderungen speichern",
+      "create": "Erstellen",
+      "cancel": "Abbrechen",
+      "integrationTitle": "Integrations-Button-Code:",
+      "deleteConfirm": "Möchtest du diese App wirklich löschen?"
+    }
+  }
 }

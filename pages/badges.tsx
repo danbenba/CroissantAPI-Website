@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faScrewdriverWrench,
-  faShieldHalved,
-  faUsers,
-  faBolt,
-  faBug,
-  faCodeBranch,
-  faHandshake,
-} from "@fortawesome/free-solid-svg-icons";
+import { faScrewdriverWrench, faShieldHalved, faUsers, faBolt, faBug, faCodeBranch, faHandshake } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
@@ -19,41 +11,56 @@ export async function getStaticProps({ locale }) {
     },
   };
 }
-const BADGES = [
+
+interface Badge {
+  key: string;
+  icon: any;
+  color: string;
+  hoverColor?: string;
+}
+
+const BADGES: Badge[] = [
   {
     key: "early_user",
     icon: faBolt,
-    color: "#ff3535ff",
+    color: "#ff3535",
+    hoverColor: "#ff4545",
   },
   {
     key: "staff",
     icon: faScrewdriverWrench,
     color: "#7289DA",
+    hoverColor: "#8299EA",
   },
   {
     key: "bug_hunter",
     icon: faBug,
-    color: "#fff200ff",
+    color: "#fff200",
+    hoverColor: "#fff555",
   },
   {
     key: "contributor",
     icon: faCodeBranch,
-    color: "#7200b8ff",
+    color: "#7200b8",
+    hoverColor: "#8210c8",
   },
   {
     key: "moderator",
     icon: faShieldHalved,
-    color: "#f2ad58ff",
+    color: "#f2ad58",
+    hoverColor: "#f2bd68",
   },
   {
     key: "community_manager",
     icon: faUsers,
-    color: "#23a548ff",
+    color: "#23a548",
+    hoverColor: "#33b558",
   },
   {
     key: "partner",
     icon: faHandshake,
     color: "#677BC4",
+    hoverColor: "#778BD4",
   },
 ];
 
@@ -74,76 +81,47 @@ const BadgesPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="container" style={{ padding: "30px", textAlign: "left" }}>
-      <h2 style={{ textAlign: "left" }}>{t("badges.title")}</h2>
-      <div className="content" style={{ textAlign: "left" }}>
-        <p>{t("badges.intro")}</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          {BADGES.map((badge) => {
-            const isHighlighted = highlighted === badge.key;
-            return (
-              <div
-                key={badge.key}
-                id={badge.key}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 18,
-                  background: isHighlighted ? "#2d2300" : "#181a20",
-                  border: isHighlighted
-                    ? "2px solid #ffe066"
-                    : "1px solid #333",
-                  borderRadius: 8,
-                  padding: "18px 24px",
-                  boxShadow: "0 1px 4px 0 rgba(0,0,0,0.12)",
-                  transition: "background 0.2s, border 0.2s",
-                }}
-              >
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minWidth: 48,
-                    minHeight: 48,
-                    borderRadius: 8,
-                    background: badge.color + "22",
-                    marginRight: 8,
-                  }}
-                >
-                  <FontAwesomeIcon
-                    icon={badge.icon}
-                    color={badge.color}
-                    style={{ fontSize: 32 }}
-                    fixedWidth
-                  />
-                </span>
-                <div>
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 20,
-                      color: badge.color,
-                    }}
-                  >
-                    {t(`badges.${badge.key}.label`)}
-                  </div>
-                  <div style={{ margin: "4px 0 8px 0", color: "#f5f6fa" }}>
-                    {t(`badges.${badge.key}.description`)}
-                  </div>
-                  <div style={{ fontSize: 15, color: "#bdbdbd" }}>
-                    <b>{t("badges.howtogetit")}</b>{" "}
-                    {t(`badges.${badge.key}.how`)}
-                  </div>
+    <div className="container mx-auto px-4 md:px-8 py-8 max-w-4xl">
+      <h1 className="text-3xl font-bold text-white mb-6">{t("badges.title")}</h1>
+
+      <div className="text-gray-300 mb-8">
+        <p className="text-lg">{t("badges.intro")}</p>
+      </div>
+
+      <div className="space-y-6">
+        {BADGES.map((badge) => {
+          const isHighlighted = highlighted === badge.key;
+          return (
+            <div
+              key={badge.key}
+              id={badge.key}
+              className={`
+                flex items-start gap-5 rounded-xl p-6 shadow-md transition-all duration-200
+                ${isHighlighted ? "bg-[#2d2300] border-2 border-[#ffe066]" : "bg-[#181a20] border border-[#333] hover:bg-[#1c1e24]"}
+              `}
+            >
+              <div className="flex items-center justify-center w-12 h-12 rounded-lg shrink-0" style={{ backgroundColor: `${badge.color}22` }}>
+                <FontAwesomeIcon icon={badge.icon} className="text-3xl" style={{ color: badge.color }} />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold" style={{ color: badge.color }}>
+                  {t(`badges.${badge.key}.label`)}
+                </h2>
+
+                <p className="text-gray-200">{t(`badges.${badge.key}.description`)}</p>
+
+                <div className="text-sm text-gray-400">
+                  <span className="font-semibold">{t("badges.howtogetit")}</span>
+                  &nbsp;{t(`badges.${badge.key}.how`)}
                 </div>
               </div>
-            );
-          })}
-        </div>
-        <div style={{ marginTop: 32, color: "#888", fontSize: 14 }}>
-          {t("badges.lastUpdated")}
-        </div>
+            </div>
+          );
+        })}
       </div>
+
+      <div className="mt-8 text-sm text-gray-500">{t("badges.lastUpdated")}</div>
     </div>
   );
 };

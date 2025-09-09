@@ -4,79 +4,48 @@ import useIsMobile from "../hooks/useIsMobile";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-function NotFoundDesktop({ t }) {
-  return (
-    <main>
-      <div className="container" style={{ maxWidth: 600, margin: "48px auto", padding: 32 }}>
-        <h2 style={{ fontSize: "2.2em", marginBottom: 12 }}>{t("404.title.desktop")}</h2>
-        <div className="indent" style={{ marginBottom: 18 }}>
-          <p>{t("404.desc1.desktop")}</p>
-          <p>{t("404.desc2.desktop")}</p>
-        </div>
-        <h3 style={{ marginBottom: 8 }}>{t("404.whatcan.desktop")}</h3>
-        <div className="indent">
-          <p>{t("404.try.desktop")}</p>
-          <ul>
-            <li>
-              <Link href="/" legacyBehavior>
-                <a>{t("404.home")}</a>
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" legacyBehavior>
-                <a>{t("404.contact")}</a>
-              </Link>
-            </li>
-            <li>
-              <Link href="/api-docs" legacyBehavior>
-                <a>{t("404.api")}</a>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </main>
-  );
+interface NotFoundProps {
+  t: (key: string) => string;
 }
 
-function NotFoundMobile({ t }) {
+const NotFoundDesktop: React.FC<NotFoundProps> = ({ t }) => {
   return (
-    <main>
-      <div
-        className="container"
-        style={{
-          maxWidth: 340,
-          margin: "32px auto",
-          padding: "18px 8px",
-          borderRadius: 12,
-          background: "#23272e",
-          color: "#fff",
-          boxShadow: "0 2px 12px #0002",
-          fontSize: "1em",
-        }}
-      >
-        <h2 style={{ fontSize: "1.2em", marginBottom: 10, textAlign: "center" }}>
-          {t("404.title.mobile")}
-        </h2>
-        <div className="indent" style={{ marginBottom: 12 }}>
-          <p style={{ marginBottom: 6 }}>{t("404.desc1.mobile")}</p>
-          <p style={{ marginBottom: 0 }}>{t("404.desc2.mobile")}</p>
+    <main className="min-h-screen bg-[#1c1c24] py-12">
+      <div className="max-w-2xl mx-auto px-8">
+        <h1 className="text-4xl font-bold text-white mb-6">{t("404.title.desktop")}</h1>
+
+        <div className="space-y-4 text-gray-300 mb-8">
+          <p className="leading-relaxed">{t("404.desc1.desktop")}</p>
+          <p className="leading-relaxed">{t("404.desc2.desktop")}</p>
         </div>
-        <div className="indent" style={{ marginTop: 10 }}>
-          <ul style={{ paddingLeft: 18, marginBottom: 0 }}>
-            <li style={{ marginBottom: 6 }}>
-              <Link href="/" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.home")}</a>
-              </Link>
-            </li>
-            <li style={{ marginBottom: 6 }}>
-              <Link href="/contact" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.contact")}</a>
+
+        <h2 className="text-2xl font-semibold text-white mb-4">{t("404.whatcan.desktop")}</h2>
+
+        <div className="bg-[#23272e] rounded-xl p-6 shadow-lg border border-[#333]">
+          <p className="text-gray-300 mb-4">{t("404.try.desktop")}</p>
+          <ul className="space-y-3">
+            <li>
+              <Link href="/" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                {t("404.home")}
               </Link>
             </li>
             <li>
-              <Link href="/api-docs" legacyBehavior>
-                <a style={{ color: "#fff", textDecoration: "underline" }}>{t("404.api.mobile")}</a>
+              <Link href="/contact" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {t("404.contact")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/api-docs" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                {t("404.api")}
               </Link>
             </li>
           </ul>
@@ -84,7 +53,49 @@ function NotFoundMobile({ t }) {
       </div>
     </main>
   );
-}
+};
+
+const NotFoundMobile: React.FC<NotFoundProps> = ({ t }) => {
+  return (
+    <main className="min-h-screen bg-[#1c1c24] py-8 px-4">
+      <div className="max-w-sm mx-auto bg-[#23272e] rounded-xl p-6 shadow-lg border border-[#333]">
+        <h1 className="text-xl font-bold text-white text-center mb-4">{t("404.title.mobile")}</h1>
+
+        <div className="space-y-3 text-gray-300 mb-6">
+          <p>{t("404.desc1.mobile")}</p>
+          <p>{t("404.desc2.mobile")}</p>
+        </div>
+
+        <ul className="space-y-3">
+          <li>
+            <Link href="/" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              {t("404.home")}
+            </Link>
+          </li>
+          <li>
+            <Link href="/contact" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              {t("404.contact")}
+            </Link>
+          </li>
+          <li>
+            <Link href="/api-docs" className="text-[#1e90ff] hover:text-[#40a9ff] transition-colors flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              {t("404.api.mobile")}
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </main>
+  );
+};
 
 export default function NotFoundPage() {
   const { t } = useTranslation("common");

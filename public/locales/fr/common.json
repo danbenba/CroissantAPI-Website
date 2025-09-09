@@ -10,15 +10,15 @@
   "index.overview.players.2": "Échange, achète ou vends tes objets avec d’autres utilisateurs.",
   "index.overview.players.3": "Rejoins des parties multijoueur en deux clics grâce aux salons.",
   "index.overview.players.4": "Gère ton inventaire et tes crédits sur Discord ou via le launcher.",
-  "index.overview.players.5": "NOUVEAU : Relie ton compte Steam pour accéder à ton inventaire Steam.",
+  "index.overview.players.5": "Relie ton compte Steam pour accéder à ton inventaire Steam.",
 
   "index.overview.creators.title": "Pour les créateurs & développeurs de jeux",
   "index.overview.creators.1": "Connecte ton jeu à Croissant via le SDK ou l’API.",
   "index.overview.creators.2": "Authentifie les joueurs et interagis avec leur inventaire (ajoute/retire des objets, récompenses, achats en jeu).",
   "index.overview.creators.3": "Crée et vends tes propres objets ou bundles sur le marché.",
   "index.overview.creators.4": "Utilise les salons pour gérer des parties privées multijoueur.",
-  "index.overview.creators.5": "NOUVEAU : Utilise OAuth2 comme authentification sur ton site.",
-  "index.overview.creators.6": "NOUVEAU : Les utilisateurs peuvent lier leur compte Steam. Si ton jeu est sur Steam, retrouve un joueur par son Steam ID et récupère son inventaire.",
+  "index.overview.creators.5": "Utilise OAuth2 comme authentification sur ton site.",
+  "index.overview.creators.6": "Les utilisateurs peuvent lier leur compte Steam. Si ton jeu est sur Steam, retrouve un joueur par son Steam ID et récupère son inventaire.",
   "index.overview.creators.getstarted": "Commence : Génère ta clé API dans les paramètres et consulte la doc.",
 
   "index.overview.marketplace.title": "Marché & Inventaire",
@@ -520,5 +520,57 @@
   "profile.creatorLabel": "Créateur :",
   "profile.stockLabel": "Stock :",
   "profile.totalLabel": "Total :",
-  "profile.disabledLabel": "(Désactivé)"
+  "profile.disabledLabel": "(Désactivé)",
+
+  "shop.allGames": "Tous les jeux",
+  "shop.title": "Boutique",
+  "shop.searchPlaceholder": "Cherche un jeu...",
+
+  "oauth2": {
+    "demo": {
+      "title": "Exemple d'intégration OAuth2 Croissant",
+      "subtitle": "Démo OAuth2",
+      "description": "Ouvre la console pour voir le flux OAuth2 en action. Cet exemple montre comment authentifier les utilisateurs avec le service OAuth2 de Croissant. Clique sur le bouton ci-dessous pour commencer :",
+      "connectButton": "Se connecter avec Croissant",
+      "expectedResult": "Résultat attendu",
+      "expectedDescription": "Après avoir cliqué sur le bouton, une popup s'ouvrira pour l'authentification. Une fois connecté, la popup se fermera et les données utilisateur seront affichées dans la console.",
+      "downloadCode": "Télécharger le HTML de test OAuth2 pour étudier le code"
+    },
+    "auth": {
+      "authorize": "Voulez-vous autoriser",
+      "accessData": "à accéder à vos données utilisateur ?",
+      "login": "Se connecter",
+      "authorizing": "Autorisation en cours...",
+      "authorizeButton": "Autoriser",
+      "redirectUri": "URI de redirection :",
+      "missingParams": "Paramètres manquants.",
+      "networkError": "Erreur réseau."
+    },
+    "apps": {
+      "title": "Mes applications OAuth2",
+      "testLink": "Tester OAuth2 ↗",
+      "addButton": "Ajouter une application",
+      "addButtonMobile": "+ Ajouter",
+      "createTitle": "Créer une application",
+      "editTitle": "Modifier l'application",
+      "clientId": "Client ID :",
+      "clientSecret": "Client Secret :",
+      "redirectUrls": "URLs de redirection :",
+      "copy": "Copier",
+      "show": "Afficher",
+      "hide": "Cacher",
+      "integrationCode": "Code d'intégration",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "appName": "Nom de l'application",
+      "appNamePlaceholder": "Mon Jeu, Mon Site...",
+      "redirectUrlsHelp": "(séparées par des virgules)",
+      "redirectUrlsPlaceholder": "https://monapp.com/callback, http://localhost:3000/cb",
+      "save": "Sauvegarder",
+      "create": "Créer",
+      "cancel": "Annuler",
+      "integrationTitle": "Code du bouton d'intégration :",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette application ?"
+    }
+  }
 }

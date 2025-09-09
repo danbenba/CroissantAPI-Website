@@ -25,6 +25,6 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "../NewWebsite/node_modules"
   ]
 }

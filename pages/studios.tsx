@@ -13,6 +13,109 @@ export async function getStaticProps({ locale }) {
     },
   };
 }
+
+function StudioCard({ studio, onRemoveUser, onAddUser, onToggleApiKey, apiKeySpoilers }) {
+  const { t } = useTranslation("common");
+
+  return (
+    <div className="bg-[#1c1c24] rounded-xl overflow-hidden flex flex-col border border-[#333] shadow-lg transform transition-transform hover:scale-[1.02] hover:shadow-xl">
+      {/* En-tête du studio */}
+      <div className="relative h-32 bg-[#18181c]">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c24] to-transparent opacity-60" />
+        <div className="absolute -bottom-8 left-8 flex items-center gap-3">
+          <CachedImage
+            src={"/avatar/" + studio.user_id}
+            alt="Studio Avatar"
+            className="w-24 h-24 rounded-xl object-cover border-2 border-[#444] shadow-lg bg-[#23232a]"
+          />
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-white">{studio.username}</span>
+              <Certification user={studio} className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu */}
+      <div className="pt-16 px-8 pb-6 flex flex-col gap-6">
+        {/* API Key Section */}
+        <div className="bg-[#2a2a32] rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-400">{t("studios.apiKey")}:</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onToggleApiKey(studio.user_id)}
+                className="text-xs text-gray-400 hover:text-white transition-colors"
+              >
+                {apiKeySpoilers[studio.user_id] ? t("studios.hide") : t("studios.show")}
+              </button>
+              <button
+                onClick={() => navigator.clipboard.writeText(studio.apiKey)}
+                className="text-xs text-gray-400 hover:text-white transition-colors"
+              >
+                {t("studios.copy")}
+              </button>
+            </div>
+          </div>
+          <code
+            onClick={() => navigator.clipboard.writeText(studio.apiKey)}
+            className="block w-full bg-[#1c1c24] rounded p-2 text-sm font-mono cursor-pointer select-all truncate overflow-hidden text-ellipsis"
+          >
+            {apiKeySpoilers[studio.user_id] 
+              ? studio.apiKey 
+              : "*".repeat(Math.max(8, String(studio.apiKey).length))
+            }
+          </code>
+        </div>
+
+        {/* Users List */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-400">{t("studios.users")}</span>
+            <button
+              onClick={() => onAddUser(studio)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+            >
+              {t("studios.addUser")}
+            </button>
+          </div>
+          <ul className="divide-y divide-[#2a2a32]">
+            {studio.users && studio.users.length > 0 ? (
+              studio.users.map((user) => (
+                <li key={user.user_id} className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-3">
+                    <CachedImage
+                      src={"/avatar/" + user.user_id}
+                      alt={user.username}
+                      className="w-8 h-8 rounded-full object-cover border border-[#444]"
+                    />
+                    <span className="text-white">{user.username}</span>
+                    <Certification user={user} className="w-4 h-4" />
+                    {studio.admin_id === user.user_id && (
+                      <span className="text-xs text-green-500">(You)</span>
+                    )}
+                  </div>
+                  {studio.admin_id !== user.user_id && (
+                    <button
+                      onClick={() => onRemoveUser(studio.user_id, user.user_id)}
+                      className="text-red-500 hover:text-red-400 transition-colors"
+                    >
+                      <i className="fa fa-trash" aria-hidden="true" />
+                    </button>
+                  )}
+                </li>
+              ))
+            ) : (
+              <li className="py-2 text-gray-500 text-sm">{t("studios.noUsers")}</li>
+            )}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function StudiosPage() {
   const { t } = useTranslation("common");
   const { user, token, setUser } = useAuth();
@@ -160,35 +263,47 @@ export default function StudiosPage() {
   }
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2 style={{ marginBottom: 18 }}>{t("studios.title")}</h2>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8 w-full">
+        <h1 className="text-3xl font-bold text-white">{t("studios.title")}</h1>
         <button
           onClick={() => setShowForm(true)}
-          style={{
-            marginBottom: 24,
-            background: "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            fontWeight: 500,
-            padding: "12px 24px",
-            fontSize: "1.05rem",
-            cursor: "pointer",
-            position: "relative",
-            top: "12px",
-          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
         >
           {t("studios.create")}
         </button>
       </div>
+
+      {/* Studios Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {user?.studios && user.studios.length > 0 ? (
+          user.studios.map(
+            (studio) =>
+              studio.admin_id == user.id && (
+                <StudioCard
+                  key={studio.user_id}
+                  studio={studio}
+                  onRemoveUser={handleRemoveUser}
+                  onAddUser={(studio) => {
+                    setAddUserStudioId(studio.studio_id || studio.id || studio.user_id);
+                    setShowAddUserModal(true);
+                    setAddUserId("");
+                    setAddUserError(null);
+                  }}
+                  onToggleApiKey={toggleApiKeySpoiler}
+                  apiKeySpoilers={apiKeySpoilers}
+                />
+              )
+          )
+        ) : (
+          <div className="col-span-full text-center py-12 text-gray-400">
+            {t("studios.noStudios")}
+          </div>
+        )}
+      </div>
+
+      {/* Create Studio Form */}
       {showForm && (
         <div
           className="modal-overlay"
@@ -287,264 +402,12 @@ export default function StudiosPage() {
                   {t("studios.cancelBtn")}
                 </button>
               </div>
-              {error && (
-                <div style={{ color: "red", marginTop: 12 }}>
-                  {t("studios.errorCreate")}
-                </div>
-              )}
+              {error && <div style={{ color: "red", marginTop: 12 }}>{t("studios.errorCreate")}</div>}
             </form>
           </div>
         </div>
       )}
-      <div
-        className="studios-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: 24,
-          marginTop: 24,
-        }}
-      >
-        {user?.studios && user.studios.length > 0 ? (
-          user.studios.map(
-            (studio: any) =>
-              studio.admin_id == user.id && (
-                <div
-                  key={studio.user_id}
-                  className="studio-card"
-                  style={{
-                    background: "#232323",
-                    borderRadius: 10,
-                    padding: 24,
-                    boxShadow: "0 2px 12px #0002",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                  }}
-                >
-                  <CachedImage
-                    src={"/avatar/" + studio.user_id}
-                    style={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: "50%",
-                      marginBottom: 12,
-                    }}
-                    alt="Studio Avatar"
-                  />
-                  <div
-                    className="studio-card-title"
-                    style={{
-                      fontWeight: 600,
-                      fontSize: "1.15rem",
-                      marginBottom: 6,
-                    }}
-                  >
-                    {studio.username}{" "}
-                    <Certification
-                      user={studio}
-                      style={{
-                        width: 16,
-                        height: 16,
-                        marginLeft: 4,
-                        position: "relative",
-                        top: -2,
-                        verticalAlign: "middle",
-                      }}
-                    />
-                  </div>
-                  <div
-                    className="studio-card-meta"
-                    style={{ fontSize: 13, color: "#aaa" }}
-                  >
-                    <span>{t("studios.users")}</span>
-                    <ul>
-                      {studio.users && studio.users.length > 0 ? (
-                        studio.users.map((user: any) => (
-                          <li
-                            key={user.userId}
-                            style={{
-                              marginBottom: 4,
-                              display: "flex",
-                              flexDirection: "row",
-                              gap: 4,
-                            }}
-                          >
-                            <CachedImage
-                              src={"/avatar/" + user.user_id}
-                              style={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: "50%",
-                                marginRight: 8,
-                                position: "relative",
-                                top: "-4px",
-                              }}
-                              alt="User Avatar"
-                            />
-                            {user.username}
-                            <Certification
-                              user={user}
-                              style={{
-                                width: 16,
-                                height: 16,
-                                verticalAlign: "middle",
-                              }}
-                            />
-                            {studio.admin_id === user.user_id ? (
-                              <span
-                                style={{
-                                  fontSize: 12,
-                                  color: "#4caf50",
-                                  marginLeft: 4,
-                                }}
-                              >
-                                (You)
-                              </span>
-                            ) : (
-                              <i
-                                className="fa fa-trash"
-                                aria-hidden="true"
-                                style={{
-                                  color: "red",
-                                  position: "relative",
-                                  top: "2px",
-                                }}
-                                onClick={() =>
-                                  handleRemoveUser(studio.user_id, user.user_id)
-                                }
-                              ></i>
-                            )}
-                          </li>
-                        ))
-                      ) : (
-                        <li>{t("studios.noUsers")}</li>
-                      )}
-                    </ul>
-                    <div>
-                      <span>
-                        {t("studios.apiKey")}:{" "}
-                        {apiKeySpoilers[studio.user_id] ? (
-                          <code
-                            style={{
-                              background: "#444",
-                              borderRadius: 4,
-                              padding: "2px 6px",
-                              fontWeight: 500,
-                              marginRight: 8,
-                              userSelect: "all",
-                              cursor: "pointer",
-                              maxWidth: 180,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              display: "inline-block",
-                              verticalAlign: "middle",
-                            }}
-                            onClick={() =>
-                              navigator.clipboard.writeText(studio.apiKey)
-                            }
-                            title={studio.apiKey}
-                          >
-                            {studio.apiKey}
-                          </code>
-                        ) : (
-                          <code
-                            style={{
-                              background: "#444",
-                              borderRadius: 4,
-                              padding: "2px 6px",
-                              fontWeight: 500,
-                              marginRight: 8,
-                              userSelect: "all",
-                              cursor: "pointer",
-                              maxWidth: 180,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              display: "inline-block",
-                              verticalAlign: "middle",
-                            }}
-                            title="Click to reveal"
-                          >
-                            {"*".repeat(
-                              Math.max(8, String(studio.apiKey).length)
-                            )}
-                          </code>
-                        )}
-                        <button
-                          type="button"
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#fff",
-                            cursor: "pointer",
-                            fontSize: 13,
-                            textDecoration: "underline",
-                            opacity: 0.7,
-                            marginLeft: 4,
-                          }}
-                          onClick={() => toggleApiKeySpoiler(studio.user_id)}
-                        >
-                          {apiKeySpoilers[studio.user_id]
-                            ? t("studios.hide")
-                            : t("studios.show")}
-                        </button>
-                        <button
-                          type="button"
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#fff",
-                            cursor: "pointer",
-                            fontSize: 13,
-                            textDecoration: "underline",
-                            opacity: 0.7,
-                            marginLeft: 8,
-                          }}
-                          onClick={() =>
-                            navigator.clipboard.writeText(studio.apiKey)
-                          }
-                        >
-                          {t("studios.copy")}
-                        </button>
-                      </span>
-                    </div>
-                    <br />
-                    <button
-                      style={{
-                        marginBottom: 24,
-                        background: "#333",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 6,
-                        fontWeight: 500,
-                        padding: "12px 24px",
-                        fontSize: "1.05rem",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        setAddUserStudioId(
-                          studio.studio_id || studio.id || studio.user_id
-                        );
-                        setShowAddUserModal(true);
-                        setAddUserId("");
-                        setAddUserError(null);
-                      }}
-                    >
-                      {t("studios.addUser")}
-                    </button>
-                  </div>
-                  {/* Add more info if needed */}
-                </div>
-              )
-          )
-        ) : (
-          <div style={{ color: "#aaa", fontSize: 16, gridColumn: "1/-1" }}>
-            {t("studios.noStudios")}
-          </div>
-        )}
-      </div>
+
       {/* Add User Modal */}
       {showAddUserModal && (
         <div
@@ -615,9 +478,7 @@ export default function StudiosPage() {
                   onFocus={() => {
                     if (addUserSearch.length > 1) setAddUserDropdownOpen(true);
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setAddUserDropdownOpen(false), 150)
-                  }
+                  onBlur={() => setTimeout(() => setAddUserDropdownOpen(false), 150)}
                   placeholder={t("studios.searchUserPlaceholder")}
                   style={{
                     marginRight: 8,
@@ -665,11 +526,7 @@ export default function StudiosPage() {
                           setAddUserDropdownOpen(false);
                         }}
                       >
-                        <CachedImage
-                          src={`/avatar/${u.userId}`}
-                          alt="avatar"
-                          style={{ width: 28, height: 28, borderRadius: "50%" }}
-                        />
+                        <CachedImage src={`/avatar/${u.userId}`} alt="avatar" style={{ width: 28, height: 28, borderRadius: "50%" }} />
                         <span style={{ color: "#fff" }}>{u.username}</span>
                         <Certification
                           user={u}
@@ -717,11 +574,7 @@ export default function StudiosPage() {
                   {t("studios.cancelBtn")}
                 </button>
               </div>
-              {addUserError && (
-                <div style={{ color: "red", marginTop: 12 }}>
-                  {t("studios.errorAddUser")}
-                </div>
-              )}
+              {addUserError && <div style={{ color: "red", marginTop: 12 }}>{t("studios.errorAddUser")}</div>}
             </form>
           </div>
         </div>

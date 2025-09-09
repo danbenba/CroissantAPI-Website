@@ -39,8 +39,7 @@ function useMarketplaceLogic() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBuyOrderModal, setShowBuyOrderModal] = useState(false);
-  const [selectedItem, setSelectedItem] =
-    useState<EnrichedMarketListing | null>(null);
+  const [selectedItem, setSelectedItem] = useState<EnrichedMarketListing | null>(null);
   const [sellerNames, setSellerNames] = useState<Record<string, string>>({});
   const { getUser: getUserFromCache } = useUserCache();
 
@@ -49,8 +48,7 @@ function useMarketplaceLogic() {
     fetch(`/api/market-listings?limit=100`)
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok)
-          throw new Error(data.message || "Failed to fetch listings");
+        if (!res.ok) throw new Error(data.message || "Failed to fetch listings");
         setListings(data);
         setLoading(false);
       })
@@ -61,14 +59,10 @@ function useMarketplaceLogic() {
   }, []);
 
   useEffect(() => {
-    const uniqueSellerIds = Array.from(
-      new Set(listings.map((l) => l.seller_id))
-    );
+    const uniqueSellerIds = Array.from(new Set(listings.map((l) => l.seller_id)));
     const missing = uniqueSellerIds.filter((id) => !(id in sellerNames));
     if (missing.length === 0) return;
-    Promise.all(
-      missing.map((id) => getUserFromCache(id).catch(() => null))
-    ).then((users) => {
+    Promise.all(missing.map((id) => getUserFromCache(id).catch(() => null))).then((users) => {
       const newNames: Record<string, string> = {};
       users.forEach((user, idx) => {
         if (user && user.username) newNames[missing[idx]] = user.username;
@@ -80,8 +74,7 @@ function useMarketplaceLogic() {
 
   const handleBuy = async (listing: EnrichedMarketListing) => {
     if (!user) return alert("You must be logged in to buy.");
-    if (!confirm(`Buy "${listing.item_name}" for ${listing.price} credits?`))
-      return;
+    if (!confirm(`Buy "${listing.item_name}" for ${listing.price} credits?`)) return;
     try {
       const res = await fetch(`/api/market-listings/${listing.id}/buy`, {
         method: "POST",
@@ -106,8 +99,7 @@ function useMarketplaceLogic() {
 
   const handlePlaceBuyOrder = async () => {
     if (!user) return alert("You must be logged in.");
-    if (!buyOrderItemId || buyOrderPrice <= 0)
-      return alert("All fields are required.");
+    if (!buyOrderItemId || buyOrderPrice <= 0) return alert("All fields are required.");
     setPlacingOrder(true);
     try {
       const res = await fetch("/api/buy-orders", {
@@ -170,134 +162,54 @@ function useMarketplaceLogic() {
 }
 
 function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
-  const {
-    user,
-    listings,
-    loading,
-    error,
-    showBuyOrderModal,
-    setShowBuyOrderModal,
-    sellerNames,
-    handleBuy,
-    buyOrderItemId,
-    setBuyOrderItemId,
-    buyOrderPrice,
-    setBuyOrderPrice,
-    placingOrder,
-    buyOrderItemSearch,
-    setBuyOrderItemSearch,
-    buyOrderItemResults,
-    buyOrderDropdownOpen,
-    setBuyOrderDropdownOpen,
-    handlePlaceBuyOrder,
-    handleItemSearch,
-  } = props;
+  const { user, listings, loading, error, showBuyOrderModal, setShowBuyOrderModal, sellerNames, handleBuy, buyOrderItemId, setBuyOrderItemId, buyOrderPrice, setBuyOrderPrice, placingOrder, buyOrderItemSearch, setBuyOrderItemSearch, buyOrderItemResults, buyOrderDropdownOpen, setBuyOrderDropdownOpen, handlePlaceBuyOrder, handleItemSearch } = props;
 
   const { t } = useTranslation("common");
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>{t("marketplace.title")}</h2>
-        <div style={{ display: "flex", gap: 12 }}>
-          <button
-            style={{
-              background: "#fff",
-              color: "#222",
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 18px",
-              fontWeight: 700,
-              fontSize: 16,
-              cursor: "pointer",
-              boxShadow: "0 2px 8px #0002",
-            }}
-            onClick={() => setShowBuyOrderModal(true)}
-          >
+    <div className="max-w-[1100px] mx-auto p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-white">{t("marketplace.title")}</h2>
+        <div className="flex gap-3">
+          <button className="bg-[#2a2a32] text-white border border-[#444] rounded-lg px-5 py-2 font-semibold text-sm hover:bg-[#32323a] transition-colors" onClick={() => setShowBuyOrderModal(true)}>
             {t("marketplace.placeBuyOrder")}
           </button>
           {user && (
-            <Link
-              href="/my-buy-orders"
-              style={{ color: "#fff", fontWeight: 600, fontSize: 16 }}
-            >
-              <button
-                style={{
-                  background: "#23272e",
-                  color: "#fff",
-                  border: "1px solid #fff",
-                  borderRadius: 8,
-                  padding: "8px 18px",
-                  fontWeight: 700,
-                  fontSize: 16,
-                  cursor: "pointer",
-                }}
-              >
-                {t("marketplace.myBuyOrders")}
-              </button>
+            <Link href="/my-buy-orders">
+              <button className="bg-[#23272e] text-white border border-[#444] rounded-lg px-5 py-2 font-semibold text-sm hover:bg-[#32323a] transition-colors">{t("marketplace.myBuyOrders")}</button>
             </Link>
           )}
         </div>
       </div>
-      {loading && <div>{t("marketplace.loading")}</div>}
-      {error && <div style={{ color: "red" }}>{t("marketplace.error")}</div>}
+
+      {loading && <div className="text-gray-400">{t("marketplace.loading")}</div>}
+
+      {error && <div className="text-red-500">{t("marketplace.error")}</div>}
+
       {!loading && listings.length === 0 ? (
-        <div>{t("marketplace.noItems")}</div>
+        <div className="text-gray-400">{t("marketplace.noItems")}</div>
       ) : (
-        <div className="market-table-wrapper">
-          <table className="market-table">
+        <div className="market-table-wrapper overflow-x-auto">
+          <table className="w-full border-separate border-spacing-0 bg-[#23272e] rounded-xl overflow-hidden shadow-lg mt-4">
             <thead>
               <tr>
-                <th>{t("marketplace.item")}</th>
-                <th>{t("marketplace.description")}</th>
-                <th>{t("marketplace.seller")}</th>
-                <th>{t("marketplace.price")}</th>
-                <th>{t("marketplace.listed")}</th>
-                <th></th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333] text-left">{t("marketplace.item")}</th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333]">{t("marketplace.description")}</th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333]">{t("marketplace.seller")}</th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333]">{t("marketplace.price")}</th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333]">{t("marketplace.listed")}</th>
+                <th className="bg-[#1c1c24] text-white font-semibold text-sm p-3 border-b border-[#333]"></th>
               </tr>
             </thead>
             <tbody>
               {listings.map((listing) => (
-                <tr key={listing.id}>
-                  <td>
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        position: "relative",
-                      }}
-                    >
-                      <CachedImage
-                        src={`/items-icons/${
-                          listing.item_icon_hash || listing.item_id
-                        }`}
-                        alt=""
-                        width={32}
-                        height={32}
-                      />
-                      {/* Indicateur metadata */}
+                <tr key={listing.id} className="hover:bg-[#2c313a] transition-colors">
+                  <td className="p-3 text-white border-b border-[#292c33]">
+                    <div className="flex items-center gap-2 relative">
+                      <CachedImage src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" className="w-8 h-8 rounded-lg bg-[#1c1c24]" />
                       {listing.metadata?._unique_id && (
                         <span
-                          style={{
-                            position: "absolute",
-                            top: 2,
-                            left: 26,
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            backgroundColor: "#ffd700",
-                            border: "1px solid #000",
-                            zIndex: 2,
-                            cursor: "pointer",
-                          }}
-                          // title="This item has metadata"
+                          className="absolute top-0.5 left-6 w-2.5 h-2.5 rounded-full bg-[#ffd700] border border-black z-10 cursor-pointer"
                           onMouseEnter={(e) => {
                             const tooltip = document.createElement("div");
                             tooltip.innerText =
@@ -305,80 +217,40 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                                 .filter(([key]) => key !== "_unique_id")
                                 .map(([key, value]) => `${key}: ${value}`)
                                 .join(", ") || "Metadata";
-                            tooltip.style.position = "fixed";
+                            tooltip.className = "fixed bg-[#23272e] text-[#ffd700] px-3 py-1.5 rounded-lg text-xs z-50 marketplace-metadata-tooltip";
                             tooltip.style.left = e.clientX + 12 + "px";
                             tooltip.style.top = e.clientY + "px";
-                            tooltip.style.background = "#23272e";
-                            tooltip.style.color = "#ffd700";
-                            tooltip.style.padding = "6px 12px";
-                            tooltip.style.borderRadius = "8px";
-                            tooltip.style.fontSize = "13px";
-                            tooltip.style.zIndex = "9999";
-                            tooltip.className = "marketplace-metadata-tooltip";
                             document.body.appendChild(tooltip);
                             const removeTooltip = () => {
-                              document.body
-                                .querySelectorAll(
-                                  ".marketplace-metadata-tooltip"
-                                )
-                                .forEach((t) => t.remove());
-                              e.target.removeEventListener(
-                                "mouseleave",
-                                removeTooltip
-                              );
+                              document.body.querySelectorAll(".marketplace-metadata-tooltip").forEach((t) => t.remove());
+                              e.target.removeEventListener("mouseleave", removeTooltip);
                             };
-                            e.target.addEventListener(
-                              "mouseleave",
-                              removeTooltip
-                            );
+                            e.target.addEventListener("mouseleave", removeTooltip);
                           }}
                         />
                       )}
                       {listing.item_name}
-                    </span>
+                    </div>
                   </td>
-                  <td style={{ maxWidth: 260, color: "#bbb" }}>
-                    {listing.item_description}
-                  </td>
-                  <td>
-                    <span
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <CachedImage
-                        src={`/avatar/${listing.seller_id}`}
-                        alt=""
-                        style={{ borderRadius: "50%", width: 28, height: 28 }}
-                      />
+                  <td className="p-3 text-gray-300 border-b border-[#292c33] max-w-[260px]">{listing.item_description}</td>
+                  <td className="p-3 text-white border-b border-[#292c33]">
+                    <div className="flex items-center gap-2">
+                      <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-6 h-6 rounded-full" />
                       {sellerNames[listing.seller_id] || listing.seller_id}
-                    </span>
+                    </div>
                   </td>
-                  <td>
-                    {listing.price}{" "}
-                    <CachedImage
-                      src="/assets/credit.avif"
-                      alt="credits"
-                      style={{ width: 14, verticalAlign: "middle" }}
-                    />
+                  <td className="p-3 text-white border-b border-[#292c33]">
+                    {listing.price}
+                    <CachedImage src="/assets/credit.png" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
                   </td>
-                  <td>{new Date(listing.created_at).toLocaleString()}</td>
-                  <td>
+                  <td className="p-3 text-white border-b border-[#292c33]">{new Date(listing.created_at).toLocaleString()}</td>
+                  <td className="p-3 text-white border-b border-[#292c33]">
                     {user && listing.seller_id !== user.id ? (
-                      <button
-                        style={{
-                          background: "#66ff66",
-                          color: "#222",
-                          border: "none",
-                          borderRadius: 6,
-                          padding: "6px 14px",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleBuy(listing)}
-                      >
+                      <button className="bg-[#2a2a32] text-white px-4 py-1.5 rounded-lg font-semibold hover:bg-[#32323a] transition-colors" onClick={() => handleBuy(listing)}>
                         {t("marketplace.buy")}
                       </button>
                     ) : (
-                      <span style={{ color: "#888" }}>—</span>
+                      <span className="text-gray-500">—</span>
                     )}
                   </td>
                 </tr>
@@ -387,34 +259,14 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
           </table>
         </div>
       )}
+
       {/* Buy Order Modal */}
       {showBuyOrderModal && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "#000a",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "#23272e",
-              borderRadius: 12,
-              padding: 32,
-              minWidth: 340,
-              boxShadow: "0 2px 16px #0008",
-            }}
-          >
-            <h3>{t("marketplace.modalTitle")}</h3>
-            <div style={{ marginBottom: 12, position: "relative" }}>
-              <label>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-[#23272e] rounded-xl p-8 min-w-[340px] shadow-lg">
+            <h3 className="text-xl font-bold text-white mb-6">{t("marketplace.modalTitle")}</h3>
+            <div className="mb-4 relative">
+              <label className="text-white">
                 {t("marketplace.item")}&nbsp;
                 <input
                   type="text"
@@ -425,44 +277,18 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                     await handleItemSearch(e.target.value);
                   }}
                   onFocus={() => {
-                    if (buyOrderItemSearch.length > 1)
-                      setBuyOrderDropdownOpen(true);
+                    if (buyOrderItemSearch.length > 1) setBuyOrderDropdownOpen(true);
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setBuyOrderDropdownOpen(false), 150)
-                  }
+                  onBlur={() => setTimeout(() => setBuyOrderDropdownOpen(false), 150)}
                   placeholder={t("marketplace.searchItem")}
-                  style={{ width: 180 }}
+                  className="w-[180px] bg-[#1c1c24] border border-[#444] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#1e90ff]"
                 />
                 {buyOrderDropdownOpen && buyOrderItemResults.length > 0 && (
-                  <ul
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      right: 0,
-                      top: 36,
-                      background: "#23272e",
-                      border: "1px solid #444",
-                      borderRadius: 6,
-                      maxHeight: 200,
-                      overflowY: "auto",
-                      zIndex: 1001,
-                      listStyle: "none",
-                      margin: 0,
-                      padding: 0,
-                    }}
-                  >
+                  <ul className="absolute left-0 right-0 top-[36px] bg-[#23272e] border border-[#444] rounded-lg max-h-[200px] overflow-y-auto z-50">
                     {buyOrderItemResults.map((item) => (
                       <li
                         key={item.itemId}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "8px 12px",
-                          cursor: "pointer",
-                          borderBottom: "1px solid #333",
-                        }}
+                        className="flex items-center gap-2 p-3 cursor-pointer border-b border-[#333] hover:bg-[#2c313a] transition-colors"
                         onMouseDown={() => {
                           setBuyOrderItemId(item.itemId);
                           setBuyOrderItemSearch(item.name);
@@ -470,293 +296,70 @@ function MarketplaceDesktop(props: ReturnType<typeof useMarketplaceLogic>) {
                           setBuyOrderDropdownOpen(false);
                         }}
                       >
-                        <CachedImage
-                          src={`/items-icons/${item.iconHash || item.itemId}`}
-                          alt="icon"
-                          style={{ width: 28, height: 28, borderRadius: 6 }}
-                        />
-                        <span style={{ color: "#fff" }}>{item.name}</span>
+                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-6 h-6 rounded bg-[#1c1c24]" />
+                        <span className="text-white">{item.name}</span>
                       </li>
                     ))}
                   </ul>
                 )}
               </label>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <label>
+            <div className="mb-6">
+              <label className="text-white">
                 {t("marketplace.price")}&nbsp;
-                <input
-                  type="number"
-                  min={1}
-                  value={buyOrderPrice}
-                  onChange={(e) => setBuyOrderPrice(Number(e.target.value))}
-                  style={{ width: 100 }}
-                />
+                <input type="number" min={1} value={buyOrderPrice} onChange={(e) => setBuyOrderPrice(Number(e.target.value))} className="w-[100px] bg-[#1c1c24] border border-[#444] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#1e90ff]" />
               </label>
             </div>
-            <button
-              onClick={handlePlaceBuyOrder}
-              disabled={placingOrder}
-              style={{
-                background: "#fff",
-                color: "#222",
-                border: "none",
-                borderRadius: 8,
-                padding: "8px 18px",
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: "pointer",
-                marginRight: 12,
-              }}
-            >
-              {placingOrder
-                ? t("marketplace.placing")
-                : t("marketplace.confirm")}
-            </button>
-            <button
-              onClick={() => setShowBuyOrderModal(false)}
-              style={{
-                background: "#23272e",
-                color: "#fff",
-                border: "1px solid #444",
-                borderRadius: 8,
-                padding: "8px 18px",
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: "pointer",
-              }}
-            >
-              {t("marketplace.cancel")}
-            </button>
+            <div className="flex gap-3">
+              <button onClick={handlePlaceBuyOrder} disabled={placingOrder} className="flex-1 bg-[#2a2a32] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[#32323a] transition-colors disabled:opacity-50">
+                {placingOrder ? t("marketplace.placing") : t("marketplace.confirm")}
+              </button>
+              <button onClick={() => setShowBuyOrderModal(false)} className="flex-1 bg-[#1c1c24] text-white border border-[#444] px-5 py-2 rounded-lg font-semibold hover:bg-[#32323a] transition-colors">
+                {t("marketplace.cancel")}
+              </button>
+            </div>
           </div>
         </div>
       )}
-      <style jsx>{`
-        .market-table {
-          width: 100%;
-          border-collapse: separate;
-          border-spacing: 0;
-          background: #23272e;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 2px 16px #0002;
-          margin-top: 16px;
-        }
-        .market-table th,
-        .market-table td {
-          padding: 12px 10px;
-          text-align: center;
-        }
-        .market-table th {
-          background: #181b20;
-          color: #fff;
-          font-weight: 600;
-          font-size: 15px;
-          border-bottom: 2px solid #333;
-        }
-        .market-table td {
-          background: #23272e;
-          color: #eee;
-          font-size: 14px;
-          border-bottom: 1px solid #292c33;
-          vertical-align: middle;
-        }
-        .market-table tr:last-child td {
-          border-bottom: none;
-        }
-        .market-table tr:hover td {
-          background: #2c313a;
-          transition: background 0.15s;
-        }
-        .market-table img {
-          border-radius: 6px;
-          background: #181b20;
-        }
-        .market-table button {
-          background: #66ff66;
-          color: #222;
-          border: none;
-          border-radius: 6px;
-          padding: 6px 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.15s;
-        }
-        .market-table button:hover {
-          background: #33ff33;
-        }
-
-        @media (max-width: 700px) {
-          .market-table {
-            font-size: 12px;
-            min-width: 600px;
-            width: 100%;
-            border-radius: 0;
-            margin-top: 8px;
-          }
-          .market-table th,
-          .market-table td {
-            padding: 8px 4px;
-            font-size: 12px;
-          }
-          .market-table th {
-            font-size: 13px;
-          }
-          .market-table img {
-            width: 24px !important;
-            height: 24px !important;
-          }
-          .market-table button {
-            padding: 4px 8px;
-            font-size: 12px;
-          }
-          .market-table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
 function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
-  const {
-    user,
-    listings,
-    loading,
-    error,
-    showBuyOrderModal,
-    setShowBuyOrderModal,
-    sellerNames,
-    handleBuy,
-    buyOrderItemId,
-    setBuyOrderItemId,
-    buyOrderPrice,
-    setBuyOrderPrice,
-    placingOrder,
-    buyOrderItemSearch,
-    setBuyOrderItemSearch,
-    buyOrderItemResults,
-    buyOrderDropdownOpen,
-    setBuyOrderDropdownOpen,
-    handlePlaceBuyOrder,
-    handleItemSearch,
-  } = props;
+  const { user, listings, loading, error, showBuyOrderModal, setShowBuyOrderModal, sellerNames, handleBuy, buyOrderItemId, setBuyOrderItemId, buyOrderPrice, setBuyOrderPrice, placingOrder, buyOrderItemSearch, setBuyOrderItemSearch, buyOrderItemResults, buyOrderDropdownOpen, setBuyOrderDropdownOpen, handlePlaceBuyOrder, handleItemSearch } = props;
 
   const { t } = useTranslation("common");
 
   return (
-    <div
-      style={{
-        maxWidth: 480,
-        margin: "0 auto",
-        padding: 8,
-        fontSize: "0.98em",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          marginBottom: 10,
-        }}
-      >
-        <h2 style={{ fontSize: "1.1em" }}>{t("marketplace.title")}</h2>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button
-            style={{
-              background: "#fff",
-              color: "#222",
-              border: "none",
-              borderRadius: 8,
-              padding: "7px 12px",
-              fontWeight: 700,
-              fontSize: "1em",
-              cursor: "pointer",
-              boxShadow: "0 2px 8px #0002",
-            }}
-            onClick={() => setShowBuyOrderModal(true)}
-          >
+    <div className="max-w-[480px] mx-auto p-2 text-[0.98em]">
+      <div className="flex flex-col gap-2.5 mb-2.5">
+        <h2 className="text-lg font-bold text-white">{t("marketplace.title")}</h2>
+        <div className="flex gap-2 flex-wrap">
+          <button className="bg-[#2a2a32] text-white border border-[#444] rounded-lg px-3 py-1.5 font-semibold text-sm hover:bg-[#32323a] transition-colors" onClick={() => setShowBuyOrderModal(true)}>
             {t("marketplace.placeBuyOrder")}
           </button>
           {user && (
-            <Link
-              href="/my-buy-orders"
-              style={{ color: "#fff", fontWeight: 600, fontSize: "1em" }}
-            >
-              <button
-                style={{
-                  background: "#23272e",
-                  color: "#fff",
-                  border: "1px solid #fff",
-                  borderRadius: 8,
-                  padding: "7px 12px",
-                  fontWeight: 700,
-                  fontSize: "1em",
-                  cursor: "pointer",
-                }}
-              >
-                {t("marketplace.myBuyOrders")}
-              </button>
+            <Link href="/my-buy-orders">
+              <button className="bg-[#23272e] text-white border border-[#444] rounded-lg px-3 py-1.5 font-semibold text-sm hover:bg-[#32323a] transition-colors">{t("marketplace.myBuyOrders")}</button>
             </Link>
           )}
         </div>
       </div>
-      {loading && <div>{t("marketplace.loading")}</div>}
-      {error && <div style={{ color: "red" }}>{t("marketplace.error")}</div>}
+
+      {loading && <div className="text-gray-400">{t("marketplace.loading")}</div>}
+      {error && <div className="text-red-500">{t("marketplace.error")}</div>}
+
       {!loading && listings.length === 0 ? (
-        <div>{t("marketplace.noItems")}</div>
+        <div className="text-gray-400">{t("marketplace.noItems")}</div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {listings.map((listing) => (
-            <div
-              key={listing.id}
-              style={{
-                background: "#23272e",
-                borderRadius: 10,
-                boxShadow: "0 2px 8px #0003",
-                padding: 12,
-                marginBottom: 2,
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-                position: "relative",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  position: "relative",
-                }}
-              >
-                <CachedImage
-                  src={`/items-icons/${
-                    listing.item_icon_hash || listing.item_id
-                  }`}
-                  alt=""
-                  width={36}
-                  height={36}
-                  style={{ borderRadius: 8, background: "#181b20" }}
-                />
-                {/* Indicateur metadata */}
+            <div key={listing.id} className="bg-[#23272e] rounded-xl shadow-lg p-3 flex flex-col gap-1.5 relative">
+              <div className="flex items-center gap-2.5 relative">
+                <CachedImage src={`/items-icons/${listing.item_icon_hash || listing.item_id}`} alt="" className="w-9 h-9 rounded-lg bg-[#1c1c24]" />
                 {listing.metadata?._unique_id && (
                   <div
-                    style={{
-                      position: "absolute",
-                      top: 4,
-                      left: 32,
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      backgroundColor: "#ffd700",
-                      border: "1px solid #000",
-                      zIndex: 2,
-                    }}
-                    // title="This item has metadata"
+                    className="absolute top-1 left-8 w-2.5 h-2.5 rounded-full bg-[#ffd700] border border-black z-10"
                     onMouseEnter={(e) => {
                       const tooltip = document.createElement("div");
                       tooltip.innerText =
@@ -764,102 +367,42 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                           .filter(([key]) => key !== "_unique_id")
                           .map(([key, value]) => `${key}: ${value}`)
                           .join(", ") || "Metadata";
-                      tooltip.style.position = "fixed";
+                      tooltip.className = "fixed bg-[#23272e] text-[#ffd700] px-3 py-1.5 rounded-lg text-xs z-50 marketplace-metadata-tooltip";
                       tooltip.style.left = e.clientX + 12 + "px";
                       tooltip.style.top = e.clientY + "px";
-                      tooltip.style.background = "#23272e";
-                      tooltip.style.color = "#ffd700";
-                      tooltip.style.padding = "6px 12px";
-                      tooltip.style.borderRadius = "8px";
-                      tooltip.style.fontSize = "13px";
-                      tooltip.style.zIndex = "9999";
-                      tooltip.className = "marketplace-metadata-tooltip";
                       document.body.appendChild(tooltip);
                       const removeTooltip = () => {
-                        document.body
-                          .querySelectorAll(".marketplace-metadata-tooltip")
-                          .forEach((t) => t.remove());
-                        e.target.removeEventListener(
-                          "mouseleave",
-                          removeTooltip
-                        );
+                        document.body.querySelectorAll(".marketplace-metadata-tooltip").forEach((t) => t.remove());
+                        e.target.removeEventListener("mouseleave", removeTooltip);
                       };
                       e.target.addEventListener("mouseleave", removeTooltip);
                     }}
                   />
                 )}
                 <div>
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: "1.05em",
-                      color: "#fff",
-                    }}
-                  >
-                    {listing.item_name}
-                  </div>
-                  <div style={{ color: "#bbb", fontSize: "0.97em" }}>
-                    {listing.item_description}
-                  </div>
+                  <div className="font-semibold text-[1.05em] text-white">{listing.item_name}</div>
+                  <div className="text-gray-400 text-[0.97em]">{listing.item_description}</div>
                 </div>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginTop: 4,
-                }}
-              >
-                <CachedImage
-                  src={`/avatar/${listing.seller_id}`}
-                  alt=""
-                  style={{ borderRadius: "50%", width: 22, height: 22 }}
-                />
-                <span style={{ color: "#fff", fontSize: "0.97em" }}>
-                  {sellerNames[listing.seller_id] || listing.seller_id}
-                </span>
-                <span
-                  style={{ marginLeft: "auto", color: "#fff", fontWeight: 600 }}
-                >
-                  {listing.price}{" "}
-                  <CachedImage
-                    src="/assets/credit.avif"
-                    alt="credits"
-                    style={{ width: 14, verticalAlign: "middle" }}
-                  />
+
+              <div className="flex items-center gap-2 mt-1">
+                <CachedImage src={`/avatar/${listing.seller_id}`} alt="" className="w-6 h-6 rounded-full" />
+                <span className="text-white text-[0.97em]">{sellerNames[listing.seller_id] || listing.seller_id}</span>
+                <span className="ml-auto text-white font-semibold">
+                  {listing.price}
+                  <CachedImage src="/assets/credit.png" alt="credits" className="w-3.5 inline-block ml-1 align-middle" />
                 </span>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginTop: 2,
-                }}
-              >
-                <span style={{ color: "#aaa", fontSize: "0.93em" }}>
-                  Listed: {new Date(listing.created_at).toLocaleString()}
-                </span>
-                <span style={{ marginLeft: "auto" }}>
+
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-gray-400 text-[0.93em]">Listed: {new Date(listing.created_at).toLocaleString()}</span>
+                <span className="ml-auto">
                   {user && listing.seller_id !== user.id ? (
-                    <button
-                      style={{
-                        background: "#66ff66",
-                        color: "#222",
-                        border: "none",
-                        borderRadius: 6,
-                        padding: "5px 14px",
-                        fontWeight: 600,
-                        fontSize: "0.97em",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleBuy(listing)}
-                    >
+                    <button className="bg-[#2a2a32] text-white px-3.5 py-1.5 rounded-lg text-[0.97em] font-semibold hover:bg-[#32323a] transition-colors" onClick={() => handleBuy(listing)}>
                       {t("marketplace.buy")}
                     </button>
                   ) : (
-                    <span style={{ color: "#888" }}>—</span>
+                    <span className="text-gray-500">—</span>
                   )}
                 </span>
               </div>
@@ -869,56 +412,14 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
       )}
       {/* Buy Order Modal */}
       {showBuyOrderModal && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "#000a",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            padding: 0,
-          }}
-        >
-          <div
-            style={{
-              background: "#23272e",
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              padding: 18,
-              width: "100%",
-              maxWidth: 480,
-              boxShadow: "0 -2px 16px #0008",
-              fontSize: "1em",
-              position: "relative",
-              animation: "slideUpModal 0.18s cubic-bezier(.4,1.4,.6,1) 1",
-            }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 4,
-                background: "#444",
-                borderRadius: 2,
-                margin: "0 auto 12px auto",
-              }}
-            />
-            <h3
-              style={{
-                fontSize: "1.08em",
-                textAlign: "center",
-                marginBottom: 14,
-              }}
-            >
-              {t("marketplace.modalTitle")}
-            </h3>
-            <div style={{ marginBottom: 12, position: "relative" }}>
-              <label style={{ fontWeight: 500, fontSize: "1em" }}>
-                {t("marketplace.item")}&nbsp;
+        <div className="fixed inset-0 bg-black/70 flex items-end justify-center z-50">
+          <div className="bg-[#23272e] w-full max-w-[480px] rounded-t-xl p-4.5 shadow-lg animate-slideUp">
+            <div className="w-10 h-1 bg-[#444] rounded mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-white text-center mb-3.5">{t("marketplace.modalTitle")}</h3>
+
+            <div className="mb-3 relative">
+              <label className="font-medium text-white">
+                {t("marketplace.item")}
                 <input
                   type="text"
                   value={buyOrderItemSearch}
@@ -928,54 +429,18 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                     await handleItemSearch(e.target.value);
                   }}
                   onFocus={() => {
-                    if (buyOrderItemSearch.length > 1)
-                      setBuyOrderDropdownOpen(true);
+                    if (buyOrderItemSearch.length > 1) setBuyOrderDropdownOpen(true);
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setBuyOrderDropdownOpen(false), 150)
-                  }
+                  onBlur={() => setTimeout(() => setBuyOrderDropdownOpen(false), 150)}
                   placeholder={t("marketplace.searchItem")}
-                  style={{
-                    width: "95%",
-                    fontSize: "1em",
-                    padding: "8px",
-                    borderRadius: 6,
-                    border: "1px solid #444",
-                    marginTop: 4,
-                    background: "#181b20",
-                    color: "#fff",
-                  }}
+                  className="w-full bg-[#1c1c24] border border-[#444] rounded-lg px-3 py-2 mt-1 text-white placeholder-gray-500 focus:outline-none focus:border-[#1e90ff]"
                 />
                 {buyOrderDropdownOpen && buyOrderItemResults.length > 0 && (
-                  <ul
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      right: 0,
-                      top: 46,
-                      background: "#23272e",
-                      border: "1px solid #444",
-                      borderRadius: 6,
-                      maxHeight: 140,
-                      overflowY: "auto",
-                      zIndex: 1001,
-                      listStyle: "none",
-                      margin: 0,
-                      padding: 0,
-                      fontSize: "1em",
-                    }}
-                  >
+                  <ul className="absolute left-0 right-0 top-[70px] bg-[#23272e] border border-[#444] rounded-lg max-h-[140px] overflow-y-auto z-50">
                     {buyOrderItemResults.map((item) => (
                       <li
                         key={item.itemId}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "8px 12px",
-                          cursor: "pointer",
-                          borderBottom: "1px solid #333",
-                        }}
+                        className="flex items-center gap-2 p-2 cursor-pointer border-b border-[#333] hover:bg-[#2c313a] transition-colors"
                         onMouseDown={() => {
                           setBuyOrderItemId(item.itemId);
                           setBuyOrderItemSearch(item.name);
@@ -983,87 +448,49 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
                           setBuyOrderDropdownOpen(false);
                         }}
                       >
-                        <CachedImage
-                          src={`/items-icons/${item.iconHash || item.itemId}`}
-                          alt="icon"
-                          style={{ width: 22, height: 22, borderRadius: 5 }}
-                        />
-                        <span style={{ color: "#fff" }}>{item.name}</span>
+                        <CachedImage src={`/items-icons/${item.iconHash || item.itemId}`} alt="icon" className="w-6 h-6 rounded bg-[#1c1c24]" />
+                        <span className="text-white">{item.name}</span>
                       </li>
                     ))}
                   </ul>
                 )}
               </label>
             </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontWeight: 500, fontSize: "1em" }}>
-                {t("marketplace.price")}&nbsp;
-                <input
-                  type="number"
-                  min={1}
-                  value={buyOrderPrice}
-                  onChange={(e) => setBuyOrderPrice(Number(e.target.value))}
-                  style={{
-                    width: "95%",
-                    fontSize: "1em",
-                    padding: "8px",
-                    borderRadius: 6,
-                    border: "1px solid #444",
-                    marginTop: 4,
-                    background: "#181b20",
-                    color: "#fff",
-                  }}
-                />
+
+            <div className="mb-3.5">
+              <label className="font-medium text-white">
+                {t("marketplace.price")}
+                <input type="number" min={1} value={buyOrderPrice} onChange={(e) => setBuyOrderPrice(Number(e.target.value))} className="w-full bg-[#1c1c24] border border-[#444] rounded-lg px-3 py-2 mt-1 text-white focus:outline-none focus:border-[#1e90ff]" />
               </label>
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button
-                onClick={handlePlaceBuyOrder}
-                disabled={placingOrder}
-                style={{
-                  background: "#fff",
-                  color: "#222",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 0",
-                  fontWeight: 700,
-                  fontSize: "1em",
-                  cursor: "pointer",
-                  flex: 1,
-                }}
-              >
-                {placingOrder
-                  ? t("marketplace.placing")
-                  : t("marketplace.confirm")}
+
+            <div className="flex gap-2 mt-2">
+              <button onClick={handlePlaceBuyOrder} disabled={placingOrder} className="flex-1 bg-[#2a2a32] text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-[#32323a] transition-colors disabled:opacity-50">
+                {placingOrder ? t("marketplace.placing") : t("marketplace.confirm")}
               </button>
-              <button
-                onClick={() => setShowBuyOrderModal(false)}
-                style={{
-                  background: "#23272e",
-                  color: "#fff",
-                  border: "1px solid #444",
-                  borderRadius: 8,
-                  padding: "10px 0",
-                  fontWeight: 700,
-                  fontSize: "1em",
-                  cursor: "pointer",
-                  flex: 1,
-                }}
-              >
+              <button onClick={() => setShowBuyOrderModal(false)} className="flex-1 bg-[#1c1c24] text-white border border-[#444] py-2.5 rounded-lg font-semibold text-sm hover:bg-[#32323a] transition-colors">
                 {t("marketplace.cancel")}
               </button>
             </div>
-            <style>
-              {`
-                            @keyframes slideUpModal {
-                                from { transform: translateY(100%); opacity: 0.7; }
-                                to { transform: translateY(0); opacity: 1; }
-                            }
-                            `}
-            </style>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes slideUp {
+          from {
+            transform: translateY(100%);
+            opacity: 0.7;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.18s cubic-bezier(0.4, 1.4, 0.6, 1) 1;
+        }
+      `}</style>
     </div>
   );
 }
@@ -1071,9 +498,5 @@ function MarketplaceMobile(props: ReturnType<typeof useMarketplaceLogic>) {
 export default function MarketplacePage() {
   const isMobile = useIsMobile();
   const logic = useMarketplaceLogic();
-  return isMobile ? (
-    <MarketplaceMobile {...logic} />
-  ) : (
-    <MarketplaceDesktop {...logic} />
-  );
+  return isMobile ? <MarketplaceMobile {...logic} /> : <MarketplaceDesktop {...logic} />;
 }
