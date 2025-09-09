@@ -10,7 +10,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const bannersDir = path.join(process.cwd(), "uploads/bannersIcons");
-  const exts = [".avif", ".jpg", ".jpeg", ".webp"];
+  const exts = [".avif", ".png",".jpg", ".jpeg", ".webp"];
   let bannerPath: string | undefined;
   for (const ext of exts) {
     const candidate = path.join(bannersDir, `${hash}${ext}`);

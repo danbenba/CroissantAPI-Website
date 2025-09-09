@@ -10,7 +10,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const iconsDir = path.join(process.cwd(), "uploads/gameIcons");
-  const exts = [".avif", ".jpg", ".jpeg", ".webp"];
+  const exts = [".avif", ".png",".jpg", ".jpeg", ".webp"];
   let iconPath: string | undefined;
   for (const ext of exts) {
     const candidate = path.join(iconsDir, `${hash}${ext}`);
