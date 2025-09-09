@@ -50,7 +50,7 @@ function DownloadLauncherDesktop() {
       </ol>
       <p>{t("downloadLauncher.description.desktop")}</p>
       <CachedImage
-        src="/assets/launcher.png"
+        src="/assets/launcher.avif"
         alt="Croissant Launcher Screenshot"
         style={{ maxWidth: "100%", height: "auto", borderRadius: "8px" }}
       />
@@ -101,7 +101,7 @@ function DownloadLauncherMobile() {
       </ol>
       <p>{t("downloadLauncher.description.mobile")}</p>
       <CachedImage
-        src="/assets/launcher.png"
+        src="/assets/launcher.avif"
         alt="Croissant Launcher Screenshot"
         style={{ maxWidth: "100%", height: "auto", borderRadius: "8px" }}
       />

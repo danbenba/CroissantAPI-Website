@@ -184,7 +184,7 @@ const SearchPage: React.FC = () => {
               <div className="shop-prompt-item-price">
                 {t("search.price")}: {item.price}
                 <CachedImage
-                  src="/assets/credit.png"
+                  src="/assets/credit.avif"
                   className="shop-credit-icon"
                 />
               </div>
@@ -207,7 +207,7 @@ const SearchPage: React.FC = () => {
                 values={{ total: amount * (item.price || 0) }}
               />
               <CachedImage
-                src="/assets/credit.png"
+                src="/assets/credit.avif"
                 className="shop-credit-icon"
               />
             </span>
@@ -327,7 +327,7 @@ const SearchPage: React.FC = () => {
                     src={
                       game.iconHash
                         ? `/games-icons/${game.iconHash}`
-                        : "/games-icons/default.png"
+                        : "/games-icons/default.avif"
                     }
                     alt={game.name}
                     className="search-game-icon"
@@ -391,7 +391,7 @@ const SearchPage: React.FC = () => {
                       >
                         {game.price}{" "}
                         <CachedImage
-                          src="/assets/credit.png"
+                          src="/assets/credit.avif"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}
                         />
@@ -447,7 +447,7 @@ const SearchPage: React.FC = () => {
                     src={`/items-icons/${
                       item?.iconHash || item.itemId
                         ? item.iconHash || item.itemId
-                        : "default.png"
+                        : "default.avif"
                     }`}
                     alt={item.name}
                     className="search-item-icon"
@@ -495,7 +495,7 @@ const SearchPage: React.FC = () => {
                       >
                         {item.price}{" "}
                         <CachedImage
-                          src="/assets/credit.png"
+                          src="/assets/credit.avif"
                           alt="credits"
                           style={{ width: 18, verticalAlign: "middle" }}
                         />

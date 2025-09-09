@@ -166,7 +166,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       />
       <nav className="titlebar" style={launcherTitlebarStyle}>
         <img
-          src="/assets/icons/favicon-32x32.png"
+          src="/assets/icons/favicon-32x32.avif"
           alt="Icon"
           style={launcherIconStyle}
         />

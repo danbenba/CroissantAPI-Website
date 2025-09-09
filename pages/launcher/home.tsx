@@ -905,7 +905,7 @@ const Library: React.FC = () => {
                           objectFit: "cover"
                         }}
                         onError={(e) => {
-                          e.currentTarget.src = "/avatar/default.png";
+                          e.currentTarget.src = "/avatar/default.avif";
                         }}
                       />
                       <span>{user.username}</span>

@@ -1,19 +1,22 @@
-let page = null;
-let croissantWebsiteOrigin = "https://croissant-api.fr";
+const { data } = require("react-router-dom");
+
+// Global callback registery for OAuth2 (eval() is my phobia).
+window.croissantOAuthCallbacks = window.croissantOAuthCallbacks || {};
+
+let popup = null;
+const croissantWebsiteOrigin = "https://croissant-api.fr";
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("OAuth2 script loaded");
-  const oauthBtn = document.querySelector(".croissant-oauth2-btn");
+
+  const oauthBtn = document.querySelector(".croissantWebsiteOrigin");
   if (!oauthBtn) {
     console.error("OAuth2 button not found");
     return;
   }
-  if (location.origin === croissantWebsiteOrigin) {
-    console.warn(
-      "OAuth2 script loaded from a different origin than expected:",
-      location.origin
-    );
-  } else {
+
+  if (location.origin !== croissantWebsiteOrigin) {
+    // Enable and style the button if it's not running on the croissant API domain
     oauthBtn.style.display = "inline-flex";
     oauthBtn.style.alignItems = "center";
     oauthBtn.style.gap = "8px";
@@ -24,45 +27,73 @@ document.addEventListener("DOMContentLoaded", () => {
     oauthBtn.style.background = "#333";
     oauthBtn.style.color = "#fff";
     oauthBtn.style.cursor = "pointer";
+
     oauthBtn.addEventListener("click", () => {
       const clientId = oauthBtn.getAttribute("data-client_id");
+      const callbackName = oauthBtn.getAttribute("data-callback");
+
+      if (!clientId || !callbackName) {
+        console.error("Missing client_id or callback on OAuth button");
+        return;
+      }
+
       const redirectUri = location.origin;
-      page = window.open(
-        `${croissantWebsiteOrigin}/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}`,
-        "_oauth2",
-        "width=600,height=600"
-      );
+      const authUrl = `${croissantWebsiteOrigin}/oauth2/auth?/client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+      popup = window.open(authUrl, "_oauth2", "width=600,height=600");
+
+      // Start polling the popup now
+      startPollingForCode(clientId, callbackName);
     });
+  } else {
+    console.warn("OAuth2 script is running from the same origin:", location.origin);
   }
 });
 
-function lookForCode() {
-  requestAnimationFrame(lookForCode);
-  if (!page || page.closed) return;
-  try {
-    const code = new URL(page.location.href).searchParams.get("code");
-    if (code) {
-      page.close();
-      const oauthBtn = document.querySelector(".croissant-oauth2-btn");
-      const clientId = oauthBtn.getAttribute("data-client_id");
-      fetch(
-        `${croissantWebsiteOrigin}/api/oauth2/user?code=${code}&client_id=${clientId}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.error) {
-            console.error("Error fetching user by code:", data.error);
-            return;
-          }
-          const user = {...data, code};
-          const callback = oauthBtn.getAttribute("data-callback");
-          if (callback) {
-            eval(`(${callback})(user)`);
-          }
-        });
+/**
+ *  Polls the popup window every 500ms to check if OAuth2 cide is present. 
+*/
+function startPollingForCode(clientId, callbackName) {
+  const interval = setInterval(() => {
+    if (!popup || popup.closed) {
+      clearInterval(interval);
+      return;
     }
-  } catch (e) {
-  }
-}
 
-lookForCode();
+    try {
+      const url = new URL(popup.location.href);
+      const code = url.searchParams.get("code");
+
+      if (code) {
+        popup.close();
+        clearInterval(interval);
+
+        // Exchange the code for user info
+        fetch(`${croissantWebsiteOrigin}/api/oauth2/user?code=${encodeURI(code)}&client_id=${encodeURIComponent(clientId)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              console.error("Error fetching user by code:", data.error);
+              return;
+            }
+
+            const user = { ...data, code };
+
+            // Call the registered callback function
+            if (window.croissantOAuthCallbacks[callbackName]) {
+              window.croissantOAuthCallbacks[callbackName](user);
+            } else {
+              console.warn(`OAuth2 callback '${callbackName}' not found croissantOAuthCallbacks`);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user data:", error);
+          });
+      }
+    } catch (e) {
+      // Ignore cross-origin errors until redirect happens
+      if (e instanceof DOMException) return;
+      console.error("Error checking popup URL:", e);
+    }
+  }, 500);
+}

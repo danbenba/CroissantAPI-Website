@@ -24,18 +24,18 @@ export default function Certification({ user, ...props }: { user: User } & React
 
     React.useEffect(() => {
         if (user?.admin) {
-            setMarkSrc("/assets/admin-mark.png");
+            setMarkSrc("/assets/admin-mark.avif");
         } else if (user?.isStudio) {
-            setMarkSrc("/assets/brand-verified-mark.png");
+            setMarkSrc("/assets/brand-verified-mark.avif");
         } else {
-            setMarkSrc("/assets/verified-mark.png");
+            setMarkSrc("/assets/verified-mark.avif");
         }
     }, [user]);
 
     return (
         user?.verified ? (
             <img
-                src={markSrc || "/assets/verified-mark.png"}
+                src={markSrc || "/assets/verified-mark.avif"}
                 alt="Verified"
                 {...props}
             />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import useIsMobile from "../../hooks/useIsMobile";
 
 const OAUTH2_SERVER_URL = "/downloadables/oauth2-test-server.js";
-const OAUTH2_RESULT_IMG = "/assets/oauth2_result.png";
+const OAUTH2_RESULT_IMG = "/assets/oauth2_result.avif";
 
 // --- Style constants ---
 const containerStyle: React.CSSProperties = {
@@ -202,7 +202,7 @@ function OAuth2DemoDesktop() {
         }}
       >
         <img
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.avif"
           alt="icon"
           style={oauthBtnImgStyle}
         />
@@ -301,7 +301,7 @@ function OAuth2DemoMobile() {
         }}
       >
         <img
-          src="https://croissant-api.fr/assets/icons/favicon-32x32.png"
+          src="https://croissant-api.fr/assets/icons/favicon-32x32.avif"
           alt="icon"
           style={oauthBtnImgMobileStyle}
         />

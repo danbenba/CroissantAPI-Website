@@ -340,7 +340,7 @@ function ProfileShop({
           <div className="shop-tooltip-price">
             {t("profile.price")} {tooltip.item.price}
             <CachedImage
-              src="/assets/credit.png"
+              src="/assets/credit.avif"
               className="shop-credit-icon"
             />
             {tooltip.item.stock !== undefined && (
@@ -375,7 +375,7 @@ function ProfileShop({
                   <div className="shop-prompt-item-price">
                     {t("profile.price")} {prompt.item.price}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       className="shop-credit-icon"
                     />
                     {prompt.item.stock !== undefined && (
@@ -437,7 +437,7 @@ function ProfileShop({
                     {t("profile.totalLabel")}{" "}
                     {(prompt.amount || 1) * (prompt.item.price || 0)}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       className="shop-credit-icon"
                     />
                   </span>

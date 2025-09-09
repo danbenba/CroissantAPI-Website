@@ -190,7 +190,7 @@ function MyBuyOrdersDesktop(props: ReturnType<typeof useMyBuyOrdersLogic>) {
                   <td>
                     {order.price}{" "}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       alt="credits"
                       style={{ width: 14, verticalAlign: "middle" }}
                     />
@@ -412,7 +412,7 @@ function MyBuyOrdersMobile(props: ReturnType<typeof useMyBuyOrdersLogic>) {
                   <span style={{ color: "#fff", fontWeight: 600 }}>
                     {order.price}{" "}
                     <CachedImage
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       alt="credits"
                       style={{ width: 14, verticalAlign: "middle" }}
                     />

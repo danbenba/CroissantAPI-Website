@@ -407,7 +407,7 @@ const MyItems = () => {
                   <div className="myitems-card-name">{item.name}</div>
                   <div className="myitems-card-price">
                     {item.price}
-                    <img src="/assets/credit.png" className="myitems-card-credit" />
+                    <img src="/assets/credit.avif" className="myitems-card-credit" />
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
                     <button
@@ -468,7 +468,7 @@ const MyItems = () => {
                 </div>
                 <div className="myitems-tooltip-price">
                   Price: {tooltip.item.price}
-                  <img src="/assets/credit.png" className="myitems-card-credit" />
+                  <img src="/assets/credit.avif" className="myitems-card-credit" />
                   <span className="myitems-tooltip-store">
                     Show in Store: {tooltip.item.showInStore ? "Yes" : "No"}
                   </span>
@@ -846,7 +846,7 @@ const MyItems = () => {
                                 src={`/avatar/${u.userId || u.user_id || u.id}`}
                                 alt="avatar"
                                 style={{ width: 28, height: 28, borderRadius: "50%" }}
-                                onError={(e) => (e.currentTarget.src = "/avatar/default.png")}
+                                onError={(e) => (e.currentTarget.src = "/avatar/default.avif")}
                               />
                               <span style={{ color: "#fff" }}>{u.username}</span>
                               <Certification

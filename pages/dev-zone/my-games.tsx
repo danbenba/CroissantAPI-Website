@@ -401,7 +401,7 @@ const MyGames = () => {
                   <div className="mygames-card-price">
                     {game.price}
                     <img
-                      src="/assets/credit.png"
+                      src="/assets/credit.avif"
                       className="mygames-card-credit"
                     />
                   </div>
@@ -466,7 +466,7 @@ const MyGames = () => {
                 <div className="mygames-tooltip-price">
                   Price: {tooltip.game.price}
                   <img
-                    src="/assets/credit.png"
+                    src="/assets/credit.avif"
                     className="mygames-card-credit"
                   />
                   <span className="mygames-tooltip-store">
@@ -806,7 +806,7 @@ const MyGames = () => {
                                 src={`/avatar/${u.userId || u.user_id || u.id}`}
                                 alt="avatar"
                                 style={{ width: 28, height: 28, borderRadius: "50%" }}
-                                onError={(e) => (e.currentTarget.src = "/avatar/default.png")}
+                                onError={(e) => (e.currentTarget.src = "/avatar/default.avif")}
                               />
                               <span style={{ color: "#fff" }}>{u.username}</span>
                               <Certification

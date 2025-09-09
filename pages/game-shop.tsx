@@ -531,7 +531,7 @@ function ShopDesktop(props: any) {
                           >
                             {game.price}
                             <CachedImage
-                              src="/assets/credit.png"
+                              src="/assets/credit.avif"
                               className="shop-credit-icon"
                               alt="credits"
                             />
@@ -826,7 +826,7 @@ function ShopMobile(props: any) {
                           >
                             {game.price}
                             <CachedImage
-                              src="/assets/credit.png"
+                              src="/assets/credit.avif"
                               className="shop-credit-icon"
                               alt="credits"
                             />
