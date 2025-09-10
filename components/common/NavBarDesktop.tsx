@@ -174,7 +174,6 @@ export default function NavBarDesktop() {
             title="Logout"
           >
             <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
-            <span className="hidden md:inline">{t("navbar.logout")}</span>
           </button>
         )}
       </>
