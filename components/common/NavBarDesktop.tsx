@@ -166,6 +166,17 @@ export default function NavBarDesktop() {
             {t("navbar.login")}
           </Link>
         )}
+        {/* Bouton de logout à la toute fin des liens */}
+        {user && !loading && (
+          <button
+            onClick={handleLogout}
+            className="bg-[#23242a] text-white border-none rounded-lg py-1.5 px-3 cursor-pointer text-base hover:bg-[#2a2b31] transition-colors ml-2 flex items-center gap-2"
+            title="Logout"
+          >
+            <i className="fa fa-sign-out-alt" aria-hidden="true"></i>
+            <span className="hidden md:inline">{t("navbar.logout")}</span>
+          </button>
+        )}
       </>
     );
   }
