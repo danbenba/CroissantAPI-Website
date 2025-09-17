@@ -5,6 +5,24 @@ import useAuth from "../hooks/useAuth";
 import { ShopItem } from "../pages/profile";
 import CachedImage from "./utils/CachedImage";
 import { useTranslation } from "next-i18next";
+import {
+  Card,
+  CardBody,
+  Button,
+  Input,
+  Chip,
+  Skeleton,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Tooltip,
+} from "@heroui/react";
 
 const endpoint = "/api";
 
@@ -15,7 +33,7 @@ export interface Item {
   description: string;
   amount: number;
   price?: number;
-  purchasePrice?: number; // Ajouter le prix d'achat
+  purchasePrice?: number;
   owner?: string;
   showInStore?: boolean;
   deleted?: boolean;
@@ -37,57 +55,65 @@ interface User {
 }
 
 interface Props {
-  profile: User;
+  profile?: User;
   isMe?: boolean;
-  reloadFlag: number;
+  reloadFlag?: number;
+  userId?: string;
 }
 
-export default function Inventory({ profile, isMe, reloadFlag }: Props) {
+export default function Inventory({ profile, isMe, reloadFlag, userId }: Props) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<{
-    message: string;
-    resolve: (value: { confirmed: boolean; amount?: number; price?: number }) => void;
-    maxAmount?: number;
-    amount?: number;
-    price?: number;
-    showPrice?: boolean; // <--- nouveau
-  } | null>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [ownerUser, setOwnerUser] = useState<any | null>(null);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [promptData, setPromptData] = useState<{
+    type: 'sell' | 'drop' | 'auction';
+    item: Item;
+    dataItemIndex: number;
+  } | null>(null);
+  const [promptAmount, setPromptAmount] = useState(1);
+  const [promptPrice, setPromptPrice] = useState(1);
 
   const { user } = useAuth();
-  const selectedUser = profile.id === "me" ? user?.id || "me" : profile.id;
   const { t } = useTranslation("common");
 
+  // Fix: Gérer le cas où profile est undefined
+  const selectedUser = profile?.id === "me" ? user?.id || "me" : (profile?.id || userId || user?.id || "me");
+
   useEffect(() => {
-    // Traiter les items de l'inventaire pour extraire l'uniqueId et sellable
-    const processedItems = (profile.inventory || []).map((item) => ({
-      ...item,
-      uniqueId: item.metadata?._unique_id as string | undefined,
-      sellable: item.sellable ?? false, // S'assurer que sellable est défini
-    }));
-    setItems(processedItems);
-    setLoading(false);
-  }, [profile.inventory]);
+    if (profile?.inventory) {
+      const processedItems = profile.inventory.map((item) => ({
+        ...item,
+        uniqueId: item.metadata?._unique_id as string | undefined,
+        sellable: item.sellable ?? false,
+      }));
+      setItems(processedItems);
+      setLoading(false);
+    } else if (selectedUser) {
+      refreshInventory();
+    }
+  }, [profile?.inventory, selectedUser]);
 
   useEffect(() => {
     if (reloadFlag) refreshInventory();
   }, [reloadFlag]);
 
   function refreshInventory() {
+    if (!selectedUser) return;
+    
+    setLoading(true);
     fetch(`${endpoint}/inventory/${selectedUser}`, {
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to fetch inventory"))))
       .then((data) => {
-        // Traiter les items pour extraire l'uniqueId et sellable
         const processedItems = (data.inventory || []).map((item: any) => ({
           ...item,
           uniqueId: item.metadata?._unique_id as string | undefined,
           sellable: item.sellable ?? false,
-          iconHash: item.iconHash || item.item_id, // Assurer que iconHash est défini
+          iconHash: item.iconHash || item.item_id,
         }));
         setItems(processedItems);
         setLoading(false);
@@ -97,48 +123,6 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         setLoading(false);
       });
   }
-
-  const handlePromptAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (prompt) {
-      const value = Math.max(1, Math.min(Number(e.target.value), prompt.maxAmount || 1));
-      setPrompt((prev) => (prev ? { ...prev, amount: value } : null));
-    }
-  };
-
-  const handlePromptPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (prompt) {
-      const value = Math.max(1, Number(e.target.value));
-      setPrompt((prev) => (prev ? { ...prev, price: value } : null));
-    }
-  };
-
-  // Prompt pour SELL
-  const customPromptSell = (item: Item) => {
-    return new Promise<{ confirmed: boolean; amount?: number }>((resolve) => {
-      setPrompt({
-        message: t("inventory.sellPrompt", { item: item.name }),
-        resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
-        maxAmount: item.amount,
-        amount: 1,
-        showPrice: false,
-      });
-    });
-  };
-
-  // Prompt pour DROP
-  const customPromptDrop = (item: Item) => {
-    return new Promise<{ confirmed: boolean; amount?: number }>((resolve) => {
-      setPrompt({
-        message: t("inventory.dropPrompt", { item: item.name }),
-        resolve: ({ confirmed, amount }) => resolve({ confirmed, amount }),
-        maxAmount: item.amount,
-        amount: 1,
-        showPrice: false,
-      });
-    });
-  };
-
-  // Prompt pour AUCTION
 
   const handleSell = async (item: Item, dataItemIndex: number) => {
     if (!isMe) return;
@@ -150,10 +134,10 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       setError("This item cannot be sold. Only purchased items or items obtained from trades can be sold.");
       return;
     }
-    const result = await customPromptSell(item);
-    if (!result.confirmed || !result.amount || result.amount <= 0) return;
-    const requestBody: any = { amount: result.amount, dataItemIndex };
+
+    const requestBody: any = { amount: promptAmount, dataItemIndex };
     if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
+
     fetch(`${endpoint}/items/sell/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -166,38 +150,20 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       })
       .then(() => {
         refreshInventory();
+        setShowPrompt(false);
       })
       .catch((err) => setError(err.message));
   };
 
-  // Add handleAuction function
   const handleAuction = async (item: Item) => {
     if (!isMe) return;
 
-    // Demander le prix de mise en vente (prompt personnalisé)
-    let price = 0;
-    let confirmed = false;
-    await new Promise<void>((resolve) => {
-      setPrompt({
-        message: t("inventory.auctionPrompt", { item: item.name }),
-        resolve: ({ confirmed: c, price: p }) => {
-          confirmed = c;
-          price = p || 0;
-          resolve();
-        },
-        showPrice: true,
-        price: item.purchasePrice || 1,
-      });
-    });
-    if (!confirmed || price <= 0) return;
-
-    // Appel API pour créer l'ordre de vente
     fetch("/api/market-listings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         inventoryItem: item,
-        sellingPrice: price,
+        sellingPrice: promptPrice,
       }),
     })
       .then(async (res) => {
@@ -207,17 +173,18 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       })
       .then(() => {
         refreshInventory();
+        setShowPrompt(false);
       })
       .catch((err) => setError(err.message));
   };
 
   const handleDrop = async (item: Item, dataItemIndex: number) => {
     if (!isMe) return;
-    const result = await customPromptDrop(item);
-    if (!result.confirmed || !result.amount || result.amount <= 0) return;
-    let requestBody: any = { amount: result.amount, dataItemIndex };
+
+    let requestBody: any = { amount: promptAmount, dataItemIndex };
     if (item.purchasePrice !== undefined) requestBody.purchasePrice = item.purchasePrice;
     if (item.metadata && item.metadata._unique_id) requestBody = { uniqueId: item.metadata._unique_id, dataItemIndex };
+
     fetch(`${endpoint}/items/drop/${item.item_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -230,6 +197,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
       })
       .then(() => {
         refreshInventory();
+        setShowPrompt(false);
       })
       .catch((err) => setError(err.message));
   };
@@ -250,7 +218,7 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
         ...item,
         ...details,
         amount: item.amount,
-        uniqueId: item.metadata._unique_id, // Conserver l'uniqueId
+        uniqueId: item.metadata?._unique_id,
       });
       setOwnerUser(ownerUser);
     } catch {
@@ -259,25 +227,38 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
     }
   };
 
-  const handleBackToInventory = () => {
-    setSelectedItem(null);
-    setOwnerUser(null);
+  const openPrompt = (type: 'sell' | 'drop' | 'auction', item: Item, dataItemIndex: number) => {
+    setPromptData({ type, item, dataItemIndex });
+    setPromptAmount(1);
+    setPromptPrice(item.purchasePrice || 1);
+    setShowPrompt(true);
   };
 
-  // Fonction pour formater les métadonnées pour l'affichage
+  const handlePromptConfirm = () => {
+    if (!promptData) return;
+
+    switch (promptData.type) {
+      case 'sell':
+        handleSell(promptData.item, promptData.dataItemIndex);
+        break;
+      case 'drop':
+        handleDrop(promptData.item, promptData.dataItemIndex);
+        break;
+      case 'auction':
+        handleAuction(promptData.item);
+        break;
+    }
+  };
+
   const formatMetadata = (metadata?: { [key: string]: unknown }) => {
     if (!metadata) return null;
-
-    // Exclure _unique_id de l'affichage
     const displayMetadata = Object.entries(metadata)
       .filter(([key]) => key !== "_unique_id")
       .map(([key, value]) => `${key}: ${value}`)
       .join(", ");
-
     return displayMetadata || null;
   };
 
-  // Map des couleurs de rareté (doit correspondre à rarity.css)
   const rarityColors: Record<string, string> = {
     "very-common": "#B0B0B0",
     common: "#9E9E9E",
@@ -305,398 +286,322 @@ export default function Inventory({ profile, isMe, reloadFlag }: Props) {
   const totalCells = rows * columns;
   const emptyCells = totalCells - totalItems;
 
-  const InventoryItem = React.memo(function InventoryItem({ item, onSelect, isMe, onSell, onDrop, onAuction, dataItemIndex }: { item: Item; onSelect: (item: Item) => void; isMe: boolean; onSell: (item: Item, dataItemIndex: number) => void; onDrop: (item: Item, dataItemIndex: number) => void; onAuction: (item: Item) => void; dataItemIndex: number }) {
-    const [loaded, setLoaded] = React.useState(false);
-    const [showTooltip, setShowTooltip] = React.useState(false);
-    const [showContext, setShowContext] = React.useState(false);
-    const [mousePos, setMousePos] = React.useState<{
-      x: number;
-      y: number;
-    } | null>(null);
+  const InventoryItem = React.memo(function InventoryItem({ 
+    item, 
+    onSelect, 
+    isMe, 
+    onAction, 
+    dataItemIndex 
+  }: { 
+    item: Item; 
+    onSelect: (item: Item) => void; 
+    isMe: boolean; 
+    onAction: (type: 'sell' | 'drop' | 'auction', item: Item, dataItemIndex: number) => void; 
+    dataItemIndex: number;
+  }) {
     const iconUrl = "/items-icons/" + (item?.iconHash || item.item_id);
     const formattedMetadata = formatMetadata(item.metadata);
 
-    const handleMouseEnter = (e: React.MouseEvent) => {
-      setShowTooltip(true);
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
-      setMousePos({ x: rect.right + 8, y: rect.top });
-    };
-    const handleMouseLeave = () => {
-      setShowTooltip(false);
-      setShowContext(false);
-    };
-    const handleContextMenu = (e: React.MouseEvent) => {
-      e.preventDefault();
-      setShowContext(true);
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    return (
-      <div className={"inventory-item rarity-" + (item.rarity?.replace(/-/g, "") || "common")} data-item-index={dataItemIndex} tabIndex={0} draggable={false} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onContextMenu={handleContextMenu} onClick={() => onSelect(item)}>
-        <div
-          style={{
-            position: "relative",
-            width: "48px",
-            height: "48px",
-            background: "#181a1a",
-            borderRadius: "6px",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+    const tooltipContent = (
+      <div className="p-2 max-w-xs">
+        <div className="font-semibold text-sm">{item.name}</div>
+        <div className="text-xs text-default-600 mt-1">{item.description}</div>
+        <div 
+          className="text-xs mt-2 font-semibold capitalize"
+          style={{ color: getRarityColor(item.rarity) }}
         >
-          <CachedImage
-            src={item.custom_url_link || iconUrl}
-            alt={item.name}
-            className="inventory-item-img"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              borderRadius: "6px",
-              background: "#181a1a",
-              display: "block",
-            }}
-            draggable={false}
-            onLoad={() => setLoaded(true)}
-            onError={() => setLoaded(true)}
-          />
+          {t("inventory.rarity")}: {item.rarity?.replace(/-/g, " ")}
         </div>
-        <div className="inventory-item-qty" style={{ position: "absolute", zIndex: 3 }}>
-          x{item.amount}
-        </div>
-        {/* Indicateur visuel pour les items avec métadonnées */}
-        {item.metadata && (
-          <div
-            className="inventory-item-metadata-indicator"
-            style={{
-              position: "absolute",
-              top: "2px",
-              right: "2px",
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "#ffd700",
-              zIndex: 3,
-              border: "1px solid #000",
-            }}
-          />
+        {formattedMetadata && (
+          <div className="text-xs text-default-500 mt-1 italic">
+            {formattedMetadata}
+          </div>
         )}
-        {showTooltip && !showContext && mousePos && (
-          <div className="inventory-tooltip" style={{ left: mousePos.x, top: mousePos.y }}>
-            <div className="inventory-tooltip-name">{item.name}</div>
-            <div className="inventory-tooltip-desc">{item.description}</div>
-            {/* Affichage de la rareté */}
-            <div
-              className="inventory-tooltip-rarity"
-              style={
-                item.rarity === "radiant"
-                  ? {
-                      background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      fontWeight: "bold",
-                      textTransform: "capitalize",
-                    }
-                  : {
-                      color: getRarityColor(item.rarity),
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      fontWeight: "bold",
-                      textTransform: "capitalize",
-                    }
-              }
-            >
-              {t("inventory.rarity")}: {item.rarity?.replace(/-/g, " ")}
-            </div>
-            {formattedMetadata && (
-              <div
-                className="inventory-tooltip-metadata"
-                style={{
-                  color: "#888",
-                  fontSize: "12px",
-                  marginTop: "4px",
-                  fontStyle: "italic",
-                }}
-              >
-                {formattedMetadata}
-              </div>
-            )}
-            {/* Affichage du prix d'achat */}
-            {item.purchasePrice && (
-              <div
-                className="inventory-tooltip-price"
-                style={{
-                  color: "#ffd700",
-                  fontSize: "12px",
-                  marginTop: "4px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-              >
-                {t("inventory.price")}: {item.purchasePrice}
-                <CachedImage
-                  src="/assets/credit.avif"
-                  className="inventory-credit-icon"
-                  style={{
-                    width: "12px",
-                    height: "12px",
-                    position: "relative",
-                    top: "0px",
-                    left: "-2px",
-                  }}
-                />
-              </div>
-            )}
-            {/* Affichage du statut sellable */}
-            {!item.metadata && (
-              <div
-                className="inventory-tooltip-sellable"
-                style={{
-                  color: item.sellable && item.purchasePrice != null ? "#66ff66" : "#ff6666",
-                  fontSize: "11px",
-                  marginTop: "4px",
-                  fontWeight: "bold",
-                }}
-              >
-                {item.sellable && item.purchasePrice != null ? t("inventory.canBeSold") : t("inventory.cannotBeSold")}
-              </div>
-            )}
-            {/* Affichage de l'unique ID pour debug (optionnel) */}
-            {item.metadata?._unique_id && (
-              <>
-                <div
-                  style={{
-                    color: "#666",
-                    fontSize: "10px",
-                    marginTop: "2px",
-                    fontFamily: "monospace",
-                  }}
-                >
-                  {t("inventory.uniqueId")}: {item.metadata._unique_id}
-                </div>
+        {item.purchasePrice && (
+          <div className="text-xs text-warning mt-1 flex items-center gap-1">
+            {t("inventory.price")}: {item.purchasePrice}
+            <CachedImage src="/assets/credit.avif" className="w-3 h-3" alt="credits" />
+          </div>
+        )}
+      </div>
+    );
 
-                <div
-                  className="inventory-tooltip-sellable"
-                  style={{
-                    color: "#ff6666",
-                    fontSize: "11px",
-                    marginTop: "4px",
-                    fontWeight: "bold",
-                  }}
+    return (
+      <div className="relative group">
+        <Tooltip content={tooltipContent} placement="right">
+          <Card 
+            className="w-16 h-16 cursor-pointer hover:scale-105 transition-transform bg-content2/50 backdrop-blur border-2"
+            style={{ borderColor: getRarityColor(item.rarity) + '40' }}
+            isPressable
+            onPress={() => onSelect(item)}
+          >
+            <CardBody className="p-1 flex items-center justify-center">
+              <CachedImage
+                src={item.custom_url_link || iconUrl}
+                alt={item.name}
+                className="w-full h-full object-contain rounded"
+              />
+              <Chip
+                size="sm"
+                className="absolute -bottom-1 -right-1 min-w-unit-6 h-unit-5"
+                variant="solid"
+                color="primary"
+              >
+                {item.amount}
+              </Chip>
+              {item.metadata && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full border border-black" />
+              )}
+            </CardBody>
+          </Card>
+        </Tooltip>
+
+        {isMe && (
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="ghost"
+                className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"/>
+                </svg>
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu>
+              {!item.metadata && item.sellable && item.purchasePrice != null && (
+                <DropdownItem 
+                  key="sell" 
+                  onPress={() => onAction('sell', item, dataItemIndex)}
+                  startContent={
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+                      <path d="M244,80a28,28,0,0,0-12.64-23.34c-7.64-5.12-18.18-6.66-32.83-6.66H57.47c-14.65,0-25.19,1.54-32.83,6.66A28,28,0,0,0,12,80v96a28,28,0,0,0,12.64,23.34c7.64,5.12,18.18,6.66,32.83,6.66H198.53c14.65,0,25.19-1.54,32.83-6.66A28,28,0,0,0,244,176V80Z"/>
+                    </svg>
+                  }
                 >
-                  {t("inventory.cannotBeSold")}
-                </div>
-              </>
-            )}
-          </div>
-        )}
-        {showContext && isMe && mousePos && (
-          <div className="inventory-context-menu" style={{ left: mousePos.x, top: mousePos.y }} onClick={(e) => e.stopPropagation()}>
-            {/* Afficher "Sell" seulement si l'item n'a pas de métadonnées ET est sellable */}
-            {!item.metadata && item.sellable && item.purchasePrice != null ? (
-              <div className="inventory-context-sell" onClick={() => onSell(item, dataItemIndex)}>
-                Sell
-              </div>
-            ) : null}
-            {/* Auction button: show only if item is sellable and has no metadata */}
-            {item.purchasePrice != null ? (
-              <div className="inventory-context-auction" onClick={() => onAuction(item)}>
-                Auction
-              </div>
-            ) : null}
-            <div className="inventory-context-drop" onClick={() => onDrop(item, dataItemIndex)}>
-              Drop
-            </div>
-          </div>
+                  Vendre
+                </DropdownItem>
+              )}
+              {item.purchasePrice != null && (
+                <DropdownItem 
+                  key="auction" 
+                  onPress={() => onAction('auction', item, dataItemIndex)}
+                  startContent={
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+                      <path d="M248,128a56,56,0,0,1-95.6,39.6L92.8,107.2a8,8,0,0,1,11.4-11.2l10.9,10.9a56,56,0,0,1,78.4,78.4l10.9,10.9a8,8,0,0,1-11.2,11.4L132.4,167.6A56,56,0,0,1,192,72a8,8,0,0,1,0,16,40,40,0,0,0-40,40,8,8,0,0,1-16,0,56,56,0,0,1,56-56A56.06,56.06,0,0,1,248,128Z"/>
+                    </svg>
+                  }
+                >
+                  Enchère
+                </DropdownItem>
+              )}
+              <DropdownItem 
+                key="drop" 
+                onPress={() => onAction('drop', item, dataItemIndex)}
+                className="text-danger"
+                startContent={
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/>
+                  </svg>
+                }
+              >
+                Jeter
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         )}
       </div>
     );
   });
 
-  return (
-    <div className="inventory-root">
-      {loading && (
-        <div className="inventory-loading">
-          <div className="inventory-loading-spinner"></div>
-          <span>{t("inventory.loading")}</span>
-        </div>
-      )}
-      {error && <p className="inventory-error">{t("inventory.error", { error })}</p>}
-      <div
-        className="inventory-grid"
-        style={{
-          gridTemplateColumns: !selectedItem ? `repeat(${columns}, 1fr)` : "auto",
-          gap: selectedItem ? "0px" : undefined,
-        }}
-      >
-        {selectedItem ? (
-          <>
-            <button onClick={handleBackToInventory} className="inventory-back-btn">
-              {t("inventory.back")}
-            </button>
-            <div className="inventory-details-main">
-              <CachedImage src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.item_id)} alt={selectedItem.name} className="inventory-details-img" />
-              <div>
-                <div className="inventory-details-name">
-                  {selectedItem.amount}x {selectedItem.name}
-                </div>
-                <div className="inventory-details-desc">{selectedItem.description}</div>
-                {/* Affichage de la rareté */}
-                <div
-                  className="inventory-details-rarity"
-                  style={
-                    selectedItem.rarity === "radiant"
-                      ? {
-                          background: "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          fontSize: "14px",
-                          marginTop: "6px",
-                          fontWeight: "bold",
-                          textTransform: "capitalize",
-                        }
-                      : {
-                          color: getRarityColor(selectedItem.rarity),
-                          fontSize: "14px",
-                          marginTop: "6px",
-                          fontWeight: "bold",
-                          textTransform: "capitalize",
-                        }
-                  }
-                >
-                  {t("inventory.rarity")}: {selectedItem.rarity?.replace(/-/g, " ")}
-                </div>
-                {/* Affichage des métadonnées dans la vue détaillée */}
-                {formatMetadata(selectedItem.metadata) && (
-                  <div
-                    className="inventory-details-metadata"
-                    style={{
-                      color: "#888",
-                      fontSize: "14px",
-                      marginTop: "8px",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    {t("inventory.metadata")}: {formatMetadata(selectedItem.metadata)}
-                  </div>
-                )}
-                {/* Affichage du prix d'achat dans la vue détaillée */}
-                {selectedItem.purchasePrice !== undefined && (
-                  <div
-                    className="inventory-details-purchase-price"
-                    style={{
-                      color: "#ffd700",
-                      fontSize: "14px",
-                      marginTop: "6px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    {t("inventory.price")}: {selectedItem.purchasePrice || "N/A"}
-                    <CachedImage
-                      src="/assets/credit.avif"
-                      className="inventory-credit-icon"
-                      style={{
-                        width: "18px",
-                        height: "18px",
-                        position: "relative",
-                        top: "-2px",
-                      }}
-                    />
-                  </div>
-                )}
-                {/* Affichage du statut sellable dans la vue détaillée */}
-                {!selectedItem.metadata && (
-                  <div
-                    className="inventory-details-sellable"
-                    style={{
-                      color: selectedItem.sellable && selectedItem.purchasePrice != null ? "#00ff00" : "#ff6666",
-                      fontSize: "13px",
-                      marginTop: "6px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {selectedItem.sellable && selectedItem.purchasePrice != null ? t("inventory.thisCanBeSold") : t("inventory.thisCannotBeSold")}
-                  </div>
-                )}
-                {/* Affichage de l'unique ID dans la vue détaillée */}
-                {selectedItem.metadata?._unique_id && (
-                  <div
-                    className="inventory-details-unique-id"
-                    style={{
-                      color: "#666",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {t("inventory.uniqueId")}: {selectedItem.metadata._unique_id}
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {!loading && !error && (
-              <>
-                {items.map((item, index) => (
-                  <InventoryItem key={item?.metadata?._unique_id ? `${item.item_id}-${item.metadata._unique_id}` : `${item.item_id}-${index}`} dataItemIndex={index} item={item} onSelect={handleItemClick} isMe={!!isMe} onSell={handleSell} onDrop={handleDrop} onAuction={handleAuction} />
-                ))}
-                {Array.from({ length: emptyCells }).map((_, idx) => (
-                  <div key={`empty-${idx}`} className="inventory-item-empty" draggable={false} />
-                ))}
-              </>
-            )}
-          </>
-        )}
+  if (loading) {
+    return (
+      <div className="grid grid-cols-8 gap-4 p-4">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <Skeleton key={i} className="w-16 h-16 rounded-lg" />
+        ))}
       </div>
-      {prompt && (
-        <div className="inventory-prompt-overlay">
-          <div className="inventory-prompt">
-            <div className="inventory-prompt-message">{prompt.message}</div>
-            {prompt.showPrice && (
-              <div className="inventory-prompt-amount">
-                <input type="number" min={1} value={prompt.price} onChange={handlePromptPriceChange} className="inventory-prompt-amount-input" placeholder={t("inventory.price")} />
-                <span className="inventory-prompt-amount-max">{t("inventory.credits")}</span>
-              </div>
-            )}
-            {prompt.maxAmount && (
-              <div className="inventory-prompt-amount">
-                <input type="number" min={1} max={prompt.maxAmount} value={prompt.amount} onChange={handlePromptAmountChange} className="inventory-prompt-amount-input" />
-                <span className="inventory-prompt-amount-max">/ {prompt.maxAmount}</span>
-              </div>
-            )}
-            <button
-              className="inventory-prompt-yes-btn"
-              onClick={() => {
-                if (prompt.showPrice) {
-                  prompt.resolve({ confirmed: true, price: prompt.price });
-                } else {
-                  prompt.resolve({ confirmed: true, amount: prompt.amount });
-                }
-                setPrompt(null);
-              }}
-            >
-              {t("inventory.yes")}
-            </button>
-            <button
-              className="inventory-prompt-no-btn"
-              onClick={() => {
-                prompt.resolve({ confirmed: false });
-                setPrompt(null);
-              }}
-            >
-              {t("inventory.no")}
-            </button>
-          </div>
-        </div>
-      )}
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-danger/10 border border-danger/20">
+        <CardBody>
+          <p className="text-danger text-center">{error}</p>
+          <Button 
+            color="danger" 
+            variant="bordered" 
+            className="mt-2"
+            onPress={() => {
+              setError(null);
+              refreshInventory();
+            }}
+          >
+            Réessayer
+          </Button>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Item Details Modal */}
+      <Modal 
+        isOpen={!!selectedItem} 
+        onClose={() => setSelectedItem(null)}
+        size="2xl"
+        backdrop="blur"
+      >
+        <ModalContent>
+          {selectedItem && (
+            <>
+              <ModalHeader className="flex gap-4 items-center">
+                <div className="w-16 h-16">
+                  <CachedImage
+                    src={selectedItem.custom_url_link || "/items-icons/" + (selectedItem.iconHash || selectedItem.item_id)}
+                    alt={selectedItem.name}
+                    className="w-full h-full object-contain rounded"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">
+                    {selectedItem.amount}x {selectedItem.name}
+                  </h3>
+                  <Chip 
+                    size="sm" 
+                    style={{ 
+                      backgroundColor: getRarityColor(selectedItem.rarity) + '20',
+                      color: getRarityColor(selectedItem.rarity)
+                    }}
+                  >
+                    {selectedItem.rarity?.replace(/-/g, " ")}
+                  </Chip>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <p className="text-default-600">{selectedItem.description}</p>
+                
+                {formatMetadata(selectedItem.metadata) && (
+                  <div className="mt-4 p-3 bg-default-100 rounded-lg">
+                    <p className="text-sm font-semibold mb-1">Métadonnées:</p>
+                    <p className="text-sm text-default-600">{formatMetadata(selectedItem.metadata)}</p>
+                  </div>
+                )}
+
+                {selectedItem.purchasePrice !== undefined && (
+                  <div className="flex items-center gap-2 mt-4">
+                    <span className="text-warning font-semibold">Prix d'achat:</span>
+                    <span>{selectedItem.purchasePrice}</span>
+                    <CachedImage src="/assets/credit.avif" className="w-4 h-4" alt="credits" />
+                  </div>
+                )}
+
+                {selectedItem.metadata?._unique_id && (
+                  <div className="mt-4 p-3 bg-warning/10 rounded-lg">
+                    <p className="text-sm font-semibold mb-1">ID Unique:</p>
+                    <p className="text-xs font-mono">{selectedItem.metadata._unique_id}</p>
+                    <p className="text-xs text-danger mt-1">Cet objet ne peut pas être vendu</p>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button onPress={() => setSelectedItem(null)}>
+                  Fermer
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Action Prompt Modal */}
+      <Modal 
+        isOpen={showPrompt} 
+        onClose={() => setShowPrompt(false)}
+        backdrop="blur"
+      >
+        <ModalContent>
+          {promptData && (
+            <>
+              <ModalHeader>
+                {promptData.type === 'sell' && 'Vendre l\'objet'}
+                {promptData.type === 'drop' && 'Jeter l\'objet'}
+                {promptData.type === 'auction' && 'Mettre aux enchères'}
+              </ModalHeader>
+              <ModalBody className="space-y-4">
+                <p>
+                  {promptData.type === 'sell' && `Vendre combien de "${promptData.item.name}" ?`}
+                  {promptData.type === 'drop' && `Jeter combien de "${promptData.item.name}" ?`}
+                  {promptData.type === 'auction' && `Mettre "${promptData.item.name}" aux enchères`}
+                </p>
+
+                {promptData.type !== 'auction' && (
+                  <Input
+                    type="number"
+                    label="Quantité"
+                    min="1"
+                    max={promptData.item.amount}
+                    value={promptAmount.toString()}
+                    onChange={(e) => setPromptAmount(Math.max(1, Math.min(Number(e.target.value), promptData.item.amount)))}
+                  />
+                )}
+
+                {promptData.type === 'auction' && (
+                  <Input
+                    type="number"
+                    label="Prix de vente"
+                    min="1"
+                    value={promptPrice.toString()}
+                    onChange={(e) => setPromptPrice(Math.max(1, Number(e.target.value)))}
+                    endContent={
+                      <CachedImage src="/assets/credit.avif" className="w-4 h-4" alt="credits" />
+                    }
+                  />
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button 
+                  variant="light" 
+                  onPress={() => setShowPrompt(false)}
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  color={promptData.type === 'drop' ? 'danger' : 'primary'}
+                  onPress={handlePromptConfirm}
+                >
+                  Confirmer
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Inventory Grid */}
+      <div className="grid grid-cols-8 gap-4 p-4 bg-content1/30 backdrop-blur-sm rounded-xl border border-divider/20">
+        {items.map((item, index) => (
+          <InventoryItem
+            key={item?.metadata?._unique_id ? `${item.item_id}-${item.metadata._unique_id}` : `${item.item_id}-${index}`}
+            dataItemIndex={index}
+            item={item}
+            onSelect={handleItemClick}
+            isMe={!!isMe}
+            onAction={openPrompt}
+          />
+        ))}
+        
+        {Array.from({ length: emptyCells }).map((_, idx) => (
+          <div
+            key={`empty-${idx}`}
+            className="w-16 h-16 border-2 border-dashed border-divider/30 rounded-lg bg-content2/20"
+          />
+        ))}
+      </div>
     </div>
   );
 }

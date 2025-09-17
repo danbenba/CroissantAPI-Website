@@ -189,7 +189,7 @@ export default function NavBarMobile() {
   }
 
   return (
-    <header className="w-full bg-primary text-[#e2e8f0] border-b border-secondary py-0.5 shadow-sm relative z-10">
+    <header className="w-full bg-primary text-[#e2e8f0] border-b border-secondary py-0.5 shadow-sm relative z-50">
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full px-4 h-14 relative">
           {/* Hamburger menu */}

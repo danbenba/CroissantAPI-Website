@@ -1,5 +1,19 @@
 // TradePanel.tsx
 import React, { useEffect, useState, useRef } from "react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Button,
+  Chip,
+  Tooltip,
+  Divider,
+  Avatar,
+  Badge,
+  ScrollShadow,
+  Skeleton
+} from "@heroui/react";
+import { X, Check, XCircle, Package, ArrowLeftRight } from "lucide-react";
 import type { Item } from "./Inventory";
 import CachedImage from "./utils/CachedImage";
 
@@ -9,7 +23,7 @@ interface TradeItem extends Item {
   itemId: string;
   amount: number;
   metadata?: { [key: string]: unknown; _unique_id?: string };
-  purchasePrice?: number; // Ajouter le prix d'achat
+  purchasePrice?: number;
 }
 
 interface Trade {
@@ -35,14 +49,12 @@ interface TradePanelProps {
   profile?: {
     username: string;
   };
-  apiBase?: string; // e.g. "/api"
+  apiBase?: string;
 }
 
-// Fonction pour formater les métadonnées pour l'affichage
 const formatMetadata = (metadata?: { [key: string]: unknown }) => {
   if (!metadata) return null;
 
-  // Exclure _unique_id de l'affichage
   const displayMetadata = Object.entries(metadata)
     .filter(([key]) => key !== "_unique_id")
     .map(([key, value]) => `${key}: ${value}`)
@@ -51,123 +63,114 @@ const formatMetadata = (metadata?: { [key: string]: unknown }) => {
   return displayMetadata || null;
 };
 
-// Sous-composant pour un item d'inventaire
+const getRarityColor = (rarity: string) => {
+  const rarityColors = {
+    "very-common": "#9ca3af",
+    "common": "#ffffff",
+    "uncommon": "#22c55e",
+    "rare": "#3b82f6",
+    "very-rare": "#8b5cf6",
+    "epic": "#a855f7",
+    "ultra-epic": "#ec4899",
+    "legendary": "#f59e0b",
+    "ancient": "#f97316",
+    "mythic": "#ef4444",
+    "godlike": "#dc2626",
+    "radiant": "#fbbf24"
+  };
+  return rarityColors[rarity as keyof typeof rarityColors] || "#9ca3af";
+};
+
 function TradeInventoryItem({
   item,
   onClick,
   removable,
+  disabled
 }: {
   item: TradeItem;
   onClick?: () => void;
   removable?: boolean;
+  disabled?: boolean;
 }) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null
-  );
   const formattedMetadata = formatMetadata(item.metadata);
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    setShowTooltip(true);
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    setMousePos({ x: rect.left, y: rect.top });
-  };
-
-  const handleMouseLeave = () => {
-    setShowTooltip(false);
-  };
-
   return (
-    <div
-      className="trade-inventory-item"
-      onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      title={onClick ? `Add ${item.name} to the trade` : undefined}
-      style={{ position: "relative" }}
-    >
-      <CachedImage
-        src={"/items-icons/" + (item.iconHash || item.itemId)}
-        alt={item.name}
-      />
-      <div>x{item.amount}</div>
-      <div className="trade-item-name">{item.name}</div>
-
-      {/* Indicateur visuel pour les items avec métadonnées */}
-      {item.metadata && (
-        <div
-          style={{
-            position: "absolute",
-            top: "2px",
-            right: "2px",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            backgroundColor: "#ffd700",
-            zIndex: 3,
-            border: "1px solid #000",
-          }}
-        />
-      )}
-
-      {/* Tooltip avec métadonnées */}
-      {showTooltip && mousePos && (
-        <div
-          className="trade-tooltip"
-          style={{
-            position: "fixed",
-            left: mousePos.x-65,
-            top: mousePos.y+180,
-            backgroundColor: "#333",
-            color: "white",
-            padding: "8px",
-            borderRadius: "4px",
-            fontSize: "12px",
-            zIndex: 1000,
-            maxWidth: "200px",
-            wordWrap: "break-word",
-          }}
-        >
-          <div style={{ fontWeight: "bold" }}>{item.name}</div>
-          <div style={{ fontSize: "11px", color: "#ccc" }}>{item.description}</div>
+    <Tooltip
+      content={
+        <div className="p-2 max-w-xs">
+          <div className="font-bold text-foreground">{item.name}</div>
+          <div className="text-sm text-foreground/70 mt-1">{item.description}</div>
           {formattedMetadata && (
-            <div
-              style={{
-                color: "#888",
-                fontSize: "10px",
-                marginTop: "4px",
-                fontStyle: "italic",
-              }}
-            >
+            <div className="text-xs text-foreground/50 mt-2 italic">
               {formattedMetadata}
             </div>
           )}
-          {/* Affichage de l'unique ID pour debug (optionnel) */}
           {item.metadata?._unique_id && (
-            <div
-              style={{
-                color: "#666",
-                fontSize: "9px",
-                marginTop: "2px",
-                fontFamily: "monospace",
-              }}
-            >
+            <div className="text-xs text-foreground/30 mt-1 font-mono">
               ID: {(item.metadata._unique_id as string).substring(0, 8)}...
             </div>
           )}
         </div>
-      )}
-
-      {removable && (
-        <div style={{ marginTop: 4 }}>
-          <button onClick={onClick}>–1</button>
-        </div>
-      )}
-    </div>
+      }
+      placement="top"
+    >
+      <Card 
+        className={`relative cursor-pointer transition-all duration-200 hover:scale-105 min-w-[80px] min-h-[80px] ${
+          onClick && !disabled ? 'hover:shadow-lg hover:shadow-primary/25' : ''
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        isPressable={!!onClick && !disabled}
+        onPress={onClick}
+        style={{
+          borderColor: getRarityColor(item.rarity),
+          borderWidth: '2px'
+        }}
+      >
+        <CardBody className="p-2 flex flex-col items-center justify-center">
+          {/* Indicateur métadonnées */}
+          {item.metadata && (
+            <div className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full border border-content1 z-10" />
+          )}
+          
+          <div className="w-12 h-12 flex items-center justify-center mb-1">
+            <CachedImage
+              src={"/items-icons/" + (item.iconHash || item.itemId)}
+              alt={item.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          
+          <Chip
+            size="sm"
+            variant="flat"
+            className="text-xs"
+          >
+            x{item.amount}
+          </Chip>
+          
+          <div className="text-xs text-center mt-1 line-clamp-2 font-medium">
+            {item.name}
+          </div>
+          
+          {removable && (
+            <Button
+              size="sm"
+              color="danger"
+              variant="flat"
+              className="mt-1 min-w-unit-12 h-unit-6"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.();
+              }}
+            >
+              -1
+            </Button>
+          )}
+        </CardBody>
+      </Card>
+    </Tooltip>
   );
 }
 
-// Sous-composant pour une colonne d'items de trade
 function TradeColumn({
   title,
   items,
@@ -182,34 +185,58 @@ function TradeColumn({
   onRemoveItem?: (item: TradeItem) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <h3>{title}</h3>
-      <div className={"trade-column" + (approved ? " trade-approved" : "")}>
-        <div className="trade-inventory-grid">
-          {items.map((item) => (
-            <TradeInventoryItem
-              key={
-                item.metadata?._unique_id
-                  ? `${item.itemId}-${item.metadata._unique_id}`
-                  : item.itemId
-              }
-              item={item}
-              removable={removable}
-              onClick={
-                removable && onRemoveItem
-                  ? () =>
-                      onRemoveItem({
-                        ...item,
-                        amount: 1,
-                        metadata: item.metadata, // Conserver les métadonnées pour la suppression
-                      })
-                  : undefined
-              }
-            />
-          ))}
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between w-full">
+          <h3 className="text-lg font-semibold">{title}</h3>
+          {approved && (
+            <Chip
+              color="success"
+              variant="flat"
+              startContent={<Check className="w-3 h-3" />}
+              size="sm"
+            >
+              Approved
+            </Chip>
+          )}
         </div>
-      </div>
-    </div>
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <ScrollShadow className="h-[200px]">
+          <div className="grid grid-cols-3 gap-2">
+            {items.length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center py-8 text-foreground/50">
+                <Package className="w-8 h-8 mb-2" />
+                <p className="text-sm">No items</p>
+              </div>
+            ) : (
+              items.map((item) => (
+                <TradeInventoryItem
+                  key={
+                    item.metadata?._unique_id
+                      ? `${item.itemId}-${item.metadata._unique_id}`
+                      : item.itemId
+                  }
+                  item={item}
+                  removable={removable}
+                  onClick={
+                    removable && onRemoveItem
+                      ? () =>
+                          onRemoveItem({
+                            ...item,
+                            amount: 1,
+                            metadata: item.metadata,
+                          })
+                      : undefined
+                  }
+                />
+              ))
+            )}
+          </div>
+        </ScrollShadow>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -233,7 +260,11 @@ export default function TradePanel({
     let stopped = false;
     const fetchTrade = async () => {
       try {
-        const res = await fetch(`${apiBase}/trades/${tradeId}`);
+        const res = await fetch(`${apiBase}/trades/${tradeId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!res.ok) throw new Error("Failed to fetch trade");
         const data = await res.json();
         setTrade(data);
@@ -265,6 +296,9 @@ export default function TradePanel({
     try {
       const res = await fetch(`${apiBase}/trades/${tradeId}/approve`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error("Failed to approve trade");
     } catch (e: any) {
@@ -279,6 +313,9 @@ export default function TradePanel({
     try {
       const res = await fetch(`${apiBase}/trades/${tradeId}/cancel`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error("Failed to cancel trade");
     } catch (e: any) {
@@ -292,19 +329,22 @@ export default function TradePanel({
     itemId: string;
     amount: number;
     metadata?: { [key: string]: unknown; _unique_id?: string };
-    purchasePrice?: number; // Ajouter le prix d'achat
+    purchasePrice?: number;
   }) {
     setLoading(true);
     try {
       const res = await fetch(`${apiBase}/trades/${tradeId}/add-item`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           tradeItem: {
             itemId: item.itemId,
             amount: item.amount,
             metadata: item.metadata,
-            purchasePrice: item.purchasePrice, // Inclure le prix d'achat
+            purchasePrice: item.purchasePrice,
           },
         }),
       });
@@ -324,13 +364,14 @@ export default function TradePanel({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           tradeItem: {
             itemId: item.itemId,
             amount: item.amount,
             metadata: item.metadata,
-            purchasePrice: item.purchasePrice, // Inclure le prix d'achat
+            purchasePrice: item.purchasePrice,
           },
         }),
       });
@@ -358,120 +399,242 @@ export default function TradePanel({
     ? trade?.approvedToUser
     : trade?.approvedFromUser;
 
-  // UI
-  if (loading && !trade) return <div>Loading trade...</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (!trade) return <div>Trade not found.</div>;
+  // Loading state
+  if (loading && !trade) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Card className="w-full max-w-6xl max-h-[90vh] mx-4">
+          <CardBody className="p-8">
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-48" />
+              <div className="grid grid-cols-2 gap-6">
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+              </div>
+              <Skeleton className="h-32" />
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Card className="w-full max-w-md mx-4">
+          <CardBody className="text-center p-8">
+            <XCircle className="w-16 h-16 text-danger mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-danger mb-2">Error</h3>
+            <p className="text-foreground/70">{error}</p>
+            <Button color="primary" onPress={onClose} className="mt-4">
+              Close
+            </Button>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!trade) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Card className="w-full max-w-md mx-4">
+          <CardBody className="text-center p-8">
+            <Package className="w-16 h-16 text-foreground/50 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Trade not found</h3>
+            <p className="text-foreground/70 mb-4">The requested trade could not be found.</p>
+            <Button color="primary" onPress={onClose}>
+              Close
+            </Button>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="trade-panel">
-      <div
-        className="trade-close-x"
-        onClick={onClose}
-        title="Fermer"
-        style={{
-          position: "absolute",
-          top: 18,
-          right: 22,
-          fontSize: "2rem",
-          color: "#aaa",
-          cursor: "pointer",
-          zIndex: 10,
-          userSelect: "none",
-        }}
-      >
-        ×
-      </div>
-      <h2>Trade with {profile?.username || profile?.username}</h2>
-      <div className="trade-main-columns">
-        <TradeColumn
-          title="Your items in the trade"
-          items={userItems}
-          approved={!!userApproved}
-          removable={true}
-          onRemoveItem={removeItem}
-        />
-        <TradeColumn
-          title="Other user's items"
-          items={otherItems}
-          approved={!!otherApproved}
-        />
-      </div>
-      <div className="trade-inventory-section">
-        <h3>Your inventory</h3>
-        <div
-          className="trade-inventory-grid"
-          style={{ justifyContent: "flex-start" }}
-        >
-          {inventory
-            .map((item) => {
-              // Pour les items avec métadonnées, vérifier s'ils sont déjà dans le trade par leur _unique_id
-              if (item.metadata?._unique_id) {
-                const isInTrade = userItems.some(
-                  (ti) =>
-                    ti.itemId === item.itemId &&
-                    ti.metadata?._unique_id === item.metadata?._unique_id
-                );
-                return { ...item, available: isInTrade ? 0 : 1 };
-              } else {
-                // Pour les items sans métadonnées, calculer par prix d'achat spécifique
-                const inTrade = userItems
-                  .filter((ti) => 
-                    ti.itemId === item.itemId && 
-                    !ti.metadata?._unique_id &&
-                    ti.purchasePrice === item.purchasePrice
-                  )
-                  .reduce((sum, ti) => sum + ti.amount, 0);
-                const available = item.amount - inTrade;
-                return { ...item, available };
-              }
-            })
-            .filter((item) => item.available > 0)
-            .map((item) => (
-              <TradeInventoryItem
-                key={
-                  item.metadata?._unique_id
-                    ? `${item.itemId}-${item.metadata._unique_id}`
-                    : `${item.itemId}-${item.purchasePrice || 'no-price'}`
-                }
-                item={{
-                  ...item,
-                  amount: item.available,
-                  metadata: item.metadata,
-                }}
-                onClick={() =>
-                  addItem({
-                    itemId: item.itemId,
-                    amount: 1,
-                    metadata: item.metadata,
-                    purchasePrice: item.purchasePrice, // Passer le prix d'achat
-                  })
-                }
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <Card className="w-full max-w-6xl max-h-[90vh] mx-4 overflow-hidden">
+        <CardHeader className="flex justify-between items-center pb-4">
+          <div className="flex items-center space-x-3">
+            <ArrowLeftRight className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">
+              Trade with {profile?.username || "Unknown User"}
+            </h2>
+          </div>
+          <Button
+            isIconOnly
+            variant="light"
+            onPress={onClose}
+            className="text-foreground/50 hover:text-foreground"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </CardHeader>
+
+        <Divider />
+
+        <CardBody className="p-6 overflow-y-auto">
+          <div className="space-y-6">
+            {/* Trade Status */}
+            <div className="flex items-center justify-center space-x-4">
+              <Chip
+                color={trade.status === "pending" ? "warning" : trade.status === "completed" ? "success" : "danger"}
+                variant="flat"
+                size="lg"
+              >
+                Status: {trade.status}
+              </Chip>
+            </div>
+
+            {/* Trade Columns */}
+            <div className="grid grid-cols-2 gap-6">
+              <TradeColumn
+                title="Your items"
+                items={userItems}
+                approved={!!userApproved}
+                removable={true}
+                onRemoveItem={removeItem}
               />
-            ))}
-        </div>
-      </div>
-      <div className="trade-actions">
-        <button
-          onClick={approve}
-          disabled={trade.status !== "pending"}
-          style={{ background: "#0e0" }}
-        >
-          Approve
-        </button>
-        <button
-          onClick={cancel}
-          disabled={trade.status !== "pending"}
-          style={{ background: "#e00" }}
-        >
-          Cancel
-        </button>
-      </div>
-      <div className="trade-status">
-        <span>
-          {userApproved ? "You have approved" : "You have not approved yet"}
-        </span>
-      </div>
+              
+              <TradeColumn
+                title={`${profile?.username || "Other user"}'s items`}
+                items={otherItems}
+                approved={!!otherApproved}
+              />
+            </div>
+
+            {/* Your Inventory */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Your inventory</h3>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <ScrollShadow className="h-[200px]">
+                  <div className="grid grid-cols-6 gap-2">
+                    {inventory
+                      .map((item) => {
+                        if (item.metadata?._unique_id) {
+                          const isInTrade = userItems.some(
+                            (ti) =>
+                              ti.itemId === item.itemId &&
+                              ti.metadata?._unique_id === item.metadata?._unique_id
+                          );
+                          return { ...item, available: isInTrade ? 0 : 1 };
+                        } else {
+                          const inTrade = userItems
+                            .filter((ti) => 
+                              ti.itemId === item.itemId && 
+                              !ti.metadata?._unique_id &&
+                              ti.purchasePrice === item.purchasePrice
+                            )
+                            .reduce((sum, ti) => sum + ti.amount, 0);
+                          const available = item.amount - inTrade;
+                          return { ...item, available };
+                        }
+                      })
+                      .filter((item) => item.available > 0)
+                      .map((item) => (
+                        <TradeInventoryItem
+                          key={
+                            item.metadata?._unique_id
+                              ? `${item.itemId}-${item.metadata._unique_id}`
+                              : `${item.itemId}-${item.purchasePrice || 'no-price'}`
+                          }
+                          item={{
+                            ...item,
+                            amount: item.available,
+                            metadata: item.metadata,
+                          }}
+                          disabled={trade.status !== "pending" || loading}
+                          onClick={() =>
+                            addItem({
+                              itemId: item.itemId,
+                              amount: 1,
+                              metadata: item.metadata,
+                              purchasePrice: item.purchasePrice,
+                            })
+                          }
+                        />
+                      ))}
+                  </div>
+                  
+                  {inventory.filter(item => {
+                    if (item.metadata?._unique_id) {
+                      const isInTrade = userItems.some(
+                        (ti) =>
+                          ti.itemId === item.itemId &&
+                          ti.metadata?._unique_id === item.metadata?._unique_id
+                      );
+                      return !isInTrade;
+                    } else {
+                      const inTrade = userItems
+                        .filter((ti) => 
+                          ti.itemId === item.itemId && 
+                          !ti.metadata?._unique_id &&
+                          ti.purchasePrice === item.purchasePrice
+                        )
+                        .reduce((sum, ti) => sum + ti.amount, 0);
+                      return (item.amount - inTrade) > 0;
+                    }
+                  }).length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-8 text-foreground/50">
+                      <Package className="w-8 h-8 mb-2" />
+                      <p className="text-sm">No available items</p>
+                    </div>
+                  )}
+                </ScrollShadow>
+              </CardBody>
+            </Card>
+
+            {/* Actions and Status */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Chip
+                  color={userApproved ? "success" : "default"}
+                  variant={userApproved ? "flat" : "bordered"}
+                  startContent={userApproved ? <Check className="w-3 h-3" /> : undefined}
+                >
+                  {userApproved ? "You approved" : "You haven't approved"}
+                </Chip>
+                
+                <Chip
+                  color={otherApproved ? "success" : "default"}
+                  variant={otherApproved ? "flat" : "bordered"}
+                  startContent={otherApproved ? <Check className="w-3 h-3" /> : undefined}
+                >
+                  {otherApproved ? "Other user approved" : "Other user hasn't approved"}
+                </Chip>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Button
+                  color="danger"
+                  variant="flat"
+                  onPress={cancel}
+                  isDisabled={trade.status !== "pending" || loading}
+                  isLoading={loading}
+                  startContent={<XCircle className="w-4 h-4" />}
+                >
+                  Cancel Trade
+                </Button>
+                
+                <Button
+                  color="success"
+                  onPress={approve}
+                  isDisabled={trade.status !== "pending" || loading}
+                  isLoading={loading}
+                  startContent={<Check className="w-4 h-4" />}
+                >
+                  Approve Trade
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

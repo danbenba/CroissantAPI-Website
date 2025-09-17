@@ -23,6 +23,8 @@ import Login from "./login";
 import { LobbyProvider } from "../hooks/LobbyContext";
 import { appWithTranslation } from 'next-i18next';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { HeroUIProvider } from "@heroui/react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export async function getStaticProps({ locale }) {
   return {
@@ -75,7 +77,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   // --- Background image component ---
   const BackgroundImage = () => (
     <div 
-      className="fixed -z-10 top-0 left-0 w-screen h-screen pointer-events-none overflow-hidden object-cover bg-gradient-custom"
+      className="fixed -z-10 top-0 left-0 w-screen h-screen pointer-events-none overflow-hidden object-cover bg-gradient-main"
       aria-hidden="true"
     >
       <img
@@ -126,13 +128,13 @@ function AppContent({ Component, pageProps }: AppProps) {
     const isMobile = useIsMobile();
 
     return (
-      <div>
-        <BackgroundImage />
+      <div className="min-h-screen bg-gradient-main text-foreground font-sans flex flex-col">
+        {/* Pas de BackgroundImage pour le website, seulement pour le launcher */}
         <MetaLinks metaLinksTitle={pageProps?.title} />
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && (
           isMobile ? <NavBarMobile /> : <NavBarDesktop />
         )}
-        <main className={`${mainStyle}`}>
+        <main className={`flex-1 ${mainStyle}`}>
           <Component {...pageProps} />
         </main>
         {(!pageProps?.isOauth2Auth && !pageProps?.isLauncher) && <Footer />}
@@ -148,15 +150,19 @@ function AppContent({ Component, pageProps }: AppProps) {
 
 export function App(props: AppProps) {
   return (
-    <ImageCacheProvider>
-      <UserCacheProvider>
-        <AuthProvider>
-          <LobbyProvider>
-            <AppContent {...props} />
-          </LobbyProvider>
-        </AuthProvider>
-      </UserCacheProvider>
-    </ImageCacheProvider>
+    <HeroUIProvider>
+      <NextThemesProvider attribute="class" defaultTheme="dark">
+        <ImageCacheProvider>
+          <UserCacheProvider>
+            <AuthProvider>
+              <LobbyProvider>
+                <AppContent {...props} />
+              </LobbyProvider>
+            </AuthProvider>
+          </UserCacheProvider>
+        </ImageCacheProvider>
+      </NextThemesProvider>
+    </HeroUIProvider>
   );
 }
 

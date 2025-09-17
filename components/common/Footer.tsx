@@ -34,7 +34,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`w-full bg-primary text-[#bdbdbd] text-[0.92rem] text-center py-[1.4rem] px-0 border-t border-secondary ${
+      className={`w-full bg-primary text-[#bdbdbd] text-[0.92rem] text-center py-[1.4rem] px-0 border-t border-secondary z-40 ${
         footerPosition === "absolute" ? "absolute bottom-0 left-0" : "relative"
       }`}
       style={{ display: show }}
