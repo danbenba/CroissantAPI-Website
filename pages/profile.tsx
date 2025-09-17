@@ -53,7 +53,7 @@ function GiveCreditsModal({ open, onClose, onSubmit, maxAmount, username }) {
               type="number"
               label="Montant"
               placeholder="Entrez le montant"
-              value={amount}
+              value={amount.toString()}
               onChange={(e) => setAmount(Math.max(1, Math.min(Number(e.target.value), maxAmount || Number.MAX_SAFE_INTEGER)))}
               min="1"
               max={maxAmount || undefined}

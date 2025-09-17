@@ -519,14 +519,14 @@ export default function TradePanel({
                         if (item.metadata?._unique_id) {
                           const isInTrade = userItems.some(
                             (ti) =>
-                              ti.itemId === item.itemId &&
+                              ti.itemId === item.item_id &&
                               ti.metadata?._unique_id === item.metadata?._unique_id
                           );
                           return { ...item, available: isInTrade ? 0 : 1 };
                         } else {
                           const inTrade = userItems
                             .filter((ti) => 
-                              ti.itemId === item.itemId && 
+                              ti.itemId === item.item_id && 
                               !ti.metadata?._unique_id &&
                               ti.purchasePrice === item.purchasePrice
                             )
@@ -540,18 +540,19 @@ export default function TradePanel({
                         <TradeInventoryItem
                           key={
                             item.metadata?._unique_id
-                              ? `${item.itemId}-${item.metadata._unique_id}`
-                              : `${item.itemId}-${item.purchasePrice || 'no-price'}`
+                              ? `${item.item_id}-${item.metadata._unique_id}`
+                              : `${item.item_id}-${item.purchasePrice || 'no-price'}`
                           }
                           item={{
                             ...item,
+                            itemId: item.item_id,
                             amount: item.available,
                             metadata: item.metadata,
                           }}
                           disabled={trade.status !== "pending" || loading}
                           onClick={() =>
                             addItem({
-                              itemId: item.itemId,
+                              itemId: item.item_id,
                               amount: 1,
                               metadata: item.metadata,
                               purchasePrice: item.purchasePrice,
@@ -565,14 +566,14 @@ export default function TradePanel({
                     if (item.metadata?._unique_id) {
                       const isInTrade = userItems.some(
                         (ti) =>
-                          ti.itemId === item.itemId &&
+                          ti.itemId === item.item_id &&
                           ti.metadata?._unique_id === item.metadata?._unique_id
                       );
                       return !isInTrade;
                     } else {
                       const inTrade = userItems
                         .filter((ti) => 
-                          ti.itemId === item.itemId && 
+                          ti.itemId === item.item_id && 
                           !ti.metadata?._unique_id &&
                           ti.purchasePrice === item.purchasePrice
                         )

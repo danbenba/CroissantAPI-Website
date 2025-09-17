@@ -1,14 +1,42 @@
+"use client"
+
 import React, { useEffect, useState } from "react";
-import Highlight from "react-highlight";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
-import useIsMobile from "../hooks/useIsMobile"; // Ajoutez ce hook
+import { 
+  Card, 
+  CardBody, 
+  CardHeader,
+  Input,
+  Button,
+  Chip,
+  Divider,
+  Spinner,
+  Code,
+  Tabs,
+  Tab,
+  ScrollShadow,
+  Link as NextUILink
+} from "@heroui/react";
+import { 
+  Search,
+  Code2,
+  ExternalLink,
+  Users,
+  Book,
+  BookOpen,
+  Zap,
+  Database,
+  Globe,
+  FileCode,
+  Layers,
+  Copy,
+  Check
+} from "lucide-react";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 const API_URL = "/api";
 
-// Memoized docs and grouped state (module-level, survives remounts)
+// Cache
 let apiDocsCache: any[] | null = null;
 let apiDocsGroupedCache: Record<string, any[]> | null = null;
 let apiDocsCategoryListCache: string[] | null = null;
@@ -40,14 +68,14 @@ function useApiDocs() {
         .then((data) => {
           apiDocsCache = data;
           setDocs(data);
-          // Group docs by category and then by endpoint
+          
           const grouped = data.reduce((acc: Record<string, any[]>, doc: any) => {
             const cat = doc.category || "Uncategorized";
             if (!acc[cat]) acc[cat] = [];
             acc[cat].push(doc);
             return acc;
           }, {});
-          // Further group by endpoint
+          
           Object.keys(grouped).forEach((category) => {
             const endpoints: Record<string, any[]> = {};
             grouped[category].forEach((doc: any) => {
@@ -59,6 +87,7 @@ function useApiDocs() {
             });
             grouped[category] = Object.values(endpoints);
           });
+          
           apiDocsGroupedCache = grouped;
           apiDocsCategoryListCache = Object.keys(grouped);
           setCategories(grouped);
@@ -73,12 +102,6 @@ function useApiDocs() {
 }
 
 export default function ApiDocs() {
-  const isMobile = useIsMobile();
-  return isMobile ? <ApiDocsMobile /> : <ApiDocsDesktop />;
-}
-
-// Version Desktop
-function ApiDocsDesktop() {
   const { t } = useTranslation("common");
   const { docs, categories, categoryList, loading } = useApiDocs();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -87,7 +110,11 @@ function ApiDocsDesktop() {
 
   useEffect(() => {
     if (searchTerm) {
-      const filtered = docs.filter((doc) => doc.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) || doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) || doc.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      const filtered = docs.filter((doc) => 
+        doc.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        doc.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
       setFilteredDocs(filtered);
     } else {
       setFilteredDocs([]);
@@ -103,272 +130,317 @@ function ApiDocsDesktop() {
     return categories[cat] || [];
   };
 
-  const sdkLanguages = ["ts-and-js:TypeScript/JavaScript", "python:Python", "java:Java", "cs:C#", "php:PHP", "ruby:Ruby", "rust:Rust", "go:Go", "cpp:C++"];
+  const sdkLanguages = [
+    { id: "ts-and-js", name: "TypeScript/JavaScript", icon: <FileCode className="w-4 h-4" /> },
+    { id: "python", name: "Python", icon: <FileCode className="w-4 h-4" /> },
+    { id: "java", name: "Java", icon: <FileCode className="w-4 h-4" /> },
+    { id: "cs", name: "C#", icon: <FileCode className="w-4 h-4" /> },
+    { id: "php", name: "PHP", icon: <FileCode className="w-4 h-4" /> },
+    { id: "ruby", name: "Ruby", icon: <FileCode className="w-4 h-4" /> },
+    { id: "rust", name: "Rust", icon: <FileCode className="w-4 h-4" /> },
+    { id: "go", name: "Go", icon: <FileCode className="w-4 h-4" /> },
+    { id: "cpp", name: "C++", icon: <FileCode className="w-4 h-4" /> },
+  ];
 
   return (
-    <div className="flex gap-6 p-5 bg-[#3c3c3c] rounded-lg shadow-lg overflow-auto max-w-full">
-      {/* Sidebar */}
-      <aside className="bg-[#292929] rounded-lg p-6 h-fit flex-shrink-0 flex flex-col w-[300px] sticky top-5">
-        {/* Search Input */}
-        <div className="mb-6">
-          <input type="text" placeholder={t("apiDocs.searchPlaceholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-2.5 rounded-md bg-[#444] border border-[#555] text-white placeholder:text-[#999]" />
-        </div>
-        {/* Categories */}
-        <div className="mb-6">
-          <h3 className="text-white text-lg font-medium mb-4">{t("apiDocs.categories")}</h3>
-          <ul className="list-none p-0 space-y-2.5">
-            <li className={`cursor-pointer transition-colors hover:text-[#1e90ff] ${selectedCategory === null ? "text-[#1e90ff] font-medium" : "text-[#e2e8f0]"}`} onClick={() => setSelectedCategory(null)}>
-              {t("apiDocs.all")}
-            </li>
-            {categoryList.map((cat) => (
-              <li key={cat} className={`cursor-pointer transition-colors hover:text-[#1e90ff] ${selectedCategory === cat ? "text-[#1e90ff] font-medium" : "text-[#e2e8f0]"}`} onClick={() => setSelectedCategory(cat)}>
-                {cat}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <hr className="border-[#444] my-6" />
-        {/* SDKs */}
-        <div>
-          <h3 className="text-white text-lg font-medium mb-4">{t("apiDocs.libraries")}</h3>
-          <ul className="list-none p-0 flex flex-col space-y-2.5">
-            {sdkLanguages.map((sdk) => {
-              const [id, name] = sdk.split(":");
-              return (
-                <li key={id}>
-                  <a href={`https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-${id}/README.md`} target="_blank" className="text-[#1e90ff] no-underline hover:underline">
-                    [{name} Library]
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </aside>
+    <div className="bg-background text-foreground font-sans relative min-h-screen">
+      {/* Background Koalyx style - pixel perfect */}
+      <div
+        className="absolute h-screen w-full bg-main-overlay max-md:mask-b-from-10% max-md:mask-b-to-70% md:mask-radial-from-10% md:mask-radial-to-70% md:mask-radial-at-top"
+        style={{ inset: 0 as unknown as number }}
+      />
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        <h2 className="text-white">{t("apiDocs.title")}</h2>
-        <div className="text-base text-[#cccccc]">
-          {t("apiDocs.intro")}
-          <br />
-          <br />
-          <div>
-            <FontAwesomeIcon icon={faUsers} className="text-[#808080] ml-[5px]" /> {t("apiDocs.requiresAuth")}
-            <br />
-            <br />
-            <strong>{t("apiDocs.precisions")}</strong>
-            <br />
-            <br />
-            {t("apiDocs.iconHash")}
-            <br />
-            {t("apiDocs.bannerHash")}
-            <br />
-            {t("apiDocs.splashHash")}
-            <br />
-            {t("apiDocs.hashes")}
-          </div>
+      <div className="z-10 w-full max-w-[1400px] flex-1 px-3 py-10 flex flex-col gap-8 pb-10 mx-auto relative">
+        
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="bg-gradient-to-r bg-clip-text pb-1 text-4xl font-semibold text-transparent from-[#e0e0e0] to-[#d08ed6] mb-4">
+            {t("apiDocs.title")}
+          </h1>
+          <p className="text-white/70 max-w-2xl mx-auto">
+            {t("apiDocs.intro")}
+          </p>
         </div>
 
-        <div className="text-white p-4 bg-[#2c2c2c] rounded-lg mt-4">
-          {loading ? (
-            <div className="flex items-center">
-              <div className="loader w-6 h-6 border-4 border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin"></div>
-              <span className="ml-[10px]">{t("apiDocs.loading")}</span>
-            </div>
-          ) : searchTerm && filteredDocs.length === 0 && !loading ? (
-            <div className="text-white">{t("apiDocs.noResults", { searchTerm })}</div>
-          ) : (
-            // Original category-based display
-            displayedCategories.map((cat) => (
-              <div key={cat} className="mb-8">
-                <h3 className="text-[#1e90ff] border-b border-[#444] pb-1">{cat}</h3>
-                {getDocsForCategory(cat)?.map((endpointGroup) => {
-                  const doc = endpointGroup[0];
-                  return (
-                    <div className="mb-6" key={doc.endpoint} id={doc.endpoint}>
-                      <a href={`#${doc.endpoint}`} className="text-[#1e90ff] no-underline hover:underline">
-                        {doc.endpoint}
-                      </a>
-                      <div className="mt-2">
-                        <InfoSection title="apiDocs.responseType" content={doc.responseType} language="javascript" />
-                        <InfoSection title="apiDocs.params" content={doc.params} language="javascript" />
-                        <InfoSection title="apiDocs.query" content={doc.query} language="javascript" />
-                        <InfoSection title="apiDocs.body" content={doc.body} language="javascript" />
-                        <InfoSection title="apiDocs.example" content={doc.example} language="javascript" />
-                        <InfoSection title="apiDocs.exampleResponse" content={doc.exampleResponse} language="json" />
-                      </div>
+        <div className="flex gap-6 max-lg:flex-col">
+          
+          {/* Sidebar */}
+          <aside className="w-full lg:w-80 lg:sticky lg:top-6 lg:h-fit space-y-6">
+            
+            {/* Search */}
+            <Card className="bg-content1/50 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 text-white">
+                  <Search className="w-5 h-5" />
+                  <span className="font-semibold">Rechercher</span>
+                </div>
+              </CardHeader>
+              <CardBody className="pt-0">
+                <Input
+                  placeholder={t("apiDocs.searchPlaceholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  startContent={<Search className="w-4 h-4 text-default-400" />}
+                  classNames={{
+                    input: "text-white",
+                    inputWrapper: "bg-default-100 border-0"
+                  }}
+                />
+              </CardBody>
+            </Card>
+
+            {/* Categories */}
+            <Card className="bg-content1/50 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 text-white">
+                  <Layers className="w-5 h-5" />
+                  <span className="font-semibold">{t("apiDocs.categories")}</span>
+                </div>
+              </CardHeader>
+              <CardBody className="pt-0 space-y-2">
+                <Button
+                  variant={selectedCategory === null ? "solid" : "ghost"}
+                  color={selectedCategory === null ? "primary" : "default"}
+                  className={`w-full justify-start ${selectedCategory === null ? '' : 'text-white'}`}
+                  onPress={() => setSelectedCategory(null)}
+                >
+                  <Globe className="w-4 h-4" />
+                  {t("apiDocs.all")}
+                </Button>
+                {categoryList.map((cat) => (
+                  <Button
+                    key={cat}
+                    variant={selectedCategory === cat ? "solid" : "ghost"}
+                    color={selectedCategory === cat ? "primary" : "default"}
+                    className={`w-full justify-start ${selectedCategory === cat ? '' : 'text-white'}`}
+                    onPress={() => setSelectedCategory(cat)}
+                  >
+                    <Database className="w-4 h-4" />
+                    {cat}
+                  </Button>
+                ))}
+              </CardBody>
+            </Card>
+
+            {/* SDKs */}
+            <Card className="bg-content1/50 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 text-white">
+                  <Code2 className="w-5 h-5" />
+                  <span className="font-semibold">{t("apiDocs.libraries")}</span>
+                </div>
+              </CardHeader>
+              <CardBody className="pt-0 space-y-2">
+                {sdkLanguages.map((sdk) => (
+                  <NextUILink 
+                    key={sdk.id}
+                    href={`https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-${sdk.id}/README.md`}
+                    isExternal
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-default/20 transition-colors text-white"
+                  >
+                    {sdk.icon}
+                    <span className="flex-1">{sdk.name}</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </NextUILink>
+                ))}
+              </CardBody>
+            </Card>
+          </aside>
+
+          {/* Main Content */}
+          <div className="flex-1 min-w-0 space-y-6">
+            
+            {/* Info Card */}
+            <Card className="bg-content1/50 backdrop-blur-sm border-0 shadow-lg">
+              <CardBody className="p-6">
+                <div className="space-y-4 text-white/80">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-yellow-500" />
+                    <span>{t("apiDocs.requiresAuth")}</span>
+                  </div>
+                  
+                  <Divider className="bg-white/10" />
+                  
+                  <div>
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <Book className="w-5 h-5" />
+                      {t("apiDocs.precisions")}
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <p>{t("apiDocs.iconHash")}</p>
+                      <p>{t("apiDocs.bannerHash")}</p>
+                      <p>{t("apiDocs.splashHash")}</p>
+                      <p>{t("apiDocs.hashes")}</p>
                     </div>
-                  );
-                })}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
 
-// Version Mobile
-function ApiDocsMobile() {
-  const { t } = useTranslation("common");
-  const { docs, categories, categoryList, loading } = useApiDocs();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filteredDocs, setFilteredDocs] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = docs.filter((doc) => doc.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) || doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) || doc.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      setFilteredDocs(filtered);
-    } else {
-      setFilteredDocs([]);
-    }
-  }, [searchTerm, docs]);
-
-  const displayedCategories = searchTerm ? [] : selectedCategory ? [selectedCategory] : categoryList;
-
-  const getDocsForCategory = (cat: string) => {
-    if (searchTerm) {
-      return filteredDocs;
-    }
-    return categories[cat] || [];
-  };
-
-  const sdkLanguages = ["ts-and-js:TypeScript/JavaScript", "python:Python", "java:Java", "cs:C#", "php:PHP", "ruby:Ruby", "rust:Rust", "go:Go", "cpp:C++"];
-
-  return (
-    <div className="block p-4 bg-[#3c3c3c] rounded-lg shadow-lg max-w-full text-[0.95rem] m-0">
-      {/* Barre de recherche et catégories en haut */}
-      <div className="mb-3">
-        <input type="text" placeholder={t("apiDocs.searchPlaceholder")} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[85vw] p-2 rounded bg-[#444] border border-[#555] text-white text-base" />
-      </div>
-      <div>
-        <h3 className="text-white mb-2 text-[1.1em]">{t("apiDocs.categories")}</h3>
-        <div className="flex flex-wrap gap-2">
-          <span
-            className={`px-[10px] py-1 rounded cursor-pointer mb-1 font-medium ${selectedCategory === null ? "bg-[#1e90ff]" : "bg-[#444]"} text-white`}
-            onClick={() => {
-              setSelectedCategory(null);
-              setSearchTerm("");
-            }}
-          >
-            {t("apiDocs.all")}
-          </span>
-          {categoryList.map((cat) => (
-            <span
-              key={cat}
-              className={`px-[10px] py-1 rounded cursor-pointer mb-1 font-medium ${selectedCategory === cat ? "bg-[#1e90ff]" : "bg-[#444]"} text-white`}
-              onClick={() => {
-                setSelectedCategory(cat);
-                setSearchTerm("");
-              }}
-            >
-              {cat}
-            </span>
-          ))}
-        </div>
-      </div>
-      <hr className="border-[#444] my-3" />
-      {/* SDKs */}
-      <div>
-        <h3 className="text-white mb-2 text-[1.1em]">{t("apiDocs.libraries")}</h3>
-        <ul className="list-none p-0 text-[0.98em] flex flex-wrap gap-1">
-          {sdkLanguages.map((sdk) => {
-            const [id, name] = sdk.split(":");
-            return (
-              <li key={id}>
-                <a href={`https://github.com/Croissant-API/Website/tree/main/public/downloadables/sdk-${id}/README.md`} target="_blank" className="text-[#1e90ff] no-underline hover:underline">
-                  [{name} Library]
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="mt-[18px]">
-        <h2 className="text-white text-[1.2em]">{t("apiDocs.title")}</h2>
-        <div className="text-[0.98em] text-[#cccccc]">
-          {t("apiDocs.intro")}
-          <br />
-          <br />
-          <div>
-            <FontAwesomeIcon icon={faUsers} className="text-[#808080] ml-[5px]" /> {t("apiDocs.requiresAuth")}
-            <br />
-            <br />
-            <strong>{t("apiDocs.precisions")}</strong>
-            <br />
-            <br />
-            {t("apiDocs.iconHash")}
-            <br />
-            {t("apiDocs.bannerHash")}
-            <br />
-            {t("apiDocs.splashHash")}
-            <br />
-            {t("apiDocs.hashes")}
+            {/* API Endpoints */}
+            <Card className="bg-content1/50 backdrop-blur-sm border-0 shadow-lg">
+              <CardBody className="p-6">
+                {loading ? (
+                  <div className="flex items-center justify-center gap-3 py-8">
+                    <Spinner color="primary" />
+                    <span className="text-white">{t("apiDocs.loading")}</span>
+                  </div>
+                ) : searchTerm && filteredDocs.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Aucun résultat</h3>
+                    <p className="text-white/60">Aucun résultat trouvé pour "{searchTerm}"</p>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {displayedCategories.map((cat) => (
+                      <div key={cat}>
+                        <div className="flex items-center gap-3 mb-6">
+                          <Chip 
+                            color="primary" 
+                            variant="dot" 
+                            className="text-white"
+                          >
+                            {cat}
+                          </Chip>
+                        </div>
+                        
+                        <div className="space-y-6">
+                          {getDocsForCategory(cat)?.map((endpointGroup) => {
+                            const doc = endpointGroup[0];
+                            return (
+                              <EndpointCard key={doc.endpoint} doc={doc} />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
           </div>
         </div>
-        <div className="text-white p-2 bg-[#2c2c2c] rounded-lg mt-3 text-[0.97em]">
-          {loading ? (
-            <div className="flex items-center">
-              <div className="w-5 h-5 border-4 border-[rgba(255,255,255,0.3)] border-t-white rounded-full animate-spin"></div>
-              <span className="ml-2">{t("apiDocs.loading")}</span>
-            </div>
-          ) : searchTerm ? (
-            filteredDocs.map((doc) => <DocBlock key={doc.endpoint} doc={doc} />)
-          ) : (
-            displayedCategories.map((cat) => (
-              <div key={cat} className="mb-[22px]">
-                <h3 className="text-[#1e90ff] border-b border-[#444] pb-[2px] text-[1.05em]">{cat}</h3>
-                {getDocsForCategory(cat)?.map((endpointGroup) => {
-                  const doc = endpointGroup[0];
-                  return <DocBlock key={doc.endpoint} doc={doc} />;
-                })}
-              </div>
-            ))
-          )}
-          {searchTerm && filteredDocs.length === 0 && !loading && <div className="text-white">No results found for "{searchTerm}".</div>}
-        </div>
       </div>
     </div>
   );
 }
 
-// Bloc d'affichage d'un endpoint (utilisé dans mobile et desktop)
-function DocBlock({ doc }: { doc: any }) {
+function EndpointCard({ doc }: { doc: any }) {
   const { t } = useTranslation("common");
+  const [selectedTab, setSelectedTab] = useState("overview");
+
+  const getMethodColor = (method: string) => {
+    switch (method?.toLowerCase()) {
+      case 'get': return 'success';
+      case 'post': return 'primary';
+      case 'put': return 'warning';
+      case 'delete': return 'danger';
+      default: return 'default';
+    }
+  };
+
   return (
-    <div className="mb-[18px]" key={doc.endpoint} id={doc.endpoint}>
-      <a href={`#${doc.endpoint}`} className="text-[#1e90ff] no-underline hover:underline">
-        {doc.endpoint}
-      </a>
-      <div className="mt-2">
-        <InfoSection title="apiDocs.responseType" content={doc.responseType} language="javascript" />
-        <InfoSection title="apiDocs.params" content={doc.params} language="javascript" />
-        <InfoSection title="apiDocs.query" content={doc.query} language="javascript" />
-        <InfoSection title="apiDocs.body" content={doc.body} language="javascript" />
-        <InfoSection title="apiDocs.example" content={doc.example} language="javascript" />
-        <InfoSection title="apiDocs.exampleResponse" content={doc.exampleResponse} language="json" />
-      </div>
-    </div>
+    <Card className="bg-content2/30 backdrop-blur-sm border border-white/5">
+      <CardHeader className="flex gap-3">
+        <div className="flex items-center gap-3">
+          <Chip 
+            size="sm" 
+            color={getMethodColor(doc.method)}
+            variant="solid"
+          >
+            {doc.method || 'GET'}
+          </Chip>
+          <Code className="text-white">{doc.endpoint}</Code>
+        </div>
+      </CardHeader>
+      
+      <Divider className="bg-white/10" />
+      
+      <CardBody>
+        <Tabs 
+          selectedKey={selectedTab} 
+          onSelectionChange={(key) => setSelectedTab(key as string)}
+          color="primary"
+          variant="underlined"
+          classNames={{
+            tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+            cursor: "w-full bg-primary",
+            tab: "max-w-fit px-0 h-12 text-white",
+            tabContent: "group-data-[selected=true]:text-primary"
+          }}
+        >
+          <Tab key="overview" title="Vue d'ensemble">
+            {doc.description && (
+              <div className="mb-4">
+                <p className="text-white/80">{doc.description}</p>
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              <InfoSection title="Type de réponse" content={doc.responseType} language="typescript" />
+              <InfoSection title="Paramètres" content={doc.params} language="typescript" />
+              <InfoSection title="Query String" content={doc.query} language="typescript" />
+              <InfoSection title="Body" content={doc.body} language="json" />
+            </div>
+          </Tab>
+          
+          <Tab key="example" title="Exemple">
+            <div className="space-y-4">
+              <InfoSection title="Exemple de requête" content={doc.example} language="javascript" />
+              <InfoSection title="Réponse exemple" content={doc.exampleResponse} language="json" />
+            </div>
+          </Tab>
+        </Tabs>
+      </CardBody>
+    </Card>
   );
 }
 
 function InfoSection({ title, content, language }: { title: string; content: any; language: string }) {
-  const { t } = useTranslation("common");
+  const [copied, setCopied] = useState(false);
+  
+  if (!content) return null;
+
+  const formattedContent = typeof content === "string" ? content : JSON.stringify(content, null, 2);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formattedContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   return (
-    <>
-      {content ? (
-        <div className="mb-4">
-          <h4 className="text-[#1e90ff] mb-2">{t(title)}:</h4>
-          <div className="bg-[#1c1c1c] p-3 rounded overflow-x-auto">
-            <Highlight className={language}>{typeof content === "string" ? content : JSON.stringify(content, null, 2)}</Highlight>
+    <div>
+      <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+        <BookOpen className="w-4 h-4 text-primary" />
+        {title}
+      </h4>
+      <Card className="bg-content3/50">
+        <CardBody className="p-0">
+          <div className="relative">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-2 right-2 z-10 bg-black/20 hover:bg-black/40 text-white"
+              onPress={handleCopy}
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </Button>
+            <ScrollShadow className="max-h-60">
+              <pre className="p-4 text-sm overflow-x-auto">
+                <code className="text-white/90">{formattedContent}</code>
+              </pre>
+            </ScrollShadow>
           </div>
-        </div>
-      ) : (
-        ""
-      )}
-    </>
+        </CardBody>
+      </Card>
+    </div>
   );
 }
