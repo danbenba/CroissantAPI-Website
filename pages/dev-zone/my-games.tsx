@@ -76,7 +76,8 @@ const MyGames = () => {
       website: game.website || "",
       trailer_link: game.trailer_link || "",
       multiplayer: !!game.multiplayer,
-      download_link: game.download_link || "", // <-- Ajouté ici
+      download_link: game.download_link || "",
+      markAsUpdated: false, // Checkbox pour marquer comme mis à jour
     });
     setIconFile(null);
     setBannerFile(null);
@@ -201,7 +202,8 @@ const MyGames = () => {
       website: formData.website,
       trailer_link: formData.trailer_link,
       multiplayer: formData.multiplayer,
-      download_link: formData.download_link, // <-- Ajouté ici
+      download_link: formData.download_link,
+      markAsUpdated: formData.markAsUpdated, // Envoyer le checkbox
     };
 
     try {
@@ -539,6 +541,16 @@ const MyGames = () => {
                         className="mygames-checkbox"
                       />
                       Multiplayer
+                    </label>
+                    <label className="mygames-label">
+                      <input
+                        type="checkbox"
+                        name="markAsUpdated"
+                        checked={formData.markAsUpdated}
+                        onChange={handleChange}
+                        className="mygames-checkbox"
+                      />
+                      Marquer comme mis à jour (badge 10 jours)
                     </label>
                   </div>
                   <div className="mygames-modal-col">

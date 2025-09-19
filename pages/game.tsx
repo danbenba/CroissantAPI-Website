@@ -53,6 +53,7 @@ interface Game {
   price?: number
   discount_price?: number
   downloadLink?: string
+  trailer_link?: string
   studio?: {
     id: string
     username: string
@@ -266,6 +267,20 @@ export default function GameDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [dominantColor, setDominantColor] = useState('#6b46c1') // Couleur par défaut (violet)
   const [relatedGames, setRelatedGames] = useState<Game[]>([])
+  // Pour éviter les appels multiples (persistant entre Fast Refresh)
+  const getViewRecordedKey = () => `view_recorded_${gameId}`
+  const isViewRecorded = () => {
+    if (!gameId) return false
+    return localStorage.getItem(getViewRecordedKey()) === 'true'
+  }
+  const setViewRecorded = (value: boolean) => {
+    if (!gameId) return
+    if (value) {
+      localStorage.setItem(getViewRecordedKey(), 'true')
+    } else {
+      localStorage.removeItem(getViewRecordedKey())
+    }
+  }
 
   // --- États pour les modales ---
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
@@ -306,6 +321,14 @@ export default function GameDetailPage() {
     }
   }, [gameId])
 
+  // Reset viewRecorded quand gameId change
+  useEffect(() => {
+    if (gameId) {
+      setViewRecorded(false)
+      console.log('🔄 Reset du flag de vue pour le nouveau jeu:', gameId)
+    }
+  }, [gameId])
+
   // --- Effet pour extraire la couleur de la bannière ---
   useEffect(() => {
     if (game?.banner_url) {
@@ -335,11 +358,34 @@ export default function GameDetailPage() {
 
   // --- Fonction pour incrémenter les vues du jeu ---
   const incrementGameView = async () => {
+    // Éviter les appels multiples
+    if (isViewRecorded() || !gameId) {
+      console.log('🚫 Vue déjà enregistrée ou gameId manquant')
+      return
+    }
+    
     try {
-      // Simulation de l'incrémentation des vues pour Croissant
-      console.log('👁️ Vue du jeu comptabilisée (simulé)')
+      setViewRecorded(true) // Marquer comme enregistré
+      console.log('📝 Enregistrement de la vue pour le jeu:', gameId)
+      
+      // Enregistrer la vue via l'API Croissant
+      const response = await fetch(`/api/game-views/games/${gameId}/view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('👁️ Vue du jeu comptabilisée:', data)
+      } else {
+        console.warn('Erreur lors de l\'enregistrement de la vue:', response.status)
+        setViewRecorded(false) // Réinitialiser en cas d'erreur
+      }
     } catch (error) {
       console.error('Erreur lors de l\'incrémentation des vues:', error)
+      setViewRecorded(false) // Réinitialiser en cas d'erreur
     }
   }
 
@@ -348,24 +394,8 @@ export default function GameDetailPage() {
       setLoading(true)
       setError(null)
       
-      // Récupérer d'abord les données aléatoires pour enrichir
-      const [randomDataRes, favoritesRes] = await Promise.all([
-        fetch('/api/games-random-data?count=20'),
-        fetch(`/api/favorites?gameId=${gameId}`)
-      ]);
-
-      let randomDataMap: Record<string, any> = {}
-      if (randomDataRes.ok) {
-        const randomDataResult = await randomDataRes.json()
-        if (randomDataResult.success) {
-          randomDataMap = randomDataResult.data.reduce((acc: any, item: any) => {
-            acc[item.gameId] = item
-            return acc
-          }, {})
-        }
-      }
-
       // Récupérer les données de favoris
+      const favoritesRes = await fetch(`/api/favorites?gameId=${gameId}`)
       if (favoritesRes.ok) {
         const favData = await favoritesRes.json()
         if (favData.success) {
@@ -390,10 +420,6 @@ export default function GameDetailPage() {
         const foundGame = gamesData.find((g: any) => g.gameId === gameId)
         if (!foundGame) throw new Error('Jeu non trouvé')
         
-        // Enrichir avec les données aléatoires
-        const gameIdStr = foundGame.gameId?.toString()
-        const randomGameData = randomDataMap[gameIdStr] || randomDataMap[Math.floor(Math.random() * 20) + 1]
-        
         // Récupérer les infos du studio/propriétaire si disponible
         let studioInfo = null
         if (foundGame.owner_id) {
@@ -414,17 +440,18 @@ export default function GameDetailPage() {
           is_vip: false,
           access_level: 'free' as const,
           category_id: 1,
-          platform: randomGameData?.platform || 'Windows',
+          platform: foundGame.platform || 'Windows',
           specifications: foundGame.description || '',
           year: 2023,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          // Données aléatoires temporaires
-          badges: randomGameData?.badges || [],
-          views: randomGameData?.views || Math.floor(Math.random() * 1000) + 50,
-          price: foundGame.price || 0, // Utiliser le vrai prix de l'API
+          // Données de l'API
+          badges: foundGame.badges || [],
+          views: foundGame.views?.total_views || 0,
+          price: foundGame.price || 0,
           discount_price: foundGame.discount_price,
-          downloadLink: randomGameData?.downloadLink || 'https://google.com',
+          trailer_link: foundGame.trailer_link,
+          downloadLink: foundGame.download_link || 'https://google.com',
           // Studio
           studio: studioInfo ? {
             id: studioInfo.id,
@@ -480,7 +507,7 @@ export default function GameDetailPage() {
         }
 
         // Ajouter une vidéo factice si c'est un jeu populaire
-        if (randomGameData?.views > 500) {
+        if (foundGame.views?.total_views > 500) {
           demoMedia.push({
             id: 2,
             type: 'video',
@@ -505,7 +532,7 @@ export default function GameDetailPage() {
           is_vip: false,
           access_level: 'free',
           position: 1,
-          views: randomGameData?.views || 100
+          views: foundGame.views?.total_views || 100
         }]
 
         setDownloadLinks(demoLinks)
@@ -516,7 +543,6 @@ export default function GameDetailPage() {
         // Récupérer quelques jeux similaires
         const otherGames = gamesData.filter((g: any) => g.gameId !== gameId).slice(0, 4)
         const enrichedRelatedGames = otherGames.map((game: any) => {
-          const randomData = randomDataMap[game.gameId?.toString()] || randomDataMap[Math.floor(Math.random() * 20) + 1]
           return {
             id: parseInt(game.gameId),
             title: game.name,
@@ -525,11 +551,11 @@ export default function GameDetailPage() {
             is_vip: false,
             access_level: 'free' as const,
             category_id: 1,
-            platform: randomData?.platform || 'Windows',
+            platform: game.platform || 'Windows',
             year: 2023,
             created_at: new Date().toISOString(),
-            views: randomData?.views || Math.floor(Math.random() * 1000) + 50,
-            badges: randomData?.badges || [],
+            views: game.views?.total_views || 0,
+            badges: game.badges || [],
             price: game.price || 0, // Utiliser le vrai prix de l'API
             discount_price: game.discount_price,
             zip_password: '',
@@ -1079,12 +1105,10 @@ export default function GameDetailPage() {
         {/* Layout principal avec vidéo et sidebar */}
         <div className="flex flex-col-reverse gap-3 xl:flex-row">
           <div className="flex flex-col gap-7">
-            {/* Média principal (vidéo ou bannière) */}
+            {/* Média principal (trailer en priorité, sinon bannière) */}
                {(() => {
-                // Détecter automatiquement le format basé sur l'extension de la bannière
-                const isVideo = game?.banner_url?.toLowerCase().includes('.mp4')
-                
-                if (isVideo) {
+                // Priorité 1: Trailer si disponible
+                if (game?.trailer_link) {
                    return (
                   <video 
                     className="rounded-3xl xl:w-[936px]" 
@@ -1100,16 +1124,25 @@ export default function GameDetailPage() {
                       video.play().catch(console.log)
                     }}
                   >
-                      <source src={game.banner_url} type="video/mp4" />
+                      <source src={game.trailer_link} type="video/mp4" />
                     Votre navigateur ne supporte pas la lecture vidéo.
                   </video>
                    )
-                 } else {
-                  // Afficher la bannière pour PNG/JPEG/autres formats
-                                        return (
+                 } else if (game?.banner_url) {
+                  // Priorité 2: Bannière si disponible
+                  return (
                   <img 
-                      src={game?.banner_url || 'https://via.placeholder.com/936x500'} 
+                      src={game.banner_url} 
                       alt={game?.title || 'Bannière du jeu'}
+                    className="rounded-3xl xl:w-[936px] object-cover"
+                  />
+                     )
+                 } else {
+                  // Fallback: Image par défaut
+                  return (
+                  <img 
+                      src="https://via.placeholder.com/936x500" 
+                      alt="Image par défaut"
                     className="rounded-3xl xl:w-[936px] object-cover"
                   />
                      )
@@ -1299,6 +1332,7 @@ export default function GameDetailPage() {
                 </Button>
               </div>
             </div>
+            
             
             {/* Section Spécifications techniques */}
           {game.specifications && (

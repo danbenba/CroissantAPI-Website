@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import GamesGrid, { Game, Category, getPlatformIcon, getCategoryName } from '../components/games/games-grid'
 import { generateGameUrl } from '../lib/slug'
 import useUserCache from '../hooks/useUserCache'
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 // Pas besoin de lucide-react, on utilisera des icônes simples
 import {
   Card,
@@ -185,23 +186,7 @@ export default function HomePage() {
 
   const fetchGames = async () => {
     try {
-      // Récupération des données aléatoires pour enrichir les jeux
-      const [randomDataRes] = await Promise.all([
-        fetch('/api/games-random-data?count=20')
-      ]);
-
-      let randomDataMap: Record<string, any> = {}
-      if (randomDataRes.ok) {
-        const randomDataResult = await randomDataRes.json()
-        if (randomDataResult.success) {
-          randomDataMap = randomDataResult.data.reduce((acc: any, item: any) => {
-            acc[item.gameId] = item
-            return acc
-          }, {})
-        }
-      }
-
-      // Récupération des jeux comme dans l'ancienne version de Croissant
+      // Récupération des jeux directement depuis l'API existante
       const gamesRes = await fetch('/api/games', {
         method: 'GET',
         headers: {
@@ -213,11 +198,8 @@ export default function HomePage() {
         const gamesData = await gamesRes.json();
         
         if (Array.isArray(gamesData)) {
-          // Enrichir les jeux avec les données aléatoires et les infos studio
+          // Enrichir les jeux avec les infos studio
           const enrichedGames = await Promise.all(gamesData.slice(0, 6).map(async (game: any) => {
-            const gameIdStr = game.gameId?.toString()
-            const randomGameData = randomDataMap[gameIdStr] || randomDataMap[Math.floor(Math.random() * 20) + 1]
-            
             // Récupérer les infos du studio/propriétaire si disponible
             let studioInfo = null
             if (game.owner_id) {
@@ -239,12 +221,13 @@ export default function HomePage() {
               category_id: 1,
               year: 2023,
               created_at: new Date().toISOString(),
-              // Données aléatoires temporaires
-              badges: randomGameData?.badges || [],
-              views: randomGameData?.views || Math.floor(Math.random() * 1000) + 50,
-              platform: randomGameData?.platform || 'Windows',
-                   price: game.price || 0, // Utiliser le vrai prix de l'API
-                   discount_price: game.discount_price,
+              // Données de l'API
+              badges: game.badges || [],
+              views: game.views?.total_views || 0,
+              platform: game.platform || 'Windows',
+              price: game.price || 0,
+              discount_price: game.discount_price,
+              trailer_link: game.trailer_link,
               // Studio
               studio: studioInfo ? {
                 id: studioInfo.id,

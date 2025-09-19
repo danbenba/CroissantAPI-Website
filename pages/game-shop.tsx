@@ -177,28 +177,8 @@ function GameShopContent() {
     try {
       setLoading(true)
       console.log('🔄 Chargement des jeux et filtres...')
-      
-      // Utilisation du système de l'ancienne version + données aléatoires temporaires
-      const [randomDataRes] = await Promise.all([
-        fetch('/api/games-random-data?count=50')
-      ]);
 
-      console.log('📦 Réponse random data:', randomDataRes.status, randomDataRes.ok)
-
-      // Charger les données aléatoires en premier
-      let randomDataMap: Record<string, RandomGameData> = {}
-      if (randomDataRes.ok) {
-        const randomDataResult = await randomDataRes.json()
-        if (randomDataResult.success) {
-          randomDataMap = randomDataResult.data.reduce((acc: any, item: RandomGameData) => {
-            acc[item.gameId] = item
-            return acc
-          }, {})
-          setRandomData(randomDataMap)
-        }
-      }
-
-      // Récupération des jeux comme dans l'ancienne version
+      // Récupération des jeux directement depuis l'API existante
       const gamesRes = await fetch('/api/games', {
         method: 'GET',
         headers: {
@@ -215,11 +195,8 @@ function GameShopContent() {
         if (Array.isArray(gamesData)) {
           console.log('✅ Jeux chargés:', gamesData.length)
           
-          // Enrichir les jeux avec les données aléatoires et les infos studio
+          // Enrichir les jeux avec les infos studio
           const enrichedGames = await Promise.all(gamesData.map(async (game: any) => {
-            const gameIdStr = game.gameId?.toString()
-            const randomGameData = randomDataMap[gameIdStr] || randomDataMap[Math.floor(Math.random() * 50) + 1]
-            
             // Récupérer les infos du studio/propriétaire si disponible
             let studioInfo = null
             if (game.owner_id) {
@@ -244,12 +221,13 @@ function GameShopContent() {
               category_id: 1,
               year: 2023,
               created_at: new Date().toISOString(),
-              // Données aléatoires temporaires
-              badges: randomGameData?.badges || [],
-              views: randomGameData?.views || Math.floor(Math.random() * 1000) + 50,
-              platform: randomGameData?.platform || 'Windows',
-                   price: game.price || 0, // Utiliser le vrai prix de l'API
-                   discount_price: game.discount_price,
+              // Données de l'API
+              badges: game.badges || [],
+              views: game.views?.total_views || 0,
+              platform: game.platform || 'Windows',
+              price: game.price || 0,
+              discount_price: game.discount_price,
+              trailer_link: game.trailer_link,
               // Studio
               studio: studioInfo ? {
                 id: studioInfo.id,

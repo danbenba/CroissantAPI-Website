@@ -30,6 +30,7 @@
     "express": "^5.1.0",
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.12",
+    "fs": "^0.0.1-security",
     "googleapis": "^153.0.0",
     "iron-session": "^8.0.4",
     "jsonwebtoken": "^9.0.2",
