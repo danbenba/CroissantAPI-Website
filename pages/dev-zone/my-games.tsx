@@ -1,8 +1,40 @@
+"use client"
+
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
 import useIsMobile from "../../hooks/useIsMobile";
 import Certification from "../../components/common/Certification";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Button,
+  Input,
+  Chip,
+  Spinner,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Image,
+  Badge,
+  Tooltip,
+  Divider,
+  Textarea,
+  Switch,
+  Select,
+  SelectItem,
+  Avatar,
+  Skeleton,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
 
 const endpoint = "/api"; // Replace with your actual API endpoint
 
@@ -22,7 +54,7 @@ type Game = {
   website?: string;
   trailer_link?: string;
   multiplayer?: boolean;
-  download_link?: string; // <-- Ajouté ici
+  download_link?: string;
 };
 
 const MyGames = () => {
@@ -41,100 +73,77 @@ const MyGames = () => {
     y: number;
     game: Game;
   } | null>(null);
+  
+  // Ownership Transfer States
+  const [ownershipTransferGame, setOwnershipTransferGame] = useState<Game | null>(null);
+  const [ownershipUserId, setOwnershipUserId] = useState<string>("");
+  const [ownershipUserSearch, setOwnershipUserSearch] = useState<string>("");
+  const [ownershipUserResults, setOwnershipUserResults] = useState<any[]>([]);
+  const [ownershipUserDropdownOpen, setOwnershipUserDropdownOpen] = useState(false);
+  const [transferOwnershipLoading, setTransferOwnershipLoading] = useState(false);
 
-  const { token } = useAuth(); // Assuming useAuth is imported from your hooks
+  // Modal states
+  const {isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose} = useDisclosure();
+  const {isOpen: isTransferOpen, onOpen: onTransferOpen, onClose: onTransferClose} = useDisclosure();
+  const {isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose} = useDisclosure();
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
+
   useEffect(() => {
-    const fetchGames = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(endpoint + "/games/@mine");
-        if (res.ok) {
-          const data = await res.json();
-          setGames(Array.isArray(data) ? data : data.games || []);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchGames();
   }, []);
+
+  const fetchGames = async () => {
+    try {
+      const res = await fetch(`${endpoint}/games/my`);
+      if (res.ok) {
+        const data = await res.json();
+        setGames(data.games || []);
+      } else {
+        console.error("Failed to fetch games");
+      }
+    } catch (err) {
+      console.error("Error fetching games:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (game: Game) => {
     setEditingId(game.gameId);
     setFormData({
-      name: game.name,
-      description: game.description,
-      price: game.price.toString(),
-      showInStore: game.showInStore,
-      iconHash: game.iconHash || null,
-      bannerHash: game.bannerHash || null,
-      genre: game.genre || "",
-      release_date: game.release_date || "",
-      developer: game.developer || "",
-      publisher: game.publisher || "",
-      platforms: game.platforms || "",
-      website: game.website || "",
-      trailer_link: game.trailer_link || "",
-      multiplayer: !!game.multiplayer,
-      download_link: game.download_link || "",
-      markAsUpdated: false, // Checkbox pour marquer comme mis à jour
+      ...game,
+      markAsUpdated: false,
     });
     setIconFile(null);
     setBannerFile(null);
     setErrors({});
     setSuccess(null);
+    onEditOpen();
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setFormData(null);
-    setIconFile(null);
-    setBannerFile(null);
-    setErrors({});
-    setSuccess(null);
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, type, checked } = e.target as any;
-    setFormData({
-      ...formData,
+  const handleChange = (e: any) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev: any) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
-  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setIconFile(e.target.files[0]);
+  const handleFileChange = (e: any, type: "icon" | "banner") => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (type === "icon") {
+        setIconFile(file);
+      } else {
+        setBannerFile(file);
+      }
     }
   };
 
-  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setBannerFile(e.target.files[0]);
-    }
-  };
-
-  const validate = () => {
-    const newErrors: any = {};
-    if (!formData.name) newErrors.name = "Name is required";
-    if (!formData.description)
-      newErrors.description = "Description is required";
-    if (!formData.price) newErrors.price = "Price is required";
-    return newErrors;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setSuccess(null);
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    setErrors({});
     setSubmitting(true);
+    setErrors({});
 
     let iconHash = formData.iconHash;
     let bannerHash = formData.bannerHash;
@@ -187,49 +196,30 @@ const MyGames = () => {
       }
     }
 
-    const data = {
-      name: formData.name,
-      description: formData.description,
-      price: Number(formData.price),
-      showInStore: formData.showInStore,
-      iconHash,
-      bannerHash,
-      genre: formData.genre,
-      release_date: formData.release_date,
-      developer: formData.developer,
-      publisher: formData.publisher,
-      platforms: formData.platforms,
-      website: formData.website,
-      trailer_link: formData.trailer_link,
-      multiplayer: formData.multiplayer,
-      download_link: formData.download_link,
-      markAsUpdated: formData.markAsUpdated, // Envoyer le checkbox
-    };
+    const payload = { ...formData, iconHash, bannerHash };
+    delete payload.gameId;
 
     try {
-      const res = await fetch(endpoint + `/games/${editingId}`, {
+      const res = await fetch(`${endpoint}/games/${editingId}`, {
         method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         setSuccess("Game updated successfully!");
-        setGames((games) =>
-          games.map((game) =>
-            game.gameId === editingId ? { ...game, ...data } : game
-          )
-        );
-        setEditingId(null);
-        setFormData(null);
-        setIconFile(null);
-        setBannerFile(null);
+        fetchGames();
+        setTimeout(() => {
+          setEditingId(null);
+          setFormData(null);
+          setIconFile(null);
+          setBannerFile(null);
+          setSuccess(null);
+          onEditClose();
+        }, 2000);
       } else {
         const err = await res.json();
-        setErrors({ submit: err.message || "Failed to update game." });
+        setErrors({ submit: err.error || "Failed to update game." });
       }
     } catch (err: any) {
       setErrors({ submit: err.message || "Failed to update game." });
@@ -238,649 +228,828 @@ const MyGames = () => {
     }
   };
 
-  const [showOwnershipModal, setShowOwnershipModal] = useState(false);
-  const [ownershipGame, setOwnershipGame] = useState<Game | null>(null);
-  const [ownershipUserId, setOwnershipUserId] = useState("");
-  const [ownershipUserSearch, setOwnershipUserSearch] = useState("");
-  const [ownershipUserResults, setOwnershipUserResults] = useState<any[]>([]);
-  const [ownershipUserDropdownOpen, setOwnershipUserDropdownOpen] = useState(false);
-  const [ownershipError, setOwnershipError] = useState<string | null>(null);
-  const [ownershipLoading, setOwnershipLoading] = useState(false);
-  const ownershipUserInputRef = React.useRef<HTMLInputElement>(null);
+  const handleDelete = async () => {
+    if (!gameToDelete) return;
 
-  // User search for ownership transfer
-  const handleOwnershipUserSearch = async (q: string) => {
-    if (!q || q.length < 2) {
-      setOwnershipUserResults([]);
-      return;
-    }
     try {
-      const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
-      if (!res.ok) return;
-      const users = await res.json();
-      setOwnershipUserResults(users);
-    } catch (e) {
-      setOwnershipUserResults([]);
+      const res = await fetch(`${endpoint}/games/${gameToDelete.gameId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setGames(games.filter(g => g.gameId !== gameToDelete.gameId));
+        onDeleteClose();
+        setGameToDelete(null);
+      } else {
+        console.error("Failed to delete game");
+      }
+    } catch (err) {
+      console.error("Error deleting game:", err);
     }
   };
 
-  // Handle ownership transfer button click
   const handleOwnershipTransfer = (game: Game) => {
-    setOwnershipGame(game);
-    setShowOwnershipModal(true);
+    setOwnershipTransferGame(game);
     setOwnershipUserId("");
     setOwnershipUserSearch("");
     setOwnershipUserResults([]);
-    setOwnershipError(null);
+    onTransferOpen();
   };
 
-  // Confirm ownership transfer
-  const handleConfirmOwnershipTransfer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ownershipGame || !ownershipUserId) {
-      setOwnershipError("Veuillez sélectionner un utilisateur.");
-      return;
+  const handleOwnershipUserSearchChange = async (value: string) => {
+    setOwnershipUserSearch(value);
+    if (value.length > 0) {
+      try {
+        const res = await fetch(`/api/users/search?q=${encodeURIComponent(value)}&limit=10`);
+        if (res.ok) {
+          const users = await res.json();
+          setOwnershipUserResults(users);
+          setOwnershipUserDropdownOpen(true);
+        }
+      } catch (err) {
+        console.error("Failed to search users:", err);
+      }
+    } else {
+      setOwnershipUserResults([]);
+      setOwnershipUserDropdownOpen(false);
     }
-    setOwnershipLoading(true);
-    setOwnershipError(null);
+  };
+
+  const handleTransferOwnership = async () => {
+    if (!ownershipTransferGame || !ownershipUserId) return;
+
+    setTransferOwnershipLoading(true);
     try {
-      const res = await fetch(`/api/games/transfer-ownership/${ownershipGame.gameId}`, {
+      const res = await fetch(`/api/games/${ownershipTransferGame.gameId}/transfer`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newOwnerId: ownershipUserId }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        setOwnershipError(data.message || "Erreur lors du transfert d'ownership");
+
+      if (res.ok) {
+        await fetchGames();
+        onTransferClose();
       } else {
-        setShowOwnershipModal(false);
-        setOwnershipGame(null);
-        setOwnershipUserId("");
-        setOwnershipUserSearch("");
-        setOwnershipUserResults([]);
-        setOwnershipError(null);
-        // Optionally refresh games
-        setGames((prev) => prev);
+        console.error("Failed to transfer ownership");
       }
     } catch (err) {
-      setOwnershipError("Erreur lors du transfert d'ownership");
+      console.error("Error transferring ownership:", err);
     } finally {
-      setOwnershipLoading(false);
+      setTransferOwnershipLoading(false);
     }
   };
 
   if (isMobile) {
     return (
-      <div
-        style={{
-          maxWidth: 340,
-          margin: "40px auto",
-          padding: "24px 12px",
-          background: "#23272e",
-          borderRadius: 12,
-          color: "#fff",
-          textAlign: "center",
-          fontSize: "1.08em",
-        }}
-      >
-        <h2 style={{ marginBottom: 10 }}>Not available on mobile</h2>
-        <p>
-          This page is only accessible from a computer.<br />
-          Please use a PC to manage your games.
-        </p>
+      <div className="min-h-screen bg-background relative">
+        <div
+          className="absolute h-screen w-full bg-main-overlay max-md:mask-b-from-10% max-md:mask-b-to-70% md:mask-radial-from-10% md:mask-radial-to-70% md:mask-radial-at-top"
+          style={{ inset: 0 }}
+        />
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+          <Card className="max-w-sm bg-content1/60 backdrop-blur-md">
+            <CardBody className="text-center p-8">
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-default-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold mb-2">Non disponible sur mobile</h2>
+              <p className="text-default-500">
+                Cette page est uniquement accessible depuis un ordinateur.<br />
+                Veuillez utiliser un PC pour gérer vos jeux.
+              </p>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="mygames-container">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 18,
-          }}
-        >
-          <h1 className="mygames-title">
-            <span className="mygames-title-span">My Games</span>
+    <div className="min-h-screen bg-background text-foreground font-sans relative">
+      {/* Background violet en arrière-plan, identique à la page /games/ */}
+      <div
+        className="absolute h-screen w-full bg-main-overlay max-md:mask-b-from-10% max-md:mask-b-to-70% md:mask-radial-from-10% md:mask-radial-to-70% md:mask-radial-at-top"
+        style={{ inset: 0 }}
+      />
+      
+      {/* Contenu principal */}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Mes Jeux
           </h1>
-          <Link
-            href="/dev-zone/create-game"
-            className="mygames-add-btn"
-            style={{
-              background: "#333",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              fontWeight: 500,
-              padding: "10px 18px",
-              fontSize: "1rem",
-              textDecoration: "none",
-              cursor: "pointer",
-            }}
-          >
-            + Add Game
-          </Link>
+          <p className="text-default-500 text-lg">Gérez et modifiez vos jeux publiés</p>
         </div>
+
+        {/* Loading State */}
         {loading ? (
-          <div className="mygames-loading">Loading...</div>
-        ) : (
-          <>
-            {games.length === 0 && (
-              <div className="mygames-empty">No games found.</div>
-            )}
-            <div className="mygames-grid">
-              {games.map((game) => (
-                <div
-                  key={`game-${game.gameId}`}
-                  className="mygames-card"
-                  tabIndex={0}
-                  draggable={false}
-                  onMouseEnter={(e) => {
-                    const rect = (
-                      e.target as HTMLElement
-                    ).getBoundingClientRect();
-                    setTooltip({
-                      x: rect.right + 8,
-                      y: rect.top,
-                      game,
-                    });
-                  }}
-                  onMouseLeave={() => setTooltip(null)}
-                  onClick={() => handleEdit(game)}
-                >
-                  <img
-                    src={"/games-icons/" + game.iconHash}
-                    alt={game.name}
-                    className="mygames-card-icon"
-                    draggable={false}
-                  />
-                  <div className="mygames-card-name">{game.name}</div>
-                  <div className="mygames-card-price">
-                    {game.price}
-                    <img
-                      src="/assets/credit.avif"
-                      className="mygames-card-credit"
-                    />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <Card key={index} className="bg-content1/60 backdrop-blur-md">
+                <CardBody className="p-0">
+                  <Skeleton className="w-full h-48 rounded-t-large" />
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="w-3/4 h-4 rounded" />
+                    <Skeleton className="w-full h-3 rounded" />
+                    <Skeleton className="w-1/2 h-3 rounded" />
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                    <button
-                      className="mygames-card-editbtn"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+        ) : games.length === 0 ? (
+          /* Empty State */
+          <Card className="bg-content1/60 backdrop-blur-md">
+            <CardBody className="text-center py-16">
+              <div className="mb-4">
+                <svg className="mx-auto h-16 w-16 text-default-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Aucun jeu trouvé</h3>
+              <p className="text-default-500 mb-6">Vous n'avez pas encore publié de jeux.</p>
+              <Button 
+                as={Link}
+                href="/publish"
+                color="primary"
+                variant="shadow"
+                startContent={
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                }
+              >
+                Publier un jeu
+              </Button>
+            </CardBody>
+          </Card>
+        ) : (
+          /* Games Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {games.map((game) => (
+              <Card
+                key={game.gameId}
+                className="bg-content1/60 backdrop-blur-md hover:bg-content1/80 transition-all duration-300 cursor-pointer group"
+                isPressable
+                onPress={() => window.open(`/game/${game.gameId}`, '_blank')}
+              >
+                <CardHeader className="p-0">
+                  <div className="relative w-full h-48 overflow-hidden rounded-t-large">
+                    <Image
+                      src={game.bannerHash ? `/banner/${game.bannerHash}` : "/assets/default-banner.jpg"}
+                      alt={game.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fallbackSrc="/assets/default-banner.jpg"
+                    />
+                    
+                    {/* Price Badge */}
+                    <div className="absolute top-2 left-2">
+                      <Chip
+                        color={game.price === 0 ? "success" : "warning"}
+                        variant="shadow"
+                        startContent={
+                          game.price === 0 ? (
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 256 256">
+                              <path d="M128,24A104,104,0,1,0,232,128,104.13,104.13,0,0,0,128,24Zm40,112H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32a8,8,0,0,1,0,16Z"></path>
+                            </svg>
+                          ) : (
+                            <Image src="/assets/credit.avif" alt="Credit" className="w-4 h-4" />
+                          )
+                        }
+                        size="sm"
+                        className="text-white font-semibold"
+                      >
+                        {game.price === 0 ? 'Gratuit' : game.price}
+                      </Chip>
+                    </div>
+
+                    {/* Store Status */}
+                    <div className="absolute top-2 right-2">
+                      <Chip
+                        color={game.showInStore ? "success" : "default"}
+                        variant="shadow"
+                        size="sm"
+                        className="text-white"
+                      >
+                        {game.showInStore ? 'Publié' : 'Brouillon'}
+                      </Chip>
+                    </div>
+
+                    {/* Game Icon */}
+                    <div className="absolute bottom-2 left-2">
+                      <Avatar
+                        src={game.iconHash ? `/icon/${game.iconHash}` : "/assets/default-icon.png"}
+                        className="w-12 h-12 border-2 border-white/20"
+                        fallback={
+                          <svg className="w-6 h-6 text-default-400" fill="currentColor" viewBox="0 0 256 256">
+                            <path d="M208,56H48A16,16,0,0,0,32,72V184a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V72A16,16,0,0,0,208,56ZM48,72H208V184H48Z"/>
+                          </svg>
+                        }
+                      />
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardBody className="px-4 py-3">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold line-clamp-1">{game.name}</h3>
+                    <p className="text-default-500 text-sm line-clamp-2">{game.description}</p>
+                    
+                    {/* Game Info */}
+                    <div className="flex flex-wrap gap-1">
+                      {game.genre && (
+                        <Chip size="sm" variant="flat" color="primary">{game.genre}</Chip>
+                      )}
+                      {game.multiplayer && (
+                        <Chip size="sm" variant="flat" color="secondary">Multijoueur</Chip>
+                      )}
+                      {game.platforms && (
+                        <Chip size="sm" variant="flat">{game.platforms}</Chip>
+                      )}
+                    </div>
+                  </div>
+                </CardBody>
+
+                <CardFooter className="px-4 py-3 pt-0">
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="primary"
+                      onPress={() => {
                         handleEdit(game);
                       }}
+                      startContent={
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      }
+                      className="flex-1"
                     >
-                      Edit
-                    </button>
-                    <button
-                      className="mygames-card-editbtn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigator.clipboard.writeText(game.gameId);
-                        // Optional: Add visual feedback
-                        e.currentTarget.textContent = "Copied!";
-                        setTimeout(() => {
-                          e.currentTarget.textContent = "Id";
-                        }, 1000);
-                      }}
-                    >
-                      Id
-                    </button>
-                    <button
-                      className="mygames-card-editbtn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOwnershipTransfer(game);
-                      }}
-                    >
-                      Transfer
-                    </button>
+                      Modifier
+                    </Button>
+                    
+                    <Dropdown>
+                      <DropdownTrigger>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          isIconOnly
+                          onPress={() => {}}
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                          </svg>
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu>
+                        <DropdownItem
+                          key="copy"
+                          startContent={
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          }
+                          onPress={() => {
+                            navigator.clipboard.writeText(game.gameId);
+                          }}
+                        >
+                          Copier l'ID
+                        </DropdownItem>
+                        <DropdownItem
+                          key="transfer"
+                          startContent={
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                          }
+                          onPress={() => handleOwnershipTransfer(game)}
+                        >
+                          Transférer
+                        </DropdownItem>
+                        <DropdownItem
+                          key="delete"
+                          color="danger"
+                          startContent={
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          }
+                          onPress={() => {
+                            setGameToDelete(game);
+                            onDeleteOpen();
+                          }}
+                        >
+                          Supprimer
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
                   </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
-                </div>
-              ))}
-              {Array.from({
-                length: Math.max(
-                  0,
-                  6 * Math.ceil(games.length / 6) - games.length
-                ),
-              }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="mygames-card-empty" />
-              ))}
-            </div>
-            {tooltip && (
-              <div
-                className="mygames-tooltip"
-                style={{
-                  left: tooltip.x,
-                  top: tooltip.y,
-                }}
-              >
-                <div className="mygames-tooltip-title">{tooltip.game.name}</div>
-                <div className="mygames-tooltip-desc">
-                  {tooltip.game.description}
-                </div>
-                <div className="mygames-tooltip-price">
-                  Price: {tooltip.game.price}
-                  <img
-                    src="/assets/credit.avif"
-                    className="mygames-card-credit"
-                  />
-                  <span className="mygames-tooltip-store">
-                    Show in Store: {tooltip.game.showInStore ? "Yes" : "No"}
-                  </span>
-                </div>
-              </div>
-            )}
-            {editingId && (
-              <div className="mygames-modal-overlay">
-                <form onSubmit={handleSubmit} className="mygames-modal-form">
-                  <div className="mygames-modal-col">
-                    <h2 className="mygames-modal-title">Edit Game</h2>
-                    <label className="mygames-label" htmlFor="name">
-                      Name
-                    </label>
-                    <input
-                      id="name"
-                      type="text"
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditOpen}
+        onClose={onEditClose}
+        size="4xl"
+        scrollBehavior="inside"
+        backdrop="blur"
+        classNames={{
+          base: "bg-content1/95 backdrop-blur-md",
+          header: "border-b border-divider",
+          footer: "border-t border-divider",
+        }}
+      >
+        <ModalContent>
+          <form onSubmit={handleSubmit}>
+            <ModalHeader>
+              <h3 className="text-xl font-bold">Modifier le jeu</h3>
+            </ModalHeader>
+            <ModalBody className="py-6">
+              {success && (
+                <Card className="mb-4 bg-success/10 border border-success/20">
+                  <CardBody>
+                    <p className="text-success">{success}</p>
+                  </CardBody>
+                </Card>
+              )}
+              
+              {errors.submit && (
+                <Card className="mb-4 bg-danger/10 border border-danger/20">
+                  <CardBody>
+                    <p className="text-danger">{errors.submit}</p>
+                  </CardBody>
+                </Card>
+              )}
+
+              {formData && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    <Input
+                      label="Nom du jeu"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Name"
-                      className="mygames-input"
-                      required
+                      isRequired
+                      variant="bordered"
                     />
-                    <label className="mygames-label" htmlFor="description">
-                      Description
-                    </label>
-                    <textarea
-                      id="description"
+                    
+                    <Textarea
+                      label="Description"
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
-                      placeholder="Description"
-                      rows={2}
-                      className="mygames-input"
-                      required
+                      isRequired
+                      variant="bordered"
+                      minRows={3}
                     />
-                    <label className="mygames-label" htmlFor="price">
-                      Price
-                    </label>
-                    <input
-                      id="price"
-                      type="number"
+                    
+                    <Input
+                      label="Prix"
                       name="price"
+                      type="number"
                       value={formData.price}
                       onChange={handleChange}
-                      placeholder="Price"
                       min={0}
-                      className="mygames-input"
-                      required
+                      isRequired
+                      variant="bordered"
+                      endContent={
+                        <Image src="/assets/credit.avif" alt="Credit" className="w-4 h-4" />
+                      }
                     />
-                    <label className="mygames-label">
-                      <input
-                        type="checkbox"
-                        name="showInStore"
-                        checked={formData.showInStore}
-                        onChange={handleChange}
-                        className="mygames-checkbox"
-                      />
-                      Show in Store
-                    </label>
-                    <label className="mygames-label">
-                      <input
-                        type="checkbox"
-                        name="multiplayer"
-                        checked={formData.multiplayer}
-                        onChange={handleChange}
-                        className="mygames-checkbox"
-                      />
-                      Multiplayer
-                    </label>
-                    <label className="mygames-label">
-                      <input
-                        type="checkbox"
-                        name="markAsUpdated"
-                        checked={formData.markAsUpdated}
-                        onChange={handleChange}
-                        className="mygames-checkbox"
-                      />
-                      Marquer comme mis à jour (badge 10 jours)
-                    </label>
-                  </div>
-                  <div className="mygames-modal-col">
-                    <label className="mygames-label" htmlFor="icon">
-                      Game Icon
-                    </label>
-                    <input
-                      id="icon"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleIconChange}
-                      className="mygames-input"
-                    />
-                    <label className="mygames-label" htmlFor="banner">
-                      Banner
-                    </label>
-                    <input
-                      id="banner"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleBannerChange}
-                      className="mygames-input"
-                    />
-                    <label className="mygames-label" htmlFor="genre">
-                      Genre
-                    </label>
-                    <input
-                      id="genre"
-                      type="text"
+                    
+                    <Input
+                      label="Genre"
                       name="genre"
-                      value={formData.genre}
+                      value={formData.genre || ''}
                       onChange={handleChange}
-                      placeholder="Genre"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                    <label className="mygames-label" htmlFor="release_date">
-                      Release Date
-                    </label>
-                    <input
-                      id="release_date"
-                      type="date"
-                      name="release_date"
-                      value={formData.release_date}
-                      onChange={handleChange}
-                      placeholder="Release Date"
-                      className="mygames-input"
-                    />
-                    <label className="mygames-label" htmlFor="publisher">
-                      Publisher
-                    </label>
-                    <input
-                      id="publisher"
-                      type="text"
-                      name="publisher"
-                      value={formData.publisher}
-                      onChange={handleChange}
-                      placeholder="Publisher"
-                      className="mygames-input"
-                    />
-                  </div>
-                  <div className="mygames-modal-col">
-                    <label className="mygames-label" htmlFor="developer">
-                      Developer
-                    </label>
-                    <input
-                      id="developer"
-                      type="text"
+                    
+                    <Input
+                      label="Développeur"
                       name="developer"
-                      value={formData.developer}
+                      value={formData.developer || ''}
                       onChange={handleChange}
-                      placeholder="Developer"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                    <label className="mygames-label" htmlFor="platforms">
-                      Platforms
-                    </label>
-                    <input
-                      id="platforms"
-                      type="text"
+                    
+                    <Input
+                      label="Éditeur"
+                      name="publisher"
+                      value={formData.publisher || ''}
+                      onChange={handleChange}
+                      variant="bordered"
+                    />
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    <Input
+                      label="Plateformes"
                       name="platforms"
-                      value={formData.platforms}
+                      value={formData.platforms || ''}
                       onChange={handleChange}
-                      placeholder="Platforms"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                    <label className="mygames-label" htmlFor="website">
-                      Website
-                    </label>
-                    <input
-                      id="website"
-                      type="url"
+                    
+                    <Input
+                      label="Date de sortie"
+                      name="release_date"
+                      type="date"
+                      value={formData.release_date || ''}
+                      onChange={handleChange}
+                      variant="bordered"
+                    />
+                    
+                    <Input
+                      label="Site web"
                       name="website"
-                      value={formData.website}
+                      value={formData.website || ''}
                       onChange={handleChange}
-                      placeholder="Website"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                    <label className="mygames-label" htmlFor="trailer_link">
-                      Trailer Link
-                    </label>
-                    <input
-                      id="trailer_link"
-                      type="url"
+                    
+                    <Input
+                      label="Lien de la bande-annonce"
                       name="trailer_link"
-                      value={formData.trailer_link}
+                      value={formData.trailer_link || ''}
                       onChange={handleChange}
-                      placeholder="Trailer Link"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                  </div>
-                  <div className="mygames-modal-col">
-                    <label className="mygames-label" htmlFor="download_link">
-                      Download Link
-                    </label>
-                    <input
-                      id="download_link"
-                      type="url"
+                    
+                    <Input
+                      label="Lien de téléchargement"
                       name="download_link"
-                      value={formData.download_link}
+                      value={formData.download_link || ''}
                       onChange={handleChange}
-                      placeholder="https://example.com/download"
-                      className="mygames-input"
+                      variant="bordered"
                     />
-                  </div>
-                  <div className="mygames-modal-actions">
-                    {errors.submit && (
-                      <div className="mygames-error">{errors.submit}</div>
-                    )}
-                    <div className="mygames-modal-btns">
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className="mygames-btn-save"
+                    
+                    <div className="space-y-3">
+                      <Switch
+                        name="showInStore"
+                        isSelected={formData.showInStore}
+                        onValueChange={(checked) => setFormData({...formData, showInStore: checked})}
+                        color="success"
                       >
-                        {submitting ? "Saving..." : "Save"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        disabled={submitting}
-                        className="mygames-btn-cancel"
+                        Afficher dans la boutique
+                      </Switch>
+                      
+                      <Switch
+                        name="multiplayer"
+                        isSelected={formData.multiplayer}
+                        onValueChange={(checked) => setFormData({...formData, multiplayer: checked})}
+                        color="primary"
                       >
-                        Cancel
-                      </button>
+                        Multijoueur
+                      </Switch>
+                      
+                      <Switch
+                        name="markAsUpdated"
+                        isSelected={formData.markAsUpdated}
+                        onValueChange={(checked) => setFormData({...formData, markAsUpdated: checked})}
+                        color="warning"
+                      >
+                        Marquer comme mis à jour (badge 10 jours)
+                      </Switch>
                     </div>
                   </div>
-                </form>
-              </div>
-            )}
-            {showOwnershipModal && (
-              <div
-                className="modal-overlay"
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: "rgba(0,0,0,0.35)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                onClick={() => setShowOwnershipModal(false)}
-              >
-                <div
-                  className="modal-content"
-                  style={{
-                    background: "#232323",
-                    borderRadius: 10,
-                    padding: 32,
-                    minWidth: 320,
-                    position: "relative",
-                    boxShadow: "0 2px 16px #0005",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    className="close-modal-btn"
-                    onClick={() => setShowOwnershipModal(false)}
-                    style={{
-                      position: "absolute",
-                      top: 12,
-                      right: 16,
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: 24,
-                      cursor: "pointer",
-                    }}
-                  >
-                    &times;
-                  </button>
-                  <h3 style={{ marginBottom: 18 }}>Transfer ownership</h3>
-                  <form autoComplete="off" onSubmit={handleConfirmOwnershipTransfer}>
-                    <div style={{ position: "relative", marginBottom: 12 }}>
-                      <label style={{ color: "#fff", marginBottom: 4, display: "block" }}>
-                        Select user:
-                      </label>
-                      <input
-                        ref={ownershipUserInputRef}
-                        type="text"
-                        value={ownershipUserSearch}
-                        onChange={async (e) => {
-                          setOwnershipUserSearch(e.target.value);
-                          setOwnershipUserDropdownOpen(true);
-                          setOwnershipUserId("");
-                          await handleOwnershipUserSearch(e.target.value);
-                        }}
-                        onFocus={() => {
-                          if (ownershipUserSearch.length > 1) setOwnershipUserDropdownOpen(true);
-                        }}
-                        onBlur={() =>
-                          setTimeout(() => setOwnershipUserDropdownOpen(false), 150)
-                        }
-                        placeholder="Search user by name..."
-                        style={{
-                          marginRight: 8,
-                          padding: "10px 12px",
-                          borderRadius: 6,
-                          border: "1px solid #444",
-                          background: "#181818",
-                          color: "#fff",
-                          fontSize: "1rem",
-                          width: "280px",
-                        }}
-                      />
-                      {ownershipUserDropdownOpen && ownershipUserResults.length > 0 && (
-                        <ul
-                          style={{
-                            position: "absolute",
-                            left: 0,
-                            right: 0,
-                            top: 40,
-                            background: "#232323",
-                            border: "1px solid #444",
-                            borderRadius: 6,
-                            maxHeight: 200,
-                            overflowY: "auto",
-                            zIndex: 1001,
-                            listStyle: "none",
-                            margin: 0,
-                            padding: 0,
-                          }}
-                        >
-                          {ownershipUserResults.map((u) => (
-                            <li
-                              key={u.userId || u.user_id || u.id}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                                padding: "8px 12px",
-                                cursor: "pointer",
-                                borderBottom: "1px solid #333",
-                              }}
-                              onMouseDown={() => {
-                                setOwnershipUserId(u.userId || u.user_id || u.id);
-                                setOwnershipUserSearch(u.username);
-                                setOwnershipUserDropdownOpen(false);
-                              }}
-                            >
-                              <img
-                                src={`/avatar/${u.userId || u.user_id || u.id}`}
-                                alt="avatar"
-                                style={{ width: 28, height: 28, borderRadius: "50%" }}
-                                onError={(e) => (e.currentTarget.src = "/avatar/default.avif")}
-                              />
-                              <span style={{ color: "#fff" }}>{u.username}</span>
-                              <Certification
-                                user={u}
-                                style={{
-                                  width: 16,
-                                  height: 16,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                            </li>
-                          ))}
-                        </ul>
+
+                  {/* File Uploads */}
+                  <div className="md:col-span-2 space-y-4">
+                    <Divider />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Icône du jeu</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, "icon")}
+                          className="block w-full text-sm text-default-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-600"
+                        />
+                        {formData.iconHash && (
+                          <Image
+                          src={`/icon/${formData.iconHash}`}
+                          alt="Current icon"
+                          className="mt-2 w-16 h-16 rounded-lg"
+                          fallbackSrc="/assets/default-icon.png"
+                        />
                       )}
                     </div>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <button
-                        type="submit"
-                        disabled={ownershipLoading || !ownershipUserId}
-                        style={{
-                          background: "#333",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 6,
-                          fontWeight: 500,
-                          padding: "10px 24px",
-                          fontSize: "1rem",
-                          cursor: ownershipUserId ? "pointer" : "not-allowed",
-                        }}
-                      >
-                        {ownershipLoading ? "Transferring..." : "Transfer"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowOwnershipModal(false)}
-                        style={{
-                          background: "#222",
-                          border: "1px solid #444",
-                          color: "#fff",
-                          borderRadius: 6,
-                          padding: "10px 24px",
-                          fontSize: "1rem",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Cancel
-                      </button>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Bannière du jeu</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "banner")}
+                        className="block w-full text-sm text-default-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-600"
+                      />
+                      {formData.bannerHash && (
+                        <Image
+                          src={`/banner/${formData.bannerHash}`}
+                          alt="Current banner"
+                          className="mt-2 w-32 h-20 rounded-lg object-cover"
+                          fallbackSrc="/assets/default-banner.jpg"
+                        />
+                      )}
                     </div>
-                    {ownershipError && (
-                      <div style={{ color: "red", marginTop: 12 }}>
-                        {ownershipError}
-                      </div>
-                    )}
-                  </form>
+                  </div>
                 </div>
               </div>
             )}
-          </>
-        )}
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="danger"
+              variant="light"
+              onPress={onEditClose}
+              isDisabled={submitting}
+            >
+              Annuler
+            </Button>
+            <Button
+              color="primary"
+              type="submit"
+              isLoading={submitting}
+            >
+              {submitting ? "Mise à jour..." : "Mettre à jour"}
+            </Button>
+          </ModalFooter>
+        </form>
+      </ModalContent>
+    </Modal>
+
+    {/* Transfer Ownership Modal */}
+    <Modal
+      isOpen={isTransferOpen}
+      onClose={onTransferClose}
+      size="md"
+      backdrop="blur"
+      classNames={{
+        base: "bg-content1/95 backdrop-blur-md",
+        header: "border-b border-divider",
+        footer: "border-t border-divider",
+      }}
+    >
+      <ModalContent>
+        <ModalHeader>
+          <h3 className="text-xl font-bold">Transférer la propriété</h3>
+        </ModalHeader>
+        <ModalBody className="py-6">
+          {ownershipTransferGame && (
+            <div className="space-y-4">
+              <Card className="bg-content1/50">
+                <CardBody>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={ownershipTransferGame.iconHash ? `/icon/${ownershipTransferGame.iconHash}` : "/assets/default-icon.png"}
+                      className="w-12 h-12"
+                      fallback={
+                        <svg className="w-6 h-6 text-default-400" fill="currentColor" viewBox="0 0 256 256">
+                          <path d="M208,56H48A16,16,0,0,0,32,72V184a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V72A16,16,0,0,0,208,56ZM48,72H208V184H48Z"/>
+                        </svg>
+                      }
+                    />
+                    <div>
+                      <h4 className="font-semibold">{ownershipTransferGame.name}</h4>
+                      <p className="text-sm text-default-500">ID: {ownershipTransferGame.gameId}</p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+              
+              <div className="relative">
+                <Input
+                  label="Rechercher un utilisateur"
+                  placeholder="Tapez le nom d'utilisateur..."
+                  value={ownershipUserSearch}
+                  onChange={(e) => handleOwnershipUserSearchChange(e.target.value)}
+                  variant="bordered"
+                  startContent={
+                    <svg className="w-4 h-4 text-default-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  }
+                />
+                
+                {ownershipUserDropdownOpen && ownershipUserResults.length > 0 && (
+                  <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto">
+                    <CardBody className="p-0">
+                      {ownershipUserResults.map((user) => (
+                        <div
+                          key={user.userId || user.user_id || user.id}
+                          className="flex items-center gap-3 p-3 hover:bg-default-100 cursor-pointer transition-colors"
+                          onClick={() => {
+                            setOwnershipUserId(user.userId || user.user_id || user.id);
+                            setOwnershipUserSearch(user.username);
+                            setOwnershipUserDropdownOpen(false);
+                          }}
+                        >
+                          <Avatar
+                            src={`/avatar/${user.userId || user.user_id || user.id}`}
+                            className="w-8 h-8"
+                            fallback={user.username?.charAt(0).toUpperCase()}
+                          />
+                          <span className="text-sm">{user.username}</span>
+                        </div>
+                      ))}
+                    </CardBody>
+                  </Card>
+                )}
+              </div>
+              
+              {ownershipUserId && (
+                <Card className="bg-warning/10 border border-warning/20">
+                  <CardBody>
+                    <div className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-warning mt-0.5" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM128,72a8,8,0,0,1,8,8v56a8,8,0,0,1-16,0V80A8,8,0,0,1,128,72Zm8,112a12,12,0,1,1-12-12A12,12,0,0,1,136,184Z"/>
+                      </svg>
+                      <div className="text-sm">
+                        <p className="font-semibold mb-1">Attention !</p>
+                        <p>Cette action est irréversible. Une fois transféré, vous ne pourrez plus modifier ce jeu.</p>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              )}
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="danger"
+            variant="light"
+            onPress={onTransferClose}
+            isDisabled={transferOwnershipLoading}
+          >
+            Annuler
+          </Button>
+          <Button
+            color="warning"
+            onPress={handleTransferOwnership}
+            isLoading={transferOwnershipLoading}
+            isDisabled={!ownershipUserId}
+          >
+            {transferOwnershipLoading ? "Transfert..." : "Transférer"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+
+    {/* Delete Confirmation Modal */}
+    <Modal
+      isOpen={isDeleteOpen}
+      onClose={onDeleteClose}
+      size="md"
+      backdrop="blur"
+      classNames={{
+        base: "bg-content1/95 backdrop-blur-md",
+        header: "border-b border-divider",
+        footer: "border-t border-divider",
+      }}
+    >
+      <ModalContent>
+        <ModalHeader>
+          <h3 className="text-xl font-bold text-danger">Supprimer le jeu</h3>
+        </ModalHeader>
+        <ModalBody className="py-6">
+          {gameToDelete && (
+            <div className="space-y-4">
+              <Card className="bg-content1/50">
+                <CardBody>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={gameToDelete.iconHash ? `/icon/${gameToDelete.iconHash}` : "/assets/default-icon.png"}
+                      className="w-12 h-12"
+                      fallback={
+                        <svg className="w-6 h-6 text-default-400" fill="currentColor" viewBox="0 0 256 256">
+                          <path d="M208,56H48A16,16,0,0,0,32,72V184a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V72A16,16,0,0,0,208,56ZM48,72H208V184H48Z"/>
+                        </svg>
+                      }
+                    />
+                    <div>
+                      <h4 className="font-semibold">{gameToDelete.name}</h4>
+                      <p className="text-sm text-default-500">{gameToDelete.description}</p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+              
+              <Card className="bg-danger/10 border border-danger/20">
+                <CardBody>
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-danger mt-0.5" fill="currentColor" viewBox="0 0 256 256">
+                      <path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM128,72a8,8,0,0,1,8,8v56a8,8,0,0,1-16,0V80A8,8,0,0,1,128,72Zm8,112a12,12,0,1,1-12-12A12,12,0,0,1,136,184Z"/>
+                    </svg>
+                    <div className="text-sm">
+                      <p className="font-semibold mb-1">Cette action est irréversible !</p>
+                      <p>Le jeu sera définitivement supprimé de la plateforme. Toutes les données associées seront perdues.</p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="default"
+            variant="light"
+            onPress={onDeleteClose}
+          >
+            Annuler
+          </Button>
+          <Button
+            color="danger"
+            onPress={handleDelete}
+            startContent={
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            }
+          >
+            Supprimer définitivement
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+
+    {/* Floating Action Button */}
+    <div className="fixed bottom-8 right-8 z-40">
+      <Tooltip content="Publier un nouveau jeu" placement="left">
+        <Button
+          as={Link}
+          href="/publish"
+          color="primary"
+          size="lg"
+          isIconOnly
+          className="w-14 h-14 shadow-lg hover:shadow-xl transition-shadow"
+          radius="full"
+        >
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </Button>
+      </Tooltip>
+    </div>
+
+    {/* Footer Links */}
+    <div className="relative z-10 mt-16 pb-8">
+      <div className="container mx-auto px-4">
+        <Card className="bg-content1/60 backdrop-blur-md">
+          <CardBody className="text-center py-6">
+            <div className="flex flex-wrap justify-center items-center gap-6">
+              <Link 
+                href="/explore?categoryId=1" 
+                className="text-default-500 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M208,56H48A16,16,0,0,0,32,72V184a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V72A16,16,0,0,0,208,56ZM48,72H208V184H48Z"/>
+                </svg>
+                Outils
+              </Link>
+              <Link 
+                href="/explore?categoryId=2" 
+                className="text-default-500 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+                </svg>
+                OS
+              </Link>
+              <Link 
+                href="/explore?categoryId=3" 
+                className="text-default-500 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48ZM32,64H224V88H32ZM32,192V104H224v88Z"/>
+                </svg>
+                Kits
+              </Link>
+            </div>
+            <Divider className="my-4" />
+            <p className="text-default-400 text-sm">
+              Gérez vos jeux publiés sur Koalyx
+            </p>
+          </CardBody>
+        </Card>
       </div>
-    </>
-  );
+    </div>
+  </div>
+);
 };
 
 export default MyGames;
