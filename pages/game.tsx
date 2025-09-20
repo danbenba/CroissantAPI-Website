@@ -270,15 +270,24 @@ export default function GameDetailPage() {
   // Pour éviter les appels multiples (persistant entre Fast Refresh)
   const getViewRecordedKey = () => `view_recorded_${gameId}`
   const isViewRecorded = () => {
-    if (!gameId) return false
-    return localStorage.getItem(getViewRecordedKey()) === 'true'
+    if (!gameId || typeof window === 'undefined') return false
+    try {
+      return localStorage.getItem(getViewRecordedKey()) === 'true'
+    } catch (error) {
+      console.warn('Erreur localStorage:', error)
+      return false
+    }
   }
   const setViewRecorded = (value: boolean) => {
-    if (!gameId) return
-    if (value) {
-      localStorage.setItem(getViewRecordedKey(), 'true')
-    } else {
-      localStorage.removeItem(getViewRecordedKey())
+    if (!gameId || typeof window === 'undefined') return
+    try {
+      if (value) {
+        localStorage.setItem(getViewRecordedKey(), 'true')
+      } else {
+        localStorage.removeItem(getViewRecordedKey())
+      }
+    } catch (error) {
+      console.warn('Erreur localStorage:', error)
     }
   }
 
@@ -317,9 +326,20 @@ export default function GameDetailPage() {
   useEffect(() => {
     if (gameId) {
       fetchGameDetails()
-      incrementGameView()
     }
   }, [gameId])
+
+  // --- Incrémenter les vues après le chargement du jeu ---
+  useEffect(() => {
+    if (game && gameId && !isViewRecorded()) {
+      // Délai pour s'assurer que le localStorage est disponible
+      const timer = setTimeout(() => {
+        incrementGameView()
+      }, 100)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [game, gameId])
 
   // Reset viewRecorded quand gameId change
   useEffect(() => {
@@ -358,14 +378,26 @@ export default function GameDetailPage() {
 
   // --- Fonction pour incrémenter les vues du jeu ---
   const incrementGameView = async () => {
-    // Éviter les appels multiples
-    if (isViewRecorded() || !gameId) {
-      console.log('🚫 Vue déjà enregistrée ou gameId manquant')
+    // Vérifications multiples pour éviter les appels en double
+    if (!gameId || !game) {
+      console.log('🚫 gameId ou game manquant')
+      return
+    }
+    
+    if (isViewRecorded()) {
+      console.log('🚫 Vue déjà enregistrée pour ce jeu')
+      return
+    }
+    
+    // Vérifier côté client uniquement
+    if (typeof window === 'undefined') {
+      console.log('🚫 Côté serveur, pas d\'incrémentation de vue')
       return
     }
     
     try {
-      setViewRecorded(true) // Marquer comme enregistré
+      // Marquer immédiatement comme enregistré pour éviter les appels multiples
+      setViewRecorded(true)
       console.log('📝 Enregistrement de la vue pour le jeu:', gameId)
       
       // Enregistrer la vue via l'API Croissant
@@ -378,14 +410,14 @@ export default function GameDetailPage() {
       
       if (response.ok) {
         const data = await response.json()
-        console.log('👁️ Vue du jeu comptabilisée:', data)
+        console.log('👁️ Vue du jeu comptabilisée avec succès:', data)
       } else {
         console.warn('Erreur lors de l\'enregistrement de la vue:', response.status)
-        setViewRecorded(false) // Réinitialiser en cas d'erreur
+        // Ne pas réinitialiser en cas d'erreur pour éviter les tentatives multiples
       }
     } catch (error) {
       console.error('Erreur lors de l\'incrémentation des vues:', error)
-      setViewRecorded(false) // Réinitialiser en cas d'erreur
+      // Ne pas réinitialiser en cas d'erreur pour éviter les tentatives multiples
     }
   }
 
@@ -749,13 +781,16 @@ export default function GameDetailPage() {
   // Fonction pour acheter un jeu
   const handleBuyGame = async () => {
     if (!game) return
-    setPrompt(`Acheter "${game.title}"?\nPrix: ${game.price} crédits`)
+    const price = game.price || 0
+    const priceText = price > 0 ? `${price} crédits` : 'Gratuit'
+    setPrompt(`Acheter "${game.title}"?\nPrix: ${priceText}`)
   }
 
   const confirmBuy = async () => {
     setPrompt(null)
     setBuying(true)
     try {
+      console.log('🛒 Tentative d\'achat du jeu:', game?.title, 'Prix:', game?.price || 0)
       const res = await fetch(`/api/games/${game.gameId}/buy`, {
         method: "POST",
         headers: {
@@ -764,11 +799,13 @@ export default function GameDetailPage() {
         },
       })
       const data = await res.json()
+      console.log('📦 Réponse de l\'achat:', res.status, data)
       if (!res.ok) throw new Error(data.message || "Échec de l'achat du jeu")
       setAlert("Jeu acheté avec succès !")
       // Recharger les données pour mettre à jour le statut de possession
       fetchGameDetails()
     } catch (err: any) {
+      console.error('❌ Erreur lors de l\'achat:', err)
       setAlert(err.message || "Erreur lors de l'achat")
     } finally {
       setBuying(false)
@@ -1189,33 +1226,17 @@ export default function GameDetailPage() {
                     ) : (
                       <Button
                         color="success"
-                        variant="flat"
+                        variant="shadow"
                         startContent={
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34Z"></path>
+                            <path d="M128,24A104,104,0,1,0,232,128,104.13,104.13,0,0,0,128,24Zm40,112H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32a8,8,0,0,1,0,16Z"></path>
                           </svg>
                         }
-                        className="cursor-default"
-                        disabled
+                        onPress={handleBuyGame}
+                        isLoading={buying}
+                        className="bg-success text-success-foreground"
                       >
                         Gratuit
-                      </Button>
-                    )}
-                    
-                    {/* Bouton Offrir */}
-                    {user && game?.price && game.price > 0 && (
-                      <Button
-                        color="warning"
-                        variant="flat"
-                        startContent={
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
-                            <path d="M216,72H180.92c.39-.33.79-.65,1.17-1A29.53,29.53,0,0,0,192,49.57,32.62,32.62,0,0,0,158.44,16,29.53,29.53,0,0,0,137,26.08a29.53,29.53,0,0,0-21.44-10.08A32.62,32.62,0,0,0,82,49.57,29.53,29.53,0,0,0,92.08,71c.38.33.78.65,1.17,1H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V88A16,16,0,0,0,216,72ZM158.44,32a16.62,16.62,0,0,1,17.56,16.62A13.53,13.53,0,0,1,170.08,64H146.08A13.53,13.53,0,0,1,140.16,48.62,16.62,16.62,0,0,1,158.44,32ZM97.56,32A16.62,16.62,0,0,1,115.84,48.62,13.53,13.53,0,0,1,109.92,64H85.92A13.53,13.53,0,0,1,80,48.62,16.62,16.62,0,0,1,97.56,32ZM40,88H216V136H40ZM40,152H216v48H40Z"></path>
-                          </svg>
-                        }
-                        onPress={handleGiftGame}
-                        className="bg-warning text-warning-foreground"
-                      >
-                        Offrir
                       </Button>
                     )}
                   </>

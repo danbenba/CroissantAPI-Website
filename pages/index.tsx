@@ -199,7 +199,7 @@ export default function HomePage() {
         
         if (Array.isArray(gamesData)) {
           // Enrichir les jeux avec les infos studio
-          const enrichedGames = await Promise.all(gamesData.slice(0, 6).map(async (game: any) => {
+          const enrichedGames = await Promise.all(gamesData.map(async (game: any) => {
             // Récupérer les infos du studio/propriétaire si disponible
             let studioInfo = null
             if (game.owner_id) {
@@ -220,7 +220,8 @@ export default function HomePage() {
               access_level: 'free' as const,
               category_id: 1,
               year: 2023,
-              created_at: new Date().toISOString(),
+              created_at: game.created_at || new Date().toISOString(),
+              updated_at: game.updated_at || game.created_at || new Date().toISOString(),
               // Données de l'API
               badges: game.badges || [],
               views: game.views?.total_views || 0,
@@ -240,6 +241,23 @@ export default function HomePage() {
           }))
           
           setGames(enrichedGames);
+          
+          // Debug: Afficher les jeux et leurs badges
+          console.log('🎮 Jeux chargés:', enrichedGames.length);
+          const allBadges = new Set();
+          enrichedGames.forEach((game, index) => {
+            if (game.badges && game.badges.length > 0) {
+              console.log(`Jeu ${index + 1}: ${game.title}`, {
+                badges: game.badges.map(b => ({ name: b.name, display_name: b.display_name })),
+                created_at: game.created_at,
+                updated_at: game.updated_at
+              });
+              game.badges.forEach(badge => allBadges.add(badge.name));
+            }
+          });
+          console.log('🏷️ Tous les badges trouvés:', Array.from(allBadges));
+          const gamesWithBadges = enrichedGames.filter(game => game.badges && game.badges.length > 0);
+          console.log('🎯 Jeux avec badges:', gamesWithBadges.length, 'sur', enrichedGames.length);
         }
       }
     } catch (error) {
@@ -328,23 +346,41 @@ export default function HomePage() {
     }
   }
 
+  // Fonction utilitaire pour rendre les badges (identique à game-shop.tsx)
+  const renderGameBadges = (badges: any[]) => {
+    if (!badges || badges.length === 0) return null
+    
+    return badges.map((badge) => (
+      <Chip 
+        key={badge.id}
+        size="sm" 
+        variant="shadow" 
+        startContent={<span dangerouslySetInnerHTML={{ __html: badge.icon }} />}
+        className={`${
+          badge.name === 'nouveaute' ? 'bg-gradient-to-r from-red-500 to-pink-600' :
+          badge.name === 'mise-a-jour' ? 'bg-gradient-to-r from-orange-500 to-yellow-600' :
+          badge.name === 'exclusif' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' :
+          'bg-gradient-to-r from-blue-500 to-purple-600'
+        } text-white font-semibold`}
+      >
+        {badge.display_name}
+      </Chip>
+    ))
+  }
+
   // Obtenir les jeux avec le badge "Nouveauté" (triés par date de création)
   const getNewGames = () => {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    return [...games]
+    const newGames = [...games]
       .filter(game => {
         // Vérifier si le jeu a le badge "nouveaute"
         const hasNouveauteBadge = game.badges && game.badges.some(badge => badge.name === 'nouveaute')
-        if (!hasNouveauteBadge) return false
-        
-        // Vérifier la date de création (dans les 30 derniers jours)
-        const createdAt = new Date(game.created_at)
-        return createdAt > thirtyDaysAgo
+        return hasNouveauteBadge
       })
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 6)
+    
+    console.log('🆕 Jeux avec badge nouveauté:', newGames.length, newGames.map(g => g.title));
+    return newGames
   }
 
   // Obtenir les jeux les plus vus (tendances)
@@ -362,21 +398,17 @@ export default function HomePage() {
 
   // Obtenir les jeux récemment mis à jour (uniquement ceux avec le badge "Mise à jour")
   const getRecentlyUpdatedGames = () => {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    return [...games]
+    const updatedGames = [...games]
       .filter(game => {
         // Vérifier si le jeu a le badge "mise-a-jour"
         const hasUpdateBadge = game.badges && game.badges.some(badge => badge.name === 'mise-a-jour')
-        if (!hasUpdateBadge) return false
-        
-        // Vérifier la date de mise à jour
-        const updatedAt = new Date(game.updated_at || game.created_at)
-        return updatedAt > thirtyDaysAgo
+        return hasUpdateBadge
       })
       .sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime())
       .slice(0, 4)
+    
+    console.log('🔄 Jeux avec badge mise à jour:', updatedGames.length, updatedGames.map(g => g.title));
+    return updatedGames
   }
 
   // Gérer le clic sur un jeu dans la liste
@@ -695,22 +727,7 @@ export default function HomePage() {
                   {/* Badges du haut */}
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
                     {/* Badges de jeu de la DB */}
-                    {game.badges && game.badges.map((badge) => (
-                      <Chip 
-                        key={badge.id}
-                        size="sm" 
-                        variant="shadow" 
-                        startContent={<span dangerouslySetInnerHTML={{ __html: badge.icon }} />}
-                        className={`${
-                          badge.name === 'nouveaute' ? 'bg-gradient-to-r from-red-500 to-pink-600' :
-                          badge.name === 'mise-a-jour' ? 'bg-gradient-to-r from-orange-500 to-yellow-600' :
-                          badge.name === 'exclusif' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' :
-                          'bg-gradient-to-r from-blue-500 to-purple-600'
-                        } text-white font-semibold`}
-                      >
-                        {badge.display_name}
-                      </Chip>
-                    ))}
+                    {renderGameBadges(game.badges)}
 
                     {/* Badge de position pour les tendances */}
                     <Chip 
@@ -811,23 +828,7 @@ export default function HomePage() {
                     {/* Badges du haut */}
                     <div className="absolute top-4 right-4 z-20 flex gap-2">
                       {/* Badges de jeu de la DB */}
-                      {game.badges && game.badges.map((badge) => (
-                        <Chip 
-                          key={badge.id}
-                          size="sm" 
-                          variant="shadow" 
-                          startContent={<span dangerouslySetInnerHTML={{ __html: badge.icon }} />}
-                          className={`${
-                            badge.name === 'nouveaute' ? 'bg-gradient-to-r from-red-500 to-pink-600' :
-                            badge.name === 'mise-a-jour' ? 'bg-gradient-to-r from-orange-500 to-yellow-600' :
-                            badge.name === 'exclusif' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' :
-                            'bg-gradient-to-r from-blue-500 to-purple-600'
-                          } text-white font-semibold`}
-                        >
-                          {badge.display_name}
-                        </Chip>
-                      ))}
-
+                      {renderGameBadges(game.badges)}
                     </div>
 
                     <img 
@@ -919,22 +920,7 @@ export default function HomePage() {
                   {/* Badges du haut */}
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
                     {/* Badges de jeu de la DB */}
-                    {game.badges && game.badges.map((badge) => (
-                      <Chip 
-                        key={badge.id}
-                        size="sm" 
-                        variant="shadow" 
-                        startContent={<span dangerouslySetInnerHTML={{ __html: badge.icon }} />}
-                        className={`${
-                          badge.name === 'nouveaute' ? 'bg-gradient-to-r from-red-500 to-pink-600' :
-                          badge.name === 'mise-a-jour' ? 'bg-gradient-to-r from-orange-500 to-yellow-600' :
-                          badge.name === 'exclusif' ? 'bg-gradient-to-r from-purple-500 to-indigo-600' :
-                          'bg-gradient-to-r from-blue-500 to-purple-600'
-                        } text-white font-semibold`}
-                      >
-                        {badge.display_name}
-                      </Chip>
-                    ))}
+                    {renderGameBadges(game.badges)}
                   </div>
                   <img 
                     loading="lazy" 
